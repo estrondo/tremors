@@ -1,2 +1,2 @@
 # tremors
-Tremors is an scala application to collect and organize information about earthquakes around the world.
+Tremors is a scala application to collect and organize information about earthquakes around the world.
