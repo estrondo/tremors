@@ -16,8 +16,11 @@ lazy val root = (project in file("."))
 lazy val `graboid` = (project in file("graboid"))
   .settings(
     name := "graboid",
-    libraryDependencies ++=
-      Dependencies.ZIO
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZIOLogging,
+      Dependencies.ZIOConfig
+    ).flatten
   )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
