@@ -5,7 +5,7 @@ import zio.logging.backend.SLF4J
 
 object LoggerModule:
 
-  def apply(): LoggerModule = new LoggerModuleImpl()
+  def apply(): LoggerModule = LoggerModuleImpl()
 
 trait LoggerModule:
 

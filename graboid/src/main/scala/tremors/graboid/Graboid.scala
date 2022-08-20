@@ -16,10 +16,10 @@ object Graboid extends ZIOAppDefault {
     for
       logger       <- LoggerModule().logger
       configSource <- ConfigModule().configSource
-      exitCode     <- start(configSource).provideLayer(logger)
+      exitCode     <- application(configSource).provideLayer(logger)
     yield exitCode
 
-  def start(configSource: ConfigSource): UIO[ExitCode] =
+  def application(configSource: ConfigSource): UIO[ExitCode] =
     for _ <- ZIO.logInfo("Graboid is starting, please keep yourself away from them 🪱.")
     yield ExitCode.success
 }
