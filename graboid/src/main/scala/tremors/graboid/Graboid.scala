@@ -20,6 +20,6 @@ object Graboid extends ZIOAppDefault {
     yield exitCode
 
   def application(configSource: ConfigSource): UIO[ExitCode] =
-    for _ <- ZIO.logInfo("Graboid is starting, please keep yourself away from them 🪱.")
+    for _ <- ZIO.logInfo(s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱.")
     yield ExitCode.success
 }

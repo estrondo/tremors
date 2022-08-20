@@ -1,6 +1,6 @@
-
 ThisBuild / organization := "com.github.estrondo.tremors"
 ThisBuild / scalaVersion := "3.1.3"
+ThisBuild / isSnapshot   := true
 
 lazy val root = (project in file("."))
   .settings(
@@ -21,6 +21,10 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.ZIOConfig
     ).flatten
   )
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoPackage := "tremors.graboid"
+  )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
   .settings(
@@ -34,6 +38,5 @@ lazy val `webapp1` = (project in file("webapp1"))
     name := "webapp1",
     libraryDependencies ++=
       Dependencies.ZHttp
-
   )
   .dependsOn(`webapp-core`)
