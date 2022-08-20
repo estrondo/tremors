@@ -29,6 +29,8 @@ object Dependencies {
   )
 
   val ZIOConfig = Seq(
-    "dev.zio" %% "zio-config" % ZIOConfigVersion
+    "dev.zio" %% "zio-config" % ZIOConfigVersion,
+    "dev.zio" %% "zio-config-magnolia" % ZIOConfigVersion,
+    "dev.zio" %% "zio-config-typesafe" % ZIOConfigVersion
   )
 }
