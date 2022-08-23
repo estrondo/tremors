@@ -7,7 +7,6 @@ import zio.UIO
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
-import zio._
 import zio.config.ConfigSource
 
 object Graboid extends ZIOAppDefault {
@@ -15,7 +14,7 @@ object Graboid extends ZIOAppDefault {
   override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
     for
       logger       <- LoggerModule().logger
-      configSource <- ConfigModule().configSource
+      configSource <- ConfigModule().configSource.provideLayer(logger)
       exitCode     <- application(configSource).provideLayer(logger)
     yield exitCode
 

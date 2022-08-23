@@ -1,6 +1,12 @@
 ThisBuild / organization := "com.github.estrondo.tremors"
 ThisBuild / scalaVersion := "3.1.3"
 ThisBuild / isSnapshot   := true
+ThisBuild / version ~= (_.replace('+', '-'))
+ThisBuild / dynver ~= (_.replace('+', '-'))
+
+ThisBuild / scalacOptions ++= Seq(
+  "--explain"
+)
 
 lazy val root = (project in file("."))
   .settings(
@@ -17,13 +23,23 @@ lazy val `graboid` = (project in file("graboid"))
     name := "graboid",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
+      Dependencies.ZHttp,
       Dependencies.ZIOLogging,
-      Dependencies.ZIOConfig
-    ).flatten
+      Dependencies.ZIOConfig,
+      Dependencies.ZIOMock
+    ).flatten,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoPackage := "tremors.graboid"
+  )
+  .enablePlugins(AshScriptPlugin)
+  .enablePlugins(GraalVMNativeImagePlugin)
+  .enablePlugins(DockerPlugin)
+  .settings(
+    dockerBaseImage    := "eclipse-temurin:17-jdk-alpine",
+    dockerUpdateLatest := true
   )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
