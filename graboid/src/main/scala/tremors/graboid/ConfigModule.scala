@@ -27,26 +27,22 @@ private class ConfigModuleImpl extends ConfigModule:
   def configSource: Task[ConfigSource] =
     for
       _             <- ZIO.logInfo("Loading application configuration.")
-      application   <- loadTypeSafeApplication()
       envProfie     <- System.env("GRABOID_PROFILE")
       configuration <- envProfie match
-                         case Some(profile) => loadProfile(profile.toLowerCase(), application)
-                         case None          => ZIO.succeed(application)
+                         case Some(profile) => loadProfile(profile.toLowerCase())
+                         case None          => ZIO.attemptBlockingIO(defaultApplicationConfig)
     yield TypesafeConfigSource.fromTypesafeConfig(ZIO.succeed(configuration))
 
-  private def loadTypeSafeApplication(): Task[Config] =
-    ZIO.attemptBlockingIO {
-      ConfigFactory.defaultApplication(parseOptions)
-    }
+  private def defaultApplicationConfig = ConfigFactory.defaultApplication(parseOptions)
 
-  private def loadProfile(profile: String, application: Config): Task[Config] =
+  private def loadProfile(profile: String): Task[Config] =
     for
-      _      <- ZIO.logDebug(s"Loading profile [$profile].")
+      _      <- ZIO.logInfo(s"Loading profile [$profile].")
       config <- ZIO.attemptBlockingIO {
                   try
                     ConfigFactory
-                      .parseResources(s"$profile.conf", parseOptions)
-                      .withFallback(application)
+                      .parseResources(s"$profile-profile.conf", parseOptions)
+                      .withFallback(defaultApplicationConfig)
                   catch
                     case cause: Exception =>
                       throw GraboidException.NotFound(s"Impossible to load $profile!", cause)

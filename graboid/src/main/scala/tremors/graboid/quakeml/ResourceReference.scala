@@ -2,4 +2,9 @@ package tremors.graboid.quakeml
 
 import java.net.URI
 
-case class ResourceReference(resourceID: URI)
+opaque type ResourceReference = URI
+
+def newResourceReference(value: String | URI): ResourceReference = 
+  value match
+    case string: String => new URI(string)
+    case uri: URI => uri

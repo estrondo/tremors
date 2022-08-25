@@ -8,6 +8,7 @@ import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
 import zio.config.ConfigSource
+import zhttp.service.Client
 
 object Graboid extends ZIOAppDefault {
 

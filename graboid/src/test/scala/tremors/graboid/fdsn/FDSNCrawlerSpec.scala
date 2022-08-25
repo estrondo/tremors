@@ -1,23 +1,16 @@
 package tremors.graboid.fdsn
 
-import tremors.graboid.Spec
-import zio.Scope
-import zio.test.TestEnvironment
-import zio.test
-import zio.ZIO
-import zio.test.*
-import java.net.URL
-import zio.{ULayer, URLayer, Task}
-import zhttp.service.ChannelFactory
-import zhttp.service.EventLoopGroup
-import tremors.graboid.HttpService
-import zio.mock.{Mock, Proxy}
+import tremors.graboid.{CrawlerTimeline, HttpService, Spec, WithHttpLayer, WithHttpServiceLayer}
 import zhttp.http.Response
-import zio.ZLayer
-import tremors.graboid.MockHttpService
-import zio.mock.Expectation
+import zhttp.service.{ChannelFactory, EventLoopGroup}
+import zio.{test, Scope, Task, ULayer, URLayer, ZIO, ZLayer}
+import zio.stream.ZSink
+import zio.test.*
 
-object FDSNCrawlerSpec extends Spec:
+import java.net.URL
+import java.time.ZonedDateTime
+
+object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
   def spec = suite("FDSN Crawler Spec") {
 
@@ -27,20 +20,18 @@ object FDSNCrawlerSpec extends Spec:
         query = Some(URL("http://localhost"))
       )
 
-      val layer: ULayer[HttpService] = MockHttpService
-        .GetRequest(
-          assertion = Assertion.equalTo(URL("http://localhost")),
-          result = Expectation.value(Response.ok)
-        )
-        .toLayer
-
       val parserFactory = new QuakeMLParserFactory:
-        override def apply(): QuakeMLParser = 
+        override def apply(): QuakeMLParser =
           throw new IllegalStateException("@@@")
 
-      val crawler = FDSNCrawler(config, layer, parserFactory)
+      val timeline = new CrawlerTimeline():
+        override def lastUpdate: Task[Option[ZonedDateTime]] = ZIO.none
 
-      for stream <- crawler.crawl()
-      yield assertTrue(stream ne null)
+      val crawler = FDSNCrawler(config, httpServiceLayer, timeline, parserFactory)
+
+      for
+        stream <- crawler.crawl()
+        x      <- stream.run(ZSink.count)
+      yield assertTrue(x == 0L)
     }
   }
