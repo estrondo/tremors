@@ -48,4 +48,8 @@ object Dependencies {
   val LemonScalaUri = Seq(
     "io.lemonlabs" %% "scala-uri" % LemonScalaUriVersion
   )
+
+  val Testcontainers = Seq(
+    "com.dimafeng" %% "testcontainers-scala-core" % "0.40.10" % Test
+  )
 }

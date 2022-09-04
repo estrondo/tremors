@@ -7,7 +7,8 @@ ThisBuild / dynver ~= (_.replace('+', '-'))
 
 ThisBuild / scalacOptions ++= Seq(
   "--explain",
-  "-feature"
+  "-feature",
+  "-language:implicitConversions"
 )
 
 lazy val root = (project in file("."))
@@ -28,7 +29,8 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.ZHttp,
       Dependencies.ZIOLogging,
       Dependencies.ZIOConfig,
-      Dependencies.LemonScalaUri
+      Dependencies.LemonScalaUri,
+      Dependencies.Testcontainers
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
