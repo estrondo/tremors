@@ -1,9 +1,11 @@
 ThisBuild / organization := "com.github.estrondo.tremors"
 ThisBuild / scalaVersion := "3.1.3"
 ThisBuild / isSnapshot   := true
-Test / fork              := true
+ThisBuild / Test / fork  := true
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
+
+Test / run / javaOptions += "-Dtremors.profile=test"
 
 ThisBuild / scalacOptions ++= Seq(
   "--explain",
@@ -45,6 +47,9 @@ lazy val `graboid` = (project in file("graboid"))
     dockerBaseImage    := "eclipse-temurin:17-jdk-alpine",
     dockerUpdateLatest := true
   )
+  .dependsOn(
+    logging
+  )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
   .settings(
@@ -60,3 +65,11 @@ lazy val `webapp1` = (project in file("webapp1"))
       Dependencies.ZHttp
   )
   .dependsOn(`webapp-core`)
+
+lazy val `logging` = (project in file("logging"))
+  .settings(
+    name := "logging",
+    libraryDependencies ++= Seq(
+      Dependencies.Logack
+    ).flatten
+  )
