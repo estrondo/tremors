@@ -52,4 +52,8 @@ object Dependencies {
   val Testcontainers = Seq(
     "com.dimafeng" %% "testcontainers-scala-core" % "0.40.10" % Test
   )
+
+  val Logack = Seq(
+    "ch.qos.logback" % "logback-classic" % "1.4.0"
+  )
 }
