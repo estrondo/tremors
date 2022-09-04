@@ -26,11 +26,12 @@ private class ConfigModuleImpl extends ConfigModule:
 
   def configSource: Task[ConfigSource] =
     for
-      _             <- ZIO.logInfo("Loading application configuration.")
-      envProfie     <- System.env("GRABOID_PROFILE")
-      configuration <- envProfie match
-                         case Some(profile) => loadProfile(profile.toLowerCase())
-                         case None          => ZIO.attemptBlockingIO(defaultApplicationConfig)
+      _               <- ZIO.logInfo("Loading application configuration.")
+      propertyProfile <- System.property("tremors.profile")
+      envProfie       <- System.env("TREMORS_PROFILE")
+      configuration   <- propertyProfile.orElse(envProfie) match
+                           case Some(profile) => loadProfile(profile.toLowerCase())
+                           case None          => ZIO.attemptBlockingIO(defaultApplicationConfig)
     yield TypesafeConfigSource.fromTypesafeConfig(ZIO.succeed(configuration))
 
   private def defaultApplicationConfig = ConfigFactory.defaultApplication(parseOptions)
