@@ -1,4 +1,4 @@
-package tremors.graboid.quakeml
+package tremors.graboid.quakeml.model
 
 import java.time.ZonedDateTime
 

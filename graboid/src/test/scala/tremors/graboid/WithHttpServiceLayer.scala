@@ -8,4 +8,4 @@ trait WithHttpServiceLayer:
   self: WithHttpLayer =>
 
   def httpServiceLayer: ULayer[HttpService] =
-    HttpService.newLayer(httpLayer)
+    HttpService.auto(httpLayer)

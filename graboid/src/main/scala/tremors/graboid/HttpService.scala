@@ -10,21 +10,21 @@ import zhttp.service.Client
 
 trait HttpService:
 
-  def get(url: URL): Task[Response]
+  def get(url: String): Task[Response]
 
 object HttpService:
 
   type R = ChannelFactory & EventLoopGroup
 
-  def newLayer(layer: ULayer[R]): ULayer[HttpService] =
+  def auto(layer: ULayer[R]): ULayer[HttpService] =
     ZLayer.succeed(HttpServiceImpl(layer))
 
-  def get(url: URL): RIO[HttpService, Response] =
+  def get(url: String): RIO[HttpService, Response] =
     ZIO.serviceWithZIO[HttpService](_.get(url))
 
 private class HttpServiceImpl(layer: ULayer[HttpService.R]) extends HttpService:
 
-  override def get(url: URL): Task[Response] =
+  override def get(url: String): Task[Response] =
     Client
       .request(url.toString())
       .provideLayer(layer)

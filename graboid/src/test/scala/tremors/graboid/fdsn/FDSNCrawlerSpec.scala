@@ -1,47 +1,65 @@
 package tremors.graboid.fdsn
 
-import tremors.graboid.{CrawlerTimeline, HttpService, Spec, WithHttpLayer, WithHttpServiceLayer}
+import tremors.graboid.Crawler
+import tremors.graboid.CrawlerTimeline
+import tremors.graboid.DockerLayer
+import tremors.graboid.DockerLayer.given
+import tremors.graboid.HttpService
+import tremors.graboid.Spec
+import tremors.graboid.WithHttpLayer
+import tremors.graboid.WithHttpServiceLayer
+import tremors.graboid.quakeml.QuakeMLParser
+import tremors.graboid.quakeml.QuakeMLParserFactory
 import zhttp.http.Response
-import zhttp.service.{ChannelFactory, EventLoopGroup}
-import zio.{test, Scope, Task, ULayer, URLayer, ZIO, ZLayer}
+import zhttp.service.ChannelFactory
+import zhttp.service.EventLoopGroup
+import zio.Cause
+import zio.Scope
+import zio.StackTrace
+import zio.Task
+import zio.ULayer
+import zio.URLayer
+import zio.ZIO
+import zio.ZLayer
 import zio.stream.ZSink
+import zio.stream.ZStream
+import zio.test
 import zio.test.*
 
 import java.net.URL
 import java.time.ZonedDateTime
-import tremors.graboid.DockerLayer
-import tremors.graboid.DockerLayer.given
 
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
+  val ExposedMockserverPort = 1090
+
   def spec = suite("FDSN Crawler Spec")(
     test("should fetch some events correctly.") {
-      val parserFactory = new QuakeMLParserFactory:
-        override def apply(): QuakeMLParser =
-          throw new IllegalStateException("@@@")
-
       val timeline = new CrawlerTimeline():
         override def lastUpdate: Task[Option[ZonedDateTime]] = ZIO.none
 
       for
-        port   <- DockerLayer.port(8080)
+        port   <- DockerLayer.singleContainerPort(ExposedMockserverPort)
         config  = FDSNCrawler.Config(
                     organization = "testable",
-                    query = Some(URL(s"http://localhost:$port"))
+                    queryURL = URL(s"http://localhost:$port/fdsnws/event/1/query")
                   )
-        crawler = FDSNCrawler(config, httpServiceLayer, timeline, parserFactory)
-        stream <- crawler.crawl()
-        count  <- stream.runCount
-      yield assertTrue(count == 0L)
+        crawler = FDSNCrawler(config, httpServiceLayer, timeline, QuakeMLParserFactory())
+        stream <- crawler.crawl().orDieWith(identity)
+        count  <- stream.runCount.orDieWith(identity)
+      yield assertTrue(count == 1L)
     }
-  ).provideLayerShared(
-    DockerLayer.createLayer(
-      DockerLayer.Def(
-        image = "mockserver/mockserver:5.14.0",
-        exposedPorts = Seq(8080),
-        volumes = Seq(
-          ("hello", "/hello")
-        )
+  ).provideLayerShared(dockerLayer)
+
+  def dockerLayer = DockerLayer.singleContainerLayer(
+    DockerLayer.Def(
+      image = "mockserver/mockserver:latest",
+      env = Map(
+        "SERVER_PORT" -> ExposedMockserverPort.toString()
+      ),
+      exposedPorts = Seq(ExposedMockserverPort),
+      volumes = Seq(
+        "src/test/mockserver/FDSNCrawlerSpec" -> "/config"
       )
     )
   )
