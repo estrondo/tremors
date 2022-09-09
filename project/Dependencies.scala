@@ -11,6 +11,7 @@ object Dependencies {
   val MUnitVersion         = "1.0.0-M6"
   val MUnitZIOVersion      = "0.1.0"
   val LemonScalaUriVersion = "4.0.2"
+  val LogbackVersion       = "1.4.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -36,7 +37,7 @@ object Dependencies {
   val ZIOLogging = Seq(
     "dev.zio"       %% "zio-logging"       % ZIOLoggingVersion,
     "dev.zio"       %% "zio-logging-slf4j" % ZIOLoggingVersion,
-    "ch.qos.logback" % "logback-classic"   % "1.3.0-beta0"
+    "ch.qos.logback" % "logback-classic"   % LogbackVersion
   )
 
   val ZIOConfig = Seq(
@@ -54,6 +55,6 @@ object Dependencies {
   )
 
   val Logack = Seq(
-    "ch.qos.logback" % "logback-classic" % "1.4.0"
+    "ch.qos.logback" % "logback-classic" % LogbackVersion
   )
 }

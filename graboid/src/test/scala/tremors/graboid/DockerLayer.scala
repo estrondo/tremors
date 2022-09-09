@@ -12,6 +12,7 @@ import org.testcontainers.containers.wait.strategy.WaitStrategy
 import org.testcontainers.containers.wait.strategy.Wait
 import com.dimafeng.testcontainers.GenericContainer.FileSystemBind
 import org.testcontainers.containers.BindMode
+import java.io.File
 
 object DockerLayer:
 
@@ -21,22 +22,22 @@ object DockerLayer:
   case class Def(
       image: String,
       exposedPorts: Seq[Int] = Nil,
-      env: Map[String, String] = Map.empty,
+      env: Map[String, String] =   Map.empty,
       waitStrategy: WaitStrategy = Wait.forListeningPort(),
       volumes: Seq[FileSystemBind] = Nil
   )
 
-  class Container(underling: GenericContainer):
+  class SingleContainer(underling: GenericContainer):
     underling.start()
 
     def stop(): Unit = underling.stop()
 
     def port(portNumber: Int) = underling.mappedPort(portNumber)
 
-  def createLayer(settings: Def): TaskLayer[Container] =
+  def singleContainerLayer(settings: Def): TaskLayer[SingleContainer] =
     ZLayer.scoped {
       val acquire = ZIO.attempt(
-        Container(
+        SingleContainer(
           GenericContainer(
             dockerImage = DockerImage(Left(settings.image)),
             env = settings.env,
@@ -47,9 +48,9 @@ object DockerLayer:
         )
       )
 
-      val release = (container: Container) => ZIO.attempt(container.stop()).ignoreLogged
+      val release = (container: SingleContainer) => ZIO.attempt(container.stop()).ignoreLogged
       ZIO.acquireRelease(acquire)(release)
     }
 
-  def port(portNumber: Int): URIO[Container, Int] =
-    ZIO.serviceWith[Container](_.port(portNumber))
+  def singleContainerPort(portNumber: Int): URIO[SingleContainer, Int] =
+    ZIO.serviceWith[SingleContainer](_.port(portNumber))

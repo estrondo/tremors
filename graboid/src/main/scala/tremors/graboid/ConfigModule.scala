@@ -28,8 +28,8 @@ private class ConfigModuleImpl extends ConfigModule:
     for
       _               <- ZIO.logInfo("Loading application configuration.")
       propertyProfile <- System.property("tremors.profile")
-      envProfie       <- System.env("TREMORS_PROFILE")
-      configuration   <- propertyProfile.orElse(envProfie) match
+      envProfile      <- System.env("TREMORS_PROFILE")
+      configuration   <- propertyProfile.orElse(envProfile) match
                            case Some(profile) => loadProfile(profile.toLowerCase())
                            case None          => ZIO.attemptBlockingIO(defaultApplicationConfig)
     yield TypesafeConfigSource.fromTypesafeConfig(ZIO.succeed(configuration))

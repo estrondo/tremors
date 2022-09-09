@@ -7,4 +7,4 @@ import zhttp.service.ChannelFactory
 trait WithHttpLayer:
 
   def httpLayer: ULayer[ChannelFactory & EventLoopGroup] =
-    ChannelFactory.nio ++ EventLoopGroup.auto(nThreads = 2)
+    ChannelFactory.nio ++ EventLoopGroup.nio(nThreads = 2)

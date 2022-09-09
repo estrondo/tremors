@@ -1,3 +1,3 @@
-package tremors.graboid.quakeml
+package tremors.graboid.quakeml.model
 
 case class EvaluationMode(value: String)
