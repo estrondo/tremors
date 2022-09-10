@@ -1,15 +1,13 @@
 package tremors.graboid.quakeml
 
-import zio.Chunk
+import zio.stream.ZStream
+import zio.Task
 import tremors.graboid.Crawler
-import tremors.graboid.Crawler.Info
 
 trait QuakeMLParser:
 
-  def evaluate(buffer: Seq[Byte]): Option[Crawler.Info]
+  def parse(stream: ZStream[Any, Throwable, Byte]): Task[Crawler.Stream]
 
 object QuakeMLParser:
-  def apply(): QuakeMLParser = QuakeMLParserImpl()
 
-private class QuakeMLParserImpl extends QuakeMLParser:
-  override def evaluate(buffer: Seq[Byte]): Option[Info] = ???
+  def apply(): QuakeMLParser = QuakeMLParserImpl()

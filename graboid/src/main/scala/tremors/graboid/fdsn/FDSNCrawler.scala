@@ -12,7 +12,6 @@ import tremors.graboid.UrlTypesafe.given
 import tremors.graboid.fdsn.FDSNCrawler.Config
 import tremors.graboid.given
 import tremors.graboid.quakeml.QuakeMLParser
-import tremors.graboid.quakeml.QuakeMLParserFactory
 import zhttp.http.Response
 import zhttp.http.Status.Ok
 import zhttp.service.ChannelFactory
@@ -50,22 +49,22 @@ class FDSNCrawler(
     config: Config,
     httpServiceLayer: ULayer[HttpService],
     timeline: CrawlerTimeline,
-    parserFactory: QuakeMLParserFactory
+    parser: QuakeMLParser
 ) extends Crawler:
 
   import FDSNCrawler.given
 
   override def crawl(): Task[Crawler.Stream] =
-    val result = for
-      url      <- parseUrl(config.queryURL)
-      _        <- ZIO.logInfo(s"Fetching events from ${config.organization} @ $url.")
-      response <- HttpService
-                    .get(url.toString)
-                    .provideLayer(httpServiceLayer)
-      stream   <- readStream(response)
-    yield stream
-
-    result.mapError(
+    (
+      for
+        url      <- parseUrl(config.queryURL)
+        _        <- ZIO.logInfo(s"Fetching events from ${config.organization} @ $url.")
+        response <- HttpService
+                      .get(url.toString)
+                      .provideLayer(httpServiceLayer)
+        stream   <- readStream(response)
+      yield stream
+    ).mapError(
       GraboidException.Unexpected(
         s"Impossible to fetch events from ${config.organization} @ ${config.queryURL}!",
         _
@@ -94,20 +93,10 @@ class FDSNCrawler(
   private def readStream(response: Response): Task[Crawler.Stream] =
     for
       bodyStream <- extractBodyStream(response)
-      parser     <- ZIO
-                      .fromTry(Try(parserFactory()))
-                      .catchAll(cause =>
-                        ZIO.fail(GraboidException.Unexpected("Unexpected parser exception!", cause))
-                      )
-      stream     <- ZIO.succeed {
-                      bodyStream
-                        .mapAccumZIO(Chunk.empty)(detectInfo(parser, _, _))
-                        .collect { case Some(info) => info }
-                    }
+      stream     <- parser.parse(bodyStream)
     yield stream
 
   private def extractBodyStream(response: Response): Task[ZStream[Any, Throwable, Byte]] =
-
     def toException(fn: String => GraboidException): Task[ZStream[Any, Throwable, Byte]] =
       response.bodyAsString.flatMap { body =>
         ZIO.fail(fn(body))
@@ -122,19 +111,3 @@ class FDSNCrawler(
       case s if s.isRedirection =>
         ZIO.fail(GraboidException.IllegalRequest(s"Redirect was rejected: ${response.location}."))
       case s                    => ZIO.fail(GraboidException.Unexpected(s"Unexpected status $s!"))
-
-  private def detectInfo(
-      parser: QuakeMLParser,
-      chunk: Chunk[Byte],
-      byte: Byte
-  ): Task[(Chunk[Byte], Option[Crawler.Info])] =
-    val newChunk = chunk :+ byte
-    Try(parser.evaluate(newChunk)) match
-      case Success(None) =>
-        ZIO.succeed((newChunk, None))
-
-      case Success(someInfo) =>
-        ZIO.succeed((Chunk.empty, someInfo))
-
-      case Failure(cause) =>
-        ZIO.fail(GraboidException.CrawlerException("Unexpected stream error!", cause))

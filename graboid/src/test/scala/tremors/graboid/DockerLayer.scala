@@ -23,7 +23,7 @@ object DockerLayer:
       image: String,
       exposedPorts: Seq[Int] = Nil,
       env: Map[String, String] =   Map.empty,
-      waitStrategy: WaitStrategy = Wait.forListeningPort(),
+      waitStrategy: WaitStrategy = Wait.defaultWaitStrategy(),
       volumes: Seq[FileSystemBind] = Nil
   )
 
