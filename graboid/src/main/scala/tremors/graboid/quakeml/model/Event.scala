@@ -27,5 +27,6 @@ case class Event(
     typeCertainty: Option[Event.TypeCertainty],
     description: Seq[Event.Description],
     comment: Seq[Comment],
-    creationInfo: Option[CreationInfo]
+    creationInfo: Option[CreationInfo],
+    magnitude: Seq[Magnitude]
 )

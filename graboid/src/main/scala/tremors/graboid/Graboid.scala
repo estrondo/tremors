@@ -12,7 +12,7 @@ import zhttp.service.Client
 
 object Graboid extends ZIOAppDefault {
 
-  override def run: ZIO[Any & (ZIOAppArgs & Scope), Any, Any] =
+  override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
       logger       <- LoggerModule().logger
       configSource <- ConfigModule().configSource.provideLayer(logger)

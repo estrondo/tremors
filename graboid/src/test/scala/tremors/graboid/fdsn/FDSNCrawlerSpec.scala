@@ -9,7 +9,6 @@ import tremors.graboid.Spec
 import tremors.graboid.WithHttpLayer
 import tremors.graboid.WithHttpServiceLayer
 import tremors.graboid.quakeml.QuakeMLParser
-import tremors.graboid.quakeml.QuakeMLParserFactory
 import zhttp.http.Response
 import zhttp.service.ChannelFactory
 import zhttp.service.EventLoopGroup
@@ -23,11 +22,11 @@ import zio.ZIO
 import zio.ZLayer
 import zio.stream.ZSink
 import zio.stream.ZStream
-import zio.test
 import zio.test.*
 
 import java.net.URL
 import java.time.ZonedDateTime
+import org.testcontainers.containers.wait.strategy.Wait
 
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
@@ -44,7 +43,7 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
                     organization = "testable",
                     queryURL = URL(s"http://localhost:$port/fdsnws/event/1/query")
                   )
-        crawler = FDSNCrawler(config, httpServiceLayer, timeline, QuakeMLParserFactory())
+        crawler = FDSNCrawler(config, httpServiceLayer, timeline, QuakeMLParser())
         stream <- crawler.crawl().orDieWith(identity)
         count  <- stream.runCount.orDieWith(identity)
       yield assertTrue(count == 1L)
@@ -60,6 +59,7 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
       exposedPorts = Seq(ExposedMockserverPort),
       volumes = Seq(
         "src/test/mockserver/FDSNCrawlerSpec" -> "/config"
-      )
+      ),
+      waitStrategy = Wait.forLogMessage(s".*port: $ExposedMockserverPort.*", 1)
     )
   )

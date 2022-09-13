@@ -12,6 +12,7 @@ object Dependencies {
   val MUnitZIOVersion      = "0.1.0"
   val LemonScalaUriVersion = "4.0.2"
   val LogbackVersion       = "1.4.0"
+  val AaltoXmlVersion      = "1.3.2"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -56,5 +57,9 @@ object Dependencies {
 
   val Logack = Seq(
     "ch.qos.logback" % "logback-classic" % LogbackVersion
+  )
+
+  val AaltoXml = Seq(
+    "com.fasterxml" % "aalto-xml" % AaltoXmlVersion
   )
 }
