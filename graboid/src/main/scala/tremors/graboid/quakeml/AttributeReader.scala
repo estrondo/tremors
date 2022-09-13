@@ -4,8 +4,8 @@ import tremors.graboid.quakeml.model.ResourceReference
 
 private[quakeml] object AttributeReader:
 
-  given AttributeReader[ResourceReference] = (proto, name) =>
-    ResourceReference(proto.attributes(name))
+  given AttributeReader[ResourceReference] = (element, name) =>
+    ResourceReference(element.attributes(name))
 
   def read[T: AttributeReader](attributeName: String, element: Element): T =
     try summon[AttributeReader[T]](element, attributeName)

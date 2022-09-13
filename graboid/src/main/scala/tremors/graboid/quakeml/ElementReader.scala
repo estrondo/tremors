@@ -50,7 +50,7 @@ private[quakeml] object ElementReader:
     Magnitude(
       publicID = AttributeReader.read("publicID", element),
       mag = ChildReader.read("mag", element),
-      `type` = ChildReader.read("`type`", element),
+      `type` = ChildReader.read("type", element),
       originID = ChildReader.read("originID", element),
       methodID = ChildReader.read("methodID", element),
       stationCount = ChildReader.read("stationCount", element),
