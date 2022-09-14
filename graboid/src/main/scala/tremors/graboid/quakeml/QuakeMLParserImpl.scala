@@ -40,7 +40,7 @@ private[quakeml] object QuakeMLParserImpl:
             case _: Child | _: Publishable =>
               Some(reader.createElement())
             case _                         =>
-              println(s"${"-" * nextDepth}> skiping ${nextNode.name}.")
+              // println(s"${"-" * nextDepth}> skiping ${nextNode.name}.")
               None
 
           val next = CurrentNode(nextNode, root, current.depth + 1, element)

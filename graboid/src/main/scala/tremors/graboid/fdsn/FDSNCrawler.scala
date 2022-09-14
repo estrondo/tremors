@@ -41,18 +41,12 @@ object FDSNCrawler:
       queryURL: URL
   )
 
-  given UriConfig = UriConfig(
-    renderQuery = ExcludeNones
-  )
-
 class FDSNCrawler(
     config: Config,
     httpServiceLayer: ULayer[HttpService],
     timeline: CrawlerTimeline,
     parser: QuakeMLParser
 ) extends Crawler:
-
-  import FDSNCrawler.given
 
   override def crawl(): Task[Crawler.Stream] =
     (
@@ -85,6 +79,10 @@ class FDSNCrawler(
     ZIO.succeed((None, None))
 
   private def parseUrl(originalURL: URL): Task[Url] =
+    given UriConfig = UriConfig(
+      renderQuery = ExcludeNones
+    )
+
     for
       url       <- ZIO.attempt(Url.parse(originalURL.toString()))
       parsedUrl <- includeParams(url)
@@ -97,17 +95,21 @@ class FDSNCrawler(
     yield stream
 
   private def extractBodyStream(response: Response): Task[ZStream[Any, Throwable, Byte]] =
-    def toException(fn: String => GraboidException): Task[ZStream[Any, Throwable, Byte]] =
+    def fail(fn: String => GraboidException): Task[ZStream[Any, Throwable, Byte]] =
       response.bodyAsString.flatMap { body =>
         ZIO.fail(fn(body))
       }
 
     response.status match
-      case s if s.isSuccess     => ZIO.succeed(response.bodyAsStream)
+      case s if s.isSuccess => ZIO.succeed(response.bodyAsStream)
+
       case s if s.isClientError =>
-        toException(body => GraboidException.IllegalRequest(s"$s: $body"))
+        fail(body => GraboidException.IllegalRequest(s"$s: $body"))
+
       case s if s.isServerError =>
-        toException(body => GraboidException.Unexpected(s"Server response ($s): $body"))
+        fail(body => GraboidException.Unexpected(s"Server response ($s): $body"))
+
       case s if s.isRedirection =>
         ZIO.fail(GraboidException.IllegalRequest(s"Redirect was rejected: ${response.location}."))
-      case s                    => ZIO.fail(GraboidException.Unexpected(s"Unexpected status $s!"))
+
+      case s => ZIO.fail(GraboidException.Unexpected(s"Unexpected status $s!"))

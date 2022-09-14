@@ -22,7 +22,7 @@ object DockerLayer:
   case class Def(
       image: String,
       exposedPorts: Seq[Int] = Nil,
-      env: Map[String, String] =   Map.empty,
+      env: Map[String, String] = Map.empty,
       waitStrategy: WaitStrategy = Wait.defaultWaitStrategy(),
       volumes: Seq[FileSystemBind] = Nil
   )
@@ -52,5 +52,5 @@ object DockerLayer:
       ZIO.acquireRelease(acquire)(release)
     }
 
-  def singleContainerPort(portNumber: Int): URIO[SingleContainer, Int] =
+  def getPort(portNumber: Int): URIO[SingleContainer, Int] =
     ZIO.serviceWith[SingleContainer](_.port(portNumber))

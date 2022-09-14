@@ -27,28 +27,45 @@ import zio.test.*
 import java.net.URL
 import java.time.ZonedDateTime
 import org.testcontainers.containers.wait.strategy.Wait
+import tremors.graboid.quakeml.model.Event
+import tremors.graboid.quakeml.model.ResourceReference
+import org.mockito.Mockito.*
 
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
   val ExposedMockserverPort = 1090
 
   def spec = suite("FDSN Crawler Spec")(
-    test("should fetch some events correctly.") {
-      val timeline = new CrawlerTimeline():
-        override def lastUpdate: Task[Option[ZonedDateTime]] = ZIO.none
+    suite("Using Mockserver")(
+      test("should fetch events correctly.") {
+        val timeline = mock(classOf[CrawlerTimeline])
+        when(timeline.lastUpdate)
+          .thenReturn(ZIO.none)
 
-      for
-        port   <- DockerLayer.singleContainerPort(ExposedMockserverPort)
-        config  = FDSNCrawler.Config(
-                    organization = "testable",
-                    queryURL = URL(s"http://localhost:$port/fdsnws/event/1/query")
-                  )
-        crawler = FDSNCrawler(config, httpServiceLayer, timeline, QuakeMLParser())
-        stream <- crawler.crawl().orDieWith(identity)
-        count  <- stream.runCount.orDieWith(identity)
-      yield assertTrue(count == 1L)
-    }
-  ).provideLayerShared(dockerLayer)
+        for
+          port   <- DockerLayer.getPort(ExposedMockserverPort)
+          config  = FDSNCrawler.Config(
+                      organization = "testable",
+                      queryURL = URL(s"http://localhost:$port/simple/fdsnws/event/1/query")
+                    )
+          crawler = FDSNCrawler(config, httpServiceLayer, timeline, QuakeMLParser())
+          stream <- crawler.crawl().orDieWith(identity)
+          all    <- stream.runCollect.orDieWith(identity)
+        yield assertTrue(
+          all.size == 3,
+          all(0).asInstanceOf[Event].publicID == ResourceReference(
+            "smi:org.gfz-potsdam.de/geofon/usp2022mqpz"
+          ),
+          all(1).asInstanceOf[Event].publicID == ResourceReference(
+            "smi:org.gfz-potsdam.de/geofon/usp2022mcfz"
+          ),
+          all(2).asInstanceOf[Event].publicID == ResourceReference(
+            "smi:org.gfz-potsdam.de/geofon/usp2022ltei"
+          )
+        )
+      }
+    ).provideLayer(dockerLayer)
+  )
 
   def dockerLayer = DockerLayer.singleContainerLayer(
     DockerLayer.Def(

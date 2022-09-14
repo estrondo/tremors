@@ -1,5 +1,5 @@
 ThisBuild / organization := "com.github.estrondo.tremors"
-ThisBuild / scalaVersion := "3.1.3"
+ThisBuild / scalaVersion := "3.2.0"
 ThisBuild / isSnapshot   := true
 ThisBuild / Test / fork  := true
 ThisBuild / version ~= (_.replace('+', '-'))
@@ -33,7 +33,8 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.ZIOConfig,
       Dependencies.LemonScalaUri,
       Dependencies.Testcontainers,
-      Dependencies.AaltoXml
+      Dependencies.AaltoXml,
+      Dependencies.Mockito
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )

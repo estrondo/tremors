@@ -2,7 +2,7 @@
   {
     "httpRequest": {
       "method": "GET",
-      "path": "/fdsnws/event/1/query",
+      "path": "/simple/fdsnws/event/1/query",
       "queryStringParameters": {
         "keyMatchStyle" : "MATCHING_KEY",
         "includeallorigins": ["false"],

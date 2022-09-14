@@ -13,6 +13,7 @@ object Dependencies {
   val LemonScalaUriVersion = "4.0.2"
   val LogbackVersion       = "1.4.0"
   val AaltoXmlVersion      = "1.3.2"
+  val MockitoVersion       = "4.8.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -61,5 +62,9 @@ object Dependencies {
 
   val AaltoXml = Seq(
     "com.fasterxml" % "aalto-xml" % AaltoXmlVersion
+  )
+
+  val Mockito = Seq(
+    "org.mockito" % "mockito-core" % MockitoVersion % Test
   )
 }
