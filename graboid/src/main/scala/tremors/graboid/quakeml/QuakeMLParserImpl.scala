@@ -43,7 +43,7 @@ private[quakeml] object QuakeMLParserImpl:
               // println(s"${"-" * nextDepth}> skiping ${nextNode.name}.")
               None
 
-          val next = CurrentNode(nextNode, root, current.depth + 1, element)
+          val next = CurrentNode(nextNode, root, nextDepth, element)
           copy(stack = next :: stack)
 
         case _ if root.name == localName =>

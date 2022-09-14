@@ -4,35 +4,20 @@ import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
 import io.lemonlabs.uri.config.UriConfig
 import tremors.graboid.Crawler
-import tremors.graboid.Crawler.Info
-import tremors.graboid.CrawlerTimeline
 import tremors.graboid.GraboidException
 import tremors.graboid.HttpService
 import tremors.graboid.UrlTypesafe.given
 import tremors.graboid.fdsn.FDSNCrawler.Config
-import tremors.graboid.given
 import tremors.graboid.quakeml.QuakeMLParser
 import zhttp.http.Response
-import zhttp.http.Status.Ok
-import zhttp.service.ChannelFactory
-import zhttp.service.Client
-import zhttp.service.EventLoopGroup
-import zio.Cause
-import zio.Chunk
 import zio.Task
-import zio.TaskLayer
 import zio.UIO
 import zio.ULayer
 import zio.ZIO
-import zio.stream.Stream
 import zio.stream.ZStream
 
 import java.net.URL
 import java.time.ZonedDateTime
-import scala.language.implicitConversions
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 
 object FDSNCrawler:
 
@@ -44,14 +29,13 @@ object FDSNCrawler:
 class FDSNCrawler(
     config: Config,
     httpServiceLayer: ULayer[HttpService],
-    timeline: CrawlerTimeline,
     parser: QuakeMLParser
 ) extends Crawler:
 
-  override def crawl(): Task[Crawler.Stream] =
+  override def crawl(interval: Crawler.Interval): Task[Crawler.Stream] =
     (
       for
-        url      <- parseUrl(config.queryURL)
+        url      <- parseUrl(config.queryURL, interval)
         _        <- ZIO.logInfo(s"Fetching events from ${config.organization} @ $url.")
         response <- HttpService
                       .get(url.toString)
@@ -65,27 +49,23 @@ class FDSNCrawler(
       )
     )
 
-  private def includeParams(url: Url): Task[Url] =
-    for nextInterval <- this.nextInterval
-    yield
-      val (starttime, endtime) = nextInterval
-      url
-        .addParam("starttime" -> starttime)
-        .addParam("endtime" -> endtime)
-        .addParam("includeallorigins" -> Some(false))
-        .addParam("format" -> Some("xml"))
+  private def addParams(url: Url, interval: Crawler.Interval): Task[Url] = ZIO.succeed {
+    val (starttime, endtime) = interval
+    url
+      .addParam("starttime" -> starttime)
+      .addParam("endtime" -> endtime)
+      .addParam("includeallorigins" -> Some(false))
+      .addParam("format" -> Some("xml"))
+  }
 
-  private def nextInterval: UIO[(Option[ZonedDateTime], Option[ZonedDateTime])] =
-    ZIO.succeed((None, None))
-
-  private def parseUrl(originalURL: URL): Task[Url] =
+  private def parseUrl(originalURL: URL, interval: Crawler.Interval): Task[Url] =
     given UriConfig = UriConfig(
       renderQuery = ExcludeNones
     )
 
     for
       url       <- ZIO.attempt(Url.parse(originalURL.toString()))
-      parsedUrl <- includeParams(url)
+      parsedUrl <- addParams(url, interval)
     yield parsedUrl
 
   private def readStream(response: Response): Task[Crawler.Stream] =
