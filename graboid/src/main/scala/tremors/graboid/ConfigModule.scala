@@ -39,10 +39,10 @@ private class ConfigModuleImpl extends ConfigModule:
   private def loadProfile(profile: String): Task[Config] =
     for
       _      <- ZIO.logInfo(s"Loading profile [$profile].")
-      config <- ZIO.attemptBlockingIO {
+      config <- ZIO.attemptBlocking {
                   try
                     ConfigFactory
-                      .parseResources(s"$profile-profile.conf", parseOptions)
+                      .parseResources(s"application-$profile.conf", parseOptions)
                       .withFallback(defaultApplicationConfig)
                   catch
                     case cause: Exception =>

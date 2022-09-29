@@ -10,7 +10,7 @@ import zio.ZIOAppDefault
 import zio.config.ConfigSource
 import zhttp.service.Client
 
-object Graboid extends ZIOAppDefault {
+object Graboid extends ZIOAppDefault:
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
@@ -20,6 +20,8 @@ object Graboid extends ZIOAppDefault {
     yield exitCode
 
   def application(configSource: ConfigSource): UIO[ExitCode] =
-    for _ <- ZIO.logInfo(s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱.")
+    for _ <-
+        ZIO.logInfo(
+          s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
+        )
     yield ExitCode.success
-}
