@@ -87,7 +87,13 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
 
       webAPI1 = container "Web API 1.x" "It provides access for all information." "zio-http" {
         webAPI1NotificationService = component "Notification Service" "It is used to interact with internal notification service."
+        webAPI1PublishedSeismoListener = component "Published Seismo Listener"
+        webAPI1EventOrganiser = component "Event Organiser" "It's responsible to organise all seismo information"
+
         webAPI1NotificationService -> notifierNotificationService "Uses" "gRPC"
+        webAPI1PublishedSeismoListener -> publishedSeismoTopic "Listens to"
+        webAPI1PublishedSeismoListener -> webAPI1EventOrganiser "Invokes"
+        webAPI1SpatialHandler = component "Spatial Handler" "It's responsible to respond to the WebMapping"
       }
 
       graboid -> configServer "Uses"
