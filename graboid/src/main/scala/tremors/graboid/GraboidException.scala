@@ -2,11 +2,12 @@ package tremors.graboid
 
 object GraboidException:
 
-  class NotFound(message: String, cause: Throwable = null)
-      extends GraboidException(message, cause)
+  class NotFound(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
   class Unexpected(message: String, cause: Throwable = null)
       extends GraboidException(message, cause)
+
+  class Invalid(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
   class IllegalResponse(message: String, cause: Throwable = null)
       extends GraboidException(message, cause)
