@@ -14,7 +14,7 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
       database = container "Database" "" "ArangoDB" {
         tags = "Database, ArangoDB, SpatialDatabase"
 
-        graboidDatabase = component "Graboid database"
+        graboidDatabase = component "Graboid Database"
         notifierDatabase = component "Notifier Database"
         tophDatabase = component "Toph Database"
       }
@@ -22,8 +22,8 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
       messageBroker = container "Message broker" "" "Apache Kafka" {
         tags = "MessageBroker, ApacheKafka"
 
-        newSeismoTopic = component "New Seismo Topic" "" "protobuf"
-        publishedSeismoTopic = component "Published Seismo Topic" "" "protobuf"
+        detectedSeismoTopic = component "detected-seismo" "Detected Seismo Topic" "protobuf"
+        publishedSeismoTopic = component "published-seismo" "Published Seismo Topic" "protobuf"
       }
 
       graboid = container "Graboid" "It's responsible to collect all information about seismos events" "ZIO Application" {
@@ -41,7 +41,7 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
           graboidCrawlerManager -> graboidCrawlerSupervisor "Controls lifecycle" "create, restart, stop"
           graboidCrawlerManager -> graboidDatabase "Uses"
           graboidCrawlerSupervisor -> graboidCrawler "Organises all seismos information received from the Crawler" "ZIO Stream"
-          graboidCrawlerSupervisor -> newSeismoTopic "Publishes the all new seismos information"
+          graboidCrawlerSupervisor -> detectedSeismoTopic "Publishes the all new seismos information"
           graboidCrawlerSupervisor -> graboidDatabase "Uses"
       }
 
@@ -50,7 +50,7 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
         tophSeismoCataloguer = component "Seismo Cataloguer" "It organises all seismos"
         tophSeismoCatalogue = component "Seismo Catalogue" "Store all seismos events"
 
-        tophSeismoListener -> newSeismoTopic "Listens to it"
+        tophSeismoListener -> detectedSeismoTopic "Listens to it"
         tophSeismoListener -> tophSeismoCataloguer "Invokes"
         tophSeismoCataloguer -> publishedSeismoTopic "Publishes to seismo.journal"
         tophSeismoCataloguer -> tophSeismoCatalogue "Uses"
@@ -130,6 +130,42 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
     }
 
   views {
+
+    systemContext tremors "context-tremors" "All systems" {
+      include *
+      autoLayout lr
+    }
+
+    container tremors "tremors" "All conteiners" {
+      include *
+      autoLayout rl
+    }
+    component graboid {
+      include *
+      autoLayout tb
+    }
+
+    component toph {
+      include *
+      autoLayout tb
+    }
+
+    component notifier {
+      include *
+      autoLayout lr
+    }
+
+    component database {
+      include *
+      autoLayout tb
+    }
+
+    component messageBroker "message-broker" "All topics" {
+      include detectedSeismoTopic publishedSeismoTopic
+      include graboidCrawlerSupervisor tophSeismoListener tophSeismoCataloguer notifierSeismoListener webAPI1PublishedSeismoListener
+      exclude "tophSeismoListener -> tophSeismoCataloguer"
+      autoLayout rl
+    }
 
     styles {
 
