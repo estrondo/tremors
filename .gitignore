@@ -18,3 +18,5 @@
 /webapp-core/.bloop/
 /graboid/target/
 /logging/target/
+/farango/target/
+/ziorango/target/

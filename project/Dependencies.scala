@@ -14,7 +14,7 @@ object Dependencies {
   val LogbackVersion       = "1.4.0"
   val AaltoXmlVersion      = "1.3.2"
   val MockitoVersion       = "4.8.0"
-  val ArangoDBVersion      = "6.18.0"
+  val ArangoDBVersion      = "6.19.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -70,6 +70,8 @@ object Dependencies {
   )
 
   val ArangoDB = Seq(
-    "com.arangodb" % "arangodb-java-driver" % ArangoDBVersion
+    "com.arangodb" % "arangodb-java-driver" % ArangoDBVersion,
+    "com.arangodb" % "jackson-dataformat-velocypack" % "3.0.1",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.4"
   )
 }

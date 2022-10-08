@@ -20,7 +20,28 @@ lazy val root = (project in file("."))
   .aggregate(
     `webapp1`,
     `webapp-core`,
-    `graboid`
+    `graboid`,
+    farango,
+    ziorango
+  )
+
+lazy val farango = (project in file("farango"))
+  .settings(
+    name := "farango", // Functional ArangoDB
+    libraryDependencies ++= Seq(
+      Dependencies.ArangoDB
+    ).flatten
+  )
+
+lazy val ziorango = (project in file("ziorango"))
+  .settings(
+    name := "ziorango",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO
+    ).flatten
+  )
+  .dependsOn(
+    farango
   )
 
 lazy val `graboid` = (project in file("graboid"))
@@ -51,7 +72,7 @@ lazy val `graboid` = (project in file("graboid"))
     dockerUpdateLatest := true
   )
   .dependsOn(
-    logging
+    logging, farango, ziorango
   )
 
 lazy val `webapp-core` = (project in file("webapp-core"))

@@ -10,7 +10,7 @@ object QuakeMLParserSpec extends Spec:
     test("should process a big quakeml (100K events).") {
 
       val expectedCount = 100000L
-      val headerBytes = """<q:quakeml 
+      val headerBytes   = """<q:quakeml 
 	                      |xmlns="http://quakeml.org/xmlns/bed/1.2"
 	                      |xmlns:q="http://quakeml.org/xmlns/quakeml/1.2">
                         |<eventParameters publicID="smi:org.gfz-potsdam.de/geofon/EventParameters">""".stripMargin
