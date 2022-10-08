@@ -9,6 +9,7 @@ import tremors.graboid.HttpService
 import tremors.graboid.UrlTypesafe.given
 import tremors.graboid.fdsn.FDSNCrawler.Config
 import tremors.graboid.quakeml.QuakeMLParser
+import tremors.graboid.TimelineManager
 import zhttp.http.Response
 import zio.Task
 import zio.UIO
@@ -32,10 +33,10 @@ class FDSNCrawler(
     parser: QuakeMLParser
 ) extends Crawler:
 
-  override def crawl(interval: Crawler.Interval): Task[Crawler.Stream] =
+  override def crawl(window: TimelineManager.Window): Task[Crawler.Stream] =
     (
       for
-        url      <- parseUrl(config.queryURL, interval)
+        url      <- parseUrl(config.queryURL, window)
         _        <- ZIO.logInfo(s"Fetching events from ${config.organization} @ $url.")
         response <- HttpService
                       .get(url.toString)
@@ -49,8 +50,8 @@ class FDSNCrawler(
       )
     )
 
-  private def addParams(url: Url, interval: Crawler.Interval): Task[Url] = ZIO.succeed {
-    val (starttime, endtime) = interval
+  private def addParams(url: Url, window: TimelineManager.Window): Task[Url] = ZIO.succeed {
+    val (starttime, endtime) = window
     url
       .addParam("starttime" -> starttime)
       .addParam("endtime" -> endtime)
@@ -58,14 +59,14 @@ class FDSNCrawler(
       .addParam("format" -> Some("xml"))
   }
 
-  private def parseUrl(originalURL: URL, interval: Crawler.Interval): Task[Url] =
+  private def parseUrl(originalURL: URL, window: TimelineManager.Window): Task[Url] =
     given UriConfig = UriConfig(
       renderQuery = ExcludeNones
     )
 
     for
       url       <- ZIO.attempt(Url.parse(originalURL.toString()))
-      parsedUrl <- addParams(url, interval)
+      parsedUrl <- addParams(url, window)
     yield parsedUrl
 
   private def readStream(response: Response): Task[Crawler.Stream] =

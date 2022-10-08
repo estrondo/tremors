@@ -15,13 +15,11 @@ private[quakeml] object Node:
         case Some(childLevel) => childLevel
         case None             => Skip(childName)
 
-  class Root(name: String, val max: Int, content: Map)
-      extends Container(name, content): // quakeml
+  class Root(name: String, val max: Int, content: Map) extends Container(name, content): // quakeml
 
     require(max > 0, "Max must be positive!")
 
-  class Transparent(name: String, content: Map)
-      extends Container(name, content) // eventParameters
+  class Transparent(name: String, content: Map) extends Container(name, content) // eventParameters
 
   class Publishable(name: String, content: Map)
       extends Container(name, content): // event, origin, magnitude
@@ -30,8 +28,7 @@ private[quakeml] object Node:
 
     def toChild(): Child = Child(name, content)
 
-  class Child(name: String, content: Map)
-      extends Container(name, content): // some ..............
+  class Child(name: String, content: Map) extends Container(name, content): // some ..............
 
     def this(name: String)(nodeMap: Node*) = this(name, nodeMap)
 

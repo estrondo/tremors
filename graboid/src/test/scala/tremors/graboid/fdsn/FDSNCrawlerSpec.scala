@@ -13,7 +13,6 @@ import zio.test.assertTrue
 
 import java.net.URL
 
-
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
   val ExposedMockserverPort = 1090

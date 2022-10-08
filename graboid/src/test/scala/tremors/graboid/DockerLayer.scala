@@ -1,18 +1,15 @@
 package tremors.graboid
 
-import zio.RLayer
-import com.dimafeng.testcontainers.{GenericContainer, SingleContainer}
-import zio.ZLayer
-import zio.{ZIO, Task, TaskLayer, UIO, URIO}
-import scala.util.Try
-import com.dimafeng.testcontainers.SingleContainer
+import com.dimafeng.testcontainers.GenericContainer
 import com.dimafeng.testcontainers.GenericContainer.DockerImage
-import cats.instances.set
-import org.testcontainers.containers.wait.strategy.WaitStrategy
-import org.testcontainers.containers.wait.strategy.Wait
 import com.dimafeng.testcontainers.GenericContainer.FileSystemBind
 import org.testcontainers.containers.BindMode
-import java.io.File
+import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.containers.wait.strategy.WaitStrategy
+import zio.TaskLayer
+import zio.URIO
+import zio.ZIO
+import zio.ZLayer
 
 object DockerLayer:
 
