@@ -30,6 +30,9 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
           tags = "Robot"
 
           graboidCrawlerManager = component "Crawler Manager" "It's responsible to control lifecycle of Crawler Supervisors and Crawlers."
+          graboidTimelineManager = component "Timeline Manager" "It's responsible to select the correct events and manage the timeline."
+          graboidTimelineRepository = component "Timeline Repository" "It's responsible to store/retrieve/find time windows."
+
 
           group "Crawler" {
             graboidCrawler = component "Crawler" "It's responsible to find new events." "zio.ZStream / AltoXML"
@@ -41,10 +44,13 @@ workspace "Tremors" "Model of Tremors Earthquake Web Monitoring" {
           graboidCrawlerManager -> graboidCrawlerSupervisor "Controls lifecycle" "create, restart, stop"
           graboidCrawlerManager -> graboidDatabase "Uses"
           graboidCrawlerSupervisor -> graboidCrawler "Organises all seismos information received from the Crawler" "ZIO Stream"
+          graboidCrawlerSupervisor -> graboidTimelineManager "Uses it to obtain all information"
           graboidCrawlerSupervisor -> detectedSeismoTopic "Publishes the all new seismos information"
           graboidCrawlerSupervisor -> graboidDatabase "Uses"
+          graboidTimelineManager -> graboidTimelineRepository "Uses it"
+          graboidTimelineRepository -> graboidDatabase "Uses it" "collection: crawlerTimeline"
       }
-
+  
       toph = container "Toph" "It's responsible to centralize all seismos information." "ZIO, gRPC" {
         tophSeismoListener = component "Seismo Listener" "It listens to seismos.event"
         tophSeismoCataloguer = component "Seismo Cataloguer" "It organises all seismos"
