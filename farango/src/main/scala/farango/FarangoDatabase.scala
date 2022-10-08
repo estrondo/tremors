@@ -11,7 +11,7 @@ import scala.reflect.ClassTag
 
 trait FarangoDatabase:
 
-  def query[T, F[_]: FarangoEffect, S[_]: FarangoStream](
+  def query[T, F[_]: FApplicative, S[_]: FApplicativeStream](
       query: String,
       args: Map[String, Any] = Map.empty
   )(using ClassTag[T]): F[S[T]]
@@ -52,14 +52,14 @@ private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extend
   override def documentCollection(name: String): FarangoDocumentCollection =
     FarangoDocumentCollectionImpl(this, database.collection(name))
 
-  def query[T, F[_]: FarangoEffect, S[_]: FarangoStream](
+  def query[T, F[_]: FApplicative, S[_]: FApplicativeStream](
       query: String,
       args: Map[String, Any] = Map.empty
   )(using ClassTag[T]): F[S[T]] =
     val expectedClass: Class[T] = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
 
-    summon[FarangoEffect[F]].mapFromCompletionStage(
+    summon[FApplicative[F]].mapFromCompletionStage(
       database.query(query, args.asJava, expectedClass)
     ) { cursor =>
-      summon[FarangoStream[S]].mapFromJavaStream(() => cursor.streamRemaining())(identity)
+      summon[FApplicativeStream[S]].mapFromJavaStream(() => cursor.streamRemaining())(identity)
     }

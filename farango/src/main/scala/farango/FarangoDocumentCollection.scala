@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 trait FarangoDocumentCollection:
 
-  def insert[T: ClassTag, F[_]: FarangoEffect](document: T): F[T]
+  def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T]
 
 private[farango] class FarangoDocumentCollectionImpl(
     database: FarangoDatabase,
@@ -19,17 +19,17 @@ private[farango] class FarangoDocumentCollectionImpl(
     creationOptions.waitForSync(true)
     collection.create(creationOptions).get()
 
-  override def insert[T: ClassTag, F[_]: FarangoEffect](document: T): F[T] =
-    val effect = summon[FarangoEffect[F]]
+  override def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T] =
+    val applicative = summon[FApplicative[F]]
 
-    effect.mapFromCompletionStage(collection.insertDocument(document)) { entity =>
+    applicative.mapFromCompletionStage(collection.insertDocument(document)) { entity =>
       entity.getNew()
     }
 
-  def checkCollection[F[_]: FarangoEffect](): F[Boolean] =
-    val effect = summon[FarangoEffect[F]]
+  def checkCollection[F[_]: FApplicative](): F[Boolean] =
+    val applicative = summon[FApplicative[F]]
 
-    effect.flatMapFromCompletionStage(collection.exists()) { exists =>
-      if exists then effect.pure(true)
-      else effect.mapFromCompletionStage(collection.create())(_ => true)
+    applicative.flatMapFromCompletionStage(collection.exists()) { exists =>
+      if exists then applicative.pure(true)
+      else applicative.mapFromCompletionStage(collection.create())(_ => true)
     }

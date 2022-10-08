@@ -4,7 +4,7 @@ import com.arangodb.ArangoCursor
 
 import scala.util.Try
 
-trait FarangoStream[S[_]]:
+trait FApplicativeStream[S[_]]:
 
   type JavaStream[T] = java.util.stream.Stream[T]
 

@@ -2,7 +2,7 @@ package farango
 
 import java.util.concurrent.CompletionStage
 
-trait FarangoEffect[F[_]]:
+trait FApplicative[F[_]]:
 
   def map[A, B](a: F[A])(fn: A => B): F[B]
   

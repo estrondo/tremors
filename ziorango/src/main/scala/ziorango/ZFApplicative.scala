@@ -1,15 +1,15 @@
 package ziorango
 
-import farango.FarangoEffect
+import farango.FApplicative
 import zio.ZIO
 
 import java.util.concurrent.CompletionStage
 import scala.jdk.FutureConverters.CompletionStageOps
 import ziorango.Ziorango.F
 
-given FarangoEffect[Ziorango.F] = ZFarangoEffect
+given FApplicative[Ziorango.F] = ZFApplicative
 
-object ZFarangoEffect extends FarangoEffect[Ziorango.F]:
+object ZFApplicative extends FApplicative[Ziorango.F]:
 
   override def mapFromCompletionStage[A, B](
       completionStage: CompletionStage[A]
