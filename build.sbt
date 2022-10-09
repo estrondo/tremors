@@ -51,6 +51,7 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.ZIO,
       Dependencies.ZHttp,
       Dependencies.ZIOLogging,
+      Dependencies.Logging,
       Dependencies.ZIOConfig,
       Dependencies.LemonScalaUri,
       Dependencies.Testcontainers,
@@ -72,7 +73,7 @@ lazy val `graboid` = (project in file("graboid"))
     dockerUpdateLatest := true
   )
   .dependsOn(
-    logging, farango, ziorango
+    farango, ziorango
   )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
@@ -89,11 +90,3 @@ lazy val `webapp1` = (project in file("webapp1"))
       Dependencies.ZHttp
   )
   .dependsOn(`webapp-core`)
-
-lazy val `logging` = (project in file("logging"))
-  .settings(
-    name := "logging",
-    libraryDependencies ++= Seq(
-      Dependencies.Logack
-    ).flatten
-  )

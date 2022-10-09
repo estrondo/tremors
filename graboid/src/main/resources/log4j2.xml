@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+  <Properties>
+    <Select>
+      <SystemPropertyArbiter propertyName="tremors.profile" propertyValue="prod">
+        <Property name="rootLevel">INFO</Property>
+      </SystemPropertyArbiter>
+      <DefaultArbiter>
+        <Property name="rootLevel">DEBUG</Property>
+      </DefaultArbiter>
+    </Select>
+  </Properties>
+
+  <Appenders>
+    <Select>
+      <SystemPropertyArbiter propertyName="tremors.profile" propertyValue="prod">
+        <Console name="defaultAppender" target="SYSTEM_OUT">
+          <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n" />
+        </Console>
+      </SystemPropertyArbiter>
+      <DefaultArbiter>
+        <Console name="defaultAppender" target="SYSTEM_OUT">
+          <PatternLayout pattern="%-5level [%t] %logger{36} - %msg%n" />
+        </Console>
+      </DefaultArbiter>
+    </Select>
+  </Appenders>
+
+  <Loggers>
+    <Root level="${rootLevel}">
+      <AppenderRef ref="defaultAppender" />
+    </Root>
+  </Loggers>
+</Configuration>
