@@ -51,7 +51,7 @@ class FDSNCrawler(
     )
 
   private def addParams(url: Url, window: TimelineManager.Window): Task[Url] = ZIO.succeed {
-    val (starttime, endtime) = window
+    val TimelineManager.Window(_, starttime, endtime) = window
     url
       .addParam("starttime" -> starttime)
       .addParam("endtime" -> endtime)

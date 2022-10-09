@@ -22,6 +22,7 @@ import farango.FarangoDocumentCollection
 import zio.test.TestAspect
 import scala.util.Failure
 import scala.util.Success
+import tremors.graboid.TimelineManager
 
 object TimelineRepositorySpec extends Spec:
 
@@ -52,13 +53,14 @@ object TimelineRepositorySpec extends Spec:
   override def spec = suite("A TimelineRepository")(
     suite("Integration test with ArangoDB")(
       test("should store a new window") {
-        val beginning = ZonedDateTime.now()
-        val ending    = beginning.plusDays(13)
+        val beginning      = ZonedDateTime.now()
+        val ending         = beginning.plusDays(13)
+        val expectedWindow = TimelineManager.Window("---", beginning, ending)
 
         for
           repository <- createRepository
-          stored     <- repository.add("crawler-01", beginning, ending)
-        yield assertTrue(stored == (beginning, ending))
+          stored     <- repository.add("crawler-01", expectedWindow)
+        yield assertTrue(stored == expectedWindow)
       },
       test("should retrieve the last window") {
         val beginning = ZonedDateTime
@@ -66,13 +68,14 @@ object TimelineRepositorySpec extends Spec:
           .plusDays(13)
           .truncatedTo(ChronoUnit.SECONDS)
 
-        val ending = beginning.plusDays(29)
+        val ending         = beginning.plusDays(29)
+        val expectedWindow = TimelineManager.Window("---", beginning, ending)
 
         for
           repository <- createRepository
-          _          <- repository.add("crawler-02", beginning, ending)
+          _          <- repository.add("crawler-02", expectedWindow)
           retrieved  <- repository.last("crawler-02")
-        yield assertTrue(retrieved == Some((beginning, ending)))
+        yield assertTrue(retrieved == Some(expectedWindow))
       },
       test("should return no window when the timeline is empty") {
         for
@@ -80,7 +83,7 @@ object TimelineRepositorySpec extends Spec:
           retrieve   <- repository.last("empty")
         yield assertTrue(retrieve.isEmpty)
       }
-    ).provideLayer(arangoDBLayer) @@ TestAspect.ignore,
+    ).provideLayer(arangoDBLayer),
     suite("Mocking test")(
       test("should report ArangoDB's exceptions when it's searching the last window") {
         val database   = mock(classOf[FarangoDatabase])
@@ -111,9 +114,10 @@ object TimelineRepositorySpec extends Spec:
           .thenReturn(ZIO.fail(expectedThrowable))
 
         val repository = TimelineRepository(database)
-        for result <- repository
-                        .add("omg", ZonedDateTime.now(), ZonedDateTime.now())
-                        .fold(identity, _ => "Ops!")
+        for result <-
+            repository
+              .add("omg", TimelineManager.Window("---", ZonedDateTime.now(), ZonedDateTime.now()))
+              .fold(identity, _ => "Ops!")
         yield assertTrue(result == expectedThrowable)
       }
     )

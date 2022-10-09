@@ -13,7 +13,7 @@ import java.time.ZonedDateTime
 
 trait TimelineRepository:
 
-  def add(name: String, beginning: ZonedDateTime, ending: ZonedDateTime): Task[Window]
+  def add(name: String, window: Window): Task[Window]
 
   def last(name: String): Task[Option[Window]]
 
@@ -26,7 +26,12 @@ object TimelineRepository:
   private[repository] val QueryLastWindow =
     s"FOR w IN $CollectionName FILTER w.name == @$CrawlerNameParam SORT w.ending DESC LIMIT 1 RETURN w"
 
-  private[repository] case class MappedWindow(name: String, beginning: Long, ending: Long)
+  private[repository] case class MappedWindow(
+      name: String,
+      id: String,
+      beginning: Long,
+      ending: Long
+  )
 
   def apply(database: FarangoDatabase): TimelineRepository = TimelineRepositoryImpl(database)
 
@@ -34,15 +39,16 @@ private class TimelineRepositoryImpl(database: FarangoDatabase) extends Timeline
 
   private val collection = database.documentCollection(CollectionName)
 
-  override def add(name: String, beginning: ZonedDateTime, ending: ZonedDateTime): Task[Window] =
-    val window = MappedWindow(
+  override def add(name: String, window: Window): Task[Window] =
+    val mappedWindow = MappedWindow(
       name,
-      beginning,
-      ending
+      window.id,
+      window.beginning,
+      window.ending
     )
 
-    for _ <- collection.insert(window)
-    yield (beginning, ending)
+    for _ <- collection.insert(mappedWindow)
+    yield window
 
   override def last(name: String): Task[Option[Window]] =
     for
@@ -53,5 +59,9 @@ private class TimelineRepositoryImpl(database: FarangoDatabase) extends Timeline
       head   <- stream.run(ZSink.head)
     yield head.map(convertToWindow)
 
-  private def convertToWindow(window: MappedWindow): Window =
-    (window.beginning, window.ending)
+  private def convertToWindow(mappedWindow: MappedWindow): Window =
+    Window(
+      id = mappedWindow.id,
+      beginning = mappedWindow.beginning,
+      ending = mappedWindow.ending
+    )

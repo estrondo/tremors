@@ -7,6 +7,7 @@ import java.time.Duration
 import java.time.ZonedDateTime
 
 import TimelineManager.*
+import java.util.UUID
 
 trait TimelineManager:
 
@@ -14,10 +15,34 @@ trait TimelineManager:
 
 object TimelineManager:
 
-  type Window = (ZonedDateTime, ZonedDateTime)
+  case class Config(
+      defaultWindowDuration: Duration,
+      startingInstant: ZonedDateTime
+  )
 
-private[graboid] class TimelineManagerImpl(repository: TimelineRepository) extends TimelineManager:
+  case class Window(id: String, beginning: ZonedDateTime, ending: ZonedDateTime)
+
+  def apply(config: Config, repository: TimelineRepository): TimelineManager =
+    TimelineManagerImpl(config, repository)
+
+private[graboid] class TimelineManagerImpl(
+    config: TimelineManager.Config,
+    repository: TimelineRepository
+) extends TimelineManager:
+
+  private def nextID(): String = UUID.randomUUID().toString()
 
   override def nextWindow(name: String): Task[Window] =
     for lastWindow <- repository.last(name)
-    yield ???
+    yield computeNextWindow(lastWindow)
+
+  private def computeNextWindow(option: Option[Window]): Window =
+    option match
+      case Some(Window(_, _, ending)) =>
+        Window(nextID(), ending, ending.plus(config.defaultWindowDuration))
+      case _                          =>
+        Window(
+          nextID(),
+          config.startingInstant,
+          config.startingInstant.plus(config.defaultWindowDuration)
+        )

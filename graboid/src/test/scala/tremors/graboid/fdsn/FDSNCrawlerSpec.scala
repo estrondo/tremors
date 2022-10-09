@@ -13,6 +13,8 @@ import zio.test.assertTrue
 
 import java.net.URL
 import java.time.ZonedDateTime
+import tremors.graboid.TimelineManager.apply
+import tremors.graboid.TimelineManager
 
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
@@ -23,7 +25,8 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
       test("should fetch events correctly.") {
         for
           port   <- DockerLayer.getPort(ExposedMockserverPort)
-          window  = (ZonedDateTime.now(), ZonedDateTime.now().plusDays(13))
+          window  =
+            TimelineManager.Window("---", ZonedDateTime.now(), ZonedDateTime.now().plusDays(13))
           config  = FDSNCrawler.Config(
                       organization = "testable",
                       queryURL = URL(s"http://localhost:$port/simple/fdsnws/event/1/query")

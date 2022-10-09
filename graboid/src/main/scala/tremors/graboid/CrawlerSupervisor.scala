@@ -15,14 +15,8 @@ import CrawlerSupervisor.*
 object CrawlerSupervisor:
 
   /** @param crawlerName
-    * @param windowDuration
-    *   in days.
     */
-  case class Config(
-      crawlerName: String,
-      windowDuration: Int,
-      beginning: ZonedDateTime
-  )
+  case class Config(crawlerName: String)
 
   def apply(config: Config, crawler: Crawler): CrawlerSupervisor =
     CrawlerSupervisorImpl(config, crawler)
@@ -34,9 +28,9 @@ trait CrawlerSupervisor:
 private class CrawlerSupervisorImpl(config: Config, crawler: Crawler) extends CrawlerSupervisor:
   override def start(): URIO[TimelineManager, Crawler.Stream] =
     val result = for
-      repository <- ZIO.service[TimelineManager]
-      window     <- repository.nextWindow(config.crawlerName)
-      stream     <- visit(window, repository)
+      timelineManager <- ZIO.service[TimelineManager]
+      window          <- timelineManager.nextWindow(config.crawlerName)
+      stream          <- visit(window, timelineManager)
     yield stream
 
     result.catchAll(error =>
@@ -47,7 +41,7 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler) extends Cr
 
   private def visit(
       interval: TimelineManager.Window,
-      repository: TimelineManager
+      timelineManager: TimelineManager
   ): UIO[Crawler.Stream] =
     for
       _      <- ZIO.logInfo(s"Searching for events in $interval.")
@@ -57,7 +51,7 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler) extends Cr
                     ZIO.succeed(ZStream.fail(error)) <& ZIO
                       .logErrorCause("Failed to crawl!", Cause.die(error))
                   )
-    yield handle(stream, interval, repository)
+    yield handle(stream, interval, timelineManager)
 
   private def handle(
       stream: Crawler.Stream,
