@@ -12,6 +12,7 @@ import tremors.graboid.quakeml.model.ResourceReference
 import zio.test.assertTrue
 
 import java.net.URL
+import java.time.ZonedDateTime
 
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
@@ -22,12 +23,13 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
       test("should fetch events correctly.") {
         for
           port   <- DockerLayer.getPort(ExposedMockserverPort)
+          window  = (ZonedDateTime.now(), ZonedDateTime.now().plusDays(13))
           config  = FDSNCrawler.Config(
                       organization = "testable",
                       queryURL = URL(s"http://localhost:$port/simple/fdsnws/event/1/query")
                     )
           crawler = FDSNCrawler(config, httpServiceLayer, QuakeMLParser())
-          stream <- crawler.crawl((None, None)).orDieWith(identity)
+          stream <- crawler.crawl(window).orDieWith(identity)
           all    <- stream.runCollect.orDieWith(identity)
         yield assertTrue(
           all.size == 3,

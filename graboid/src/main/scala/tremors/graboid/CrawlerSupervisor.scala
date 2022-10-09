@@ -35,11 +35,7 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler) extends Cr
   override def start(): URIO[TimelineManager, Crawler.Stream] =
     val result = for
       repository <- ZIO.service[TimelineManager]
-      window     <- repository.nextWindow(
-                      config.crawlerName,
-                      Duration.ofDays(config.windowDuration),
-                      config.beginning
-                    )
+      window     <- repository.nextWindow(config.crawlerName)
       stream     <- visit(window, repository)
     yield stream
 

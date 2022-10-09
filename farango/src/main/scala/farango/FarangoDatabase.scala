@@ -11,12 +11,10 @@ import scala.reflect.ClassTag
 
 trait FarangoDatabase:
 
-  def query[T, F[_]: FApplicative, S[_]: FApplicativeStream](
+  def query[T: ClassTag, F[_]: FApplicative, S[_]: FApplicativeStream](
       query: String,
       args: Map[String, Any] = Map.empty
-  )(using ClassTag[T]): F[S[T]]
-
-  def apply(database: ArangoDatabaseAsync): FarangoDatabase = FarangoDatabaseImpl(database)
+  ): F[S[T]]
 
   def documentCollection(name: String): FarangoDocumentCollection
 
@@ -52,10 +50,10 @@ private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extend
   override def documentCollection(name: String): FarangoDocumentCollection =
     FarangoDocumentCollectionImpl(this, database.collection(name))
 
-  def query[T, F[_]: FApplicative, S[_]: FApplicativeStream](
+  def query[T: ClassTag, F[_]: FApplicative, S[_]: FApplicativeStream](
       query: String,
       args: Map[String, Any] = Map.empty
-  )(using ClassTag[T]): F[S[T]] =
+  ): F[S[T]] =
     val expectedClass: Class[T] = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
 
     summon[FApplicative[F]].mapFromCompletionStage(

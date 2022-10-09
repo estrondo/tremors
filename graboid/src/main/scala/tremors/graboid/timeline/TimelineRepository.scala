@@ -42,7 +42,7 @@ private class TimelineRepositoryImpl(database: FarangoDatabase) extends Timeline
     )
 
     for _ <- collection.insert(window)
-    yield (Some(beginning), Some(ending))
+    yield (beginning, ending)
 
   override def last(name: String): Task[Option[Window]] =
     for
@@ -54,4 +54,4 @@ private class TimelineRepositoryImpl(database: FarangoDatabase) extends Timeline
     yield head.map(convertToWindow)
 
   private def convertToWindow(window: MappedWindow): Window =
-    (Some(window.beginning), Some(window.ending))
+    (window.beginning, window.ending)
