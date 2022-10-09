@@ -10,20 +10,14 @@ import TimelineManager.*
 
 trait TimelineManager:
 
-  def nextWindow(
-      name: String,
-      duration: Duration,
-      reference: ZonedDateTime
-  ): Task[TimelineManager.Window]
+  def nextWindow(name: String): Task[TimelineManager.Window]
 
 object TimelineManager:
 
-  type Window = (Option[ZonedDateTime], Option[ZonedDateTime])
+  type Window = (ZonedDateTime, ZonedDateTime)
 
 private[graboid] class TimelineManagerImpl(repository: TimelineRepository) extends TimelineManager:
 
-  override def nextWindow(
-      name: String,
-      duration: Duration,
-      reference: ZonedDateTime
-  ): Task[Window] = ???
+  override def nextWindow(name: String): Task[Window] =
+    for lastWindow <- repository.last(name)
+    yield ???
