@@ -48,7 +48,7 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
         )
       }
     ).provideLayer(dockerLayer)
-  )
+  ).provideLayer(logger)
 
   def dockerLayer = DockerLayer.singleContainerLayer(
     DockerLayer.Def(

@@ -55,4 +55,4 @@ object TimelineManagerSpec extends Spec:
         nextWindow.ending == expectedEnding
       )
     }.provideLayer(repositoryMockLayer)
-  )
+  ).provideLayer(logger)

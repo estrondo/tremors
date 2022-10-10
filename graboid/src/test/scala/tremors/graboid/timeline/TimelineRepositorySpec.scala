@@ -121,4 +121,4 @@ object TimelineRepositorySpec extends Spec:
         yield assertTrue(result == expectedThrowable)
       }
     )
-  )
+  ).provideLayer(logger)

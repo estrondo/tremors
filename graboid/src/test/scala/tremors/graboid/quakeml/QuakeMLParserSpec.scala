@@ -106,4 +106,4 @@ object QuakeMLParserSpec extends Spec:
         count == expectedCount
       )
     }
-  )
+  ).provideLayer(logger)
