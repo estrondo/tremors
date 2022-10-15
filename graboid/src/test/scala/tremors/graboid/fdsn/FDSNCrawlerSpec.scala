@@ -4,8 +4,7 @@ import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import tremors.graboid.Spec
 import tremors.graboid.TimelineManager
-import tremors.graboid.WithHttpLayer
-import tremors.graboid.WithHttpServiceLayer
+import tremors.graboid.httpServiceLayer
 import tremors.graboid.quakeml.QuakeMLParser
 import tremors.quakeml.Event
 import tremors.quakeml.ResourceReference
@@ -16,7 +15,7 @@ import zio.test.assertTrue
 import java.net.URL
 import java.time.ZonedDateTime
 
-object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
+object FDSNCrawlerSpec extends Spec:
 
   val ExposedMockserverPort = 1090
 
