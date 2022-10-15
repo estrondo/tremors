@@ -1,8 +1,8 @@
 package tremors.graboid
 
 import com.dimafeng.testcontainers.KafkaContainer
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
+import org.mockito.ArgumentMatchers.{eq => meq, _}
+import org.mockito.Mockito.*
 import org.testcontainers.utility.DockerImageName
 import tremors.quakeml.EventFixture
 import tremors.ziotestcontainers.*
@@ -39,8 +39,8 @@ object CrawlerSupervisorSpec extends Spec:
     suite("Integration Test with Kafka")(
       test("should publish some events") {
 
-        val crawler         = Mockito.mock(classOf[Crawler])
-        val timelineManager = Mockito.mock(classOf[TimelineManager])
+        val crawler         = mock(classOf[Crawler])
+        val timelineManager = mock(classOf[TimelineManager])
 
         val beginning = ZonedDateTime.now()
         val ending    = beginning.plusDays(13)
@@ -48,12 +48,13 @@ object CrawlerSupervisorSpec extends Spec:
 
         val events = for _ <- 0 until 10 yield EventFixture.createRandom()
 
-        Mockito
-          .when(timelineManager.nextWindow(ArgumentMatchers.eq("testable")))
+        when(timelineManager.nextWindow(meq("testable")))
           .thenReturn(ZIO.succeed(window))
 
-        Mockito
-          .when(crawler.crawl(ArgumentMatchers.eq(window)))
+        when(timelineManager.register(meq(window)))
+          .thenReturn(ZIO.succeed(window))
+
+        when(crawler.crawl(meq(window)))
           .thenReturn(ZIO.succeed(ZStream.fromIterable(events)))
 
         for
@@ -80,7 +81,8 @@ object CrawlerSupervisorSpec extends Spec:
           detected         <- fork.join
         yield assertTrue(
           status.success == events.size.toLong,
-          detected.size == events.size
+          detected.size == events.size,
+          verify(timelineManager).register(meq(window)) == null
         )
       }
     ).provideLayer(kafkaContainerLayer)

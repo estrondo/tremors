@@ -62,8 +62,10 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: 
               _
             )
           )
-      status          <-
-        stream.run(ZSink.foldLeftZIO(Status(success = 0L, fail = 0L, skip = 0L))(foldStream))
+      either          <- stream
+                           .run(ZSink.foldLeftZIO(Status(success = 0L, fail = 0L, skip = 0L))(foldStream))
+                           .either
+      status          <- saveWindow(either, window, timelineManager)
     yield status
 
   private def crawl(
@@ -88,8 +90,16 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: 
           Cause.die(error)
         )
 
-      case (None, _) =>
-        ZIO.succeed(status.copy(skip = status.skip + 1))
+      case (None, None) =>
+        ZIO.succeed(status.copy(skip = status.skip + 1)) <& ZIO.logDebug(
+          "A unhandled info has been skiped"
+        )
+
+      case (None, Some(error)) =>
+        ZIO.succeed(status.copy(skip = status.skip + 1)) <& ZIO.logErrorCause(
+          "A unhandled info has thrown an exception",
+          Cause.die(error)
+        )
 
   private def handle(
       stream: Crawler.Stream,
@@ -117,3 +127,22 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: 
       Serializer.string,
       Serializer.byteArray
     )
+
+  private def saveWindow(
+      either: Either[Throwable, Status],
+      window: TimelineManager.Window,
+      timelineManager: TimelineManager
+  ): Task[Status] =
+    either match
+      case Right(status) =>
+        for
+          _ <- timelineManager.register(window)
+          _ <-
+            ZIO.logInfo(
+              s"There have been detected ${status.success} successes, ${status.fail} fails and ${status.skip} skips"
+            )
+        yield status
+
+      case Left(error) =>
+        for _ <- ZIO.logErrorCause("An error has occurred", Cause.die(error))
+        yield Status(0L, 0L, 0L)

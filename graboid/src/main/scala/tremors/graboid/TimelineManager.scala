@@ -13,6 +13,8 @@ trait TimelineManager:
 
   def nextWindow(name: String): Task[TimelineManager.Window]
 
+  def register(window: TimelineManager.Window): Task[TimelineManager.Window]
+
 object TimelineManager:
 
   case class Config(
@@ -35,6 +37,8 @@ private[graboid] class TimelineManagerImpl(
   override def nextWindow(name: String): Task[Window] =
     for lastWindow <- repository.last(name)
     yield computeNextWindow(lastWindow)
+
+  override def register(window: Window): Task[Window] = ???
 
   private def computeNextWindow(option: Option[Window]): Window =
     option match
