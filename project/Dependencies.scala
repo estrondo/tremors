@@ -18,7 +18,7 @@ object Dependencies {
   val MockitoVersion        = "4.8.0"
   val ArangoDBVersion       = "6.19.0"
   val BorerVersion          = "1.10.0"
-  val TestcontainersVersion = "0.40.10"
+  val TestcontainersVersion = "0.40.11"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion

@@ -1,20 +1,20 @@
 package tremors.graboid.fdsn
 
+import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import tremors.graboid.DockerLayer
-import tremors.graboid.DockerLayer.given
 import tremors.graboid.Spec
+import tremors.graboid.TimelineManager
 import tremors.graboid.WithHttpLayer
 import tremors.graboid.WithHttpServiceLayer
 import tremors.graboid.quakeml.QuakeMLParser
 import tremors.quakeml.Event
 import tremors.quakeml.ResourceReference
+import tremors.ziotestcontainers.*
+import tremors.ziotestcontainers.given
 import zio.test.assertTrue
 
 import java.net.URL
 import java.time.ZonedDateTime
-import tremors.graboid.TimelineManager.apply
-import tremors.graboid.TimelineManager
 
 object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer:
 
@@ -24,7 +24,7 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
     suite("Using Mockserver")(
       test("should fetch events correctly.") {
         for
-          port   <- DockerLayer.getPort(ExposedMockserverPort)
+          port   <- singleContainerGetPort(ExposedMockserverPort)
           window  =
             TimelineManager.Window("---", ZonedDateTime.now(), ZonedDateTime.now().plusDays(13))
           config  = FDSNCrawler.Config(
@@ -50,16 +50,16 @@ object FDSNCrawlerSpec extends Spec with WithHttpServiceLayer with WithHttpLayer
     ).provideLayer(dockerLayer)
   ).provideLayer(logger)
 
-  def dockerLayer = DockerLayer.singleContainerLayer(
-    DockerLayer.Def(
-      image = "mockserver/mockserver:latest",
+  def dockerLayer = layerOf {
+    GenericContainer(
+      dockerImage = "mockserver/mockserver:latest",
+      exposedPorts = Seq(ExposedMockserverPort),
       env = Map(
         "SERVER_PORT" -> ExposedMockserverPort.toString()
       ),
-      exposedPorts = Seq(ExposedMockserverPort),
-      volumes = Seq(
+      fileSystemBind = Seq(
         "src/test/mockserver/FDSNCrawlerSpec" -> "/config"
       ),
       waitStrategy = Wait.forLogMessage(s".*port: $ExposedMockserverPort.*", 1)
     )
-  )
+  }

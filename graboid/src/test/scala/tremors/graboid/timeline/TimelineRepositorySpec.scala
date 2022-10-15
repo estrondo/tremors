@@ -2,7 +2,6 @@ package tremors.graboid.timeline
 
 import farango.FarangoDatabase
 import org.testcontainers.containers.wait.strategy.Wait
-import tremors.graboid.DockerLayer
 import tremors.graboid.Spec
 import tremors.graboid.repository.TimelineRepository
 import zio.test.assertTrue
@@ -23,12 +22,16 @@ import zio.test.TestAspect
 import scala.util.Failure
 import scala.util.Success
 import tremors.graboid.TimelineManager
+import tremors.ziotestcontainers.*
+import tremors.ziotestcontainers.given
+import com.dimafeng.testcontainers.GenericContainer
+import com.dimafeng.testcontainers.GenericContainer.DockerImage
 
 object TimelineRepositorySpec extends Spec:
 
   private val createRepository =
     for
-      port    <- DockerLayer.getPort(8529)
+      port    <- singleContainerGetPort(8529)
       database = FarangoDatabase(
                    FarangoDatabase.Config(
                      name = "_system",
@@ -39,16 +42,16 @@ object TimelineRepositorySpec extends Spec:
                  )
     yield TimelineRepository(database)
 
-  private val arangoDBLayer = DockerLayer.singleContainerLayer(
-    DockerLayer.Def(
-      image = "arangodb/arangodb:3.10.0",
+  private val arangoDBLayer = layerOf {
+    GenericContainer(
+      dockerImage = "arangodb/arangodb:3.10.0",
       env = Map(
         "ARANGO_ROOT_PASSWORD" -> "159753"
       ),
       exposedPorts = Seq(8529),
       waitStrategy = Wait.forLogMessage(".*Have fun!.*", 1)
     )
-  )
+  }
 
   override def spec = suite("A TimelineRepository")(
     suite("Integration test with ArangoDB")(

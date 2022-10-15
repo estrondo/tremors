@@ -1,41 +1,30 @@
 package tremors.graboid
 
 import com.dimafeng.testcontainers.KafkaContainer
-import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers
-import org.mockito.Mock
 import org.mockito.Mockito
-import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
-import tremors.graboid.DockerLayer.*
-import tremors.quakeml.Event
 import tremors.quakeml.EventFixture
-import tremors.quakeml.ResourceReference
-import zio.Console
-import zio.Duration
-import zio.Scope
+import tremors.ziotestcontainers.*
 import zio.ZIO
 import zio.ZLayer
+import zio.durationInt
 import zio.kafka.consumer.Consumer
 import zio.kafka.consumer.ConsumerSettings
 import zio.kafka.consumer.Subscription
 import zio.kafka.producer.Producer
 import zio.kafka.producer.ProducerSettings
-import zio.kafka.producer.ProducerSettings.apply
 import zio.kafka.serde.Serde
 import zio.stream.ZSink
 import zio.stream.ZStream
-import zio.test.TestEnvironment
+import zio.test.TestClock
 import zio.test.assertTrue
 
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
-import zio.test.TestClock
-import zio.given
 
 object CrawlerSupervisorSpec extends Spec:
 
-  private val kafkaContainer = userContainerLayer {
+  private val kafkaContainerLayer = layerOf {
     KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.2.2"))
   }
 
@@ -94,5 +83,5 @@ object CrawlerSupervisorSpec extends Spec:
           detected.size == events.size
         )
       }
-    ).provideLayer(kafkaContainer)
+    ).provideLayer(kafkaContainerLayer)
   )

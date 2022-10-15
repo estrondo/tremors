@@ -25,7 +25,8 @@ lazy val root = (project in file("."))
     ziorango,
     quakeml,
     quakemlCBOR,
-    quakemlTestKit
+    quakemlTestKit,
+    zioTestcontainers
   )
 
 lazy val farango = (project in file("farango"))
@@ -82,7 +83,6 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.ZIOConfig,
       Dependencies.ZIOKafka,
       Dependencies.LemonScalaUri,
-      Dependencies.Testcontainers,
       Dependencies.AaltoXml,
       Dependencies.Mockito,
       Dependencies.ArangoDB
@@ -105,7 +105,17 @@ lazy val `graboid` = (project in file("graboid"))
     ziorango,
     quakeml,
     quakemlCBOR,
-    quakemlTestKit % Test
+    quakemlTestKit    % Test,
+    zioTestcontainers % Test
+  )
+
+lazy val zioTestcontainers = (project in file("zio-testcontainers"))
+  .settings(
+    name := "zio-testcontainers",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name)))
+    ).flatten
   )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
