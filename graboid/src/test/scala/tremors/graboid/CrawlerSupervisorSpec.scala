@@ -44,14 +44,14 @@ object CrawlerSupervisorSpec extends Spec:
 
         val beginning = ZonedDateTime.now()
         val ending    = beginning.plusDays(13)
-        val window    = TimelineManager.Window("testable", beginning, ending)
+        val window    = TimelineManager.Window("testable-id", beginning, ending)
 
         val events = for _ <- 0 until 10 yield EventFixture.createRandom()
 
         when(timelineManager.nextWindow(meq("testable")))
           .thenReturn(ZIO.succeed(window))
 
-        when(timelineManager.register(meq(window)))
+        when(timelineManager.register(meq("testable"), meq(window)))
           .thenReturn(ZIO.succeed(window))
 
         when(crawler.crawl(meq(window)))
@@ -82,7 +82,7 @@ object CrawlerSupervisorSpec extends Spec:
         yield assertTrue(
           status.success == events.size.toLong,
           detected.size == events.size,
-          verify(timelineManager).register(meq(window)) == null
+          verify(timelineManager).register(meq("testable"), meq(window)) == null
         )
       }
     ).provideLayer(kafkaContainerLayer)

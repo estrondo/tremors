@@ -136,7 +136,7 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: 
     either match
       case Right(status) =>
         for
-          _ <- timelineManager.register(window)
+          _ <- timelineManager.register(config.crawlerName, window)
           _ <-
             ZIO.logInfo(
               s"There have been detected ${status.success} successes, ${status.fail} fails and ${status.skip} skips"
