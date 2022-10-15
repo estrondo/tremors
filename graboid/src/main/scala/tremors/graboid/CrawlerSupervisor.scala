@@ -1,72 +1,119 @@
 package tremors.graboid
 
-import tremors.graboid.quakeml.model.Event
+import io.bullet.borer.Cbor
+import io.bullet.borer.Codec
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.clients.producer.internals.ProducerMetadata
+import tremors.quakeml.Event
+import tremors.quakeml.cbor.given
 import zio.Cause
+import zio.RIO
+import zio.Task
+import zio.TaskLayer
 import zio.UIO
 import zio.URIO
 import zio.ZIO
+import zio.kafka.producer.Producer
+import zio.kafka.serde.*
+import zio.stream.ZSink
 import zio.stream.ZStream
 
 import java.time.Duration
 import java.time.ZonedDateTime
+import scala.util.Failure
+import scala.util.Success
 
 import CrawlerSupervisor.*
 
-object CrawlerSupervisor:
-
-  /** @param crawlerName
-    */
-  case class Config(crawlerName: String)
-
-  def apply(config: Config, crawler: Crawler): CrawlerSupervisor =
-    CrawlerSupervisorImpl(config, crawler)
-
 trait CrawlerSupervisor:
 
-  def start(): URIO[TimelineManager, Crawler.Stream]
+  def start(): RIO[TimelineManager, Status]
 
-private class CrawlerSupervisorImpl(config: Config, crawler: Crawler) extends CrawlerSupervisor:
-  override def start(): URIO[TimelineManager, Crawler.Stream] =
-    val result = for
+object CrawlerSupervisor:
+
+  val Topic = "seismo-detected"
+
+  case class Config(crawlerName: String)
+
+  case class Status(
+      success: Long,
+      fail: Long,
+      skip: Long
+  )
+
+  def apply(config: Config, crawler: Crawler, producer: TaskLayer[Producer]): CrawlerSupervisor =
+    CrawlerSupervisorImpl(config, crawler, producer)
+
+private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: TaskLayer[Producer])
+    extends CrawlerSupervisor:
+
+  type E = (Option[String], Option[Throwable])
+
+  override def start(): RIO[TimelineManager, Status] =
+    for
       timelineManager <- ZIO.service[TimelineManager]
       window          <- timelineManager.nextWindow(config.crawlerName)
-      stream          <- visit(window, timelineManager)
-    yield stream
+      stream          <-
+        crawl(window, timelineManager)
+          .mapError(
+            GraboidException.CrawlerException(
+              s"An error has ocurred when the crawler ${config.crawlerName} was crawling between ${window}!",
+              _
+            )
+          )
+      status          <-
+        stream.run(ZSink.foldLeftZIO(Status(success = 0L, fail = 0L, skip = 0L))(foldStream))
+    yield status
 
-    result.catchAll(error =>
-      ZIO.succeed(
-        ZStream.fail(GraboidException.Unexpected("Error during searching for events!", error))
-      )
-    )
-
-  private def visit(
-      interval: TimelineManager.Window,
+  private def crawl(
+      window: TimelineManager.Window,
       timelineManager: TimelineManager
-  ): UIO[Crawler.Stream] =
+  ): Task[ZStream[Any, Throwable, E]] =
     for
-      _      <- ZIO.logInfo(s"Searching for events in $interval.")
-      stream <- crawler
-                  .crawl(interval)
-                  .catchAll(error =>
-                    ZIO.succeed(ZStream.fail(error)) <& ZIO
-                      .logErrorCause("Failed to crawl!", Cause.die(error))
-                  )
-    yield handle(stream, interval, timelineManager)
+      _      <- ZIO.logInfo(s"Searching for events in $window.")
+      stream <- crawler.crawl(window)
+    yield handle(stream, window, timelineManager).provideLayer(producer)
+
+  private def foldStream(status: Status, e: E): UIO[Status] =
+    e match
+      case (Some(publicID), None) =>
+        ZIO.succeed(status.copy(success = status.success + 1)) <& ZIO.logDebug(
+          s"Info $publicID has been detected"
+        )
+
+      case (Some(publicID), Some(error)) =>
+        ZIO.succeed(status.copy(fail = status.fail + 1)) <& ZIO.logErrorCause(
+          s"Info $publicID has been failed",
+          Cause.die(error)
+        )
+
+      case (None, _) =>
+        ZIO.succeed(status.copy(skip = status.skip + 1))
 
   private def handle(
       stream: Crawler.Stream,
       window: TimelineManager.Window,
       repository: TimelineManager
-  ): Crawler.Stream =
-    stream.filterZIO {
-      case event: Event =>
-        if window.contains(event.creationInfo) then ZIO.succeed(true)
-        else ZIO.succeed(false) <& ZIO.logDebug(s"Event ${event.publicID} was ignored.")
-
-      case _ => ZIO.succeed(false)
+  ): ZStream[Producer, Throwable, E] =
+    stream.collectZIO {
+      case event: Event if window.contains(event.creationInfo) =>
+        handleEvent(event)
     }
 
-  private def handleInfo(window: TimelineManager.Window, manager: TimelineManager)(
-      count: Int,
-      info: Crawler.Info
-  ): UIO[(Int, Crawler.Info)] = ???
+  private def handleEvent(
+      event: Event
+  ): ZIO[Producer, Throwable, E] =
+    Cbor.encode(event).toByteArrayTry match
+      case Success(byteArray) =>
+        produce(event.publicID.uri, byteArray) as (Some(event.publicID.uri), None)
+
+      case Failure(cause) =>
+        ZIO.succeed((Some(event.publicID.uri), Some(cause)))
+
+  private def produce(key: String, bytes: Array[Byte]): ZIO[Producer, Throwable, RecordMetadata] =
+    Producer.produce(
+      ProducerRecord(Topic, key, bytes),
+      Serializer.string,
+      Serializer.byteArray
+    )

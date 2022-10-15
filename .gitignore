@@ -20,3 +20,6 @@
 /logging/target/
 /farango/target/
 /ziorango/target/
+/quakeml/target/
+/quakeml-cbor/target/
+/quakeml-testkit/target/

@@ -1,12 +1,12 @@
 package tremors.graboid.quakeml
 
-import tremors.graboid.quakeml.model.ResourceReference
-import tremors.graboid.quakeml.model.Event
-import tremors.graboid.quakeml.model.Comment
-import tremors.graboid.quakeml.model.CreationInfo
+import tremors.quakeml.ResourceReference
+import tremors.quakeml.Event
+import tremors.quakeml.Comment
+import tremors.quakeml.CreationInfo
 import java.time.ZonedDateTime
-import tremors.graboid.quakeml.model.Magnitude
-import tremors.graboid.quakeml.model.RealQuantity
+import tremors.quakeml.Magnitude
+import tremors.quakeml.RealQuantity
 
 private[quakeml] object ChildReader:
 

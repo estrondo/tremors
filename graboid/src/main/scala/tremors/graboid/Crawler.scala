@@ -1,13 +1,13 @@
 package tremors.graboid
 
-import tremors.graboid.quakeml.model.Event
-import tremors.graboid.quakeml.model.Magnitude
-import tremors.graboid.quakeml.model.Origin
+import tremors.quakeml.Event
+import tremors.quakeml.Magnitude
+import tremors.quakeml.Origin
 import zio.Task
 import zio.stream.ZStream
 
 import java.time.ZonedDateTime
-import tremors.graboid.quakeml.model.CreationInfo
+import tremors.quakeml.CreationInfo
 
 object Crawler:
 

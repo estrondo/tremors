@@ -1,6 +1,6 @@
 package tremors.graboid.quakeml
 
-import tremors.graboid.quakeml.model.ResourceReference
+import tremors.quakeml.ResourceReference
 
 private[quakeml] object AttributeReader:
 

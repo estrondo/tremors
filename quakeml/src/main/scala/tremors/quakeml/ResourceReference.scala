@@ -1,4 +1,4 @@
-package tremors.graboid.quakeml.model
+package tremors.quakeml
 
 import java.net.URI
 

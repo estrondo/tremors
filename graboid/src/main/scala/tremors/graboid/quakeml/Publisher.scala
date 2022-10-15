@@ -1,7 +1,7 @@
 package tremors.graboid.quakeml
 
 import tremors.graboid.Crawler
-import tremors.graboid.quakeml.model.Event
+import tremors.quakeml.Event
 
 private[quakeml] object Publisher:
 

@@ -7,8 +7,8 @@ import tremors.graboid.Spec
 import tremors.graboid.WithHttpLayer
 import tremors.graboid.WithHttpServiceLayer
 import tremors.graboid.quakeml.QuakeMLParser
-import tremors.graboid.quakeml.model.Event
-import tremors.graboid.quakeml.model.ResourceReference
+import tremors.quakeml.Event
+import tremors.quakeml.ResourceReference
 import zio.test.assertTrue
 
 import java.net.URL

@@ -1,7 +1,7 @@
 package tremors.graboid
 
 import java.time.ZonedDateTime
-import tremors.graboid.quakeml.model.CreationInfo
+import tremors.quakeml.CreationInfo
 
 extension (window: TimelineManager.Window)
   def contains(creationInfo: Option[CreationInfo]): Boolean =

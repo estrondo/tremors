@@ -22,7 +22,10 @@ lazy val root = (project in file("."))
     `webapp-core`,
     `graboid`,
     farango,
-    ziorango
+    ziorango,
+    quakeml,
+    quakemlCBOR,
+    quakemlTestKit
   )
 
 lazy val farango = (project in file("farango"))
@@ -44,6 +47,30 @@ lazy val ziorango = (project in file("ziorango"))
     farango
   )
 
+lazy val quakeml = (project in file("quakeml"))
+  .settings(
+    name := "quakeml",
+    libraryDependencies ++= Seq(
+    ).flatten
+  )
+
+lazy val quakemlTestKit = (project in file("quakeml-testkit"))
+  .settings(
+    name := "quakeml-testkit"
+  )
+  .dependsOn(
+    quakeml
+  )
+
+lazy val quakemlCBOR = (project in file("quakeml-cbor"))
+  .settings(
+    name := "quakeml-cbor",
+    libraryDependencies ++= Seq(
+      Dependencies.Borer
+    ).flatten
+  )
+  .dependsOn(quakeml)
+
 lazy val `graboid` = (project in file("graboid"))
   .settings(
     name := "graboid",
@@ -53,6 +80,7 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.ZIOLogging,
       Dependencies.Logging,
       Dependencies.ZIOConfig,
+      Dependencies.ZIOKafka,
       Dependencies.LemonScalaUri,
       Dependencies.Testcontainers,
       Dependencies.AaltoXml,
@@ -73,7 +101,11 @@ lazy val `graboid` = (project in file("graboid"))
     dockerUpdateLatest := true
   )
   .dependsOn(
-    farango, ziorango
+    farango,
+    ziorango,
+    quakeml,
+    quakemlCBOR,
+    quakemlTestKit % Test
   )
 
 lazy val `webapp-core` = (project in file("webapp-core"))
