@@ -2,7 +2,6 @@ package tremors.graboid.quakeml
 
 import com.fasterxml.aalto.AsyncXMLStreamReader
 import com.fasterxml.aalto.AsyncByteArrayFeeder
-import cats.instances.byte
 import com.fasterxml.aalto.stax.InputFactoryImpl
 import tremors.graboid.Crawler
 import scala.collection.immutable.HashSet

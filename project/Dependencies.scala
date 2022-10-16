@@ -57,7 +57,7 @@ object Dependencies {
   )
 
   val LemonScalaUri = Seq(
-    "io.lemonlabs" %% "scala-uri" % LemonScalaUriVersion
+    "io.lemonlabs" %% "scala-uri" % LemonScalaUriVersion //exclude ("org.typelevel", "cats-core_3") exclude("org.typelevel", "cats-parse_3")
   )
 
   val Testcontainers = Seq(
