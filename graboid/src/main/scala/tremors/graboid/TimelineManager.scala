@@ -2,12 +2,13 @@ package tremors.graboid
 
 import tremors.graboid.repository.TimelineRepository
 import zio.Task
+import zio.TaskLayer
 
 import java.time.Duration
 import java.time.ZonedDateTime
+import java.util.UUID
 
 import TimelineManager.*
-import java.util.UUID
 
 trait TimelineManager:
 
@@ -16,6 +17,8 @@ trait TimelineManager:
   def register(name: String, window: TimelineManager.Window): Task[TimelineManager.Window]
 
 object TimelineManager:
+
+  type Layer = TaskLayer[TimelineManager]
 
   case class Config(
       defaultWindowDuration: Duration,

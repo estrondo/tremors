@@ -6,10 +6,10 @@ import io.lemonlabs.uri.config.UriConfig
 import tremors.graboid.Crawler
 import tremors.graboid.GraboidException
 import tremors.graboid.HttpService
+import tremors.graboid.TimelineManager
 import tremors.graboid.UrlTypesafe.given
 import tremors.graboid.fdsn.FDSNCrawler.Config
 import tremors.graboid.quakeml.QuakeMLParser
-import tremors.graboid.TimelineManager
 import zhttp.http.Response
 import zio.Task
 import zio.UIO
@@ -21,6 +21,8 @@ import java.net.URL
 import java.time.ZonedDateTime
 
 object FDSNCrawler:
+
+  val TypeName = "fdsn"
 
   case class Config(
       organization: String,
