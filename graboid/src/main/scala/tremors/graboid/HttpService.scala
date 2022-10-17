@@ -14,15 +14,13 @@ trait HttpService:
 
 object HttpService:
 
-  type R = ChannelFactory & EventLoopGroup
-
-  def auto(layer: ULayer[R]): ULayer[HttpService] =
+  def auto(layer: ULayer[ChannelFactory & EventLoopGroup]): ULayer[HttpService] =
     ZLayer.succeed(HttpServiceImpl(layer))
 
   def get(url: String): RIO[HttpService, Response] =
     ZIO.serviceWithZIO[HttpService](_.get(url))
 
-private class HttpServiceImpl(layer: ULayer[HttpService.R]) extends HttpService:
+private class HttpServiceImpl(layer: ULayer[ChannelFactory & EventLoopGroup]) extends HttpService:
 
   override def get(url: String): Task[Response] =
     Client

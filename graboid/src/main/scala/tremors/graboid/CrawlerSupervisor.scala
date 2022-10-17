@@ -28,7 +28,7 @@ import CrawlerSupervisor.*
 
 trait CrawlerSupervisor:
 
-  def start(): RIO[TimelineManager, Status]
+  def run(): RIO[TimelineManager, Status]
 
 object CrawlerSupervisor:
 
@@ -42,6 +42,11 @@ object CrawlerSupervisor:
       skip: Long
   )
 
+  def apply(
+      producer: TaskLayer[Producer]
+  )(descriptor: CrawlerDescriptor, crawler: Crawler): CrawlerSupervisor =
+    CrawlerSupervisor(Config(descriptor.name), crawler, producer)
+
   def apply(config: Config, crawler: Crawler, producer: TaskLayer[Producer]): CrawlerSupervisor =
     CrawlerSupervisorImpl(config, crawler, producer)
 
@@ -50,7 +55,7 @@ private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: 
 
   type E = (Option[String], Option[Throwable])
 
-  override def start(): RIO[TimelineManager, Status] =
+  override def run(): RIO[TimelineManager, Status] =
     for
       timelineManager <- ZIO.service[TimelineManager]
       window          <- timelineManager.nextWindow(config.crawlerName)

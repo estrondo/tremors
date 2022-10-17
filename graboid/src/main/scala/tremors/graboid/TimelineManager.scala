@@ -20,18 +20,17 @@ object TimelineManager:
 
   type Layer = TaskLayer[TimelineManager]
 
-  case class Config(
-      defaultWindowDuration: Duration,
-      startingInstant: ZonedDateTime
-  )
-
   case class Window(id: String, beginning: ZonedDateTime, ending: ZonedDateTime)
 
-  def apply(config: Config, repository: TimelineRepository): TimelineManager =
-    TimelineManagerImpl(config, repository)
+  def apply(
+      windowDuration: Duration,
+      starting: ZonedDateTime,
+      repository: TimelineRepository
+  ): TimelineManager = TimelineManagerImpl(windowDuration, starting, repository)
 
 private[graboid] class TimelineManagerImpl(
-    config: TimelineManager.Config,
+    windowDuration: Duration,
+    starting: ZonedDateTime,
     repository: TimelineRepository
 ) extends TimelineManager:
 
@@ -47,10 +46,10 @@ private[graboid] class TimelineManagerImpl(
   private def computeNextWindow(option: Option[Window]): Window =
     option match
       case Some(Window(_, _, ending)) =>
-        Window(nextID(), ending, ending.plus(config.defaultWindowDuration))
+        Window(nextID(), ending, ending.plus(windowDuration))
       case _                          =>
         Window(
           nextID(),
-          config.startingInstant,
-          config.startingInstant.plus(config.defaultWindowDuration)
+          starting,
+          starting.plus(windowDuration)
         )

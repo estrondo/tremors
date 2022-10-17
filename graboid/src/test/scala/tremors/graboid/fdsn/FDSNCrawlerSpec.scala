@@ -30,7 +30,7 @@ object FDSNCrawlerSpec extends Spec:
                       organization = "testable",
                       queryURL = URL(s"http://localhost:$port/simple/fdsnws/event/1/query")
                     )
-          crawler = FDSNCrawler(config, httpServiceLayer, QuakeMLParser())
+          crawler = new FDSNCrawler(config, httpServiceLayer, QuakeMLParser())
           stream <- crawler.crawl(window).orDieWith(identity)
           all    <- stream.runCollect.orDieWith(identity)
         yield assertTrue(

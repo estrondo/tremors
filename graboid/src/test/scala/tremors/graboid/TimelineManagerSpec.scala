@@ -28,8 +28,7 @@ object TimelineManagerSpec extends Spec:
 
       for
         repository <- ZIO.service[TimelineRepository]
-        config      = TimelineManager.Config(defaultDuration, startingInstant)
-        manager     = TimelineManager(config, repository)
+        manager     = TimelineManager(defaultDuration, startingInstant, repository)
         _           = when(repository.last(ArgumentMatchers.eq("simple-test"))).thenReturn(ZIO.none)
         nextWindow <- manager.nextWindow("simple-test")
       yield assertTrue(
@@ -46,8 +45,7 @@ object TimelineManagerSpec extends Spec:
 
       for
         repository <- ZIO.service[TimelineRepository]
-        config      = TimelineManager.Config(defaultDuration, startingInstant)
-        manager     = TimelineManager(config, repository)
+        manager     = TimelineManager(defaultDuration, startingInstant, repository)
         _           =
           when(repository.last(ArgumentMatchers.eq("simple-test"))).thenReturn(ZIO.some(lastWindow))
         nextWindow <- manager.nextWindow("simple-test")
@@ -64,9 +62,8 @@ object TimelineManagerSpec extends Spec:
       val window = TimelineManager.Window("---id---", beginning, ending)
       for
         repository       <- ZIO.service[TimelineRepository]
-        config            = TimelineManager.Config(Duration.of(10, ChronoUnit.DAYS), beginning)
         _                 = when(repository.add(meq("testable"), meq(window))).thenReturn(ZIO.succeed(window))
-        manager           = TimelineManager(config, repository)
+        manager           = TimelineManager(Duration.of(10, ChronoUnit.DAYS), beginning, repository)
         registeredWindow <- manager.register("testable", window)
       yield assertTrue(
         registeredWindow == window,

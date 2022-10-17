@@ -75,7 +75,7 @@ object CrawlerSupervisorSpec extends Spec:
             )
 
           crawlerSupervisor = CrawlerSupervisor(config, crawler, producerLayer)
-          status           <- crawlerSupervisor.start().provideLayer(ZLayer.succeed(timelineManager))
+          status           <- crawlerSupervisor.run().provideLayer(ZLayer.succeed(timelineManager))
           fork             <- detectedStream.run(ZSink.collectAllN(10)).provideLayer(consumerLayer).fork
           _                <- TestClock.adjust(5.seconds)
           detected         <- fork.join

@@ -13,6 +13,8 @@ import zio.test.assertTrue
 import scala.collection.immutable.HashMap
 import scala.util.Success
 import scala.util.Try
+import java.time.Duration
+import java.time.ZonedDateTime
 
 object CrawlerManagerSpec extends Spec:
 
@@ -38,7 +40,6 @@ object CrawlerManagerSpec extends Spec:
   ): UIO[CrawlerManager] = ZIO.succeed {
     CrawlerManager(
       config = CrawlerManager.Config(),
-      timelineManager = timelineManager,
       supervisorCreator = supervisorCreator,
       fdsnCrawlerCreator = fdsnCrawlerCreator
     )
@@ -47,8 +48,21 @@ object CrawlerManagerSpec extends Spec:
   override def spec = suite("A CrawlerManager")(
     test("when find some descriptor, it should create supervisors") {
 
-      val earthDescriptor = CrawlerDescriptor("#earth", FDSNCrawler.TypeName, "earth")
-      val marsDescriptor  = CrawlerDescriptor("#mars", FDSNCrawler.TypeName, "mars")
+      val earthDescriptor = CrawlerDescriptor(
+        "#earth",
+        FDSNCrawler.TypeName,
+        "earth",
+        Duration.ofDays(13),
+        ZonedDateTime.now()
+      )
+
+      val marsDescriptor = CrawlerDescriptor(
+        "#mars",
+        FDSNCrawler.TypeName,
+        "mars",
+        Duration.ofDays(29),
+        ZonedDateTime.now()
+      )
 
       val descriptors = Seq(earthDescriptor, marsDescriptor)
 
@@ -69,8 +83,8 @@ object CrawlerManagerSpec extends Spec:
         crawlerRepository <- ZIO.service[CrawlerRepository]
         _                  = when(crawlerRepository.getAllDescriptors())
                                .thenReturn(ZStream.fromIterable(descriptors))
-        _                  = when(earthSupervisor.start()).thenReturn(ZIO.succeed(earthStatus))
-        _                  = when(marsSupervisor.start()).thenReturn(ZIO.succeed(marsStatus))
+        _                  = when(earthSupervisor.run()).thenReturn(ZIO.succeed(earthStatus))
+        _                  = when(marsSupervisor.run()).thenReturn(ZIO.succeed(marsStatus))
         manager           <- createManager(
                                ZLayer.succeed(timelineManager),
                                supervisorCreator = (_, crawler) => Try(supervisorMap(crawler)),

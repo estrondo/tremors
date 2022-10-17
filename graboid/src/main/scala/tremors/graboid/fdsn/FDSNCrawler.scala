@@ -4,6 +4,7 @@ import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
 import io.lemonlabs.uri.config.UriConfig
 import tremors.graboid.Crawler
+import tremors.graboid.CrawlerDescriptor
 import tremors.graboid.GraboidException
 import tremors.graboid.HttpService
 import tremors.graboid.TimelineManager
@@ -12,11 +13,13 @@ import tremors.graboid.fdsn.FDSNCrawler.Config
 import tremors.graboid.quakeml.QuakeMLParser
 import zhttp.http.Response
 import zio.Task
+import zio.TaskLayer
 import zio.UIO
 import zio.ULayer
 import zio.ZIO
 import zio.stream.ZStream
 
+import java.net.URI
 import java.net.URL
 import java.time.ZonedDateTime
 
@@ -28,6 +31,13 @@ object FDSNCrawler:
       organization: String,
       queryURL: URL
   )
+
+  def apply(httpService: ULayer[HttpService])(descriptor: CrawlerDescriptor): FDSNCrawler =
+    new FDSNCrawler(
+      Config(descriptor.name, URI.create(descriptor.source).toURL()),
+      httpService,
+      QuakeMLParser()
+    )
 
 class FDSNCrawler(
     config: Config,

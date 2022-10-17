@@ -1,13 +1,15 @@
 package tremors.graboid
 
-import zio.UIO
-import zio.config.ConfigSource
-import zio.config.typesafe.TypesafeConfigSource
-import zio._
-import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import com.typesafe.config.ConfigSyntax
+import zio.UIO
+import zio._
+import zio.config.ConfigSource
+import zio.config.magnolia.descriptor
+import zio.config.read
+import zio.config.typesafe.TypesafeConfigSource
 
 object ConfigModule:
 
@@ -15,7 +17,7 @@ object ConfigModule:
 
 trait ConfigModule:
 
-  def configSource: Task[ConfigSource]
+  def config: Task[GraboidConfig]
 
 private class ConfigModuleImpl extends ConfigModule:
 
@@ -24,7 +26,7 @@ private class ConfigModuleImpl extends ConfigModule:
     .setSyntax(ConfigSyntax.CONF)
     .setAllowMissing(false)
 
-  def configSource: Task[ConfigSource] =
+  def config: Task[GraboidConfig] =
     for
       _               <- ZIO.logInfo("Loading application configuration.")
       propertyProfile <- System.property("tremors.profile")
@@ -32,7 +34,12 @@ private class ConfigModuleImpl extends ConfigModule:
       configuration   <- propertyProfile.orElse(envProfile) match
                            case Some(profile) => loadProfile(profile.toLowerCase())
                            case None          => ZIO.attemptBlockingIO(defaultApplicationConfig)
-    yield TypesafeConfigSource.fromTypesafeConfig(ZIO.succeed(configuration))
+      config          <- read(
+                           descriptor[GraboidConfig] from TypesafeConfigSource.fromTypesafeConfig(
+                             ZIO.succeed(configuration)
+                           )
+                         )
+    yield config
 
   private def defaultApplicationConfig = ConfigFactory.defaultApplication(parseOptions)
 
