@@ -28,8 +28,8 @@ object CrawlerManager:
   type SupervisorCreator  = (CrawlerDescriptor, Crawler) => Try[CrawlerSupervisor]
   type FDSNCrawlerCreator = (CrawlerDescriptor) => Try[Crawler]
 
-  case class Config(concurrency: Int = math.max(Runtime.getRuntime().availableProcessors() / 2, 1)):
-    require(concurrency > 0, s"Invalid concurrency $concurrency!")
+  case class Config(concurrency: Option[Int]):
+    if concurrency.isDefined then require(concurrency.get > 0, s"Invalid concurrency $concurrency!")
 
   case class CrawlerReport(
       name: String,
@@ -52,10 +52,13 @@ private[graboid] class CrawlerManagerImpl(
     fdsnCrawlerCreator: FDSNCrawlerCreator
 ) extends CrawlerManager:
 
+  private def concurrency =
+    config.concurrency.getOrElse(math.max(Runtime.getRuntime().availableProcessors() / 2, 1))
+
   override def start(): ZStream[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport] =
     for
       crawlerRepository <- ZStream.service[CrawlerRepository]
-      report            <- crawlerRepository.getAllDescriptors().mapZIOPar(config.concurrency)(handle)
+      report            <- crawlerRepository.getAllDescriptors().mapZIOPar(concurrency)(handle)
     yield report
 
   private def handle(

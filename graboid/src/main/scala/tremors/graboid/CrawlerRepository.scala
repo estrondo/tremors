@@ -3,13 +3,20 @@ package tremors.graboid
 import zio.stream.ZStream
 
 import CrawlerRepository.*
+import farango.FarangoDatabase
 
 trait CrawlerRepository:
 
   def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor]
 
-object CrawlerRepository
+object CrawlerRepository:
 
-private[graboid] class CrawlerRepositoryImpl extends CrawlerRepository:
+  def apply(database: FarangoDatabase): CrawlerRepository =
+    CrawlerRepositoryImpl(database)
 
-  override def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor] = ???
+private[graboid] class CrawlerRepositoryImpl(database: FarangoDatabase) extends CrawlerRepository:
+
+  private val collection = database.documentCollection("crawler-repository")
+
+  override def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor] =
+    throw IllegalStateException("getAllDescriptors")

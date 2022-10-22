@@ -5,37 +5,47 @@ import zio.Task
 import zio.ZIO
 import zio.ZLayer
 import zio.ZLayer.apply
+import tremors.graboid.config.CrawlerManagerConfig
 
 import scala.util.Try
+import zio.stream.ZStream
+import tremors.graboid.CrawlerManager.CrawlerReport
 
 trait CrawlerModule:
 
-  def runManager(): ZIO[Any, Throwable, String]
+  def runManager(): ZStream[Any, Throwable, CrawlerReport]
 
 object CrawlerModule:
 
-  def apply(config: CrawlerManager.Config): Task[CrawlerModule] =
-    ???
+  def apply(
+      config: CrawlerManagerConfig,
+      httpModule: HttpModule,
+      kafkaModule: KafkaModule,
+      databaseModule: DatabaseModule
+  ): Task[CrawlerModule] = ZIO.attempt {
+    CrawlerModuleImpl(config, httpModule, kafkaModule, databaseModule)
+  }
 
 private[graboid] class CrawlerModuleImpl(
-    config: CrawlerManager.Config,
+    config: CrawlerManagerConfig,
     httpModule: HttpModule,
     kafkaModule: KafkaModule,
     databaseModule: DatabaseModule
 ) extends CrawlerModule:
 
-  val timelineManager: TimelineManager.Layer              = ZLayer.fromZIO(???)
   val supervisorCreator: CrawlerManager.SupervisorCreator = (descriptor, crawler) =>
     Try(CrawlerSupervisor(kafkaModule.producerLayer)(descriptor, crawler))
 
   val fdsnCrawlerCreator: CrawlerManager.FDSNCrawlerCreator = (descriptor) =>
     Try(FDSNCrawler(httpModule.serviceLayer)(descriptor))
 
-  private def crawlerManager = CrawlerManager(
-    config,
+  val crawlerManager = CrawlerManager(
+    config.materialized,
     supervisorCreator,
     fdsnCrawlerCreator
   )
 
-  override def runManager(): ZIO[Any, Throwable, String] =
-    ???
+  override def runManager(): ZStream[Any, Throwable, CrawlerReport] =
+    crawlerManager
+      .start()
+      .provideLayer(databaseModule.timelineRepositoryLayer ++ databaseModule.crawlerRepositoryLayer)

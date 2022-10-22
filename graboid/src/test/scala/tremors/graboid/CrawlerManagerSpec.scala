@@ -39,7 +39,7 @@ object CrawlerManagerSpec extends Spec:
       fdsnCrawlerCreator: CrawlerManager.FDSNCrawlerCreator
   ): UIO[CrawlerManager] = ZIO.succeed {
     CrawlerManager(
-      config = CrawlerManager.Config(),
+      config = CrawlerManager.Config(None),
       supervisorCreator = supervisorCreator,
       fdsnCrawlerCreator = fdsnCrawlerCreator
     )
