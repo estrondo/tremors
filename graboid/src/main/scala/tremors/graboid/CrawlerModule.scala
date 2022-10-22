@@ -1,15 +1,16 @@
 package tremors.graboid
 
+import com.softwaremill.macwire.*
+import tremors.graboid.CrawlerManager.CrawlerReport
+import tremors.graboid.config.CrawlerManagerConfig
 import tremors.graboid.fdsn.FDSNCrawler
 import zio.Task
 import zio.ZIO
 import zio.ZLayer
 import zio.ZLayer.apply
-import tremors.graboid.config.CrawlerManagerConfig
+import zio.stream.ZStream
 
 import scala.util.Try
-import zio.stream.ZStream
-import tremors.graboid.CrawlerManager.CrawlerReport
 
 trait CrawlerModule:
 
@@ -39,11 +40,9 @@ private[graboid] class CrawlerModuleImpl(
   val fdsnCrawlerCreator: CrawlerManager.FDSNCrawlerCreator = (descriptor) =>
     Try(FDSNCrawler(httpModule.serviceLayer)(descriptor))
 
-  val crawlerManager = CrawlerManager(
-    config.materialized,
-    supervisorCreator,
-    fdsnCrawlerCreator
-  )
+  val crawlerManager = wireWith(CrawlerManager.apply)
+
+  private def crawlerManagerConfig = config.materialized
 
   override def runManager(): ZStream[Any, Throwable, CrawlerReport] =
     crawlerManager

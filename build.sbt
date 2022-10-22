@@ -85,7 +85,8 @@ lazy val `graboid` = (project in file("graboid"))
       Dependencies.LemonScalaUri,
       Dependencies.AaltoXml,
       Dependencies.Mockito,
-      Dependencies.ArangoDB
+      Dependencies.ArangoDB,
+      Dependencies.Macwire
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )

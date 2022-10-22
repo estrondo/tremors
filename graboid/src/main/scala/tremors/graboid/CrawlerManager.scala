@@ -1,5 +1,6 @@
 package tremors.graboid
 
+import com.softwaremill.macwire.*
 import tremors.graboid.fdsn.FDSNCrawler
 import tremors.graboid.repository.TimelineRepository
 import zio.Task
@@ -43,8 +44,7 @@ object CrawlerManager:
       config: Config,
       supervisorCreator: SupervisorCreator,
       fdsnCrawlerCreator: FDSNCrawlerCreator
-  ): CrawlerManager =
-    CrawlerManagerImpl(config, supervisorCreator, fdsnCrawlerCreator)
+  ): CrawlerManager = wire[CrawlerManagerImpl]
 
 private[graboid] class CrawlerManagerImpl(
     config: Config,

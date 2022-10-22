@@ -19,6 +19,7 @@ object Dependencies {
   val ArangoDBVersion       = "6.19.0"
   val BorerVersion          = "1.10.0"
   val TestcontainersVersion = "0.40.11"
+  val MacwireVersion        = "2.5.8"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -57,7 +58,7 @@ object Dependencies {
   )
 
   val LemonScalaUri = Seq(
-    "io.lemonlabs" %% "scala-uri" % LemonScalaUriVersion //exclude ("org.typelevel", "cats-core_3") exclude("org.typelevel", "cats-parse_3")
+    "io.lemonlabs" %% "scala-uri" % LemonScalaUriVersion // exclude ("org.typelevel", "cats-core_3") exclude("org.typelevel", "cats-parse_3")
   )
 
   val Testcontainers = Seq(
@@ -89,5 +90,9 @@ object Dependencies {
   val Borer = Seq(
     "io.bullet" %% "borer-core"       % BorerVersion,
     "io.bullet" %% "borer-derivation" % BorerVersion
+  )
+
+  val Macwire = Seq(
+    "com.softwaremill.macwire" %% "macros" % MacwireVersion % Provided
   )
 }

@@ -1,5 +1,6 @@
 package tremors.graboid
 
+import com.softwaremill.macwire.*
 import io.bullet.borer.Cbor
 import io.bullet.borer.Codec
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -48,7 +49,7 @@ object CrawlerSupervisor:
     CrawlerSupervisor(Config(descriptor.name), crawler, producer)
 
   def apply(config: Config, crawler: Crawler, producer: TaskLayer[Producer]): CrawlerSupervisor =
-    CrawlerSupervisorImpl(config, crawler, producer)
+    wire[CrawlerSupervisorImpl]
 
 private class CrawlerSupervisorImpl(config: Config, crawler: Crawler, producer: TaskLayer[Producer])
     extends CrawlerSupervisor:

@@ -1,17 +1,32 @@
 package tremors.graboid
 
-import zio.{ULayer, Task, ZIO}
+import tremors.graboid.config.*
+import zhttp.service.ChannelFactory
+import zhttp.service.EventLoopGroup
+import zio.Task
+import zio.TaskLayer
+import zio.ULayer
+import zio.ZIO
+import zio.ZLayer
+import zio.ZLayer.apply
 
 trait HttpModule:
+
+  val channelFactory: ULayer[ChannelFactory] = ChannelFactory.nio
+
+  def eventLoopGroup: ULayer[EventLoopGroup]
 
   def serviceLayer: ULayer[HttpService]
 
 object HttpModule:
 
-  def apply(): Task[HttpModule] = ZIO.attempt {
-    HttpModuleImpl()
+  def apply(clientConfig: HttpClientConfig): Task[HttpModule] = ZIO.attempt {
+    HttpModuleImpl(clientConfig.parallelism)
   }
 
-private[graboid] class HttpModuleImpl extends HttpModule:
+private[graboid] class HttpModuleImpl(parallelism: Int) extends HttpModule:
 
-  override def serviceLayer: ULayer[HttpService] = throw IllegalStateException("serviceLayer")
+  val eventLoopGroup: ULayer[EventLoopGroup] = EventLoopGroup.nio(parallelism)
+
+  override def serviceLayer: ULayer[HttpService] =
+    HttpService.auto(channelFactory ++ eventLoopGroup)

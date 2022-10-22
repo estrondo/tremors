@@ -1,16 +1,16 @@
 package tremors.graboid
 
+import tremors.graboid.CrawlerManager.CrawlerReport
+import tremors.graboid.config.GraboidConfig
 import zio.ExitCode
 import zio.Scope
 import zio.Task
-import zio.ZIO
 import zio.UIO
+import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
 import zio.config.ConfigSource
-import tremors.graboid.config.GraboidConfig
 import zio.stream.ZSink
-import tremors.graboid.CrawlerManager.CrawlerReport
 
 object Graboid extends ZIOAppDefault:
 
@@ -28,7 +28,7 @@ object Graboid extends ZIOAppDefault:
 
   def application(graboidConfig: GraboidConfig): Task[ExitCode] =
     for
-      httpModule     <- HttpModule()
+      httpModule     <- HttpModule(graboidConfig.httpClient)
       kafkaModule    <- KafkaModule()
       databaseModule <- DatabaseModule(graboidConfig)
       crawlerModule  <-
