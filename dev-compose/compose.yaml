@@ -9,6 +9,7 @@ services:
       - arango1:/var/lib/arangodb3
     environment:
       ARANGO_ROOT_PASSWORD: tremors
+    command: arangodb --starter.join arango1,arango2,arango3
   arango2:
     image: arangodb/arangodb:3.10.0
     ports:
@@ -17,6 +18,17 @@ services:
       - arango2:/var/lib/arangodb3
     environment:
       ARANGO_ROOT_PASSWORD: tremors
+    command: arangodb --starter.join arango1,arango2,arango3
+  arango3:
+    image: arangodb/arangodb:3.10.0
+    ports:
+      - "8531:8529"
+    volumes:
+      - arango2:/var/lib/arangodb3
+    environment:
+      ARANGO_ROOT_PASSWORD: tremors
+    command: arangodb --starter.join arango1,arango2,arango3
 volumes:
   arango1:
   arango2:
+  arango3:

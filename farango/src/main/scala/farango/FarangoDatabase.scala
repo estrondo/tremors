@@ -18,6 +18,8 @@ trait FarangoDatabase:
 
   def documentCollection(name: String): FarangoDocumentCollection
 
+  private[farango] def underlying: ArangoDatabaseAsync
+
 object FarangoDatabase:
 
   case class Config(
@@ -59,5 +61,7 @@ private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extend
     summon[FApplicative[F]].mapFromCompletionStage(
       database.query(query, args.asJava, expectedClass)
     ) { cursor =>
-      summon[FApplicativeStream[S]].mapFromJavaStream(() => cursor.streamRemaining())(identity)
+      summon[FApplicativeStream[S]].mapFromJavaStream(cursor.streamRemaining())(identity)
     }
+
+  override private[farango] def underlying: ArangoDatabaseAsync = database

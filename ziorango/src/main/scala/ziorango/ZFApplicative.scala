@@ -4,7 +4,6 @@ import farango.FApplicative
 import zio.ZIO
 
 import java.util.concurrent.CompletionStage
-import scala.jdk.FutureConverters.CompletionStageOps
 import ziorango.Ziorango.F
 
 given FApplicative[Ziorango.F] = ZFApplicative
@@ -12,9 +11,9 @@ given FApplicative[Ziorango.F] = ZFApplicative
 object ZFApplicative extends FApplicative[Ziorango.F]:
 
   override def mapFromCompletionStage[A, B](
-      completionStage: CompletionStage[A]
+      completionStage: => CompletionStage[A]
   )(fn: A => B): Ziorango.F[B] =
-    for a <- ZIO.fromFuture(ec => completionStage.asScala)
+    for a <- ZIO.fromCompletionStage(completionStage)
     yield fn(a)
 
   override def map[A, B](a: Ziorango.F[A])(fn: A => B): Ziorango.F[B] =
@@ -25,10 +24,10 @@ object ZFApplicative extends FApplicative[Ziorango.F]:
     a.flatMap(fn)
 
   override def flatMapFromCompletionStage[A, B](
-      completionStage: CompletionStage[A]
+      completionStage: => CompletionStage[A]
   )(fn: A => Ziorango.F[B]): Ziorango.F[B] =
     ZIO
-      .fromFuture(ec => completionStage.asScala)
+      .fromCompletionStage(completionStage)
       .flatMap(a => fn(a))
 
   override def pure[A](a: A): Ziorango.F[A] = ZIO.succeed(a)

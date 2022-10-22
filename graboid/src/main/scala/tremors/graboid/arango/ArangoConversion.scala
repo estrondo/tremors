@@ -5,6 +5,7 @@ import java.time.temporal.ChronoField
 import java.time.ZonedDateTime
 import java.time.Clock
 import java.time.Instant
+import java.time.Duration
 
 object ArangoConversion:
 
@@ -14,3 +15,7 @@ object ArangoConversion:
 
   given Conversion[Long, ZonedDateTime] = longValue =>
     ZonedDateTime.ofInstant(Instant.ofEpochSecond(longValue), ZoneId)
+
+  given Conversion[Long, Duration] = Duration.ofSeconds(_)
+
+  given Conversion[Duration, Long] = _.getSeconds()
