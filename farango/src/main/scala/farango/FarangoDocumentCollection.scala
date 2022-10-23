@@ -24,16 +24,14 @@ private[farango] class FarangoDocumentCollectionImpl(
     collection.create(creationOptions).get()
 
   override def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T] =
-    val applicative = summon[FApplicative[F]]
-    val options     = DocumentCreateOptions()
+    val options = DocumentCreateOptions()
       .returnNew(true)
 
-    applicative.mapFromCompletionStage(collection.insertDocument(document, options)) { entity =>
+    FApplicative[F].mapFromCompletionStage(collection.insertDocument(document, options)) { entity =>
       entity.getNew()
     }
 
   override def loadAll[T: ClassTag, S[_]: FApplicativeStream]: S[T] =
-    val applicative     = summon[FApplicativeStream[S]]
     val completionStage = database.underlying
       .query(
         s"FOR e IN ${collection.name()} RETURN e",
@@ -41,12 +39,10 @@ private[farango] class FarangoDocumentCollectionImpl(
       )
       .thenApply(cursor => cursor.streamRemaining())
 
-    applicative.mapFromCompletionStage(completionStage)(identity)
+    FApplicativeStream[S].mapFromCompletionStage(completionStage)(identity)
 
   def checkCollection[F[_]: FApplicative](): F[Boolean] =
-    val applicative = summon[FApplicative[F]]
-
-    applicative.flatMapFromCompletionStage(collection.exists()) { exists =>
-      if exists then applicative.pure(true)
-      else applicative.mapFromCompletionStage(collection.create())(_ => true)
+    FApplicative[F].flatMapFromCompletionStage(collection.exists()) { exists =>
+      if exists then FApplicative[F].pure(true)
+      else FApplicative[F].mapFromCompletionStage(collection.create())(_ => true)
     }

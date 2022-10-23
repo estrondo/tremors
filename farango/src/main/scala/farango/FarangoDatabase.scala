@@ -58,10 +58,10 @@ private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extend
   ): F[S[T]] =
     val expectedClass: Class[T] = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
 
-    summon[FApplicative[F]].mapFromCompletionStage(
+    FApplicative[F].mapFromCompletionStage(
       database.query(query, args.asJava, expectedClass)
     ) { cursor =>
-      summon[FApplicativeStream[S]].mapFromJavaStream(cursor.streamRemaining())(identity)
+      FApplicativeStream[S].mapFromJavaStream(cursor.streamRemaining())(identity)
     }
 
   override private[farango] def underlying: ArangoDatabaseAsync = database
