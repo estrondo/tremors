@@ -24,6 +24,8 @@ trait CrawlerManager:
 
   def start(): ZStream[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport]
 
+  def run(name: String): ZIO[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport]
+
 object CrawlerManager:
 
   type SupervisorCreator  = (CrawlerDescriptor, Crawler) => Try[CrawlerSupervisor]
@@ -100,3 +102,8 @@ private[graboid] class CrawlerManagerImpl(
         repository = repository
       )
     }
+
+  override def run(
+      name: String
+  ): ZIO[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport] =
+    ???

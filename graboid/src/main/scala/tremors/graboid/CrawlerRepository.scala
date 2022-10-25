@@ -1,19 +1,23 @@
 package tremors.graboid
 
-import zio.stream.ZStream
-
-import CrawlerRepository.*
 import farango.FarangoDatabase
-import ziorango.Ziorango
-import ziorango.given
 import tremors.graboid.arango.ArangoConversion.given
 import zio.Task
+import zio.stream.ZStream
+import ziorango.Ziorango
+import ziorango.given
+
+import CrawlerRepository.*
 
 trait CrawlerRepository:
 
   def add(descriptor: CrawlerDescriptor): Task[CrawlerDescriptor]
 
   def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor]
+
+  def remove(name: String): Task[Option[CrawlerDescriptor]]
+
+  def update(descriptor: CrawlerDescriptor): Task[Option[CrawlerDescriptor]]
 
 object CrawlerRepository:
 
@@ -59,3 +63,7 @@ private[graboid] class CrawlerRepositoryImpl(database: FarangoDatabase) extends 
   override def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor] =
     for mapped <- collection.loadAll[MappedCrawlerDescriptor, Ziorango.S]
     yield toCrawlerDescriptor(mapped)
+
+  override def remove(name: String): Task[Option[CrawlerDescriptor]] = ???
+
+  override def update(descriptor: CrawlerDescriptor): Task[Option[CrawlerDescriptor]] = ???

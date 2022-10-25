@@ -37,14 +37,14 @@ object CommandListenerSpec extends Spec:
       Mockito
         .when(executor(ArgumentMatchers.any(classOf[CommandDescriptor])))
         .thenAnswer { invocation =>
-          ZIO.succeed(CommandExecution(invocation.getArgument[CommandDescriptor](0)))
+          ZIO.succeed(CommandExecution(0L, invocation.getArgument[CommandDescriptor](0)))
         }
 
       val commands = (1 to 10).flatMap { idx =>
         Seq(
-          AddCrawler(name = s"crawler-$idx"),
-          RemoveCrawler(name = s"crawler-$idx"),
-          UpdateCrawler(name = s"crawler-$idx")
+          AddCrawlerFixture.createRandom(),
+          RemoveCrawlerFixture.createRandom(),
+          UpdateCrawlerFixture.createRandom()
         )
       }
 

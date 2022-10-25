@@ -1,8 +1,8 @@
 package tremors.graboid
 
-import tremors.ziotestcontainers.*
 import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import tremors.ziotestcontainers.*
 import zio.TaskLayer
 import zio.URIO
 import zio.ZIO
