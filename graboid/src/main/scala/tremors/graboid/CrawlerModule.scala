@@ -46,5 +46,5 @@ private[graboid] class CrawlerModuleImpl(
 
   override def runManager(): ZStream[Any, Throwable, CrawlerReport] =
     crawlerManager
-      .start()
+      .runAll()
       .provideLayer(databaseModule.timelineRepositoryLayer ++ databaseModule.crawlerRepositoryLayer)

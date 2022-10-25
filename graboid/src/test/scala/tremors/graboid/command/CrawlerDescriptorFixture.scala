@@ -11,7 +11,7 @@ object CrawlerDescriptorFixture:
 
   def createRandom() = CrawlerDescriptor(
     name = createRandomString(),
-    `type` = "FDSN",
+    `type` = "fdsn",
     source = createRandomString(),
     windowDuration = Duration.ofDays(10 + Random.nextLong(20)),
     starting = ZonedDateTime.now()

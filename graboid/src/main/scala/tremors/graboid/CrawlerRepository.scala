@@ -13,6 +13,8 @@ trait CrawlerRepository:
 
   def add(descriptor: CrawlerDescriptor): Task[CrawlerDescriptor]
 
+  def get(name: String): Task[Option[CrawlerDescriptor]]
+
   def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor]
 
   def remove(name: String): Task[Option[CrawlerDescriptor]]
@@ -59,6 +61,8 @@ private[graboid] class CrawlerRepositoryImpl(database: FarangoDatabase) extends 
   override def add(descriptor: CrawlerDescriptor): Task[CrawlerDescriptor] =
     for stored <- collection.insert(toMapCrawlerDescriptor(descriptor))
     yield toCrawlerDescriptor(stored)
+
+  override def get(name: String): Task[Option[CrawlerDescriptor]] = ???
 
   override def getAllDescriptors(): ZStream[Any, Throwable, CrawlerDescriptor] =
     for mapped <- collection.loadAll[MappedCrawlerDescriptor, Ziorango.S]

@@ -1,20 +1,26 @@
 package tremors.graboid
 
+import org.mockito.ArgumentMatchers.{eq => mEq}
 import org.mockito.Mockito.*
+import tremors.graboid.command.CrawlerDescriptorFixture
 import tremors.graboid.fdsn.FDSNCrawler
 import tremors.graboid.repository.TimelineRepository
 import zio.UIO
+import zio.URIO
 import zio.ZIO
 import zio.ZLayer
 import zio.stream.ZSink
 import zio.stream.ZStream
+import zio.test.Assertion
+import zio.test.assert
 import zio.test.assertTrue
 
-import scala.collection.immutable.HashMap
-import scala.util.Success
-import scala.util.Try
 import java.time.Duration
 import java.time.ZonedDateTime
+import scala.collection.immutable.HashMap
+import scala.util.Random
+import scala.util.Success
+import scala.util.Try
 
 object CrawlerManagerSpec extends Spec:
 
@@ -90,10 +96,49 @@ object CrawlerManagerSpec extends Spec:
                                supervisorCreator = (_, crawler) => Try(supervisorMap(crawler)),
                                fdsnCrawlerCreator = descriptor => Try(crawlerMap(descriptor))
                              )
-        result            <- manager.start().run(ZSink.collectAll)
+        result            <- manager.runAll().run(ZSink.collectAll)
       yield assertTrue(
         result.map(_.success).sum == 1500L,
         result.map(_.fail).sum == 150L
       )
+    }.provideLayer(mockLayer),
+    test("when it run a specific crawler, it should return a report") {
+
+      val supervisor = mock(classOf[CrawlerSupervisor])
+      val crawler    = mock(classOf[Crawler])
+      val descriptor = CrawlerDescriptorFixture.createRandom()
+
+      val status = CrawlerSupervisor.Status(
+        success = 10 + Random.nextInt(101),
+        fail = Random.nextInt(10),
+        skip = Random.nextInt(3)
+      )
+
+      when(supervisor.run())
+        .thenReturn(ZIO.succeed(status))
+
+      for
+        timelineManager   <- ZIO.service[TimelineManager]
+        crawlerRepository <- ZIO.service[CrawlerRepository]
+        _                  = when(crawlerRepository.get(mEq(descriptor.name)))
+                               .thenReturn(ZIO.succeed(Some(descriptor)))
+        manager           <- createManager(
+                               timelineManager = ZLayer.succeed(timelineManager),
+                               supervisorCreator = (_, crawler) => Success(supervisor),
+                               fdsnCrawlerCreator = (descriptor) => Success(crawler)
+                             )
+        optionalReport    <- manager.run(descriptor.name)
+      yield assertTrue(
+        optionalReport == Some(
+          CrawlerManager.CrawlerReport(
+            descriptor.name,
+            descriptor.`type`,
+            descriptor.source,
+            status.success,
+            status.fail
+          )
+        )
+      )
+
     }.provideLayer(mockLayer)
   )

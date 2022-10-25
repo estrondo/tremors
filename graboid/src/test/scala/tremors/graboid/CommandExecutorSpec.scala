@@ -107,13 +107,13 @@ object CommandExecutorSpec extends Spec:
         manager   <- ZIO.service[CrawlerManager]
         report     = CrawlerReportFixture.createRandom(CrawlerDescriptorFixture.createRandom())
         _          = Mockito
-                       .when(manager.start())
+                       .when(manager.runAll())
                        .thenReturn(ZStream(report))
         executor  <- createExecutor()
         execution <- executor(RunAll)
       yield assertTrue(
         execution.descriptor == RunAll,
-        verify(manager).start() == null
+        verify(manager).runAll() == null
       )
     }.provideLayer(allMockLayer)
   )

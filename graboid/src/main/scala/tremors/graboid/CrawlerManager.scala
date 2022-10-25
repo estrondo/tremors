@@ -22,9 +22,11 @@ import CrawlerManager.*
 
 trait CrawlerManager:
 
-  def start(): ZStream[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport]
+  def runAll(): ZStream[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport]
 
-  def run(name: String): ZIO[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport]
+  def run(
+      name: String
+  ): ZIO[CrawlerRepository & TimelineRepository, Throwable, Option[CrawlerReport]]
 
 object CrawlerManager:
 
@@ -57,7 +59,7 @@ private[graboid] class CrawlerManagerImpl(
   private def concurrency =
     config.concurrency.getOrElse(math.max(Runtime.getRuntime().availableProcessors() / 2, 1))
 
-  override def start(): ZStream[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport] =
+  override def runAll(): ZStream[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport] =
     for
       crawlerRepository <- ZStream.service[CrawlerRepository]
       report            <- crawlerRepository.getAllDescriptors().mapZIOPar(concurrency)(handle)
@@ -105,5 +107,11 @@ private[graboid] class CrawlerManagerImpl(
 
   override def run(
       name: String
-  ): ZIO[CrawlerRepository & TimelineRepository, Throwable, CrawlerReport] =
-    ???
+  ): ZIO[CrawlerRepository & TimelineRepository, Throwable, Option[CrawlerReport]] =
+    for
+      crawlerRepository <- ZIO.service[CrawlerRepository]
+      optionDescriptor  <- crawlerRepository.get(name)
+      optionReport      <- optionDescriptor match
+                             case Some(descriptor) => handle(descriptor).map(Some.apply)
+                             case None             => ZIO.none
+    yield optionReport

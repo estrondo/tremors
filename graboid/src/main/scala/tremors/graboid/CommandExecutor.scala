@@ -82,7 +82,7 @@ private[graboid] class CommandExecutorImpl(
 
   private def runAll()(using Execution): Task[CommandExecution] =
     val execution =
-      for _ <- crawlerManager.start().run(ZSink.collectAll)
+      for _ <- crawlerManager.runAll().run(ZSink.collectAll)
       yield Execution.build()
 
     execution.provideLayer(crawlerRepositoryLayer ++ timelineRepositoryLayer)
