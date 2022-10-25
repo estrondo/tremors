@@ -2,9 +2,9 @@ package tremors.graboid.fdsn
 
 import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import tremors.graboid.HttpLayer
 import tremors.graboid.Spec
 import tremors.graboid.TimelineManager
-import tremors.graboid.httpServiceLayer
 import tremors.graboid.quakeml.QuakeMLParser
 import tremors.quakeml.Event
 import tremors.quakeml.ResourceReference
@@ -30,7 +30,7 @@ object FDSNCrawlerSpec extends Spec:
                       organization = "testable",
                       queryURL = URL(s"http://localhost:$port/simple/fdsnws/event/1/query")
                     )
-          crawler = new FDSNCrawler(config, httpServiceLayer, QuakeMLParser())
+          crawler = new FDSNCrawler(config, HttpLayer.serviceLayer, QuakeMLParser())
           stream <- crawler.crawl(window).orDieWith(identity)
           all    <- stream.runCollect.orDieWith(identity)
         yield assertTrue(

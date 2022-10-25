@@ -16,7 +16,7 @@ object CrawlerRepositorySpec extends Spec:
 
   private val createRepository =
     for
-      port    <- singleContainerGetPort(8529)
+      port    <- ArangoDBLayer.getPort()
       database = FarangoDatabase(
                    FarangoDatabase.Config(
                      name = "_system",
@@ -26,17 +26,6 @@ object CrawlerRepositorySpec extends Spec:
                    )
                  )
     yield CrawlerRepository(database)
-
-  private val arangoDBLayer = layerOf {
-    GenericContainer(
-      dockerImage = "arangodb/arangodb:3.10.0",
-      env = Map(
-        "ARANGO_ROOT_PASSWORD" -> "159753"
-      ),
-      exposedPorts = Seq(8529),
-      waitStrategy = Wait.forLogMessage(".*Have fun!.*", 1)
-    )
-  }
 
   override def spec = suite("A CrawlerRepository")(
     suite("with valid ArangoDB")(
@@ -52,7 +41,7 @@ object CrawlerRepositorySpec extends Spec:
                         )
           stored     <- repository.add(descriptor)
         yield assertTrue(stored == descriptor)
-      }.provideLayer(arangoDBLayer),
+      }.provideLayer(ArangoDBLayer.layer),
       test("should return stream of 10 descriptors") {
         val descriptors =
           for i <- 1 to 10
@@ -69,6 +58,6 @@ object CrawlerRepositorySpec extends Spec:
           _          <- ZStream.fromIterable(descriptors).mapZIO(repository.add).run(ZSink.drain)
           stored     <- repository.getAllDescriptors().run(ZSink.collectAll)
         yield assertTrue(stored.to(Seq) == descriptors)
-      }.provideLayer(arangoDBLayer)
+      }.provideLayer(ArangoDBLayer.layer)
     )
   )

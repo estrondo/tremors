@@ -3,6 +3,7 @@ package tremors.graboid
 import com.dimafeng.testcontainers.KafkaContainer
 import io.bullet.borer.Cbor
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.mockito.Answers
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.testcontainers.utility.DockerImageName
@@ -25,29 +26,8 @@ import zio.stream.ZSink
 import zio.stream.ZStream
 import zio.test.TestClock
 import zio.test.assertTrue
-import org.mockito.Answers
 
 object CommandListenerSpec extends Spec:
-
-  private val kafkaContainerLayer = layerOf {
-    KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.2.2"))
-  }
-
-  private def createConsumerLayer(): RIO[KafkaContainer, TaskLayer[Consumer]] =
-    ZIO.serviceWith(container =>
-      ZLayer.scoped(
-        Consumer.make(
-          ConsumerSettings(List(container.bootstrapServers))
-            .withGroupId(CommandListener.Group)
-            .withProperty("auto.offset.reset", "earliest")
-        )
-      )
-    )
-
-  private def createProducerLayer(): RIO[KafkaContainer, TaskLayer[Producer]] =
-    ZIO.serviceWith(container =>
-      ZLayer.scoped(Producer.make(ProducerSettings(List(container.bootstrapServers))))
-    )
 
   override def spec = suite("A CommandListener")(
     test("should receive some commands from Kafka") {
@@ -77,11 +57,13 @@ object CommandListenerSpec extends Spec:
         )
 
       for
-        container     <- ZIO.service[KafkaContainer]
-        consumerLayer <- createConsumerLayer()
-        fiber         <-
-          listener.run().provideLayer(consumerLayer).run(ZSink.collectAllN(records.size)).fork
-        producerLayer <- createProducerLayer()
+        consumerLayer <- KafkaContainerLayer.createConsumerLayer(CommandListener.Group)
+        fiber         <- listener
+                           .run()
+                           .provideLayer(consumerLayer)
+                           .run(ZSink.collectAllN(records.size))
+                           .fork
+        producerLayer <- KafkaContainerLayer.createProducerLayer()
         _             <- ZStream
                            .fromIterable(records)
                            .mapZIO(Producer.produce(_, Serde.string, Serde.byteArray))
@@ -90,5 +72,5 @@ object CommandListenerSpec extends Spec:
         _             <- TestClock.adjust(5.seconds)
         executions    <- fiber.join
       yield assertTrue(executions.size == records.size)
-    }.provideLayer(kafkaContainerLayer)
+    }.provideLayer(KafkaContainerLayer.layer)
   )

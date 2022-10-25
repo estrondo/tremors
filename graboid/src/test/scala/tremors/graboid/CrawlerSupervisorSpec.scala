@@ -3,7 +3,6 @@ package tremors.graboid
 import com.dimafeng.testcontainers.KafkaContainer
 import org.mockito.ArgumentMatchers.{eq => meq, _}
 import org.mockito.Mockito.*
-import org.testcontainers.utility.DockerImageName
 import tremors.quakeml.EventFixture
 import tremors.ziotestcontainers.*
 import zio.ZIO
@@ -23,10 +22,6 @@ import zio.test.assertTrue
 import java.time.ZonedDateTime
 
 object CrawlerSupervisorSpec extends Spec:
-
-  private val kafkaContainerLayer = layerOf {
-    KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.2.2"))
-  }
 
   private val detectedStream = Consumer
     .subscribeAnd(Subscription.topics("seismo-detected"))
@@ -58,22 +53,8 @@ object CrawlerSupervisorSpec extends Spec:
           .thenReturn(ZIO.succeed(ZStream.fromIterable(events)))
 
         for
-          // kafkaPort    <- DockerLayer.getPort("kafka", 29092)
-          container <- ZIO.service[KafkaContainer]
-          bootstrap  = container.bootstrapServers
-
-          producerLayer =
-            ZLayer.scoped(Producer.make(ProducerSettings(List(bootstrap))))
-
-          consumerLayer =
-            ZLayer.scoped(
-              Consumer.make(
-                ConsumerSettings(List(bootstrap))
-                  .withGroupId("tester")
-                  .withProperty("auto.offset.reset", "earliest")
-              )
-            )
-
+          producerLayer    <- KafkaContainerLayer.createProducerLayer()
+          consumerLayer    <- KafkaContainerLayer.createConsumerLayer("test-group")
           crawlerSupervisor = CrawlerSupervisor(config, crawler, producerLayer)
           status           <- crawlerSupervisor.run().provideLayer(ZLayer.succeed(timelineManager))
           fork             <- detectedStream.run(ZSink.collectAllN(10)).provideLayer(consumerLayer).fork
@@ -85,5 +66,5 @@ object CrawlerSupervisorSpec extends Spec:
           verify(timelineManager).register(meq("testable"), meq(window)) == null
         )
       }
-    ).provideLayer(kafkaContainerLayer)
+    ).provideLayer(KafkaContainerLayer.layer)
   )

@@ -26,12 +26,13 @@ import tremors.ziotestcontainers.*
 import tremors.ziotestcontainers.given
 import com.dimafeng.testcontainers.GenericContainer
 import com.dimafeng.testcontainers.GenericContainer.DockerImage
+import tremors.graboid.ArangoDBLayer
 
 object TimelineRepositorySpec extends Spec:
 
   private val createRepository =
     for
-      port    <- singleContainerGetPort(8529)
+      port    <- ArangoDBLayer.getPort()
       database = FarangoDatabase(
                    FarangoDatabase.Config(
                      name = "_system",
@@ -41,17 +42,6 @@ object TimelineRepositorySpec extends Spec:
                    )
                  )
     yield TimelineRepository(database)
-
-  private val arangoDBLayer = layerOf {
-    GenericContainer(
-      dockerImage = "arangodb/arangodb:3.10.0",
-      env = Map(
-        "ARANGO_ROOT_PASSWORD" -> "159753"
-      ),
-      exposedPorts = Seq(8529),
-      waitStrategy = Wait.forLogMessage(".*Have fun!.*", 1)
-    )
-  }
 
   override def spec = suite("A TimelineRepository")(
     suite("Integration test with ArangoDB")(
@@ -86,7 +76,7 @@ object TimelineRepositorySpec extends Spec:
           retrieve   <- repository.last("empty")
         yield assertTrue(retrieve.isEmpty)
       }
-    ).provideLayer(arangoDBLayer),
+    ).provideLayer(ArangoDBLayer.layer),
     suite("Mocking test")(
       test("should report ArangoDB's exceptions when it's searching the last window") {
         val database   = mock(classOf[FarangoDatabase])
