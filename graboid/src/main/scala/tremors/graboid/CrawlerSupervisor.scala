@@ -33,7 +33,7 @@ trait CrawlerSupervisor:
 
 object CrawlerSupervisor:
 
-  val Topic = "seismo-detected"
+  val Topic = "tremors.detected-event"
 
   case class Config(crawlerName: String)
 

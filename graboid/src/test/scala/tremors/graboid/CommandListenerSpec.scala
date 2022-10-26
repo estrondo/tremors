@@ -51,7 +51,7 @@ object CommandListenerSpec extends Spec:
       val records =
         for (command, idx) <- commands.zipWithIndex
         yield ProducerRecord(
-          CommandListener.Topic,
+          "tremors.graboid-command",
           s"k-$idx",
           Cbor.encode(command).toByteArray
         )

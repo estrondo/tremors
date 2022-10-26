@@ -24,7 +24,7 @@ import java.time.ZonedDateTime
 object CrawlerSupervisorSpec extends Spec:
 
   private val detectedStream = Consumer
-    .subscribeAnd(Subscription.topics("seismo-detected"))
+    .subscribeAnd(Subscription.topics("tremors.detected-event"))
     .plainStream(Serde.string, Serde.byteArray)
     .map(_.record)
 

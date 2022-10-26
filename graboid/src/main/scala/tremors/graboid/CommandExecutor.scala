@@ -77,10 +77,7 @@ private[graboid] class CommandExecutorImpl(
     yield build()
 
   private def runCrawler(name: String)(using CommandExecutionBuilder): Task[CommandExecution] =
-    val execution =
-      for _ <- crawlerManager.run(name)
-      yield build()
-
+    val execution = for _ <- crawlerManager.run(name) yield build()
     execution.provideLayer(crawlerRepositoryLayer ++ timelineRepositoryLayer)
 
   private def runAll()(using CommandExecutionBuilder): Task[CommandExecution] =

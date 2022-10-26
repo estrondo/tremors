@@ -94,7 +94,7 @@ object CommandExecutorSpec extends Spec:
         runCrawler = RunCrawler("a-test-crawler")
         _          = Mockito
                        .when(manager.run(mEq(runCrawler.name)))
-                       .thenReturn(ZIO.succeed(report))
+                       .thenReturn(ZIO.succeed(Some(report)))
         executor  <- createExecutor()
         execution <- executor(runCrawler)
       yield assertTrue(

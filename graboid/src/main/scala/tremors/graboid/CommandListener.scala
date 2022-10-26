@@ -13,7 +13,7 @@ import zio.stream.ZStream
 
 object CommandListener:
 
-  val Topic = "tremors.graboid-commands"
+  val Topic = "tremors.graboid-command"
   val Group = "graboid"
 
 class CommandListener(executor: CommandExecutor):
