@@ -112,6 +112,6 @@ private[graboid] class CrawlerManagerImpl(
       crawlerRepository <- ZIO.service[CrawlerRepository]
       optionDescriptor  <- crawlerRepository.get(name)
       optionReport      <- optionDescriptor match
-                             case Some(descriptor) => handle(descriptor).map(Some.apply)
+                             case Some(descriptor) => handle(descriptor).map(Some(_))
                              case None             => ZIO.none
     yield optionReport

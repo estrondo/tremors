@@ -8,7 +8,7 @@ import zio.ZEnvironment
 import zio.ZLayer
 import zio.stream.ZSink
 
-import CommandExecutor.Execution
+import CommandExecutor.CommandExecutionBuilder
 
 trait CommandExecutor:
 
@@ -22,17 +22,14 @@ object CommandExecutor:
       timelineRepository: TimelineRepository
   ): CommandExecutor = wire[CommandExecutorImpl]
 
-  object Execution:
+  object CommandExecutionBuilder:
 
-    inline given (using descriptor: CommandDescriptor): Execution = new Execution(descriptor)
+    inline given (using descriptor: CommandDescriptor): CommandExecutionBuilder =
+      new CommandExecutionBuilder(descriptor)
 
-    def build()(using execution: Execution): CommandExecution =
-      val currentTime = System.currentTimeMillis()
-      CommandExecution(currentTime - execution.starttime, execution.descriptor)
-
-  class Execution(
+  class CommandExecutionBuilder(
       val descriptor: CommandDescriptor,
-      val starttime: Long = System.currentTimeMillis()
+      val startTime: Long = System.currentTimeMillis()
   )
 
 private[graboid] class CommandExecutorImpl(
@@ -59,30 +56,36 @@ private[graboid] class CommandExecutorImpl(
 
       case RunAll => runAll()
 
-  private def addCrawler(descriptor: CrawlerDescriptor)(using Execution): Task[CommandExecution] =
-    for _ <- crawlerRepository.add(descriptor)
-    yield Execution.build()
+  private def build()(using builder: CommandExecutionBuilder): CommandExecution =
+    val currentTime = System.currentTimeMillis()
+    CommandExecution(currentTime - builder.startTime, builder.descriptor)
 
-  private def removeCrawler(name: String)(using Execution): Task[CommandExecution] =
+  private def addCrawler(
+      descriptor: CrawlerDescriptor
+  )(using CommandExecutionBuilder): Task[CommandExecution] =
+    for _ <- crawlerRepository.add(descriptor)
+    yield build()
+
+  private def removeCrawler(name: String)(using CommandExecutionBuilder): Task[CommandExecution] =
     for _ <- crawlerRepository.remove(name)
-    yield Execution.build()
+    yield build()
 
   private def updateCrawler(name: String, descriptor: CrawlerDescriptor, shouldRunNow: Boolean)(
-      using Execution
+      using CommandExecutionBuilder
   ): Task[CommandExecution] =
     for _ <- crawlerRepository.update(descriptor)
-    yield Execution.build()
+    yield build()
 
-  private def runCrawler(name: String)(using Execution): Task[CommandExecution] =
+  private def runCrawler(name: String)(using CommandExecutionBuilder): Task[CommandExecution] =
     val execution =
       for _ <- crawlerManager.run(name)
-      yield Execution.build()
+      yield build()
 
     execution.provideLayer(crawlerRepositoryLayer ++ timelineRepositoryLayer)
 
-  private def runAll()(using Execution): Task[CommandExecution] =
+  private def runAll()(using CommandExecutionBuilder): Task[CommandExecution] =
     val execution =
       for _ <- crawlerManager.runAll().run(ZSink.collectAll)
-      yield Execution.build()
+      yield build()
 
     execution.provideLayer(crawlerRepositoryLayer ++ timelineRepositoryLayer)

@@ -34,7 +34,7 @@ object CrawlerRepository:
       starting: Long
   )
 
-  private[graboid] def toMapCrawlerDescriptor(
+  private[graboid] def toMappedCrawlerDescriptor(
       descriptor: CrawlerDescriptor
   ): MappedCrawlerDescriptor = MappedCrawlerDescriptor(
     name = descriptor.name,
@@ -59,7 +59,7 @@ private[graboid] class CrawlerRepositoryImpl(database: FarangoDatabase) extends 
   private val collection = database.documentCollection("crawlers")
 
   override def add(descriptor: CrawlerDescriptor): Task[CrawlerDescriptor] =
-    for stored <- collection.insert(toMapCrawlerDescriptor(descriptor))
+    for stored <- collection.insert(toMappedCrawlerDescriptor(descriptor))
     yield toCrawlerDescriptor(stored)
 
   override def get(name: String): Task[Option[CrawlerDescriptor]] = ???
