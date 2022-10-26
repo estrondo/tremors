@@ -12,7 +12,7 @@
     <Logger name="org.testcontainers" level="off" />
     <Logger name="org.apache.kafka" level="error" />
     <Logger name="io.netty" level="off" />
-    <Logger name="com.arangodb" level="off" />
+    <Logger name="com.arangodb" level="error" />
     <Root level="debug">
       <AppenderRef ref="defaultAppender" />
     </Root>

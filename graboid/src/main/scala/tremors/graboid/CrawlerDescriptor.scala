@@ -12,6 +12,7 @@ object CrawlerDescriptor:
   given Codec[CrawlerDescriptor] = deriveCodec
 
 case class CrawlerDescriptor(
+    key: String,
     name: String,
     `type`: String,
     source: String,

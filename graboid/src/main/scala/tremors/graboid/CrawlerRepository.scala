@@ -27,6 +27,7 @@ object CrawlerRepository:
     CrawlerRepositoryImpl(database)
 
   private[graboid] case class MappedCrawlerDescriptor(
+      _key: String,
       name: String,
       `type`: String,
       source: String,
@@ -37,6 +38,7 @@ object CrawlerRepository:
   private[graboid] def toMappedCrawlerDescriptor(
       descriptor: CrawlerDescriptor
   ): MappedCrawlerDescriptor = MappedCrawlerDescriptor(
+    _key = descriptor.key,
     name = descriptor.name,
     `type` = descriptor.`type`,
     source = descriptor.source,
@@ -47,6 +49,7 @@ object CrawlerRepository:
   private[graboid] def toCrawlerDescriptor(
       mapped: MappedCrawlerDescriptor
   ): CrawlerDescriptor = CrawlerDescriptor(
+    key = mapped._key,
     name = mapped.name,
     `type` = mapped.`type`,
     source = mapped.source,
@@ -68,6 +71,10 @@ private[graboid] class CrawlerRepositoryImpl(database: FarangoDatabase) extends 
     for mapped <- collection.loadAll[MappedCrawlerDescriptor, Ziorango.S]
     yield toCrawlerDescriptor(mapped)
 
-  override def remove(name: String): Task[Option[CrawlerDescriptor]] = ???
+  override def remove(name: String): Task[Option[CrawlerDescriptor]] =
+    for old <- collection.remove[MappedCrawlerDescriptor, Ziorango.F](name)
+    yield old.map(toCrawlerDescriptor)
 
-  override def update(descriptor: CrawlerDescriptor): Task[Option[CrawlerDescriptor]] = ???
+  override def update(descriptor: CrawlerDescriptor): Task[Option[CrawlerDescriptor]] =
+    for old <- collection.update(descriptor.key, toMappedCrawlerDescriptor(descriptor))
+    yield old.map(toCrawlerDescriptor)

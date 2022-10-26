@@ -55,6 +55,7 @@ object CrawlerManagerSpec extends Spec:
     test("when find some descriptor, it should create supervisors") {
 
       val earthDescriptor = CrawlerDescriptor(
+        createRandomKey(),
         "#earth",
         FDSNCrawler.TypeName,
         "earth",
@@ -63,6 +64,7 @@ object CrawlerManagerSpec extends Spec:
       )
 
       val marsDescriptor = CrawlerDescriptor(
+        createRandomKey(),
         "#mars",
         FDSNCrawler.TypeName,
         "mars",

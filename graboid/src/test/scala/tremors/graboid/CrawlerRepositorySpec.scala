@@ -1,16 +1,21 @@
 package tremors.graboid
 
-import zio.test.assertTrue
-import zio.ZIO
-import tremors.ziotestcontainers.*
 import com.dimafeng.testcontainers.GenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
 import farango.FarangoDatabase
-import scala.concurrent.duration.Duration.apply
+import org.testcontainers.containers.wait.strategy.Wait
+import tremors.graboid.command.CrawlerDescriptorFixture
+import tremors.ziotestcontainers.*
+import zio.ZIO
+import zio.durationInt
+import zio.stream.ZSink
+import zio.stream.ZStream
+import zio.test.TestArgs
+import zio.test.TestAspect
+import zio.test.assertTrue
+
 import java.time.Duration
 import java.time.ZonedDateTime
-import zio.stream.ZStream
-import zio.stream.ZSink
+import scala.concurrent.duration.Duration.apply
 
 object CrawlerRepositorySpec extends Spec:
 
@@ -33,6 +38,7 @@ object CrawlerRepositorySpec extends Spec:
         for
           repository <- createRepository
           descriptor  = CrawlerDescriptor(
+                          key = createRandomKey(),
                           name = "A test descriptor",
                           `type` = "testable",
                           source = "Sun",
@@ -46,6 +52,7 @@ object CrawlerRepositorySpec extends Spec:
         val descriptors =
           for i <- 1 to 10
           yield CrawlerDescriptor(
+            key = createRandomKey(),
             name = s"#$i",
             `type` = "testable",
             source = s"Planet #${i}",
@@ -59,5 +66,28 @@ object CrawlerRepositorySpec extends Spec:
           stored     <- repository.getAllDescriptors().run(ZSink.collectAll)
         yield assertTrue(stored.to(Seq) == descriptors)
       }.provideLayer(ArangoDBLayer.layer)
-    )
+    ),
+    test("should remove a CrawlerDescriptor") {
+      val descriptor = CrawlerDescriptorFixture.createRandom()
+      for
+        repository <- createRepository
+        _          <- repository.add(descriptor)
+        old        <- repository.remove(descriptor.key)
+      yield assertTrue(old == Some(descriptor))
+    }.provideLayer(ArangoDBLayer.layer),
+    test("should update a CrawlerDescriptor") {
+      val descriptor        = CrawlerDescriptorFixture.createRandom()
+      val updatedDescriptor = descriptor.copy(
+        name = descriptor.name + "@",
+        starting = descriptor.starting.plusDays(2)
+      )
+
+      for
+        repository <- createRepository
+        _          <- repository.add(descriptor)
+        old        <- repository.update(updatedDescriptor)
+      yield assertTrue(
+        old == Some(descriptor)
+      )
+    }.provideLayer(ArangoDBLayer.layer)
   )
