@@ -24,3 +24,4 @@
 /quakeml-cbor/target/
 /quakeml-testkit/target/
 /zio-testcontainers/target/
+/zio-app-starter/target/

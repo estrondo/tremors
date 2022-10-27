@@ -26,7 +26,8 @@ lazy val root = (project in file("."))
     quakeml,
     quakemlCBOR,
     quakemlTestKit,
-    zioTestcontainers
+    zioTestcontainers,
+    zipAppStarter
   )
 
 lazy val farango = (project in file("farango"))
@@ -133,3 +134,12 @@ lazy val `webapp1` = (project in file("webapp1"))
       Dependencies.ZHttp
   )
   .dependsOn(`webapp-core`)
+
+lazy val zipAppStarter = (project in file("zio-app-starter"))
+  .settings(
+    name := "zio-app-starter",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZIOConfig
+    ).flatten
+  )
