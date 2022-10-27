@@ -12,10 +12,8 @@
 /.metals/
 /.vscode/
 
-/webapp1/target/
-/webapp1/.bloop/
-/webapp-core/target/
-/webapp-core/.bloop/
+/webapi1x/target/
+/webapi1x/.bloop/
 /graboid/target/
 /logging/target/
 /farango/target/

@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
 
-  val ZHttpVersion          = "2.0.0-RC10"
+  val ZHttpVersion          = "2.0.0-RC11"
   val ZKafkaVersion         = "2.0.0-M3"
   val ZIOVersion            = "2.0.0"
   val ZIOLoggingVersion     = "2.1.0"
@@ -20,6 +20,7 @@ object Dependencies {
   val BorerVersion          = "1.10.0"
   val TestcontainersVersion = "0.40.11"
   val MacwireVersion        = "2.5.8"
+  val ZIOJsonVersion        = "0.3.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -94,5 +95,9 @@ object Dependencies {
 
   val Macwire = Seq(
     "com.softwaremill.macwire" %% "macros" % MacwireVersion % Provided
+  )
+
+  val ZIOJson = Seq(
+    "dev.zio" %% "zio-json" % ZIOJsonVersion
   )
 }

@@ -89,12 +89,12 @@ class FDSNCrawler(
 
   private def extractBodyStream(response: Response): Task[ZStream[Any, Throwable, Byte]] =
     def fail(fn: String => GraboidException): Task[ZStream[Any, Throwable, Byte]] =
-      response.bodyAsString.flatMap { body =>
+      response.body.asString.flatMap { body =>
         ZIO.fail(fn(body))
       }
 
     response.status match
-      case s if s.isSuccess => ZIO.succeed(response.bodyAsStream)
+      case s if s.isSuccess => ZIO.succeed(response.body.asStream)
 
       case s if s.isClientError =>
         fail(body => GraboidException.IllegalRequest(s"$s: $body"))

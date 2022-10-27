@@ -15,17 +15,31 @@ import zio.config.typesafe.TypesafeConfigSource
 
 object ZProfile:
 
+  val DefaultProfilePropertyName = "tremors.profile"
+  val DefaultProfileEnvName      = "TREMORS_PROFILE"
+  val DefaultResourcePattern     = "application-[profile].conf"
+  val DefaultDefaultApplication  = "application.conf"
+
   private def parseOptions: ConfigParseOptions =
     ConfigParseOptions
       .defaults()
       .setSyntax(ConfigSyntax.CONF)
       .setAllowMissing(false)
 
+  def loadOnlyConfig[T: Descriptor](
+      profilePropertyName: String = DefaultProfilePropertyName,
+      profileEnvName: String = DefaultProfileEnvName,
+      resourcePattern: String = DefaultResourcePattern,
+      defaultApplication: String = DefaultDefaultApplication
+  ): Task[T] =
+    for config <- load(profilePropertyName, profileEnvName, resourcePattern, defaultApplication)
+    yield config._1
+
   def load[T: Descriptor](
-      profilePropertyName: String = "tremors.profile",
-      profileEnvName: String = "TREMORS_PROFILE",
-      resourcePattern: String = "application-[profile].conf",
-      defaultApplication: String = "application.conf"
+      profilePropertyName: String = DefaultProfilePropertyName,
+      profileEnvName: String = DefaultProfileEnvName,
+      resourcePattern: String = DefaultResourcePattern,
+      defaultApplication: String = DefaultDefaultApplication
   ): Task[(T, Option[String])] =
     for
       propertyProfile <- System.property(profilePropertyName)

@@ -4,6 +4,7 @@ ThisBuild / isSnapshot   := true
 ThisBuild / Test / fork  := true
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
+ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
 
 Test / run / javaOptions += "-Dtremors.profile=test"
 
@@ -18,9 +19,8 @@ lazy val root = (project in file("."))
     name := "tremors"
   )
   .aggregate(
-    `webapp1`,
-    `webapp-core`,
-    `graboid`,
+    webapi1x,
+    graboid,
     farango,
     ziorango,
     quakeml,
@@ -73,7 +73,7 @@ lazy val quakemlCBOR = (project in file("quakeml-cbor"))
   )
   .dependsOn(quakeml)
 
-lazy val `graboid` = (project in file("graboid"))
+lazy val graboid = (project in file("graboid"))
   .settings(
     name := "graboid",
     libraryDependencies ++= Seq(
@@ -121,26 +121,28 @@ lazy val zioTestcontainers = (project in file("zio-testcontainers"))
     ).flatten
   )
 
-lazy val `webapp-core` = (project in file("webapp-core"))
+lazy val webapi1x = (project in file("webapi1x"))
   .settings(
-    name := "webapp-core",
-    libraryDependencies ++=
-      Dependencies.ZKafka
+    name := "webapp1x",
+    libraryDependencies ++= Seq(
+      Dependencies.ZHttp,
+      Dependencies.Macwire
+    ).flatten
   )
-
-lazy val `webapp1` = (project in file("webapp1"))
+  .enablePlugins(BuildInfoPlugin)
   .settings(
-    name := "webapp1",
-    libraryDependencies ++=
-      Dependencies.ZHttp
+    buildInfoPackage := "tremors.webapi1x"
   )
-  .dependsOn(`webapp-core`)
+  .dependsOn(
+    zioAppStarter
+  )
 
 lazy val zioAppStarter = (project in file("zio-app-starter"))
   .settings(
     name := "zio-app-starter",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
-      Dependencies.ZIOConfig
+      Dependencies.ZIOConfig,
+      Dependencies.ZIOJson
     ).flatten
   )
