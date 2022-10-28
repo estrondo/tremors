@@ -1,16 +1,12 @@
 package tremors.webapi1x
 
-import zio.ZIOAppDefault
+import tremors.zioapp.ZProfile
+import zio.ExitCode
 import zio.Scope
+import zio.Task
 import zio.ZIO
 import zio.ZIOAppArgs
-import zhttp.service.{Server, UServer}
-import zio.ZIOApp.apply
-import tremors.zioapp.ZProfile
-import zio.{UIO, ZIO, Task}
-import zhttp.service.EventLoopGroup
-import zhttp.http.{HttpApp}
-import zio.ExitCode
+import zio.ZIOAppDefault
 
 object WebApi extends ZIOAppDefault:
 

@@ -1,10 +1,12 @@
 package tremors.webapi1x
 
-import zio.{Task, ZIO}
 import com.softwaremill.macwire.wire
-import zhttp.http.*
-import zhttp.http.Method
 import tremors.webapi1x.handler.*
+import zhttp.http.Method
+import zhttp.http.*
+import zio.Task
+import zio.UIO
+import zio.ZIO
 
 trait Router:
 
@@ -22,5 +24,11 @@ private[webapi1x] class RouterImpl(
   private val aboutHandler = AboutHandler()
 
   override def createApp(): Task[HttpApp[Any, Throwable]] = ZIO.attempt {
-    Http.collectZIO { case request @ Method.GET -> !! / "about" => aboutHandler(request) }
+    Http.collectZIO {
+      case request @ Method.GET -> !! / "about" => aboutHandler(request)
+      case request                              => notFound(request)
+    }
   }
+
+  private def notFound(request: Request): UIO[Response] =
+    ZIO.succeed(Response(status = Status.NotFound, body = Body.fromCharSequence("Not Found!")))
