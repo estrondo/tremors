@@ -1,10 +1,16 @@
 package tremors.graboid
 
 import com.softwaremill.macwire.wire
-import tremors.graboid.command.*
+import graboid.protocol.AddCrawler
+import graboid.protocol.CommandDescriptor
+import graboid.protocol.CommandExecution
+import graboid.protocol.CrawlerDescriptor
+import graboid.protocol.RemoveCrawler
+import graboid.protocol.RunAll
+import graboid.protocol.RunCrawler
+import graboid.protocol.UpdateCrawler
 import tremors.graboid.repository.TimelineRepository
 import zio.Task
-import zio.ZEnvironment
 import zio.ZLayer
 import zio.stream.ZSink
 
@@ -57,8 +63,7 @@ private[graboid] class CommandExecutorImpl(
       case RunAll => runAll()
 
   private def build()(using builder: CommandExecutionBuilder): CommandExecution =
-    val currentTime = System.currentTimeMillis()
-    CommandExecution(currentTime - builder.startTime, builder.descriptor)
+    CommandExecution(System.currentTimeMillis() - builder.startTime, builder.descriptor)
 
   private def addCrawler(
       descriptor: CrawlerDescriptor

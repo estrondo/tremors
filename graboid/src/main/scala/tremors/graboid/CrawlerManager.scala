@@ -19,6 +19,7 @@ import java.net.URL
 import scala.util.Try
 
 import CrawlerManager.*
+import graboid.protocol.CrawlerDescriptor
 
 trait CrawlerManager:
 

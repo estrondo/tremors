@@ -26,6 +26,7 @@ import scala.util.Failure
 import scala.util.Success
 
 import CrawlerSupervisor.*
+import graboid.protocol.CrawlerDescriptor
 
 trait CrawlerSupervisor:
 

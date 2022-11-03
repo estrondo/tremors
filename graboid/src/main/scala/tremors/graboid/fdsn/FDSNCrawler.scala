@@ -4,7 +4,6 @@ import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
 import io.lemonlabs.uri.config.UriConfig
 import tremors.graboid.Crawler
-import tremors.graboid.CrawlerDescriptor
 import tremors.graboid.GraboidException
 import tremors.graboid.HttpService
 import tremors.graboid.TimelineManager
@@ -22,6 +21,7 @@ import zio.stream.ZStream
 import java.net.URI
 import java.net.URL
 import java.time.ZonedDateTime
+import graboid.protocol.CrawlerDescriptor
 
 object FDSNCrawler:
 

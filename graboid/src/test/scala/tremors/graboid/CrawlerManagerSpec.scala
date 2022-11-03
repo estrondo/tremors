@@ -21,6 +21,7 @@ import scala.collection.immutable.HashMap
 import scala.util.Random
 import scala.util.Success
 import scala.util.Try
+import graboid.protocol.CrawlerDescriptor
 
 object CrawlerManagerSpec extends Spec:
 

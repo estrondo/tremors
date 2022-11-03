@@ -1,13 +1,14 @@
 package tremors.graboid.command
 
-import tremors.graboid.CrawlerDescriptor
-import tremors.graboid.{createRandomString, createRandomKey}
+import graboid.protocol.CrawlerDescriptor
+import tremors.graboid.createRandomKey
+import tremors.graboid.createRandomString
 
+import java.time.Clock
 import java.time.Duration
 import java.time.ZonedDateTime
-import scala.util.Random
-import java.time.Clock
 import java.time.temporal.ChronoUnit
+import scala.util.Random
 
 object CrawlerDescriptorFixture:
 

@@ -8,6 +8,7 @@ import ziorango.Ziorango
 import ziorango.given
 
 import CrawlerRepository.*
+import graboid.protocol.CrawlerDescriptor
 
 trait CrawlerRepository:
 

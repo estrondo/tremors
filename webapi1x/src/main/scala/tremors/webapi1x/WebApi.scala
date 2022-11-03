@@ -3,7 +3,6 @@ package tremors.webapi1x
 import tremors.zioapp.ZProfile
 import zio.ExitCode
 import zio.Scope
-import zio.Task
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
@@ -19,14 +18,24 @@ object WebApi extends ZIOAppDefault:
   )
 
   case class WebApiConfig(
-      http: HttpConfig
+      http: HttpConfig,
+      kafka: KafkaConfig
+  )
+
+  case class KafkaConfig(
+      producer: KafkaProducerConfig
+  )
+
+  case class KafkaProducerConfig(
+      bootstrapServers: List[String]
   )
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, ExitCode] =
     for
-      root       <- ZProfile.loadOnlyConfig[Root]()
-      router     <- Router(root.webapi)
-      httpApp    <- router.createApp()
-      httpModule <- HttpModule(root.webapi)
-      _          <- httpModule.runServer(httpApp)
+      root          <- ZProfile.loadOnlyConfig[Root]()
+      kafkaModule   <- KafkaModule(root.webapi)
+      crawlerModule <- CrawlerModule(root.webapi, kafkaModule)
+      httpModule    <- HttpModule(root.webapi)
+      httpApp       <- RouterModule(crawlerModule).flatMap(_.createApp())
+      _             <- httpModule.runServer(httpApp)
     yield ExitCode.success

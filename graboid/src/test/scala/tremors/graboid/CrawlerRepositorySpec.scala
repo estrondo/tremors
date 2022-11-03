@@ -16,6 +16,7 @@ import zio.test.assertTrue
 import java.time.Duration
 import java.time.ZonedDateTime
 import scala.concurrent.duration.Duration.apply
+import graboid.protocol.CrawlerDescriptor
 
 object CrawlerRepositorySpec extends Spec:
 

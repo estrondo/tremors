@@ -1,6 +1,9 @@
 package tremors.graboid.command
 
 import tremors.graboid.createRandomString
+import graboid.protocol.AddCrawler
+import graboid.protocol.RemoveCrawler
+import graboid.protocol.UpdateCrawler
 
 object AddCrawlerFixture:
 

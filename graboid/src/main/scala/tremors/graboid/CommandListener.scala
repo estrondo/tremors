@@ -1,8 +1,8 @@
 package tremors.graboid
 
+import graboid.protocol.CommandDescriptor
+import graboid.protocol.CommandExecution
 import io.bullet.borer.Cbor
-import tremors.graboid.command.*
-import tremors.graboid.command.given
 import zio.Task
 import zio.ZIO
 import zio.kafka.consumer.CommittableRecord
@@ -27,6 +27,4 @@ class CommandListener(executor: CommandExecutor):
       .mapZIO(executor.apply)
 
   private def readRecord(record: CommittableRecord[String, Array[Byte]]): Task[CommandDescriptor] =
-    ZIO.fromTry {
-      Cbor.decode(record.value).to[CommandDescriptor].valueTry
-    }
+    ZIO.fromTry(Cbor.decode(record.value).to[CommandDescriptor].valueTry)

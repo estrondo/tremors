@@ -19,7 +19,9 @@ lazy val root = (project in file("."))
     name := "tremors"
   )
   .aggregate(
+    borerCodec,
     webapi1x,
+    graboidProtocol,
     graboid,
     farango,
     ziorango,
@@ -28,6 +30,14 @@ lazy val root = (project in file("."))
     quakemlTestKit,
     zioTestcontainers,
     zioAppStarter
+  )
+
+lazy val borerCodec = (project in file("borer-codec"))
+  .settings(
+    name := "borer-codec",
+    libraryDependencies ++= Seq(
+      Dependencies.Borer
+    ).flatten
   )
 
 lazy val farango = (project in file("farango"))
@@ -73,6 +83,17 @@ lazy val quakemlCBOR = (project in file("quakeml-cbor"))
   )
   .dependsOn(quakeml)
 
+lazy val graboidProtocol = (project in file("graboid-protocol"))
+  .settings(
+    name := "graboid-protocol",
+    libraryDependencies ++= Seq(
+      Dependencies.Borer
+    ).flatten
+  )
+  .dependsOn(
+    borerCodec
+  )
+
 lazy val graboid = (project in file("graboid"))
   .settings(
     name := "graboid",
@@ -103,6 +124,7 @@ lazy val graboid = (project in file("graboid"))
     dockerUpdateLatest := true
   )
   .dependsOn(
+    graboidProtocol,
     zioAppStarter,
     farango,
     ziorango,
@@ -125,8 +147,12 @@ lazy val webapi1x = (project in file("webapi1x"))
   .settings(
     name := "webapp1x",
     libraryDependencies ++= Seq(
+      Dependencies.ZIO,
       Dependencies.ZHttp,
-      Dependencies.Macwire
+      Dependencies.Macwire,
+      Dependencies.ZKafka,
+      Dependencies.Ducktape,
+      Dependencies.Mockito
     ).flatten
   )
   .enablePlugins(BuildInfoPlugin)
@@ -134,7 +160,8 @@ lazy val webapi1x = (project in file("webapi1x"))
     buildInfoPackage := "tremors.webapi1x"
   )
   .dependsOn(
-    zioAppStarter
+    zioAppStarter,
+    graboidProtocol
   )
 
 lazy val zioAppStarter = (project in file("zio-app-starter"))

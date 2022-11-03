@@ -1,21 +1,19 @@
 package tremors.graboid
 
+import graboid.protocol.AddCrawler
+import graboid.protocol.RemoveCrawler
+import graboid.protocol.RunAll
+import graboid.protocol.RunCrawler
+import graboid.protocol.UpdateCrawler
 import org.mockito.ArgumentMatchers.{eq => mEq}
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
-import tremors.graboid.CrawlerManager.CrawlerReport
-import tremors.graboid.command.AddCrawler
 import tremors.graboid.command.CrawlerDescriptorFixture
-import tremors.graboid.command.RemoveCrawler
-import tremors.graboid.command.RunAll
-import tremors.graboid.command.RunCrawler
-import tremors.graboid.command.UpdateCrawler
 import tremors.graboid.repository.TimelineRepository
 import zio.ULayer
 import zio.URIO
 import zio.ZIO
 import zio.ZLayer
-import zio._
 import zio.stream.ZStream
 import zio.test.assertTrue
 

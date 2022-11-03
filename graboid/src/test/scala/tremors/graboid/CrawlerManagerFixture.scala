@@ -1,6 +1,7 @@
 package tremors.graboid
 
 import scala.util.Random
+import graboid.protocol.CrawlerDescriptor
 
 object CrawlerReportFixture:
 
