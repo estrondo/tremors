@@ -12,6 +12,7 @@
 /.metals/
 /.vscode/
 
+/core/target/
 /borer-codec/target/
 /webapi1x/target/
 /webapi1x/.bloop/

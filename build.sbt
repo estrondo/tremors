@@ -19,6 +19,7 @@ lazy val root = (project in file("."))
     name := "tremors"
   )
   .aggregate(
+    core,
     borerCodec,
     webapi1x,
     graboidProtocol,
@@ -30,6 +31,11 @@ lazy val root = (project in file("."))
     quakemlTestKit,
     zioTestcontainers,
     zioAppStarter
+  )
+
+lazy val core = (project in file("core"))
+  .settings(
+    name := "core"
   )
 
 lazy val borerCodec = (project in file("borer-codec"))
@@ -124,6 +130,7 @@ lazy val graboid = (project in file("graboid"))
     dockerUpdateLatest := true
   )
   .dependsOn(
+    core,
     graboidProtocol,
     zioAppStarter,
     farango,
@@ -160,6 +167,7 @@ lazy val webapi1x = (project in file("webapi1x"))
     buildInfoPackage := "webapi1x"
   )
   .dependsOn(
+    core,
     zioAppStarter,
     graboidProtocol
   )
