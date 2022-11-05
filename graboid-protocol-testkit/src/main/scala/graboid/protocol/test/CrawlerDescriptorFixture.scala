@@ -1,8 +1,8 @@
-package graboid.command
+package graboid.protocol.test
 
 import graboid.protocol.CrawlerDescriptor
-import graboid.createRandomKey
-import graboid.createRandomString
+import testkit.createRandomKey
+import testkit.createRandomName
 
 import java.time.Clock
 import java.time.Duration
@@ -14,9 +14,9 @@ object CrawlerDescriptorFixture:
 
   def createRandom() = CrawlerDescriptor(
     key = createRandomKey(),
-    name = createRandomString(),
+    name = createRandomName(),
     `type` = "fdsn",
-    source = createRandomString(),
+    source = createRandomKey(16),
     windowDuration = Duration.ofDays(10 + Random.nextLong(20)),
     starting = ZonedDateTime.now(Clock.systemUTC()).truncatedTo(ChronoUnit.SECONDS)
   )

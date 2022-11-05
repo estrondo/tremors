@@ -5,11 +5,11 @@ import graboid.protocol.RemoveCrawler
 import graboid.protocol.RunAll
 import graboid.protocol.RunCrawler
 import graboid.protocol.UpdateCrawler
+import graboid.protocol.test.CrawlerDescriptorFixture
+import graboid.repository.TimelineRepository
 import org.mockito.ArgumentMatchers.{eq => mEq}
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
-import graboid.command.CrawlerDescriptorFixture
-import graboid.repository.TimelineRepository
 import zio.ULayer
 import zio.URIO
 import zio.ZIO
@@ -51,7 +51,7 @@ object CommandExecutorSpec extends Spec:
         executor         <- createExecutor()
         execution        <- executor(addCrawler)
       yield assertTrue(
-        execution.descriptor == addCrawler,
+        execution.command == addCrawler,
         verify(repository).add(mEq(crawlerDescriptor)) == null
       )
     }.provideLayer(allMockLayer),
@@ -66,7 +66,7 @@ object CommandExecutorSpec extends Spec:
         executor         <- createExecutor()
         execution        <- executor(removeCrawler)
       yield assertTrue(
-        execution.descriptor == removeCrawler,
+        execution.command == removeCrawler,
         verify(repository).remove(removeCrawler.name) == null
       )
     }.provideLayer(allMockLayer),
@@ -81,7 +81,7 @@ object CommandExecutorSpec extends Spec:
         executor         <- createExecutor()
         execution        <- executor(updateCrawler)
       yield assertTrue(
-        execution.descriptor == updateCrawler,
+        execution.command == updateCrawler,
         verify(repository).update(mEq(crawlerDescriptor)) == null
       )
     }.provideLayer(allMockLayer),
@@ -96,7 +96,7 @@ object CommandExecutorSpec extends Spec:
         executor  <- createExecutor()
         execution <- executor(runCrawler)
       yield assertTrue(
-        execution.descriptor == runCrawler,
+        execution.command == runCrawler,
         verify(manager).run(mEq(runCrawler.name)) == null
       )
     }.provideLayer(allMockLayer),
@@ -110,7 +110,7 @@ object CommandExecutorSpec extends Spec:
         executor  <- createExecutor()
         execution <- executor(RunAll)
       yield assertTrue(
-        execution.descriptor == RunAll,
+        execution.command == RunAll,
         verify(manager).runAll() == null
       )
     }.provideLayer(allMockLayer)

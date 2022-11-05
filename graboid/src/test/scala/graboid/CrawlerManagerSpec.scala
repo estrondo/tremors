@@ -1,10 +1,11 @@
 package graboid
 
+import graboid.fdsn.FDSNCrawler
+import graboid.protocol.CrawlerDescriptor
+import graboid.protocol.test.CrawlerDescriptorFixture
+import graboid.repository.TimelineRepository
 import org.mockito.ArgumentMatchers.{eq => mEq}
 import org.mockito.Mockito.*
-import graboid.command.CrawlerDescriptorFixture
-import graboid.fdsn.FDSNCrawler
-import graboid.repository.TimelineRepository
 import zio.UIO
 import zio.URIO
 import zio.ZIO
@@ -21,7 +22,6 @@ import scala.collection.immutable.HashMap
 import scala.util.Random
 import scala.util.Success
 import scala.util.Try
-import graboid.protocol.CrawlerDescriptor
 
 object CrawlerManagerSpec extends Spec:
 

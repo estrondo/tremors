@@ -1,10 +1,10 @@
 package graboid
 
+import _root_.quakeml.EventFixture
 import com.dimafeng.testcontainers.KafkaContainer
 import org.mockito.ArgumentMatchers.{eq => meq, _}
 import org.mockito.Mockito.*
-import _root_.quakeml.EventFixture
-import ziotestcontainers.*
+import zio.Scope
 import zio.ZIO
 import zio.ZLayer
 import zio.durationInt
@@ -18,6 +18,7 @@ import zio.stream.ZSink
 import zio.stream.ZStream
 import zio.test.TestClock
 import zio.test.assertTrue
+import ziotestcontainers.*
 
 import java.time.ZonedDateTime
 
@@ -30,7 +31,7 @@ object CrawlerSupervisorSpec extends Spec:
 
   private val config = CrawlerSupervisor.Config("testable")
 
-  override def spec = suite("A CrawlerSupervisorSpec")(
+  override def spec: zio.test.Spec[Scope, Any] = suite("A CrawlerSupervisorSpec")(
     suite("Integration Test with Kafka")(
       test("should publish some events") {
 
@@ -66,5 +67,5 @@ object CrawlerSupervisorSpec extends Spec:
           verify(timelineManager).register(meq("testable"), meq(window)) == null
         )
       }
-    ).provideLayer(KafkaContainerLayer.layer)
+    ).provideSomeLayer(KafkaContainerLayer.layer)
   )

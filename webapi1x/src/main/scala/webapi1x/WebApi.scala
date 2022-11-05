@@ -34,7 +34,7 @@ object WebApi extends ZIOAppDefault:
     for
       root          <- ZProfile.loadOnlyConfig[Root]()
       kafkaModule   <- KafkaModule(root.webapi)
-      crawlerModule <- CrawlerModule(root.webapi, kafkaModule)
+      crawlerModule <- GraboidModule(root.webapi, kafkaModule)
       httpModule    <- HttpModule(root.webapi)
       httpApp       <- RouterModule(crawlerModule).flatMap(_.createApp())
       _             <- httpModule.runServer(httpApp)

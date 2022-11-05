@@ -20,9 +20,11 @@ lazy val root = (project in file("."))
   )
   .aggregate(
     core,
+    testkit,
     borerCodec,
     webapi1x,
     graboidProtocol,
+    graboidProtocolTestkit,
     graboid,
     farango,
     ziorango,
@@ -36,6 +38,11 @@ lazy val root = (project in file("."))
 lazy val core = (project in file("core"))
   .settings(
     name := "core"
+  )
+
+lazy val testkit = (project in file("testkit"))
+  .settings(
+    name := "teskit"
   )
 
 lazy val borerCodec = (project in file("borer-codec"))
@@ -100,6 +107,15 @@ lazy val graboidProtocol = (project in file("graboid-protocol"))
     borerCodec
   )
 
+lazy val graboidProtocolTestkit = (project in file("graboid-protocol-testkit"))
+  .settings(
+    name := "graboid-protocol-testkit"
+  )
+  .dependsOn(
+    testkit,
+    graboidProtocol
+  )
+
 lazy val graboid = (project in file("graboid"))
   .settings(
     name := "graboid",
@@ -137,8 +153,9 @@ lazy val graboid = (project in file("graboid"))
     ziorango,
     quakeml,
     quakemlCBOR,
-    quakemlTestKit    % Test,
-    zioTestcontainers % Test
+    quakemlTestKit         % Test,
+    zioTestcontainers      % Test,
+    graboidProtocolTestkit % Test
   )
 
 lazy val zioTestcontainers = (project in file("zio-testcontainers"))
@@ -146,6 +163,7 @@ lazy val zioTestcontainers = (project in file("zio-testcontainers"))
     name := "zio-testcontainers",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
+      Dependencies.ZIOKafka,
       Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name)))
     ).flatten
   )
@@ -159,8 +177,10 @@ lazy val webapi1x = (project in file("webapi1x"))
       Dependencies.Macwire,
       Dependencies.ZKafka,
       Dependencies.Ducktape,
-      Dependencies.Mockito
-    ).flatten
+      Dependencies.Mockito,
+      Dependencies.Logging
+    ).flatten,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(
@@ -169,7 +189,9 @@ lazy val webapi1x = (project in file("webapi1x"))
   .dependsOn(
     core,
     zioAppStarter,
-    graboidProtocol
+    graboidProtocol,
+    graboidProtocolTestkit % Test,
+    zioTestcontainers
   )
 
 lazy val zioAppStarter = (project in file("zio-app-starter"))

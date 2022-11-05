@@ -1,13 +1,13 @@
 package webapi1x.graboid
 
-import webapi1x.handler.CrawlerHandler
+import webapi1x.handler.GraboidHandler
 import graboid.protocol.CrawlerDescriptor
 import io.github.arainko.ducktape.*
 import scala.util.Try
 
 object CrawlerDescriptorMapper:
 
-  def from(command: CrawlerHandler.CreateCrawler): Try[CrawlerDescriptor] =
+  def from(command: GraboidHandler.CreateCrawler): Try[CrawlerDescriptor] =
     Try {
       command
         .into[CrawlerDescriptor]

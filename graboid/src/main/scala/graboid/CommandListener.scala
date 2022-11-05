@@ -1,7 +1,7 @@
 package graboid
 
-import graboid.protocol.CommandDescriptor
-import graboid.protocol.CommandExecution
+import graboid.protocol.GraboidCommand
+import graboid.protocol.GraboidCommandExecution
 import io.bullet.borer.Cbor
 import zio.Task
 import zio.ZIO
@@ -18,7 +18,7 @@ object CommandListener:
 
 class CommandListener(executor: CommandExecutor):
 
-  def run(): ZStream[Consumer, Throwable, CommandExecution] =
+  def run(): ZStream[Consumer, Throwable, GraboidCommandExecution] =
     Consumer
       .subscribeAnd(Subscription.topics(CommandListener.Topic))
       .plainStream(Serde.string, Serde.byteArray)
@@ -26,5 +26,5 @@ class CommandListener(executor: CommandExecutor):
       .tap(descriptor => ZIO.logInfo(s"It has received a new command: $descriptor"))
       .mapZIO(executor.apply)
 
-  private def readRecord(record: CommittableRecord[String, Array[Byte]]): Task[CommandDescriptor] =
-    ZIO.fromTry(Cbor.decode(record.value).to[CommandDescriptor].valueTry)
+  private def readRecord(record: CommittableRecord[String, Array[Byte]]): Task[GraboidCommand] =
+    ZIO.fromTry(Cbor.decode(record.value).to[GraboidCommand].valueTry)

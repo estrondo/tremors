@@ -2,7 +2,6 @@ package webapi1x.handler
 
 import com.softwaremill.macwire.wire
 import webapi1x.Marshalling.extractJSON
-import webapi1x.crawler.CrawlerManager
 import webapi1x.graboid.CrawlerDescriptorMapper
 import webapi1x.toZIO
 import zhttp.http.Request
@@ -13,10 +12,12 @@ import zio.json.JsonDecoder
 
 import java.time.Duration
 import java.time.ZonedDateTime
+import webapi1x.graboid.GraboidCommandDispatcher
 
-import CrawlerHandler.CreateCrawler
+import GraboidHandler.CreateCrawler
+import graboid.protocol.AddCrawler
 
-trait CrawlerHandler:
+trait GraboidHandler:
 
   def createCrawler(request: Request): Task[Response]
 
@@ -28,11 +29,11 @@ trait CrawlerHandler:
 
   def delete(key: String, request: Request): Task[Response]
 
-object CrawlerHandler:
+object GraboidHandler:
 
   def apply(
-      manager: CrawlerManager
-  ): CrawlerHandler = wire[CrawlerHandlerImpl]
+      manager: GraboidCommandDispatcher
+  ): GraboidHandler = wire[GraboidHandlerImpl]
 
   case class CreateCrawler(
       id: String,
@@ -48,15 +49,15 @@ object CrawlerHandler:
 
   given JsonDecoder[CreateCrawler] = DeriveJsonDecoder.gen
 
-private class CrawlerHandlerImpl(
-    manager: CrawlerManager
-) extends CrawlerHandler:
+private class GraboidHandlerImpl(
+    manager: GraboidCommandDispatcher
+) extends GraboidHandler:
 
   override def createCrawler(request: Request): Task[Response] =
     for
       createCrawler <- extractJSON[CreateCrawler](request)
       descriptor    <- CrawlerDescriptorMapper.from(createCrawler).toZIO()
-      _             <- manager.create(descriptor)
+      _             <- manager.dispatch(AddCrawler(descriptor))
     yield Response.text("as")
 
   override def getInfo(key: String, request: Request): Task[Response] = ???

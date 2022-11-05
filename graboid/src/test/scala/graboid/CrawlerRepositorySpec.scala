@@ -3,7 +3,6 @@ package graboid
 import com.dimafeng.testcontainers.GenericContainer
 import farango.FarangoDatabase
 import org.testcontainers.containers.wait.strategy.Wait
-import graboid.command.CrawlerDescriptorFixture
 import ziotestcontainers.*
 import zio.ZIO
 import zio.durationInt
@@ -17,6 +16,7 @@ import java.time.Duration
 import java.time.ZonedDateTime
 import scala.concurrent.duration.Duration.apply
 import graboid.protocol.CrawlerDescriptor
+import graboid.protocol.test.CrawlerDescriptorFixture
 
 object CrawlerRepositorySpec extends Spec:
 

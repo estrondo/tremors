@@ -2,7 +2,7 @@ package webapi1x
 
 import org.mockito.Mockito
 import org.mockito.{ArgumentMatchers => Args}
-import webapi1x.handler.CrawlerHandler
+import webapi1x.handler.GraboidHandler
 import zhttp.http.Method.*
 import zhttp.http.RHttpApp
 import zhttp.http.*
@@ -25,25 +25,25 @@ object RouterModuleSpec extends Spec:
     suite("RouterModule")(
       suite("Checking crawlers endpoints.")(
         test("POST /crawlers") {
-          checkCrawlerHandler(POST -> !! / "crawlers", (h, req) => h.createCrawler(Args.eq(req)))
+          checkGraboidHandler(POST -> !! / "crawlers", (h, req) => h.createCrawler(Args.eq(req)))
         },
         test("GET /crawlers") {
-          checkCrawlerHandler(GET -> !! / "crawlers", (h, req) => h.getInfoFromAll(Args.eq(req)))
+          checkGraboidHandler(GET -> !! / "crawlers", (h, req) => h.getInfoFromAll(Args.eq(req)))
         },
         test("GET /crawlers/abc") {
-          checkCrawlerHandler(
+          checkGraboidHandler(
             GET -> !! / "crawlers" / "abc",
             (h, req) => h.getInfo(Args.eq("abc"), Args.eq(req))
           )
         },
         test("PUT /crawlers/bcd") {
-          checkCrawlerHandler(
+          checkGraboidHandler(
             PUT -> !! / "crawlers" / "bcd",
             (h, req) => h.update(Args.eq("bcd"), Args.eq(req))
           )
         },
         test("DELETE /crawlers/cde") {
-          checkCrawlerHandler(
+          checkGraboidHandler(
             DELETE -> !! / "crawlers" / "cde",
             (h, req) => h.delete(Args.eq("cde"), Args.eq(req))
           )
@@ -57,12 +57,12 @@ object RouterModuleSpec extends Spec:
       url = URL(path)
     )
 
-  private def checkCrawlerHandler(
+  private def checkGraboidHandler(
       request: Request,
-      fn: (CrawlerHandler, Request) => Task[Response]
-  ): URIO[CrawlerHandler & TestApp, TestResult] =
+      fn: (GraboidHandler, Request) => Task[Response]
+  ): URIO[GraboidHandler & TestApp, TestResult] =
     for
-      crawlerHandler <- ZIO.service[CrawlerHandler]
+      crawlerHandler <- ZIO.service[GraboidHandler]
       response        = Response()
       _               = Mockito
                           .when(fn(crawlerHandler, request))
@@ -79,15 +79,15 @@ object RouterModuleSpec extends Spec:
       response <- testApp(request).orDieWith(_.get)
     yield assertTrue(response eq expectedResponse)
 
-  private def crawlerHandlerLayer: ULayer[CrawlerHandler] = ZLayer.succeed {
-    Mockito.mock(classOf[CrawlerHandler])
+  private def crawlerHandlerLayer: ULayer[GraboidHandler] = ZLayer.succeed {
+    Mockito.mock(classOf[GraboidHandler])
   }
 
-  private def routerModuleLayer: ZLayer[CrawlerHandler, Throwable, RouterModule] =
+  private def routerModuleLayer: ZLayer[GraboidHandler, Throwable, RouterModule] =
     ZLayer {
       for
-        crawlerHandler <- ZIO.service[CrawlerHandler]
-        crawlerModule   = Mockito.mock(classOf[CrawlerModule])
+        crawlerHandler <- ZIO.service[GraboidHandler]
+        crawlerModule   = Mockito.mock(classOf[GraboidModule])
         _               = Mockito.when(crawlerModule.crawlerHandler).thenReturn(crawlerHandler)
         module         <- RouterModule(crawlerModule)
       yield module

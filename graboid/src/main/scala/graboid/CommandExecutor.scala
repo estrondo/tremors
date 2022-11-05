@@ -2,9 +2,9 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import graboid.protocol.AddCrawler
-import graboid.protocol.CommandDescriptor
-import graboid.protocol.CommandExecution
 import graboid.protocol.CrawlerDescriptor
+import graboid.protocol.GraboidCommand
+import graboid.protocol.GraboidCommandExecution
 import graboid.protocol.RemoveCrawler
 import graboid.protocol.RunAll
 import graboid.protocol.RunCrawler
@@ -18,7 +18,7 @@ import CommandExecutor.CommandExecutionBuilder
 
 trait CommandExecutor:
 
-  def apply(command: CommandDescriptor): Task[CommandExecution]
+  def apply(command: GraboidCommand): Task[GraboidCommandExecution]
 
 object CommandExecutor:
 
@@ -30,11 +30,11 @@ object CommandExecutor:
 
   object CommandExecutionBuilder:
 
-    inline given (using descriptor: CommandDescriptor): CommandExecutionBuilder =
+    inline given (using descriptor: GraboidCommand): CommandExecutionBuilder =
       new CommandExecutionBuilder(descriptor)
 
   class CommandExecutionBuilder(
-      val descriptor: CommandDescriptor,
+      val descriptor: GraboidCommand,
       val startTime: Long = System.currentTimeMillis()
   )
 
@@ -48,8 +48,8 @@ private[graboid] class CommandExecutorImpl(
   private def crawlerRepositoryLayer  = ZLayer.succeed(crawlerRepository)
   private def timelineRepositoryLayer = ZLayer.succeed(timelineRepository)
 
-  override def apply(command: CommandDescriptor): Task[CommandExecution] =
-    given CommandDescriptor = command
+  override def apply(command: GraboidCommand): Task[GraboidCommandExecution] =
+    given GraboidCommand = command
     command match
       case AddCrawler(descriptor) => addCrawler(descriptor)
 
@@ -62,30 +62,30 @@ private[graboid] class CommandExecutorImpl(
 
       case RunAll => runAll()
 
-  private def build()(using builder: CommandExecutionBuilder): CommandExecution =
-    CommandExecution(System.currentTimeMillis() - builder.startTime, builder.descriptor)
+  private def build()(using builder: CommandExecutionBuilder): GraboidCommandExecution =
+    GraboidCommandExecution(System.currentTimeMillis() - builder.startTime, builder.descriptor)
 
   private def addCrawler(
       descriptor: CrawlerDescriptor
-  )(using CommandExecutionBuilder): Task[CommandExecution] =
+  )(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
     for _ <- crawlerRepository.add(descriptor)
     yield build()
 
-  private def removeCrawler(name: String)(using CommandExecutionBuilder): Task[CommandExecution] =
+  private def removeCrawler(name: String)(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
     for _ <- crawlerRepository.remove(name)
     yield build()
 
   private def updateCrawler(name: String, descriptor: CrawlerDescriptor, shouldRunNow: Boolean)(
       using CommandExecutionBuilder
-  ): Task[CommandExecution] =
+  ): Task[GraboidCommandExecution] =
     for _ <- crawlerRepository.update(descriptor)
     yield build()
 
-  private def runCrawler(name: String)(using CommandExecutionBuilder): Task[CommandExecution] =
+  private def runCrawler(name: String)(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
     val execution = for _ <- crawlerManager.run(name) yield build()
     execution.provideLayer(crawlerRepositoryLayer ++ timelineRepositoryLayer)
 
-  private def runAll()(using CommandExecutionBuilder): Task[CommandExecution] =
+  private def runAll()(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
     val execution =
       for _ <- crawlerManager.runAll().run(ZSink.collectAll)
       yield build()

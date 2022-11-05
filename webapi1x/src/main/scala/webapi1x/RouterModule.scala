@@ -14,11 +14,11 @@ trait RouterModule:
 object RouterModule:
 
   def apply(
-      crawlerModule: CrawlerModule
+      crawlerModule: GraboidModule
   ): Task[RouterModule] = ZIO.attempt(wire[RouterModuleImpl])
 
 private[webapi1x] class RouterModuleImpl(
-    crawlerModule: CrawlerModule
+    crawlerModule: GraboidModule
 ) extends RouterModule:
 
   private val aboutHandler   = AboutHandler()
