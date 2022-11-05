@@ -114,7 +114,7 @@ lazy val graboid = (project in file("graboid"))
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    buildInfoPackage := "tremors.graboid"
+    buildInfoPackage := "graboid"
   )
   .enablePlugins(AshScriptPlugin)
   .enablePlugins(GraalVMNativeImagePlugin)
@@ -157,7 +157,7 @@ lazy val webapi1x = (project in file("webapi1x"))
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    buildInfoPackage := "tremors.webapi1x"
+    buildInfoPackage := "webapi1x"
   )
   .dependsOn(
     zioAppStarter,
