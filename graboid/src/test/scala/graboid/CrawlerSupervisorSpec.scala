@@ -2,7 +2,7 @@ package graboid
 
 import _root_.quakeml.EventFixture
 import com.dimafeng.testcontainers.KafkaContainer
-import org.mockito.ArgumentMatchers.{eq => meq, _}
+import org.mockito.{ArgumentMatchers => Args}
 import org.mockito.Mockito.*
 import zio.Scope
 import zio.ZIO
@@ -44,13 +44,13 @@ object CrawlerSupervisorSpec extends Spec:
 
         val events = for _ <- 0 until 10 yield EventFixture.createRandom()
 
-        when(timelineManager.nextWindow(meq("testable")))
+        when(timelineManager.nextWindow(Args.eq("testable")))
           .thenReturn(ZIO.succeed(window))
 
-        when(timelineManager.register(meq("testable"), meq(window)))
+        when(timelineManager.register(Args.eq("testable"), Args.eq(window)))
           .thenReturn(ZIO.succeed(window))
 
-        when(crawler.crawl(meq(window)))
+        when(crawler.crawl(Args.eq(window)))
           .thenReturn(ZIO.succeed(ZStream.fromIterable(events)))
 
         for
@@ -64,7 +64,7 @@ object CrawlerSupervisorSpec extends Spec:
         yield assertTrue(
           status.success == events.size.toLong,
           detected.size == events.size,
-          verify(timelineManager).register(meq("testable"), meq(window)) == null
+          verify(timelineManager).register(Args.eq("testable"), Args.eq(window)) == null
         )
       }
     ).provideSomeLayer(KafkaContainerLayer.layer)

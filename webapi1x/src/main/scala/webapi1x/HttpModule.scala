@@ -1,12 +1,13 @@
 package webapi1x
 
-import zio.{Task, ZIO}
 import com.softwaremill.macwire.wire
 import zhttp.http.HttpApp
+import zhttp.service.EventLoopGroup
 import zhttp.service.Server
 import zhttp.service.Server.Start
-import zhttp.service.EventLoopGroup
 import zhttp.service.server.ServerChannelFactory
+import zio.Task
+import zio.ZIO
 
 trait HttpModule:
 

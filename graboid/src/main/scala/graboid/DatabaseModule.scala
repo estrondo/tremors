@@ -1,15 +1,16 @@
 package graboid
 
-import graboid.repository.TimelineRepository
-
-import zio.TaskLayer
-import zio.{ZIO, Task}
-import zio.ZLayer
+import com.arangodb.ArangoDatabase
+import farango.FarangoDatabase
 import graboid.config.ArangoConfig
 import graboid.config.GraboidConfig
-import com.arangodb.ArangoDatabase
+import graboid.repository.TimelineRepository
+import zio.Task
+import zio.TaskLayer
+import zio.ZIO
+import zio.ZLayer
+
 import scala.collection.immutable.HashMap
-import farango.FarangoDatabase
 
 trait DatabaseModule:
 

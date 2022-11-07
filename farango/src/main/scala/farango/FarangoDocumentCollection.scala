@@ -17,6 +17,8 @@ import scala.reflect.ClassTag
 
 trait FarangoDocumentCollection:
 
+  def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]]
+
   def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T]
 
   def loadAll[T: ClassTag, S[_]: FApplicativeStream]: S[T]
@@ -34,6 +36,9 @@ private[farango] class FarangoDocumentCollectionImpl(
     val creationOptions = CollectionCreateOptions()
     creationOptions.waitForSync(true)
     collection.create(creationOptions).get()
+
+  override def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]] =
+    FApplicative[F].mapFromCompletionStage(collection.getDocument(key, expectedType[T]))(Option(_))
 
   override def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T] =
     val options = DocumentCreateOptions()

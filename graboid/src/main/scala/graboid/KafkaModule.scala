@@ -1,8 +1,9 @@
 package graboid
 
-import zio.{TaskLayer, Task}
-import zio.kafka.producer.Producer
+import zio.Task
+import zio.TaskLayer
 import zio.ZIO
+import zio.kafka.producer.Producer
 
 trait KafkaModule:
 

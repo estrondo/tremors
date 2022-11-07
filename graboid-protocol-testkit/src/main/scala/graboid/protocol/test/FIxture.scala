@@ -4,6 +4,7 @@ import graboid.protocol.AddCrawler
 import graboid.protocol.RemoveCrawler
 import graboid.protocol.UpdateCrawler
 import graboid.protocol.test.CrawlerDescriptorFixture
+import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 import testkit.createRandomKey
 
 object AddCrawlerFixture:
@@ -17,4 +18,4 @@ object RemoveCrawlerFixture:
 object UpdateCrawlerFixture:
 
   def createRandom(name: String = createRandomKey()) =
-    UpdateCrawler(name, CrawlerDescriptorFixture.createRandom(), shouldRunNow = false)
+    UpdateCrawler(name, UpdateCrawlerDescriptorFixture.createRandom(), shouldRunNow = false)

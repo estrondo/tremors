@@ -7,7 +7,7 @@ import graboid.protocol.RunCrawler
 import graboid.protocol.UpdateCrawler
 import graboid.protocol.test.CrawlerDescriptorFixture
 import graboid.repository.TimelineRepository
-import org.mockito.ArgumentMatchers.{eq => mEq}
+import org.mockito.{ArgumentMatchers => Args}
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import zio.ULayer
@@ -16,6 +16,8 @@ import zio.ZIO
 import zio.ZLayer
 import zio.stream.ZStream
 import zio.test.assertTrue
+import graboid.command.UpdateCrawlerFixture
+import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 
 object CommandExecutorSpec extends Spec:
 
@@ -46,13 +48,13 @@ object CommandExecutorSpec extends Spec:
         crawlerDescriptor = CrawlerDescriptorFixture.createRandom()
         addCrawler        = AddCrawler(crawlerDescriptor)
         _                 = Mockito
-                              .when(repository.add(mEq(crawlerDescriptor)))
+                              .when(repository.add(Args.eq(crawlerDescriptor)))
                               .thenReturn(ZIO.succeed(crawlerDescriptor))
         executor         <- createExecutor()
         execution        <- executor(addCrawler)
       yield assertTrue(
         execution.command == addCrawler,
-        verify(repository).add(mEq(crawlerDescriptor)) == null
+        verify(repository).add(Args.eq(crawlerDescriptor)) == null
       )
     }.provideLayer(allMockLayer),
     test("should accept a RemoveCrawler") {
@@ -72,17 +74,17 @@ object CommandExecutorSpec extends Spec:
     }.provideLayer(allMockLayer),
     test("should accept a UpdateCrawler") {
       for
-        repository       <- ZIO.service[CrawlerRepository]
-        crawlerDescriptor = CrawlerDescriptorFixture.createRandom()
-        updateCrawler     = UpdateCrawler("a-test-crawler", crawlerDescriptor, shouldRunNow = false)
-        _                 = Mockito
-                              .when(repository.update(mEq(crawlerDescriptor)))
-                              .thenReturn(ZIO.succeed(Some(crawlerDescriptor)))
-        executor         <- createExecutor()
-        execution        <- executor(updateCrawler)
+        repository      <- ZIO.service[CrawlerRepository]
+        updateDescriptor = UpdateCrawlerDescriptorFixture.createRandom()
+        updateCrawler    = UpdateCrawler("a-test-crawler", updateDescriptor, shouldRunNow = false)
+        _                = Mockito
+                             .when(repository.update(Args.eq("abc"), Args.eq(updateDescriptor)))
+                             .thenReturn(ZIO.succeed(Some(updateDescriptor)))
+        executor        <- createExecutor()
+        execution       <- executor(updateCrawler)
       yield assertTrue(
         execution.command == updateCrawler,
-        verify(repository).update(mEq(crawlerDescriptor)) == null
+        verify(repository).update(Args.eq("abc"), Args.eq(updateDescriptor)) == null
       )
     }.provideLayer(allMockLayer),
     test("should accept a RunCrawler") {
@@ -91,13 +93,13 @@ object CommandExecutorSpec extends Spec:
         report     = CrawlerReportFixture.createRandom(CrawlerDescriptorFixture.createRandom())
         runCrawler = RunCrawler("a-test-crawler")
         _          = Mockito
-                       .when(manager.run(mEq(runCrawler.name)))
+                       .when(manager.run(Args.eq(runCrawler.name)))
                        .thenReturn(ZIO.succeed(Some(report)))
         executor  <- createExecutor()
         execution <- executor(runCrawler)
       yield assertTrue(
         execution.command == runCrawler,
-        verify(manager).run(mEq(runCrawler.name)) == null
+        verify(manager).run(Args.eq(runCrawler.name)) == null
       )
     }.provideLayer(allMockLayer),
     test("should accept a RunAll") {

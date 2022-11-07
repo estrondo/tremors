@@ -15,6 +15,7 @@ import zio.ZLayer
 import zio.stream.ZSink
 
 import CommandExecutor.CommandExecutionBuilder
+import graboid.protocol.UpdateCrawlerDescriptor
 
 trait CommandExecutor:
 
@@ -71,17 +72,25 @@ private[graboid] class CommandExecutorImpl(
     for _ <- crawlerRepository.add(descriptor)
     yield build()
 
-  private def removeCrawler(name: String)(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
-    for _ <- crawlerRepository.remove(name)
+  private def removeCrawler(
+      key: String
+  )(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
+    for _ <- crawlerRepository.remove(key)
     yield build()
 
-  private def updateCrawler(name: String, descriptor: CrawlerDescriptor, shouldRunNow: Boolean)(
-      using CommandExecutionBuilder
+  private def updateCrawler(
+      key: String,
+      descriptor: UpdateCrawlerDescriptor,
+      shouldRunNow: Boolean
+  )(using
+      CommandExecutionBuilder
   ): Task[GraboidCommandExecution] =
-    for _ <- crawlerRepository.update(descriptor)
+    for _ <- crawlerRepository.update(key, descriptor)
     yield build()
 
-  private def runCrawler(name: String)(using CommandExecutionBuilder): Task[GraboidCommandExecution] =
+  private def runCrawler(name: String)(using
+      CommandExecutionBuilder
+  ): Task[GraboidCommandExecution] =
     val execution = for _ <- crawlerManager.run(name) yield build()
     execution.provideLayer(crawlerRepositoryLayer ++ timelineRepositoryLayer)
 

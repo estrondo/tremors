@@ -4,8 +4,8 @@ import graboid.fdsn.FDSNCrawler
 import graboid.protocol.CrawlerDescriptor
 import graboid.protocol.test.CrawlerDescriptorFixture
 import graboid.repository.TimelineRepository
-import org.mockito.ArgumentMatchers.{eq => mEq}
 import org.mockito.Mockito.*
+import org.mockito.{ArgumentMatchers => Args}
 import zio.UIO
 import zio.URIO
 import zio.ZIO
@@ -123,7 +123,7 @@ object CrawlerManagerSpec extends Spec:
       for
         timelineManager   <- ZIO.service[TimelineManager]
         crawlerRepository <- ZIO.service[CrawlerRepository]
-        _                  = when(crawlerRepository.get(mEq(descriptor.name)))
+        _                  = when(crawlerRepository.get(Args.eq(descriptor.name)))
                                .thenReturn(ZIO.succeed(Some(descriptor)))
         manager           <- createManager(
                                timelineManager = ZLayer.succeed(timelineManager),

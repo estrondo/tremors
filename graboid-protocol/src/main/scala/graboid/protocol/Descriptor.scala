@@ -19,3 +19,15 @@ case class CrawlerDescriptor(
     windowDuration: Duration,
     starting: ZonedDateTime
 )
+
+object UpdateCrawlerDescriptor:
+
+  given Codec[UpdateCrawlerDescriptor] = deriveCodec
+
+case class UpdateCrawlerDescriptor(
+    name: Option[String],
+    `type`: Option[String],
+    source: Option[String],
+    windowDuration: Option[Duration],
+    starting: Option[ZonedDateTime]
+)

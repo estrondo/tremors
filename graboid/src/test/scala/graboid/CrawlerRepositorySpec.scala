@@ -2,8 +2,10 @@ package graboid
 
 import com.dimafeng.testcontainers.GenericContainer
 import farango.FarangoDatabase
+import graboid.protocol.CrawlerDescriptor
+import graboid.protocol.test.CrawlerDescriptorFixture
+import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 import org.testcontainers.containers.wait.strategy.Wait
-import ziotestcontainers.*
 import zio.ZIO
 import zio.durationInt
 import zio.stream.ZSink
@@ -11,12 +13,11 @@ import zio.stream.ZStream
 import zio.test.TestArgs
 import zio.test.TestAspect
 import zio.test.assertTrue
+import ziotestcontainers.*
 
 import java.time.Duration
 import java.time.ZonedDateTime
 import scala.concurrent.duration.Duration.apply
-import graboid.protocol.CrawlerDescriptor
-import graboid.protocol.test.CrawlerDescriptorFixture
 
 object CrawlerRepositorySpec extends Spec:
 
@@ -78,15 +79,12 @@ object CrawlerRepositorySpec extends Spec:
     }.provideLayer(ArangoDBLayer.layer),
     test("should update a CrawlerDescriptor") {
       val descriptor        = CrawlerDescriptorFixture.createRandom()
-      val updatedDescriptor = descriptor.copy(
-        name = descriptor.name + "@",
-        starting = descriptor.starting.plusDays(2)
-      )
+      val updatedDescriptor = UpdateCrawlerDescriptorFixture.createRandom()
 
       for
         repository <- createRepository
         _          <- repository.add(descriptor)
-        old        <- repository.update(updatedDescriptor)
+        old        <- repository.update(descriptor.key, updatedDescriptor)
       yield assertTrue(
         old == Some(descriptor)
       )

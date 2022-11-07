@@ -1,8 +1,11 @@
 package webapi1x.handler
 
 import com.softwaremill.macwire.wire
+import graboid.protocol.AddCrawler
 import webapi1x.Marshalling.extractJSON
 import webapi1x.graboid.CrawlerDescriptorMapper
+import webapi1x.graboid.GraboidCommandDispatcher
+import webapi1x.graboid.UpdateCrawlerDescriptorMapper
 import webapi1x.toZIO
 import zhttp.http.Request
 import zhttp.http.Response
@@ -12,10 +15,8 @@ import zio.json.JsonDecoder
 
 import java.time.Duration
 import java.time.ZonedDateTime
-import webapi1x.graboid.GraboidCommandDispatcher
 
-import GraboidHandler.CreateCrawler
-import graboid.protocol.AddCrawler
+import GraboidHandler.*
 
 trait GraboidHandler:
 
@@ -35,7 +36,7 @@ object GraboidHandler:
       manager: GraboidCommandDispatcher
   ): GraboidHandler = wire[GraboidHandlerImpl]
 
-  case class CreateCrawler(
+  case class CreateCrawlerRequest(
       id: String,
       name: String,
       `type`: String,
@@ -44,10 +45,20 @@ object GraboidHandler:
       starting: ZonedDateTime
   )
 
+  case class UpdateCrawlerRequest(
+      name: Option[String],
+      `type`: Option[String],
+      source: Option[String],
+      windowDuration: Option[Duration],
+      starting: Option[ZonedDateTime]
+  )
+
   case class CrawlerCreated(
   )
 
-  given JsonDecoder[CreateCrawler] = DeriveJsonDecoder.gen
+  given JsonDecoder[CreateCrawlerRequest] = DeriveJsonDecoder.gen
+
+  given JsonDecoder[UpdateCrawlerRequest] = DeriveJsonDecoder.gen
 
 private class GraboidHandlerImpl(
     manager: GraboidCommandDispatcher
@@ -55,7 +66,7 @@ private class GraboidHandlerImpl(
 
   override def createCrawler(request: Request): Task[Response] =
     for
-      createCrawler <- extractJSON[CreateCrawler](request)
+      createCrawler <- extractJSON[CreateCrawlerRequest](request)
       descriptor    <- CrawlerDescriptorMapper.from(createCrawler).toZIO()
       _             <- manager.dispatch(AddCrawler(descriptor))
     yield Response.text("as")
@@ -66,4 +77,8 @@ private class GraboidHandlerImpl(
 
   override def delete(key: String, request: Request): Task[Response] = ???
 
-  override def update(key: String, request: Request): Task[Response] = ???
+  override def update(key: String, request: Request): Task[Response] =
+    for
+      updateCrawler <- extractJSON[UpdateCrawlerRequest](request)
+      descriptor    <- UpdateCrawlerDescriptorMapper.from(updateCrawler).toZIO()
+    yield ???

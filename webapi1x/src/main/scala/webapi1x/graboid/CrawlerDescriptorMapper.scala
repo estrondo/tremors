@@ -7,7 +7,7 @@ import scala.util.Try
 
 object CrawlerDescriptorMapper:
 
-  def from(command: GraboidHandler.CreateCrawler): Try[CrawlerDescriptor] =
+  def from(command: GraboidHandler.CreateCrawlerRequest): Try[CrawlerDescriptor] =
     Try {
       command
         .into[CrawlerDescriptor]

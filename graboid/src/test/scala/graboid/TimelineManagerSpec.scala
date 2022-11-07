@@ -1,15 +1,15 @@
 package graboid
 
-import org.mockito.ArgumentMatchers.{eq => meq, *}
-import org.mockito.Mockito.*
 import graboid.repository.TimelineRepository
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.*
+import org.mockito.{ArgumentMatchers => Args}
 import zio.ZIO
 import zio.ZLayer
 import zio.test.assertTrue
 
 import java.time.Duration
 import java.time.ZonedDateTime
-import org.mockito.ArgumentMatchers
 import java.time.temporal.ChronoUnit
 
 object TimelineManagerSpec extends Spec:
@@ -62,12 +62,12 @@ object TimelineManagerSpec extends Spec:
       val window = TimelineManager.Window("---id---", beginning, ending)
       for
         repository       <- ZIO.service[TimelineRepository]
-        _                 = when(repository.add(meq("testable"), meq(window))).thenReturn(ZIO.succeed(window))
+        _                 = when(repository.add(Args.eq("testable"), Args.eq(window))).thenReturn(ZIO.succeed(window))
         manager           = TimelineManager(Duration.of(10, ChronoUnit.DAYS), beginning, repository)
         registeredWindow <- manager.register("testable", window)
       yield assertTrue(
         registeredWindow == window,
-        verify(repository).add(meq("testable"), meq(window)) == null
+        verify(repository).add(Args.eq("testable"), Args.eq(window)) == null
       )
 
     }.provideLayer(timelineRepositoryMockLayer)

@@ -18,7 +18,7 @@ case class AddCrawler(descriptor: CrawlerDescriptor) extends GraboidCommand
 
 case class RemoveCrawler(name: String) extends GraboidCommand
 
-case class UpdateCrawler(name: String, descriptor: CrawlerDescriptor, shouldRunNow: Boolean)
+case class UpdateCrawler(key: String, descriptor: UpdateCrawlerDescriptor, shouldRunNow: Boolean)
     extends GraboidCommand
 
 case class GraboidCommandExecution(milliseconds: Long, command: GraboidCommand)
