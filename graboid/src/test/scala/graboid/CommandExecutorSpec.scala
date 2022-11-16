@@ -6,18 +6,17 @@ import graboid.protocol.RunAll
 import graboid.protocol.RunCrawler
 import graboid.protocol.UpdateCrawler
 import graboid.protocol.test.CrawlerDescriptorFixture
+import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 import graboid.repository.TimelineRepository
-import org.mockito.{ArgumentMatchers => Args}
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
+import org.mockito.{ArgumentMatchers => Args}
 import zio.ULayer
 import zio.URIO
 import zio.ZIO
 import zio.ZLayer
 import zio.stream.ZStream
 import zio.test.assertTrue
-import graboid.command.UpdateCrawlerFixture
-import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 
 object CommandExecutorSpec extends Spec:
 
@@ -78,13 +77,13 @@ object CommandExecutorSpec extends Spec:
         updateDescriptor = UpdateCrawlerDescriptorFixture.createRandom()
         updateCrawler    = UpdateCrawler("a-test-crawler", updateDescriptor, shouldRunNow = false)
         _                = Mockito
-                             .when(repository.update(Args.eq("abc"), Args.eq(updateDescriptor)))
+                             .when(repository.update(Args.eq("a-test-crawler"), Args.eq(updateDescriptor)))
                              .thenReturn(ZIO.succeed(Some(updateDescriptor)))
         executor        <- createExecutor()
         execution       <- executor(updateCrawler)
       yield assertTrue(
         execution.command == updateCrawler,
-        verify(repository).update(Args.eq("abc"), Args.eq(updateDescriptor)) == null
+        verify(repository).update(Args.eq("a-test-crawler"), Args.eq(updateDescriptor)) == null
       )
     }.provideLayer(allMockLayer),
     test("should accept a RunCrawler") {

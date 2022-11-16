@@ -44,7 +44,7 @@ private[graboid] class GraboidCommandDispatcherImpl(
   ): RIO[Producer, CommandSent[A]] =
     for
       bytes <- ZIO.attempt(Cbor.encode(command: GraboidCommand).toByteArray)
-      key    = keyGenerator.next()
+      key    = keyGenerator.next16()
       _     <- Producer.produce(GraboidCommandTopic, key, bytes, Serde.string, Serde.byteArray)
       _     <- ZIO.logInfo(s"It's been sent a CrawlerDescriptor with key=$key")
     yield CommandSent(key, command)
