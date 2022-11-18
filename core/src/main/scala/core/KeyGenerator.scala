@@ -19,8 +19,6 @@ trait KeyGenerator:
 
 object KeyGenerator extends KeyGenerator:
 
-  private def random = ThreadLocalRandom.current()
-
   private val Radix = 32
 
   private val E3 = (32 * 32 * 32) - 1
@@ -38,13 +36,14 @@ object KeyGenerator extends KeyGenerator:
   override def next32(): String = generate(8)
 
   private def generate(count: Int): String =
+    val random = ThreadLocalRandom.current()
     val builder = StringBuilder()
 
-    for _ <- 0 until count do builder.addAll(nextFragment())
+    for _ <- 0 until count do builder.addAll(nextFragment(random))
 
     builder.result()
 
-  private inline def nextFragment(): String =
+  private inline def nextFragment(inline random: Random): String =
     val value = random.nextInt() & 0xfffff
     val str   = Integer.toString(value, Radix)
 
