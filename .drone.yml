@@ -1,0 +1,13 @@
+kind: pipeline
+type: docker
+name: graboid
+
+steps:
+  - name: Test
+    image: sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.8.0_3.2.1
+    commands:
+      - sbt test
+  - name: Build
+    image: sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.8.0_3.2.1
+    commands:
+      - sbt package
