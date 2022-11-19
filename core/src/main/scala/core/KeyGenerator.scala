@@ -1,10 +1,7 @@
 package core
 
 import java.lang.Integer
-import java.lang.Long
-import java.security.SecureRandom
 import scala.util.Random
-import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 trait KeyGenerator:
@@ -16,6 +13,8 @@ trait KeyGenerator:
   def next16(): String
 
   def next32(): String
+
+  def next64(): String
 
 object KeyGenerator extends KeyGenerator:
 
@@ -35,8 +34,10 @@ object KeyGenerator extends KeyGenerator:
 
   override def next32(): String = generate(8)
 
+  override def next64(): String = generate(16)
+
   private def generate(count: Int): String =
-    val random = ThreadLocalRandom.current()
+    val random  = ThreadLocalRandom.current()
     val builder = StringBuilder()
 
     for _ <- 0 until count do builder.addAll(nextFragment(random))
