@@ -3,11 +3,53 @@ type: docker
 name: graboid
 
 steps:
-  - name: Test
-    image: sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.8.0_3.2.1
+  - name: git-tags
+    image: alpine/git
     commands:
-      - sbt test
-  - name: Build
-    image: sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.8.0_3.2.1
+      - git fetch --tags
+
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      restore: true
+      mount:
+        - .coursier/
+
+  - name: Stage Docker Image
+    image: estrondo/tremors-build-image:3.2.1-1.7.2
     commands:
-      - sbt package
+      - sbt -Dsbt.coursier.home=.coursier/ graboid/Docker/stage graboid/writeVersionFile
+
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - .coursier/
+
+  - name: Publish Docker Image
+    image: plugins/docker
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
+    settings:
+      repo: docker.estrondo.org
+      username: tremors-graboid
+      dry_run: true
+    commands:
+      - export PLUGIN_TAGS="$(cat graboid/target/version), latest"
+      - cd graboid/target/docker/stage
+      - /usr/local/bin/dockerd-entrypoint.sh /bin/drone-docker
+volumes:
+  - name: docker
+    host:
+      path: /var/run/docker.sock
+  - name: cache
+    host:
+      path: /tmp/cache

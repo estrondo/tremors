@@ -1,5 +1,5 @@
 ThisBuild / organization := "com.github.estrondo.tremors"
-ThisBuild / scalaVersion := "3.2.0"
+ThisBuild / scalaVersion := "3.2.1"
 ThisBuild / isSnapshot   := true
 ThisBuild / Test / fork  := true
 ThisBuild / version ~= (_.replace('+', '-'))
@@ -140,10 +140,11 @@ lazy val graboid = (project in file("graboid"))
   )
   .enablePlugins(AshScriptPlugin)
   .enablePlugins(GraalVMNativeImagePlugin)
-  .enablePlugins(DockerPlugin)
+  .enablePlugins(DockerPlugin, DockerHelperPlugin)
   .settings(
-    dockerBaseImage    := "eclipse-temurin:17-jdk-alpine",
-    dockerUpdateLatest := true
+    dockerBaseImage      := "eclipse-temurin:17-jdk-alpine",
+    dockerRepository     := Some("docker.estrondo.io"),
+    dockerUpdateLatest   := true
   )
   .dependsOn(
     core,
