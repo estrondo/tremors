@@ -8,7 +8,7 @@ steps:
     commands:
       - git fetch --tags
 
-  - name: restore-cache
+  - name: restore cache
     image: drillster/drone-volume-cache
     volumes:
       - name: cache
@@ -18,12 +18,36 @@ steps:
       mount:
         - .coursier/
 
-  - name: Stage Docker Image
+  - name: compile tests
     image: estrondo/tremors-build-image:3.2.1-1.7.2
     commands:
-      - sbt -Dsbt.coursier.home=.coursier/ graboid/Docker/stage graboid/writeVersionFile
+      - sbt -Dsbt.coursier.home=.coursier/ graboid/Test/compile
 
-  - name: rebuild-cache
+  - name: rebuild cache after compile tests
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - .coursier/
+
+  - name: execute tests
+    image: estrondo/tremors-build-image:3.2.1-1.7.2
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
+    commands:
+      - sbt -Dsbt.coursier.home=.coursier/ graboid/test
+
+
+  - name: stage docker image
+    image: estrondo/tremors-build-image:3.2.1-1.7.2
+    commands:
+      - sbt -Dsbt.coursier.home=.coursier/ clean graboid/Docker/stage graboid/writeVersionFile
+
+  - name: rebuild cache after stage docker image
     image: drillster/drone-volume-cache
     volumes:
       - name: cache

@@ -26,3 +26,8 @@ object ArangoDBLayer:
     ZIO.serviceWithZIO { container =>
       ZIO.succeed(container.mappedPort(8529))
     }
+
+  def getHostname(): URIO[ArangoContainer, String] =
+    ZIO.serviceWithZIO { container =>
+      ZIO.succeed(container.host)
+    }

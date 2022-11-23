@@ -14,9 +14,10 @@ import zio.ZLayer
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
+import java.io.File
 
 given Conversion[(String, String), FileSystemBind] = (source, target) =>
-  FileSystemBind(source, target, BindMode.READ_ONLY)
+  FileSystemBind(new File(source).getAbsolutePath(), target, BindMode.READ_ONLY)
 
 def layerOf[C <: Container: Tag](fn: => C): TaskLayer[C] = ZLayer.scoped {
   val acquire = ZIO.attemptBlocking {
@@ -32,3 +33,7 @@ def layerOf[C <: Container: Tag](fn: => C): TaskLayer[C] = ZLayer.scoped {
 def singleContainerGetPort[C <: SingleContainer[?]: Tag](portNumber: Int): URIO[C, Int] =
   for service <- ZIO.service[C]
   yield service.mappedPort(portNumber)
+
+def singleContainerGetHostname[C <: SingleContainer[?]: Tag]: URIO[C, String] =
+  for service <- ZIO.service[C]
+  yield service.host

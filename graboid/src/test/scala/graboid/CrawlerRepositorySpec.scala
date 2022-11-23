@@ -23,15 +23,16 @@ object CrawlerRepositorySpec extends Spec:
 
   private val createRepository =
     for
-      port    <- ArangoDBLayer.getPort()
-      database = FarangoDatabase(
-                   FarangoDatabase.Config(
-                     name = "_system",
-                     user = "root",
-                     password = "159753",
-                     hosts = Seq(("localhost", port))
-                   )
-                 )
+      port     <- ArangoDBLayer.getPort()
+      hostname <- ArangoDBLayer.getHostname()
+      database  = FarangoDatabase(
+                    FarangoDatabase.Config(
+                      name = "_system",
+                      user = "root",
+                      password = "159753",
+                      hosts = Seq((hostname, port))
+                    )
+                  )
     yield CrawlerRepository(database)
 
   override def spec = suite("A CrawlerRepository")(
