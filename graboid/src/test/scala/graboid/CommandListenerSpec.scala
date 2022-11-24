@@ -1,15 +1,16 @@
 package graboid
 
-import graboid.command.AddCrawlerFixture
-import graboid.command.RemoveCrawlerFixture
-import graboid.command.UpdateCrawlerFixture
-import graboid.command.given
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandExecution
 import io.bullet.borer.Cbor
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import testkit.graboid.protocol.AddCrawlerFixture
+import testkit.graboid.protocol.RemoveCrawlerFixture
+import testkit.graboid.protocol.UpdateCrawlerFixture
+import testkit.graboid.protocol.given
+import testkit.zio.testcontainers.KafkaContainerLayer
 import zio.Scope
 import zio.ZIO
 import zio.durationInt
@@ -20,7 +21,6 @@ import zio.stream.ZStream
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import ziotestcontainers.KafkaContainerLayer
 
 object CommandListenerSpec extends Spec:
 

@@ -1,9 +1,10 @@
 package graboid
 
-import _root_.quakeml.EventFixture
 import com.dimafeng.testcontainers.KafkaContainer
-import org.mockito.{ArgumentMatchers => Args}
 import org.mockito.Mockito.*
+import org.mockito.{ArgumentMatchers => Args}
+import testkit.quakeml.EventFixture
+import testkit.zio.testcontainers.*
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -18,7 +19,6 @@ import zio.stream.ZSink
 import zio.stream.ZStream
 import zio.test.TestClock
 import zio.test.assertTrue
-import ziotestcontainers.*
 
 import java.time.ZonedDateTime
 

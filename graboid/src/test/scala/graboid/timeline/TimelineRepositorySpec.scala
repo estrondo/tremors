@@ -1,32 +1,32 @@
 package graboid.timeline
 
+import com.dimafeng.testcontainers.GenericContainer
+import com.dimafeng.testcontainers.GenericContainer.DockerImage
 import farango.FarangoDatabase
-import org.testcontainers.containers.wait.strategy.Wait
+import farango.FarangoDocumentCollection
+import graboid.ArangoDBLayer
 import graboid.Spec
+import graboid.TimelineManager
 import graboid.repository.TimelineRepository
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
+import org.testcontainers.containers.wait.strategy.Wait
+import testkit.zio.testcontainers.*
+import testkit.zio.testcontainers.given
+import zio.Task
+import zio.ZIO
+import zio.test.Assertion
+import zio.test.TestAspect
 import zio.test.assertTrue
+import ziorango.Ziorango
+import ziorango.given
 
+import java.io.IOException
 import java.time.Clock
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import zio.test.Assertion
-import org.mockito.Mockito.*
-import org.mockito.ArgumentMatchers.*
-import ziorango.given
-import ziorango.Ziorango
-import zio.ZIO
-import zio.Task
-import java.io.IOException
-import farango.FarangoDocumentCollection
-import zio.test.TestAspect
 import scala.util.Failure
 import scala.util.Success
-import graboid.TimelineManager
-import ziotestcontainers.*
-import ziotestcontainers.given
-import com.dimafeng.testcontainers.GenericContainer
-import com.dimafeng.testcontainers.GenericContainer.DockerImage
-import graboid.ArangoDBLayer
 
 object TimelineRepositorySpec extends Spec:
 

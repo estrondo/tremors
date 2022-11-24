@@ -2,7 +2,7 @@ package graboid
 
 import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import ziotestcontainers.*
+import testkit.zio.testcontainers.*
 import zio.TaskLayer
 import zio.URIO
 import zio.ZIO

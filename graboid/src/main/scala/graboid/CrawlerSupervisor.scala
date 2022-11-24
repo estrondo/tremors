@@ -1,13 +1,14 @@
 package graboid
 
+import _root_.quakeml.Event
+import cbor.quakeml.given
 import com.softwaremill.macwire.*
+import graboid.protocol.CrawlerDescriptor
 import io.bullet.borer.Cbor
 import io.bullet.borer.Codec
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.clients.producer.internals.ProducerMetadata
-import _root_.quakeml.Event
-import _root_.quakeml.cbor.given
 import zio.Cause
 import zio.RIO
 import zio.Task
@@ -26,7 +27,6 @@ import scala.util.Failure
 import scala.util.Success
 
 import CrawlerSupervisor.*
-import graboid.protocol.CrawlerDescriptor
 
 trait CrawlerSupervisor:
 

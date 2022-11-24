@@ -1,6 +1,6 @@
 package graboid.protocol
 
-import borercodec.given
+import cbor.core.given
 import io.bullet.borer.Codec
 import io.bullet.borer.derivation.MapBasedCodecs.deriveCodec
 

@@ -5,12 +5,12 @@ import graboid.protocol.RemoveCrawler
 import graboid.protocol.RunAll
 import graboid.protocol.RunCrawler
 import graboid.protocol.UpdateCrawler
-import graboid.protocol.test.CrawlerDescriptorFixture
-import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 import graboid.repository.TimelineRepository
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import org.mockito.{ArgumentMatchers => Args}
+import testkit.graboid.protocol.CrawlerDescriptorFixture
+import testkit.graboid.protocol.UpdateCrawlerDescriptorFixture
 import zio.ULayer
 import zio.URIO
 import zio.ZIO

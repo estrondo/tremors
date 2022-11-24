@@ -3,9 +3,10 @@ package graboid
 import com.dimafeng.testcontainers.GenericContainer
 import farango.FarangoDatabase
 import graboid.protocol.CrawlerDescriptor
-import graboid.protocol.test.CrawlerDescriptorFixture
-import graboid.protocol.test.UpdateCrawlerDescriptorFixture
 import org.testcontainers.containers.wait.strategy.Wait
+import testkit.graboid.protocol.CrawlerDescriptorFixture
+import testkit.graboid.protocol.UpdateCrawlerDescriptorFixture
+import testkit.zio.testcontainers.*
 import zio.ZIO
 import zio.durationInt
 import zio.stream.ZSink
@@ -13,7 +14,6 @@ import zio.stream.ZStream
 import zio.test.TestArgs
 import zio.test.TestAspect
 import zio.test.assertTrue
-import ziotestcontainers.*
 
 import java.time.Duration
 import java.time.ZonedDateTime

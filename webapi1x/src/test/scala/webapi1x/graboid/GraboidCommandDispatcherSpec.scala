@@ -2,13 +2,14 @@ package webapi1x.graboid
 
 import com.dimafeng.testcontainers.KafkaContainer
 import core.KeyGenerator
-import graboid.command.RemoveCrawlerFixture
-import graboid.command.UpdateCrawlerFixture
 import graboid.protocol.AddCrawler
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandExecution
-import graboid.protocol.test.CrawlerDescriptorFixture
 import io.bullet.borer.Cbor
+import testkit.graboid.protocol.CrawlerDescriptorFixture
+import testkit.graboid.protocol.RemoveCrawlerFixture
+import testkit.graboid.protocol.UpdateCrawlerFixture
+import testkit.zio.testcontainers.KafkaContainerLayer
 import webapi1x.Spec
 import zio.RIO
 import zio.RLayer
@@ -21,7 +22,6 @@ import zio.stream.ZSink
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.TestResult
-import ziotestcontainers.KafkaContainerLayer
 
 object GraboidCommandDispatcherSpec extends Spec:
 

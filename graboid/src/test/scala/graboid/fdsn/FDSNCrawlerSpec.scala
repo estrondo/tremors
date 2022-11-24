@@ -1,20 +1,20 @@
 package graboid.fdsn
 
 import com.dimafeng.testcontainers.GenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
 import graboid.HttpLayer
 import graboid.Spec
 import graboid.TimelineManager
 import graboid.quakeml.QuakeMLParser
+import org.testcontainers.containers.wait.strategy.Wait
 import quakeml.Event
 import quakeml.ResourceReference
-import ziotestcontainers.*
-import ziotestcontainers.given
+import testkit.zio.testcontainers.*
+import testkit.zio.testcontainers.given
+import zio.test.TestAspect
 import zio.test.assertTrue
 
 import java.net.URL
 import java.time.ZonedDateTime
-import zio.test.TestAspect
 
 object FDSNCrawlerSpec extends Spec:
 

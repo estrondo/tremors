@@ -20,18 +20,18 @@ lazy val root = (project in file("."))
   )
   .aggregate(
     core,
-    testkit,
-    borerCodec,
+    testkitCore,
+    cbor,
     webapi1x,
     graboidProtocol,
-    graboidProtocolTestkit,
+    testkitGraboidProtocol,
     graboid,
     farango,
     ziorango,
     quakeml,
-    quakemlCBOR,
-    quakemlTestKit,
-    zioTestcontainers,
+    cborQuakeml,
+    testkitQuakeml,
+    testkitZIOTestcontainers,
     zioAppStarter
   )
 
@@ -40,20 +40,20 @@ lazy val core = (project in file("core"))
     name := "core"
   )
 
-lazy val testkit = (project in file("testkit"))
+lazy val testkitCore = (project in file("testkit/core"))
   .settings(
-    name := "teskit"
+    name := "teskit-core"
   )
 
-lazy val borerCodec = (project in file("borer-codec"))
+lazy val cbor = (project in file("cbor/core"))
   .settings(
-    name := "borer-codec",
+    name := "cbor-core",
     libraryDependencies ++= Seq(
       Dependencies.Borer
     ).flatten
   )
 
-lazy val farango = (project in file("farango"))
+lazy val farango = (project in file("arangodb/farango"))
   .settings(
     name := "farango", // Functional ArangoDB
     libraryDependencies ++= Seq(
@@ -61,7 +61,7 @@ lazy val farango = (project in file("farango"))
     ).flatten
   )
 
-lazy val ziorango = (project in file("ziorango"))
+lazy val ziorango = (project in file("arangodb/ziorango"))
   .settings(
     name := "ziorango",
     libraryDependencies ++= Seq(
@@ -79,17 +79,17 @@ lazy val quakeml = (project in file("quakeml"))
     ).flatten
   )
 
-lazy val quakemlTestKit = (project in file("quakeml-testkit"))
+lazy val testkitQuakeml = (project in file("testkit/quakeml"))
   .settings(
-    name := "quakeml-testkit"
+    name := "testkit-quakeml"
   )
   .dependsOn(
     quakeml
   )
 
-lazy val quakemlCBOR = (project in file("quakeml-cbor"))
+lazy val cborQuakeml = (project in file("cbor/quakeml"))
   .settings(
-    name := "quakeml-cbor",
+    name := "cbor-quakeml",
     libraryDependencies ++= Seq(
       Dependencies.Borer
     ).flatten
@@ -104,15 +104,15 @@ lazy val graboidProtocol = (project in file("graboid-protocol"))
     ).flatten
   )
   .dependsOn(
-    borerCodec
+    cbor
   )
 
-lazy val graboidProtocolTestkit = (project in file("graboid-protocol-testkit"))
+lazy val testkitGraboidProtocol = (project in file("testkit/graboid-protocol"))
   .settings(
-    name := "graboid-protocol-testkit"
+    name := "testkit-graboid-protocol"
   )
   .dependsOn(
-    testkit,
+    testkitCore,
     graboidProtocol
   )
 
@@ -142,9 +142,9 @@ lazy val graboid = (project in file("graboid"))
   .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(DockerPlugin, DockerHelperPlugin)
   .settings(
-    dockerBaseImage      := "eclipse-temurin:17-jdk-alpine",
-    dockerRepository     := Some("docker.estrondo.io"),
-    dockerUpdateLatest   := true
+    dockerBaseImage    := "eclipse-temurin:17-jdk-alpine",
+    dockerRepository   := Some("docker.estrondo.io"),
+    dockerUpdateLatest := true
   )
   .dependsOn(
     core,
@@ -153,15 +153,15 @@ lazy val graboid = (project in file("graboid"))
     farango,
     ziorango,
     quakeml,
-    quakemlCBOR,
-    quakemlTestKit         % Test,
-    zioTestcontainers      % Test,
-    graboidProtocolTestkit % Test
+    cborQuakeml,
+    testkitQuakeml           % Test,
+    testkitZIOTestcontainers % Test,
+    testkitGraboidProtocol   % Test
   )
 
-lazy val zioTestcontainers = (project in file("zio-testcontainers"))
+lazy val testkitZIOTestcontainers = (project in file("testkit/zio-testcontainers"))
   .settings(
-    name := "zio-testcontainers",
+    name := "testkit-zio-testcontainers",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOKafka,
@@ -191,8 +191,8 @@ lazy val webapi1x = (project in file("webapi1x"))
     core,
     zioAppStarter,
     graboidProtocol,
-    graboidProtocolTestkit % Test,
-    zioTestcontainers
+    testkitGraboidProtocol % Test,
+    testkitZIOTestcontainers
   )
 
 lazy val zioAppStarter = (project in file("zio-app-starter"))

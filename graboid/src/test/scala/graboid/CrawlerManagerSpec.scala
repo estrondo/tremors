@@ -2,10 +2,10 @@ package graboid
 
 import graboid.fdsn.FDSNCrawler
 import graboid.protocol.CrawlerDescriptor
-import graboid.protocol.test.CrawlerDescriptorFixture
 import graboid.repository.TimelineRepository
 import org.mockito.Mockito.*
 import org.mockito.{ArgumentMatchers => Args}
+import testkit.graboid.protocol.CrawlerDescriptorFixture
 import zio.UIO
 import zio.URIO
 import zio.ZIO
