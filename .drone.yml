@@ -10,6 +10,7 @@ steps:
 
   - name: restore cache
     image: drillster/drone-volume-cache
+    privileged: true
     volumes:
       - name: cache
         path: /cache
@@ -25,6 +26,7 @@ steps:
 
   - name: rebuild cache after compile tests
     image: drillster/drone-volume-cache
+    privileged: true
     volumes:
       - name: cache
         path: /cache
@@ -49,6 +51,7 @@ steps:
 
   - name: rebuild cache after stage docker image
     image: drillster/drone-volume-cache
+    privileged: true
     volumes:
       - name: cache
         path: /cache
@@ -57,7 +60,7 @@ steps:
       mount:
         - .coursier/
 
-  - name: Publish Docker Image
+  - name: publish docker image
     image: plugins/docker
     volumes:
       - name: docker
