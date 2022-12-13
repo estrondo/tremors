@@ -76,7 +76,7 @@ steps:
 volumes:
   - name: docker
     host:
-      path: /var/run/docker.sock
+      path: /run/podman/podman.sock
   - name: cache
     host:
       path: /tmp/cache
