@@ -42,6 +42,9 @@ steps:
         path: /var/run/docker.sock
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ graboid/test
+    environment:
+      TESTCONTAINERS_CHECKS_DISABLE: true
+      TESTCONTAINERS_RYUK_DISABLE: true
 
 
   - name: stage docker image
