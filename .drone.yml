@@ -43,8 +43,8 @@ steps:
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ graboid/test
     environment:
-      TESTCONTAINERS_CHECKS_DISABLE: "true"
-      TESTCONTAINERS_RYUK_DISABLE: "true"
+      DOCKER_HOST: "unix://var/run/docker.run"
+      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: "/var/run/docker.run"
 
 
   - name: stage docker image
