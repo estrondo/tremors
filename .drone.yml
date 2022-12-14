@@ -43,8 +43,8 @@ steps:
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ graboid/test
     environment:
-      TESTCONTAINERS_CHECKS_DISABLE: true
-      TESTCONTAINERS_RYUK_DISABLE: true
+      TESTCONTAINERS_CHECKS_DISABLE: "true"
+      TESTCONTAINERS_RYUK_DISABLE: "true"
 
 
   - name: stage docker image
