@@ -43,7 +43,7 @@ steps:
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ graboid/test
     environment:
-      DOCKER_HOST: "unix://var/run/docker.run"
+      DOCKER_HOST: "unix:///var/run/docker.run"
       TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: "/var/run/docker.run"
 
 
