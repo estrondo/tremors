@@ -19,10 +19,10 @@ steps:
       mount:
         - .coursier/
 
-  - name: compile tests
+  - name: download dependencies
     image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
     commands:
-      - sbt -Dsbt.coursier.home=.coursier/ graboid/Test/compile
+      - sbt -Dsbt.coursier.home=.coursier/ update
 
   - name: rebuild cache after compile tests
     image: drillster/drone-volume-cache
@@ -35,17 +35,20 @@ steps:
       mount:
         - .coursier/
 
+
+  - name: compile tests
+    image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
+    commands:
+      - sbt -Dsbt.coursier.home=.coursier/ graboid/Test/compile
+
   - name: execute tests
     image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
+    privileged: true
     volumes:
       - name: docker
         path: /var/run/docker.sock
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ graboid/test
-    environment:
-      DOCKER_HOST: "unix:///var/run/docker.run"
-      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: "/var/run/docker.run"
-
 
   - name: stage docker image
     image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
