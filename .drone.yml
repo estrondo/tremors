@@ -20,7 +20,7 @@ steps:
         - .coursier/
 
   - name: compile tests
-    image: localhost/estrondo/tremors-build-image:3.2.1-1.7.2
+    image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ graboid/Test/compile
 
@@ -36,7 +36,7 @@ steps:
         - .coursier/
 
   - name: execute tests
-    image: localhost/estrondo/tremors-build-image:3.2.1-1.7.2
+    image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
     volumes:
       - name: docker
         path: /var/run/docker.sock
@@ -48,7 +48,7 @@ steps:
 
 
   - name: stage docker image
-    image: localhost/estrondo/tremors-build-image:3.2.1-1.7.2
+    image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
     commands:
       - sbt -Dsbt.coursier.home=.coursier/ clean graboid/Docker/stage graboid/writeVersionFile
 

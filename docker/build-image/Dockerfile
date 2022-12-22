@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.5_8-jdk-alpine
+FROM docker.io/eclipse-temurin:17.0.5_8-jdk-alpine
 
 ARG scala_version \
     sbt_version \

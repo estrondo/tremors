@@ -142,8 +142,8 @@ lazy val graboid = (project in file("graboid"))
   .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(DockerPlugin, DockerHelperPlugin)
   .settings(
-    dockerBaseImage    := "eclipse-temurin:17-jdk-alpine",
-    dockerRepository   := Some("docker.estrondo.io"),
+    dockerBaseImage    := "docker.io/eclipse-temurin:17-jdk-alpine",
+    dockerRepository   := Some("registry.digitalocean.com/estrondo"),
     dockerUpdateLatest := true
   )
   .dependsOn(
