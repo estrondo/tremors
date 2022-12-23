@@ -1,0 +1,14 @@
+inputSet:
+  identifier: "Publish"
+  pipeline:
+    identifier: "main"
+    properties:
+      ci:
+        codebase:
+          build:
+            type: "branch"
+            spec:
+              branch: "main"
+  name: "Publish"
+  orgIdentifier: "default"
+  projectIdentifier: "Tremors"
