@@ -71,7 +71,6 @@ pipeline:
     - stage:
         name: build
         identifier: build
-        description: ""
         type: CI
         spec:
           cloneCodebase: true
@@ -103,4 +102,5 @@ pipeline:
                     repo: docker.io/rthoth/estrondo
                     tags:
                       - graboid
+                    dockerfile: sbt graboid/Docker/stage/Dockerfile
                     context: graboid/target/docker/stage
