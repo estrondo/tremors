@@ -1,0 +1,95 @@
+pipeline:
+  name: main
+  identifier: main
+  projectIdentifier: Tremors
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: tremors
+        build: <+input>
+  stages:
+    - stage:
+        name: test
+        identifier: Test
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: RunTests
+                  name: sbt-test
+                  identifier: sbttest
+                  spec:
+                    connectorRef: estrondo
+                    image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
+                    language: Scala
+                    buildTool: SBT
+                    args: test
+                    runOnlySelectedTests: true
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - graboid/target/test-reports/*.xml
+                  description: This step is responsible for running all sbt tests.
+        variables: []
+    - stage:
+        name: approval
+        identifier: approval
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: approval
+                  identifier: approval
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |-
+                      Please check this out.
+                      If you think it is acceptable, the pipeline will proceed.
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - org._organization_all_users
+                    approverInputs: []
+                  failureStrategies: []
+        tags: {}
+    - stage:
+        name: build
+        identifier: build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: sbt run
+                  identifier: sbt_run
+                  spec:
+                    connectorRef: estrondo
+                    image: docker.io/rthoth/estrondo:builder_3.2.1-1.7.2
+                    shell: Bash
+                    command: sbt graboid/Docker/publish
+                  description: This'll run something
