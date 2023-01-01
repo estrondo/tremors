@@ -6,7 +6,7 @@ ARG scala_version \
 
 
 # Install SBT
-RUN apk --no-cache add wget bash git && \
+RUN apk --no-cache add wget bash && \
     cd /tmp && \
     echo "Downloading sbt-${sbt_version}." && \
     wget --no-verbose "https://github.com/sbt/sbt/releases/download/v${sbt_version}/sbt-${sbt_version}.tgz" -O sbt.tar.gz && \
