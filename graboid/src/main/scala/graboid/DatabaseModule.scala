@@ -9,8 +9,10 @@ import zio.Task
 import zio.TaskLayer
 import zio.ZIO
 import zio.ZLayer
+import com.softwaremill.macwire.wire
 
 import scala.collection.immutable.HashMap
+import farango.FarangoDocumentCollection
 
 trait DatabaseModule:
 
@@ -20,15 +22,9 @@ trait DatabaseModule:
 
 object DatabaseModule:
 
-  def apply(config: GraboidConfig): Task[DatabaseModule] = ZIO.attempt {
-    DatabaseModuleImpl(config)
-  }
-
-private[graboid] class DatabaseModuleImpl(config: GraboidConfig) extends DatabaseModule:
-
-  val crawlerRepository = CrawlerRepository(createDatabase(config.crawlerRepository))
-
-  val timelineRepository = TimelineRepository(createDatabase(config.timelineRepository))
+  def apply(config: GraboidConfig): Task[DatabaseModule] =
+    for crawlerDatabase <- ZIO.succeed(createDatabase(config.crawlerRepository))
+    yield ???
 
   private def createDatabase(config: ArangoConfig): FarangoDatabase =
     FarangoDatabase(
@@ -39,6 +35,16 @@ private[graboid] class DatabaseModuleImpl(config: GraboidConfig) extends Databas
         hosts = for host <- config.hosts yield (host.hostname, host.port)
       )
     )
+
+private[graboid] class DatabaseModuleImpl(
+    graboid: FarangoDatabase,
+    crawlerCollection: FarangoDocumentCollection,
+    timelineCollection: FarangoDocumentCollection
+) extends DatabaseModule:
+
+  val crawlerRepository = CrawlerRepository(crawlerCollection)
+
+  val timelineRepository = TimelineRepository(timelineCollection)
 
   override val crawlerRepositoryLayer: TaskLayer[CrawlerRepository] =
     ZLayer.succeed(crawlerRepository)

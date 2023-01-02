@@ -16,7 +16,7 @@ trait FarangoDatabase:
       args: Map[String, Any] = Map.empty
   ): F[S[T]]
 
-  def documentCollection(name: String): FarangoDocumentCollection
+  def documentCollection[F[_] : FApplicative](name: String): F[FarangoDocumentCollection]
 
   private[farango] def underlying: ArangoDatabaseAsync
 
@@ -49,8 +49,8 @@ object FarangoDatabase:
 
 private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extends FarangoDatabase:
 
-  override def documentCollection(name: String): FarangoDocumentCollection =
-    FarangoDocumentCollectionImpl(this, database.collection(name))
+  override def documentCollection[F[_] : FApplicative](name: String): F[FarangoDocumentCollection] =
+    FarangoDocumentCollection(name, this)
 
   def query[T: ClassTag, F[_]: FApplicative, S[_]: FApplicativeStream](
       query: String,

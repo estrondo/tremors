@@ -11,6 +11,7 @@ import ziorango.given
 import zio.TaskLayer
 
 import java.time.ZonedDateTime
+import farango.FarangoDocumentCollection
 
 trait TimelineRepository:
 
@@ -22,7 +23,7 @@ object TimelineRepository:
 
   private[repository] val CrawlerNameParam = "crawlerName"
 
-  private[repository] val CollectionName = "crawlerTimeline"
+  private[repository] val CollectionName = "crawler_timeline"
 
   private[repository] val QueryLastWindow =
     s"FOR w IN $CollectionName FILTER w.name == @$CrawlerNameParam SORT w.ending DESC LIMIT 1 RETURN w"
@@ -34,11 +35,17 @@ object TimelineRepository:
       ending: Long
   )
 
-  def apply(database: FarangoDatabase): TimelineRepository = TimelineRepositoryImpl(database)
+  def apply(database: FarangoDatabase): Task[TimelineRepository] =
+    for collection <- database.documentCollection(CollectionName)
+    yield TimelineRepository(collection)
 
-private class TimelineRepositoryImpl(database: FarangoDatabase) extends TimelineRepository:
+  def apply(collection: FarangoDocumentCollection): TimelineRepository =
+    TimelineRepositoryImpl(collection)
 
-  private val collection = database.documentCollection(CollectionName)
+private class TimelineRepositoryImpl(collection: FarangoDocumentCollection)
+    extends TimelineRepository:
+
+  private def database = collection.database
 
   override def add(name: String, window: Window): Task[Window] =
     val mappedWindow = MappedWindow(

@@ -32,17 +32,18 @@ object TimelineRepositorySpec extends Spec:
 
   private val createRepository =
     for
-      port     <- ArangoDBLayer.getPort()
-      hostname <- ArangoDBLayer.getHostname()
-      database  = FarangoDatabase(
-                    FarangoDatabase.Config(
-                      name = "_system",
-                      user = "root",
-                      password = "159753",
-                      hosts = Seq((hostname, port))
+      port       <- ArangoDBLayer.getPort()
+      hostname   <- ArangoDBLayer.getHostname()
+      database    = FarangoDatabase(
+                      FarangoDatabase.Config(
+                        name = "_system",
+                        user = "root",
+                        password = "159753",
+                        hosts = Seq((hostname, port))
+                      )
                     )
-                  )
-    yield TimelineRepository(database)
+      repository <- TimelineRepository(database)
+    yield repository
 
   override def spec = suite("A TimelineRepository")(
     suite("Integration test with ArangoDB")(
@@ -83,15 +84,15 @@ object TimelineRepositorySpec extends Spec:
         val database   = mock(classOf[FarangoDatabase])
         val collection = mock(classOf[FarangoDocumentCollection])
 
-        when(database.documentCollection(anyString()))
-          .thenReturn(collection)
-
         val expectedThrowable = IOException("An internal error has happened!")
 
+        when(collection.database)
+          .thenReturn(database)
+          
         when(database.query(anyString(), any())(any(), any(), any()))
           .thenReturn(ZIO.fail(expectedThrowable))
 
-        val repository = TimelineRepository(database)
+        val repository = TimelineRepository(collection)
         for result <- repository.last("crawler-01").fold(identity, _ => "Ops!")
         yield assertTrue(result == expectedThrowable)
       },
@@ -99,15 +100,12 @@ object TimelineRepositorySpec extends Spec:
         val database   = mock(classOf[FarangoDatabase])
         val collection = mock(classOf[FarangoDocumentCollection])
 
-        when(database.documentCollection(anyString()))
-          .thenReturn(collection)
-
         val expectedThrowable = IOException("OMG!")
 
         when(collection.insert(any())(any(), any()))
           .thenReturn(ZIO.fail(expectedThrowable))
 
-        val repository = TimelineRepository(database)
+        val repository = TimelineRepository(collection)
         for result <-
             repository
               .add("omg", TimelineManager.Window("---", ZonedDateTime.now(), ZonedDateTime.now()))

@@ -14,6 +14,7 @@ import zio.stream.ZStream
 import zio.test.TestArgs
 import zio.test.TestAspect
 import zio.test.assertTrue
+import ziorango.given
 
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -23,17 +24,18 @@ object CrawlerRepositorySpec extends Spec:
 
   private val createRepository =
     for
-      port     <- ArangoDBLayer.getPort()
-      hostname <- ArangoDBLayer.getHostname()
-      database  = FarangoDatabase(
-                    FarangoDatabase.Config(
-                      name = "_system",
-                      user = "root",
-                      password = "159753",
-                      hosts = Seq((hostname, port))
+      port       <- ArangoDBLayer.getPort()
+      hostname   <- ArangoDBLayer.getHostname()
+      database    = FarangoDatabase(
+                      FarangoDatabase.Config(
+                        name = "_system",
+                        user = "root",
+                        password = "159753",
+                        hosts = Seq((hostname, port))
+                      )
                     )
-                  )
-    yield CrawlerRepository(database)
+      collection <- database.documentCollection("crawler")
+    yield CrawlerRepository(collection)
 
   override def spec = suite("A CrawlerRepository")(
     suite("with valid ArangoDB")(

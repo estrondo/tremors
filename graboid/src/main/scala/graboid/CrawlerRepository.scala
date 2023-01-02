@@ -11,6 +11,7 @@ import CrawlerRepository.*
 import graboid.protocol.CrawlerDescriptor
 import graboid.protocol.UpdateCrawlerDescriptor
 import zio.ZIO
+import farango.FarangoDocumentCollection
 
 trait CrawlerRepository:
 
@@ -26,8 +27,8 @@ trait CrawlerRepository:
 
 object CrawlerRepository:
 
-  def apply(database: FarangoDatabase): CrawlerRepository =
-    CrawlerRepositoryImpl(database)
+  def apply(collection: FarangoDocumentCollection): CrawlerRepository =
+    CrawlerRepositoryImpl(collection)
 
   private[graboid] case class MappedCrawlerDescriptor(
       _key: String,
@@ -60,9 +61,7 @@ object CrawlerRepository:
     starting = mapped.starting
   )
 
-private[graboid] class CrawlerRepositoryImpl(database: FarangoDatabase) extends CrawlerRepository:
-
-  private val collection = database.documentCollection("crawlers")
+private[graboid] class CrawlerRepositoryImpl(collection: FarangoDocumentCollection) extends CrawlerRepository:
 
   override def add(descriptor: CrawlerDescriptor): Task[CrawlerDescriptor] =
     for stored <- collection.insert(toMappedCrawlerDescriptor(descriptor))

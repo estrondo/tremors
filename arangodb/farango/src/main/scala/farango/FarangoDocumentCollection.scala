@@ -14,8 +14,12 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
 import scala.reflect.ClassTag
+import com.arangodb.async.ArangoDatabaseAsync
+import com.arangodb.entity.CollectionEntity
 
 trait FarangoDocumentCollection:
+
+  def database: FarangoDatabase
 
   def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]]
 
@@ -27,8 +31,30 @@ trait FarangoDocumentCollection:
 
   def update[T: ClassTag, F[_]: FApplicative](key: String, document: T): F[Option[T]]
 
+object FarangoDocumentCollection:
+
+  def apply[F[_]: FApplicative](
+      name: String,
+      database: FarangoDatabase
+  ): F[FarangoDocumentCollection] =
+
+    val collection = database.underlying.collection(name)
+    val response   = collection.exists().thenComposeAsync { exists =>
+      if exists then CompletableFuture.completedFuture(())
+      else create(collection)
+    }
+
+    FApplicative[F].mapFromCompletionStage(response)(_ =>
+      FarangoDocumentCollectionImpl(database, collection)
+    )
+
+  private def create(collection: ArangoCollectionAsync): CompletableFuture[Unit] =
+    val options = CollectionCreateOptions()
+      .waitForSync(true)
+    collection.create(options).thenApply(_ => ())
+
 private[farango] class FarangoDocumentCollectionImpl(
-    database: FarangoDatabase,
+    val database: FarangoDatabase,
     collection: ArangoCollectionAsync
 ) extends FarangoDocumentCollection:
 
