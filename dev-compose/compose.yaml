@@ -1,33 +1,33 @@
-version: "3.0"
+version: "3.9"
 
 services:
   arango1:
-    image: arangodb/arangodb:3.10.0
+    image: docker.io/arangodb/arangodb:3.10.0
     ports:
       - "8529:8529"
     volumes:
       - arango1:/var/lib/arangodb3
     environment:
       ARANGO_ROOT_PASSWORD: tremors
-    command: arangodb --starter.join arango1,arango2,arango3
+    command: arangodb --starter.address=arango1
   arango2:
-    image: arangodb/arangodb:3.10.0
+    image: docker.io/arangodb/arangodb:3.10.0
     ports:
       - "8530:8529"
     volumes:
       - arango2:/var/lib/arangodb3
     environment:
       ARANGO_ROOT_PASSWORD: tremors
-    command: arangodb --starter.join arango1,arango2,arango3
+    command: arangodb --starter.address=arango2 --starter.join arango1
   arango3:
-    image: arangodb/arangodb:3.10.0
+    image: docker.io/arangodb/arangodb:3.10.0
     ports:
       - "8531:8529"
     volumes:
-      - arango2:/var/lib/arangodb3
+      - arango3:/var/lib/arangodb3
     environment:
       ARANGO_ROOT_PASSWORD: tremors
-    command: arangodb --starter.join arango1,arango2,arango3
+    command: arangodb --starter.address=arango3 --starter.join arango1
 volumes:
   arango1:
   arango2:
