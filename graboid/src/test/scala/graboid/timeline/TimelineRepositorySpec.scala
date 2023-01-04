@@ -50,7 +50,12 @@ object TimelineRepositorySpec extends Spec:
       test("should store a new window") {
         val beginning      = ZonedDateTime.now()
         val ending         = beginning.plusDays(13)
-        val expectedWindow = TimelineManager.Window("---", beginning, ending)
+        val utc            = Clock.systemUTC().getZone()
+        val expectedWindow = TimelineManager.Window(
+          id = "---",
+          beginning = beginning.withZoneSameInstant(utc).truncatedTo(ChronoUnit.SECONDS),
+          ending = ending.withZoneSameInstant(utc).truncatedTo(ChronoUnit.SECONDS)
+        )
 
         for
           repository <- createRepository
@@ -88,7 +93,7 @@ object TimelineRepositorySpec extends Spec:
 
         when(collection.database)
           .thenReturn(database)
-          
+
         when(database.query(anyString(), any())(any(), any(), any()))
           .thenReturn(ZIO.fail(expectedThrowable))
 

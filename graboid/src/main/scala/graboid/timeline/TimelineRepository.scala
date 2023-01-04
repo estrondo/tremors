@@ -1,17 +1,20 @@
 package graboid.repository
 
 import farango.FarangoDatabase
+import farango.FarangoDocumentCollection
 import graboid.TimelineManager.Window
 import graboid.arango.ArangoConversion.given
-import graboid.repository.TimelineRepository.*
+import graboid.arango.ArangoRepository
 import zio.Task
+import zio.TaskLayer
 import zio.stream.ZSink
 import ziorango.Ziorango
 import ziorango.given
-import zio.TaskLayer
 
 import java.time.ZonedDateTime
-import farango.FarangoDocumentCollection
+
+import TimelineRepository.*
+import TimelineRepository.given
 
 trait TimelineRepository:
 
@@ -42,10 +45,19 @@ object TimelineRepository:
   def apply(collection: FarangoDocumentCollection): TimelineRepository =
     TimelineRepositoryImpl(collection)
 
+  private[graboid] given fromMapped: Conversion[MappedWindow, Window] =
+    mappedWindow =>
+      Window(
+        id = mappedWindow.id,
+        beginning = mappedWindow.beginning,
+        ending = mappedWindow.ending
+      )
+
 private class TimelineRepositoryImpl(collection: FarangoDocumentCollection)
     extends TimelineRepository:
 
-  private def database = collection.database
+  private def database   = collection.database
+  private val repository = ArangoRepository[MappedWindow](collection)
 
   override def add(name: String, window: Window): Task[Window] =
     val mappedWindow = MappedWindow(
@@ -55,8 +67,7 @@ private class TimelineRepositoryImpl(collection: FarangoDocumentCollection)
       window.ending
     )
 
-    for _ <- collection.insert(mappedWindow)
-    yield window
+    repository.addT(mappedWindow)
 
   override def last(name: String): Task[Option[Window]] =
     for
@@ -65,11 +76,4 @@ private class TimelineRepositoryImpl(collection: FarangoDocumentCollection)
                   Map(CrawlerNameParam -> name)
                 )
       head   <- stream.run(ZSink.head)
-    yield head.map(convertToWindow)
-
-  private def convertToWindow(mappedWindow: MappedWindow): Window =
-    Window(
-      id = mappedWindow.id,
-      beginning = mappedWindow.beginning,
-      ending = mappedWindow.ending
-    )
+    yield head.map(fromMapped)

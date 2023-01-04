@@ -24,7 +24,7 @@ object CrawlerModule:
       kafkaModule: KafkaModule,
       databaseModule: DatabaseModule
   ): Task[CrawlerModule] = ZIO.attempt {
-    CrawlerModuleImpl(config, httpModule, kafkaModule, databaseModule)
+    wire[CrawlerModuleImpl]
   }
 
 private[graboid] class CrawlerModuleImpl(

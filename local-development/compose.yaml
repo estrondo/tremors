@@ -3,6 +3,8 @@ version: "3.9"
 services:
   arango1:
     image: docker.io/arangodb/arangodb:3.10.0
+    networks:
+      - arango
     ports:
       - "8529:8529"
     volumes:
@@ -12,6 +14,8 @@ services:
     command: arangodb --starter.address=arango1
   arango2:
     image: docker.io/arangodb/arangodb:3.10.0
+    networks:
+      - arango
     ports:
       - "8530:8529"
     volumes:
@@ -21,13 +25,20 @@ services:
     command: arangodb --starter.address=arango2 --starter.join arango1
   arango3:
     image: docker.io/arangodb/arangodb:3.10.0
+    networks:
+      - arango
     ports:
-      - "8531:8529"
+      - "8531:8529" 
     volumes:
       - arango3:/var/lib/arangodb3
     environment:
       ARANGO_ROOT_PASSWORD: tremors
     command: arangodb --starter.address=arango3 --starter.join arango1
+networks:
+  arango:
+    driver: bridge
+  kafka:
+    driver: bridge
 volumes:
   arango1:
   arango2:
