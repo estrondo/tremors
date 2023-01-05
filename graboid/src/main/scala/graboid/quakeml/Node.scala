@@ -4,31 +4,34 @@ import scala.collection.immutable.HashMap
 
 private[quakeml] object Node:
 
-  type Map = scala.collection.immutable.Map[String, Node]
+  type NodeMap = Map[String, Node]
 
-  val EmptyNodeMap: Map = Map.empty
+  val EmptyNodeMap: NodeMap = Map.empty
 
-  abstract class Container(name: String, val nodeMap: Map) extends Node(name):
+  abstract class Container(name: String, val content: NodeMap) extends Node(name):
 
     override def nodeFor(childName: String): Node =
-      nodeMap.get(childName) match
-        case Some(childLevel) => childLevel
-        case None             => Skip(childName)
+      content.get(childName) match
+        case Some(child) => child
+        case None        => Skip(childName)
 
-  class Root(name: String, val max: Int, content: Map) extends Container(name, content): // quakeml
+  class Root(name: String, val max: Int, content: NodeMap)
+      extends Container(name, content): // quakeml
 
     require(max > 0, "Max must be positive!")
 
-  class Transparent(name: String, content: Map) extends Container(name, content) // eventParameters
+  class Transparent(name: String, content: NodeMap)
+      extends Container(name, content) // eventParameters
 
-  class Publishable(name: String, content: Map)
+  class Publishable(name: String, content: NodeMap)
       extends Container(name, content): // event, origin, magnitude
 
     def this(name: String)(nodeMap: Node*) = this(name, nodeMap)
 
     def toChild(): Child = Child(name, content)
 
-  class Child(name: String, content: Map) extends Container(name, content): // some ..............
+  class Child(name: String, content: NodeMap)
+      extends Container(name, content): // some ..............
 
     def this(name: String)(nodeMap: Node*) = this(name, nodeMap)
 
@@ -36,11 +39,11 @@ private[quakeml] object Node:
 
     def nodeFor(childName: String): Node = Skip(childName)
 
-  given Conversion[Node, Map] = level => HashMap(level.name -> level)
+  given Conversion[Node, NodeMap] = level => HashMap(level.name -> level)
 
   given Conversion[String, Child] = name => Child(name, EmptyNodeMap)
 
-  given Conversion[Iterable[Node], Map] = iterable =>
+  given Conversion[Iterable[Node], NodeMap] = iterable =>
     HashMap.from {
       for level <- iterable
       yield level.name -> level

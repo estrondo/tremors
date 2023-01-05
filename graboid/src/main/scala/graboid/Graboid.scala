@@ -28,9 +28,8 @@ object Graboid extends ZIOAppDefault:
       databaseModule <- DatabaseModule(graboidConfig)
       crawlerModule  <-
         CrawlerModule(graboidConfig.crawlerManager, httpModule, kafkaModule, databaseModule)
-
-      _ <- crawlerModule.runManager().run(ZSink.drain)
-      _ <- ZIO.logInfo(
-             s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
-           )
+      _              <- ZIO.logInfo(
+                          s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
+                        )
+      _              <- crawlerModule.runManager().run(ZSink.drain)
     yield ExitCode.success

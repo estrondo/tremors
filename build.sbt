@@ -146,7 +146,8 @@ lazy val graboid = (project in file("graboid"))
     dockerRepository     := Some("docker.io/rthoth"),
     dockerUpdateLatest   := false,
     Docker / packageName := "estrondo",
-    Docker / version ~= ("graboid_" + _)
+    Docker / version ~= ("graboid_" + _),
+    dockerAliases ++= Seq(dockerAlias.value.withTag(Some("graboid")))
   )
   .dependsOn(
     core,

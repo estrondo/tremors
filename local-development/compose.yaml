@@ -3,8 +3,6 @@ version: "3.9"
 services:
   arango1:
     image: docker.io/arangodb/arangodb:3.10.0
-    networks:
-      - arango
     ports:
       - "8529:8529"
     volumes:
@@ -14,8 +12,6 @@ services:
     command: arangodb --starter.address=arango1
   arango2:
     image: docker.io/arangodb/arangodb:3.10.0
-    networks:
-      - arango
     ports:
       - "8530:8529"
     volumes:
@@ -25,8 +21,6 @@ services:
     command: arangodb --starter.address=arango2 --starter.join arango1
   arango3:
     image: docker.io/arangodb/arangodb:3.10.0
-    networks:
-      - arango
     ports:
       - "8531:8529" 
     volumes:
@@ -34,11 +28,43 @@ services:
     environment:
       ARANGO_ROOT_PASSWORD: tremors
     command: arangodb --starter.address=arango3 --starter.join arango1
-networks:
-  arango:
-    driver: bridge
-  kafka:
-    driver: bridge
+
+  zookeeper:
+    image: docker.io/confluentinc/cp-zookeeper:6.1.9
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka1:
+    image: docker.io/confluentinc/cp-kafka:6.1.9
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka2:
+    image: docker.io/confluentinc/cp-kafka:6.1.9
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  graboid:
+    image: docker.io/rthoth/estrondo:graboid
+    environment:
+      TREMORS_PROFILE: dev
+    ports:
+      - "8080:8080"
 volumes:
   arango1:
   arango2:
