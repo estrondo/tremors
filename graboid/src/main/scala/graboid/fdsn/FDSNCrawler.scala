@@ -1,27 +1,24 @@
 package graboid.fdsn
 
-import io.lemonlabs.uri.Url
-import io.lemonlabs.uri.config.ExcludeNones
-import io.lemonlabs.uri.config.UriConfig
 import graboid.Crawler
 import graboid.GraboidException
 import graboid.HttpService
-import graboid.TimelineManager
+import graboid.TimeWindow
 import graboid.UrlTypesafe.given
 import graboid.fdsn.FDSNCrawler.Config
+import graboid.protocol.CrawlerDescriptor
 import graboid.quakeml.QuakeMLParser
+import io.lemonlabs.uri.Url
+import io.lemonlabs.uri.config.ExcludeNones
+import io.lemonlabs.uri.config.UriConfig
 import zhttp.http.Response
 import zio.Task
-import zio.TaskLayer
-import zio.UIO
 import zio.ULayer
 import zio.ZIO
 import zio.stream.ZStream
 
 import java.net.URI
 import java.net.URL
-import java.time.ZonedDateTime
-import graboid.protocol.CrawlerDescriptor
 
 object FDSNCrawler:
 
@@ -45,7 +42,7 @@ class FDSNCrawler(
     parser: QuakeMLParser
 ) extends Crawler:
 
-  override def crawl(window: TimelineManager.Window): Task[Crawler.Stream] =
+  override def crawl(window: TimeWindow): Task[Crawler.Stream] =
     (
       for
         url      <- parseUrl(config.queryURL, window)
@@ -62,16 +59,15 @@ class FDSNCrawler(
       )
     )
 
-  private def addParams(url: Url, window: TimelineManager.Window): Task[Url] = ZIO.succeed {
-    val TimelineManager.Window(_, starttime, endtime) = window
+  private def addParams(url: Url, window: TimeWindow): Task[Url] = ZIO.succeed {
     url
-      .addParam("starttime" -> starttime)
-      .addParam("endtime" -> endtime)
+      .addParam("starttime" -> window.beginning)
+      .addParam("endtime" -> window.ending)
       .addParam("includeallorigins" -> Some(false))
       .addParam("format" -> Some("xml"))
   }
 
-  private def parseUrl(originalURL: URL, window: TimelineManager.Window): Task[Url] =
+  private def parseUrl(originalURL: URL, window: TimeWindow): Task[Url] =
     given UriConfig = UriConfig(
       renderQuery = ExcludeNones
     )

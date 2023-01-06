@@ -42,7 +42,10 @@ lazy val core = (project in file("core"))
 
 lazy val testkitCore = (project in file("testkit/core"))
   .settings(
-    name := "teskit-core"
+    name := "teskit-core",
+    libraryDependencies ++= Seq(
+      Dependencies.Mockito.map(_.withConfigurations(None))
+    ).flatten
   )
 
 lazy val cbor = (project in file("cbor/core"))
@@ -130,10 +133,12 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.AaltoXml,
       Dependencies.Mockito,
       Dependencies.ArangoDB,
-      Dependencies.Macwire
+      Dependencies.Macwire,
+      Dependencies.Ducktape
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
+  .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoPackage := "graboid"
@@ -186,6 +191,7 @@ lazy val webapi1x = (project in file("webapi1x"))
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
+  .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoPackage := "webapi1x"

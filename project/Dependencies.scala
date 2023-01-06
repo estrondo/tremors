@@ -21,7 +21,7 @@ object Dependencies {
   val TestcontainersVersion = "0.40.11"
   val MacwireVersion        = "2.5.8"
   val ZIOJsonVersion        = "0.3.0"
-  val DucktapeVersion       = "0.1.0-RC2"
+  val DucktapeVersion       = "0.1.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion

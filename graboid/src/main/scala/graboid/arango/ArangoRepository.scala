@@ -14,6 +14,8 @@ class ArangoRepository[T: ClassTag](collection: FarangoDocumentCollection):
 
   type To[I] = Conversion[T, I]
 
+  def database = collection.database
+
   def add[I: From: To](document: I): Task[I] =
     for
       value  <- from[I](document)

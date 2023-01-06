@@ -1,4 +1,4 @@
-package graboid
+package graboid.layer
 
 import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -13,21 +13,18 @@ object ArangoDBLayer:
 
   val layer: TaskLayer[ArangoContainer] = layerOf {
     GenericContainer(
-      dockerImage = "arangodb/arangodb:3.10.0",
-      env = Map(
-        "ARANGO_ROOT_PASSWORD" -> "159753"
-      ),
+      dockerImage = "docker.io/rthoth/estrondo:arangodb_test_3.10.0",
       exposedPorts = Seq(8529),
       waitStrategy = Wait.forLogMessage(".*Have fun!.*", 1)
-    ).asInstanceOf[ArangoContainer]
+    )
   }
 
-  def getPort(): URIO[ArangoContainer, Int] =
-    ZIO.serviceWithZIO { container =>
-      ZIO.succeed(container.mappedPort(8529))
+  def port: URIO[ArangoContainer, Int] =
+    ZIO.serviceWith { container =>
+      container.mappedPort(8529)
     }
 
-  def getHostname(): URIO[ArangoContainer, String] =
-    ZIO.serviceWithZIO { container =>
-      ZIO.succeed(container.host)
+  def hostname: URIO[ArangoContainer, String] =
+    ZIO.serviceWith[ArangoContainer] { container =>
+      container.host
     }

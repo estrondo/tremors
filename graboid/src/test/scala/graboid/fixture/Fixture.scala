@@ -1,6 +1,10 @@
-package graboid
+package graboid.fixture
 
+import java.time.Clock
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import scala.util.Random
+
 
 extension (random: Random)
   def oneOf[T](indexed: IndexedSeq[T]): T =
@@ -16,3 +20,9 @@ def createRandomString(length: Int = 8): String =
   val builder = new StringBuilder()
   for _ <- 0 until length do builder.append(Random.nextPrintableChar())
   builder.result()
+
+def createZonedDateTime(): ZonedDateTime =
+  ZonedDateTime
+    .now()
+    .truncatedTo(ChronoUnit.SECONDS)
+    .withZoneSameInstant(Clock.systemUTC().getZone())

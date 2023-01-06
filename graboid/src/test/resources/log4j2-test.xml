@@ -2,9 +2,9 @@
 <Configuration status="WARN">
 
   <Appenders>
-    <Console name="defaultAppender" target="SYSTEM_OUT">
-      <PatternLayout pattern="%-5level [%t] %logger{36} - %msg%n" />
-    </Console>
+    <File name="LogFile" fileName="target/test.log" append="false">
+      <PatternLayout pattern="%d %-5level [%t] %logger{36} - %msg%n" />
+    </File>
   </Appenders>
 
   <Loggers>
@@ -14,7 +14,7 @@
     <Logger name="io.netty" level="off" />
     <Logger name="com.arangodb" level="error" />
     <Root level="debug">
-      <AppenderRef ref="defaultAppender" />
+      <AppenderRef ref="LogFile" />
     </Root>
   </Loggers>
 </Configuration>

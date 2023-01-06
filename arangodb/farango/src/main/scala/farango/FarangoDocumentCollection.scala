@@ -21,6 +21,8 @@ trait FarangoDocumentCollection:
 
   def database: FarangoDatabase
 
+  def name: String
+
   def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]]
 
   def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T]
@@ -58,10 +60,7 @@ private[farango] class FarangoDocumentCollectionImpl(
     collection: ArangoCollectionAsync
 ) extends FarangoDocumentCollection:
 
-  if !collection.exists().get() then
-    val creationOptions = CollectionCreateOptions()
-    creationOptions.waitForSync(true)
-    collection.create(creationOptions).get()
+  override def name: String = collection.name()
 
   override def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]] =
     FApplicative[F].mapFromCompletionStage(collection.getDocument(key, expectedType[T]))(Option(_))
