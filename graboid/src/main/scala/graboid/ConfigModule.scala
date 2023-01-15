@@ -25,10 +25,10 @@ private class ConfigModuleImpl extends ConfigModule:
   def config: Task[GraboidConfig] =
     for
       tuple            <- ZProfile.load[C]()
-                          .orDieWith(GraboidException.IllegalState("It's impossible to start Graboid", _))
+                          .orDieWith(GraboidException.IllegalState("It's impossible to start Graboid!", _))
       (config, profile) = tuple
       _                <- profile match
-                            case Some(profile) => ZIO.logInfo(s"Graboid has been started in [$profile]")
+                            case Some(profile) => ZIO.logInfo(s"Graboid has been started in [$profile].")
                             case None          => ZIO.logInfo("Graboid has been started in default mode.")
     yield config.graboid
 
