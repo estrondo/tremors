@@ -1,6 +1,9 @@
 package testkit.core
 
 import scala.util.Random
+import java.time.ZonedDateTime
+import java.time.Clock
+import java.time.temporal.ChronoUnit
 
 private val Names = IndexedSeq(
   "olivia",
@@ -39,3 +42,6 @@ def createRandomKey(length: Int = 8): String =
   val builder = StringBuilder()
   for _ <- 0 until length do builder.addOne(oneOf(Chars))
   builder.result()
+
+def createZonedDateTime(): ZonedDateTime =
+  ZonedDateTime.now(Clock.systemUTC()).truncatedTo(ChronoUnit.SECONDS)

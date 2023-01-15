@@ -6,9 +6,7 @@ import graboid.config.GraboidConfig
 import zioapp.ZProfile
 import zio.Task
 import zio.ZIO
-import zio.config.magnolia.Descriptor
-import zio.config.magnolia.Descriptor.derived
-import zio.config.magnolia.descriptor
+import zio.config.magnolia._
 
 object ConfigModule:
 
@@ -24,8 +22,9 @@ private class ConfigModuleImpl extends ConfigModule:
 
   def config: Task[GraboidConfig] =
     for
-      tuple            <- ZProfile.load[C]()
-                          .orDieWith(GraboidException.IllegalState("It's impossible to start Graboid!", _))
+      tuple            <- ZProfile
+                            .load[C]()
+                            .orDieWith(GraboidException.IllegalState("It's impossible to start Graboid!", _))
       (config, profile) = tuple
       _                <- profile match
                             case Some(profile) => ZIO.logInfo(s"Graboid has been started in [$profile].")
@@ -42,7 +41,10 @@ private class ConfigModuleImpl extends ConfigModule:
     "fromArangoHost"
   )
 
-  private given Descriptor[Seq[ArangoHost]] =
+  private given seqArangoHost: Descriptor[Seq[ArangoHost]] =
     Descriptor.from(Descriptor[String].transform(toArangoHost, fromArangoHost))
 
-  private given Descriptor[ArangoConfig] = derived[ArangoConfig]
+  private given seqString: Descriptor[Seq[String]] =
+    Descriptor.from(
+      Descriptor[String].transform(string => string.split("""\s*,\s*""").toSeq, _.mkString(", "))
+    )

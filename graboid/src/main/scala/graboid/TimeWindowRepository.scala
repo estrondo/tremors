@@ -61,8 +61,7 @@ object TimeWindowRepository:
                                     | RETURN d
 """.stripMargin
 
-  private class TimeWindowRepositoryImpl(collection: FarangoDocumentCollection)
-      extends TimeWindowRepository:
+  private class TimeWindowRepositoryImpl(collection: FarangoDocumentCollection) extends TimeWindowRepository:
 
     val repository = ArangoRepository[Document](collection)
 

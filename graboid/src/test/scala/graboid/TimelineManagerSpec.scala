@@ -96,9 +96,7 @@ object TimelineManagerSpec extends Spec:
                                        )
                                      )(ZStream.fromIterable(unlikedSeq))
           _                      = SweetMockito
-                                     .answerF(eventRecordRepository.update(any()))(invocation =>
-                                       invocation.getArgument[EventRecord](0)
-                                     )
+                                     .answerF(eventRecordRepository.update(any()))(invocation => invocation.getArgument[EventRecord](0))
           _                      = SweetMockito
                                      .returnF(timeWindowRepository.update(expected))(expected)
           result                <-

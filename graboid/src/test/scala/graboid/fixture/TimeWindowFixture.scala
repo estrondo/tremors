@@ -6,7 +6,6 @@ import graboid.TimeWindow
 import java.time.temporal.ChronoUnit
 import scala.util.Random
 
-
 object TimeWindowFixture:
 
   def createRandom() = TimeWindow(

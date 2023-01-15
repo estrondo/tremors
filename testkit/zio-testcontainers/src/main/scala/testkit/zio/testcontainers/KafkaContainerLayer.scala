@@ -62,6 +62,4 @@ object KafkaContainerLayer:
     yield ZLayer.succeed(consumer)
 
   def createProducerLayer(): RIO[KafkaContainer, TaskLayer[Producer]] =
-    ZIO.serviceWith(container =>
-      ZLayer.scoped(Producer.make(ProducerSettings(List(container.bootstrapServers))))
-    )
+    ZIO.serviceWith(container => ZLayer.scoped(Producer.make(ProducerSettings(List(container.bootstrapServers)))))

@@ -5,7 +5,6 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import scala.util.Random
 
-
 extension (random: Random)
   def oneOf[T](indexed: IndexedSeq[T]): T =
     indexed(random.nextInt(indexed.length))

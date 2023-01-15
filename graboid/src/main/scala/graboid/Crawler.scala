@@ -16,9 +16,7 @@ object Crawler:
   type Stream = ZStream[Any, Throwable, Crawler.Info]
 
   enum Type:
-    case Undefined
     case FDSN
-    case Other
 
 trait Crawler:
 

@@ -6,7 +6,6 @@ import graboid.HttpService
 import graboid.TimeWindow
 import graboid.UrlTypesafe.given
 import graboid.fdsn.FDSNCrawler.Config
-import graboid.protocol.CrawlerDescriptor
 import graboid.quakeml.QuakeMLParser
 import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
@@ -19,6 +18,7 @@ import zio.stream.ZStream
 
 import java.net.URI
 import java.net.URL
+import graboid.EventPublisher
 
 object FDSNCrawler:
 
@@ -29,9 +29,9 @@ object FDSNCrawler:
       queryURL: URL
   )
 
-  def apply(httpService: ULayer[HttpService])(descriptor: CrawlerDescriptor): FDSNCrawler =
+  def apply(httpService: ULayer[HttpService])(publisher: EventPublisher): FDSNCrawler =
     new FDSNCrawler(
-      Config(descriptor.name, URI.create(descriptor.source).toURL()),
+      Config(publisher.name, publisher.url),
       httpService,
       QuakeMLParser()
     )

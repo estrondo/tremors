@@ -2,7 +2,6 @@ package graboid.protocol
 
 import io.bullet.borer.Codec
 import io.bullet.borer.derivation.MapBasedCodecs.deriveAllCodecs
-import io.bullet.borer.derivation.MapBasedCodecs.deriveCodec
 
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -11,17 +10,11 @@ object GraboidCommand:
 
   given Codec[GraboidCommand] = deriveAllCodecs
 
-sealed trait GraboidCommand
+sealed trait GraboidCommand(val id: String)
 
-case class AddCrawler(descriptor: CrawlerDescriptor) extends GraboidCommand
+case class AddEventPublisher(override val id: String, descriptor: EventPublisherDescriptor) extends GraboidCommand(id)
 
-case class RemoveCrawler(name: String) extends GraboidCommand
+case class RemoveEventPublisher(override val id: String, publisherKey: String) extends GraboidCommand(id)
 
-case class UpdateCrawler(key: String, descriptor: UpdateCrawlerDescriptor, shouldRunNow: Boolean)
-    extends GraboidCommand
-
-case class GraboidCommandExecution(milliseconds: Long, command: GraboidCommand)
-
-case class RunCrawler(name: String) extends GraboidCommand
-
-case object RunAll extends GraboidCommand
+case class UpdateEventPublisher(override val id: String, descriptor: EventPublisherDescriptor)
+    extends GraboidCommand(id)

@@ -28,5 +28,5 @@ object FarangoLayer:
   def documentCollection(name: String): ZIO[FarangoDatabase, Throwable, FarangoDocumentCollection] =
     for
       database   <- ZIO.service[FarangoDatabase]
-      collection <- database.documentCollection(name)
+      collection <- database.documentCollection(name).orDie
     yield collection

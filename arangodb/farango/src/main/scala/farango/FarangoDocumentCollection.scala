@@ -2,6 +2,8 @@ package farango
 
 import com.arangodb.ArangoDBException
 import com.arangodb.async.ArangoCollectionAsync
+import com.arangodb.async.ArangoDatabaseAsync
+import com.arangodb.entity.CollectionEntity
 import com.arangodb.entity.DocumentDeleteEntity
 import com.arangodb.entity.DocumentUpdateEntity
 import com.arangodb.model.CollectionCreateOptions
@@ -14,8 +16,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
 import scala.reflect.ClassTag
-import com.arangodb.async.ArangoDatabaseAsync
-import com.arangodb.entity.CollectionEntity
 
 trait FarangoDocumentCollection:
 
@@ -31,7 +31,7 @@ trait FarangoDocumentCollection:
 
   def remove[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]]
 
-  def update[T: ClassTag, F[_]: FApplicative](key: String, document: T): F[Option[T]]
+  def update[U: ClassTag, T: ClassTag, F[_]: FApplicative](key: String, document: U): F[Option[T]]
 
 object FarangoDocumentCollection:
 
@@ -46,9 +46,7 @@ object FarangoDocumentCollection:
       else create(collection)
     }
 
-    FApplicative[F].mapFromCompletionStage(response)(_ =>
-      FarangoDocumentCollectionImpl(database, collection)
-    )
+    FApplicative[F].mapFromCompletionStage(response)(_ => FarangoDocumentCollectionImpl(database, collection))
 
   private def create(collection: ArangoCollectionAsync): CompletableFuture[Unit] =
     val options = CollectionCreateOptions()
@@ -93,12 +91,15 @@ private[farango] class FarangoDocumentCollectionImpl(
 
     FApplicative[F].mapFromCompletionStage(completionStage)(entity => Option(entity.getOld()))
 
-  override def update[T: ClassTag, F[_]: FApplicative](key: String, document: T): F[Option[T]] =
+  override def update[U: ClassTag, T: ClassTag, F[_]: FApplicative](
+      key: String,
+      document: U
+  ): F[Option[T]] =
     val options = DocumentUpdateOptions()
       .returnOld(true)
 
     val completionStage = collection
-      .updateDocument(key, document, options, expectedType)
+      .updateDocument(key, document, options, expectedType[T])
       .exceptionallyCompose(alternativeEntity(DocumentUpdateEntity()))
 
     FApplicative[F].mapFromCompletionStage(completionStage)(entity => Option(entity.getOld()))

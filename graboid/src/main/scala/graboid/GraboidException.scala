@@ -6,22 +6,17 @@ object GraboidException:
 
   class NotFound(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
-  class Unexpected(message: String, cause: Throwable = null)
-      extends GraboidException(message, cause)
+  class Unexpected(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
   class Invalid(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
-  class IllegalResponse(message: String, cause: Throwable = null)
-      extends GraboidException(message, cause)
+  class IllegalResponse(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
-  class IllegalRequest(message: String, cause: Throwable = null)
-      extends GraboidException(message, cause)
+  class IllegalRequest(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
-  class CrawlerException(message: String, cause: Throwable = null)
-      extends GraboidException(message, cause)
+  class CrawlerException(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
-  class IllegalState(message: String, cause: Throwable = null)
-      extends GraboidException(message, cause)
+  class IllegalState(message: String, cause: Throwable = null) extends GraboidException(message, cause)
 
   class MultipleCause(message: String, causes: Seq[Throwable]) extends GraboidException(message)
 

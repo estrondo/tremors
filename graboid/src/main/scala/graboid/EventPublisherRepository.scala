@@ -1,21 +1,25 @@
 package graboid
 
 import farango.FarangoDocumentCollection
+import graboid.EventPublisher
 import graboid.arango.ArangoConversion.given
 import graboid.arango.ArangoRepository
-import io.github.arainko.ducktape.to
+import io.github.arainko.ducktape.into
+import io.github.arainko.ducktape.Field
+import zio.Cause
 import zio.Task
+import zio.Trace
 import zio.ZIO
-import zio.config.derivation.name
 
 import java.lang.{Long => JLong}
 
-import GraboidException.unexpected
-
-import graboid.EventPublisher
 trait EventPublisherRepository:
 
   def add(eventPublisher: EventPublisher): Task[EventPublisher]
+
+  def remove(publisherKey: String): Task[Option[EventPublisher]]
+
+  def update(publisherKey: String, update: EventPublisher.Update): Task[Option[EventPublisher]]
 
 object EventPublisherRepository:
 
@@ -23,7 +27,7 @@ object EventPublisherRepository:
     EventPublisherRepositoryImpl(collection)
 
   private[graboid] case class Document(
-      key: String,
+      _key: String,
       name: String,
       url: String,
       beginning: Long,
@@ -31,20 +35,59 @@ object EventPublisherRepository:
       `type`: Int
   )
 
-  private[graboid] given Conversion[EventPublisher, Document] = publisher => publisher.to[Document]
+  private[graboid] case class UpdateDocument(
+      name: String,
+      url: String,
+      beginning: Long,
+      ending: JLong,
+      `type`: Int
+  )
 
-  private[graboid] given Conversion[Document, EventPublisher] = stored => stored.to[EventPublisher]
+  private[graboid] given Conversion[EventPublisher, Document] = publisher =>
+    publisher
+      .into[Document]
+      .transform(
+        Field.renamed(_._key, _.key)
+      )
 
-  private class EventPublisherRepositoryImpl(collection: FarangoDocumentCollection)
-      extends EventPublisherRepository:
+  private[graboid] given Conversion[Document, EventPublisher] = document =>
+    document
+      .into[EventPublisher]
+      .transform(
+        Field.renamed(_.key, _._key)
+      )
+
+  private[graboid] given Conversion[EventPublisher.Update, UpdateDocument] = update =>
+    update
+      .into[UpdateDocument]
+      .transform()
+
+  private class EventPublisherRepositoryImpl(collection: FarangoDocumentCollection) extends EventPublisherRepository:
 
     private val repository = ArangoRepository[Document](collection)
 
     override def add(eventPublisher: EventPublisher): Task[EventPublisher] =
+      logUsage(
+        message = s"Adding EventPublisher: ${eventPublisher.key}.",
+        errorMessage = s"It was impossible to add EventPublisher: ${eventPublisher.key}."
+      )(repository.add(eventPublisher))
+
+    override def remove(publisherKey: String): Task[Option[EventPublisher]] =
+      logUsage(
+        message = s"Removing EventPublisher: $publisherKey.",
+        errorMessage = s"It was impossible to remove EventPublisher: $publisherKey!"
+      )(repository.remove(publisherKey))
+
+    override def update(publisherKey: String, update: EventPublisher.Update): Task[Option[EventPublisher]] =
+      logUsage(
+        message = s"Updating EventPublishe: $publisherKey.",
+        errorMessage = s"It was impossible to update EventPublisher: $publisherKey."
+      )(repository.update[UpdateDocument, EventPublisher](publisherKey, update))
+
+    def logUsage[T](message: => String, errorMessage: => String)(effect: Task[T])(using trace: Trace): Task[T] =
       for
-        _     <- ZIO.logInfo(s"Adding EventPublisher: ${eventPublisher.name}.")
-        added <-
-          repository
-            .add(eventPublisher)
-            .mapError(unexpected(s"It was impossible to add: ${eventPublisher.name}"))
-      yield added
+        _      <- ZIO.logDebug(message)
+        result <- effect
+                    .mapError(GraboidException.unexpected(errorMessage))
+                    .tapError(error => ZIO.logErrorCause(Cause.die(error)))
+      yield result

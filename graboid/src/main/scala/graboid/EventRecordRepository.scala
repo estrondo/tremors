@@ -68,8 +68,7 @@ object EventRecordRepository:
         Field.renamed(_.key, _._key)
       )
 
-  private class EventRecordRepositoryImpl(collection: FarangoDocumentCollection)
-      extends EventRecordRepository:
+  private class EventRecordRepositoryImpl(collection: FarangoDocumentCollection) extends EventRecordRepository:
 
     val repository = ArangoRepository[Document](collection)
 

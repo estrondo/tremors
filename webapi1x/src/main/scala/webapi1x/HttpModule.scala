@@ -26,8 +26,7 @@ private[webapi1x] class HttpModuleImpl(config: WebApi.WebApiConfig) extends Http
   import HttpModule.*
 
   private def eventLoopGroup = EventLoopGroup.nio(
-    nThreads =
-      math.max(config.http.threads.getOrElse(-1), Runtime.getRuntime().availableProcessors())
+    nThreads = math.max(config.http.threads.getOrElse(-1), Runtime.getRuntime().availableProcessors())
   )
 
   private def serverChannelFactory = ServerChannelFactory.nio

@@ -6,6 +6,7 @@ import org.mockito.Mock
 import org.mockito.stubbing.OngoingStubbing
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.ArgumentMatchers
 
 object SweetMockito:
 
@@ -16,6 +17,12 @@ object SweetMockito:
   trait ErrorF[F[_]]:
 
     def apply[E](e: E): F[E]
+
+  def any[T: ClassTag] =
+    ArgumentMatchers.any(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
+
+  def eqTo[T: ClassTag](value: T) =
+    ArgumentMatchers.eq(value)
 
   def apply[T: ClassTag]: T = Mockito.mock(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
 

@@ -1,12 +1,14 @@
 package graboid.arango
 
-import zio.Task
 import farango.FarangoDocumentCollection
-import scala.reflect.ClassTag
-import ziorango.given
-import scala.Conversion
 import io.netty.util.Mapping
+import zio.Task
 import zio.ZIO
+import ziorango.Ziorango
+import ziorango.given
+
+import scala.Conversion
+import scala.reflect.ClassTag
 
 class ArangoRepository[T: ClassTag](collection: FarangoDocumentCollection):
 
@@ -38,11 +40,10 @@ class ArangoRepository[T: ClassTag](collection: FarangoDocumentCollection):
   def getT(key: String): Task[Option[T]] =
     collection.get(key)
 
-  def update[I: From: To](key: String, update: I): Task[Option[I]] =
+  def update[U: ClassTag, I: To: ClassTag](key: String, update: U): Task[Option[I]] =
     for
-      newValue <- from[I](update)
-      option   <- collection.update(key, newValue)
-      output   <- toOption(option)
+      option <- collection.update[U, T, Ziorango.F](key, update)
+      output <- toOption(option)
     yield output
 
   def remove[I: To](key: String): Task[Option[I]] =
