@@ -93,14 +93,13 @@ object EventRecordRepository:
           (QueryByPublisher, Map.empty)
 
       database
-        .query[Document, Ziorango.F, Ziorango.S](
+        .queryT[Document, EventRecord, Ziorango.F, Ziorango.S](
           query,
           args ++ Map(
             "@collection"  -> collection.name,
             "publisherKey" -> publisherKey
           )
         )
-        .map(_.map(documentToEventRecord))
 
     override def update(record: EventRecord): Task[EventRecord] = ???
 

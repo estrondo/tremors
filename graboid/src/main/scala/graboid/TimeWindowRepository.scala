@@ -77,7 +77,7 @@ object TimeWindowRepository:
         ending: ZonedDateTime
     ): Task[Option[TimeWindow]] =
       for
-        stream <- database.query[Document, Ziorango.F, Ziorango.S](
+        stream <- database.queryT[Document, TimeWindow, Ziorango.F, Ziorango.S](
                     QuerySearchWindow,
                     Map(
                       "@collection"  -> collection.name,
@@ -87,7 +87,7 @@ object TimeWindowRepository:
                     )
                   )
         head   <- stream.run(ZSink.head)
-      yield head.map(documentToTimeWindow)
+      yield head
 
     override def update(window: TimeWindow): Task[TimeWindow] = ???
 

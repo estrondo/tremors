@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.reflect.ClassTag
+import scala.Conversion
 
 trait FarangoDatabase:
 
@@ -16,7 +17,12 @@ trait FarangoDatabase:
       args: Map[String, Any] = Map.empty
   ): F[S[T]]
 
-  def documentCollection[F[_] : FApplicative](name: String): F[FarangoDocumentCollection]
+  def queryT[T: ClassTag, A, F[_]: FApplicative, S[_]: FApplicativeStream](
+      query: String,
+      args: Map[String, Any] = Map.empty
+  )(using Conversion[T, A]): F[S[A]]
+
+  def documentCollection[F[_]: FApplicative](name: String): F[FarangoDocumentCollection]
 
   private[farango] def underlying: ArangoDatabaseAsync
 
@@ -49,7 +55,7 @@ object FarangoDatabase:
 
 private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extends FarangoDatabase:
 
-  override def documentCollection[F[_] : FApplicative](name: String): F[FarangoDocumentCollection] =
+  override def documentCollection[F[_]: FApplicative](name: String): F[FarangoDocumentCollection] =
     FarangoDocumentCollection(name, this)
 
   def query[T: ClassTag, F[_]: FApplicative, S[_]: FApplicativeStream](
@@ -62,6 +68,19 @@ private[farango] class FarangoDatabaseImpl(database: ArangoDatabaseAsync) extend
       database.query(query, args.asJava, expectedClass)
     ) { cursor =>
       FApplicativeStream[S].mapFromJavaStream(cursor.streamRemaining())(identity)
+    }
+
+  override def queryT[T: ClassTag, A, F[_]: FApplicative, S[_]: FApplicativeStream](
+      query: String,
+      args: Map[String, Any]
+  )(using Conversion[T, A]): F[S[A]] =
+    val storedType = summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
+    FApplicative[F].mapFromCompletionStage(
+      database.query(query, args.asJava, storedType)
+    ) { cursor =>
+      FApplicativeStream[S].mapFromJavaStream(cursor.streamRemaining())(
+        summon[Conversion[T, A]].apply
+      )
     }
 
   override private[farango] def underlying: ArangoDatabaseAsync = database
