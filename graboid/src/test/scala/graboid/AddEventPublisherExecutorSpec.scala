@@ -3,7 +3,7 @@ package graboid
 import graboid.EventPublisherManager
 import graboid.command.AddEventPublisherExecutor
 import graboid.command.AddEventPublisherExecutorImpl
-import graboid.command.CommandExecutor
+import graboid.CommandExecutor
 import graboid.fixture.EventPublisherFixture
 import graboid.mock.EventPublisherManagerLayer
 import graboid.protocol.GraboidCommandResult

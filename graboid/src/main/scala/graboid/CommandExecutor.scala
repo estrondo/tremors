@@ -1,7 +1,10 @@
-package graboid.command
+package graboid
 
 import com.softwaremill.macwire.wire
 import graboid.EventPublisherManager
+import graboid.command.AddEventPublisherExecutor
+import graboid.command.RemoveEventPublisherExecutor
+import graboid.command.UpdateEventPublisherExecutor
 import graboid.protocol.AddEventPublisher
 import graboid.protocol.EventPublisherDescriptor
 import graboid.protocol.GraboidCommand
