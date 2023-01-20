@@ -7,7 +7,9 @@ import graboid.command.CommandExecutor
 import graboid.fixture.EventPublisherFixture
 import graboid.mock.EventPublisherManagerLayer
 import graboid.protocol.GraboidCommandResult
-import testkit.core.SweetMockito
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.given
+import org.mockito.ArgumentMatchers
 import testkit.graboid.protocol.AddEventPublisherFixture
 import testkit.graboid.protocol.GraboidCommandResultFixture
 import zio.Scope
@@ -32,7 +34,8 @@ object AddEventPublisherExecutorSpec extends Spec:
           mock     <- ZIO.service[EventPublisherManager]
           executor <- ZIO.service[AddEventPublisherExecutor]
           _         = SweetMockito
-                        .returnF(mock.add(eventPublisher))(eventPublisher)
+                        .whenF2(mock.add(eventPublisher))
+                        .thenReturn(eventPublisher)
           result   <- executor(command)
         yield assertTrue(
           result == GraboidCommandResult(
@@ -49,7 +52,8 @@ object AddEventPublisherExecutorSpec extends Spec:
           mock     <- ZIO.service[EventPublisherManager]
           executor <- ZIO.service[AddEventPublisherExecutor]
           _         = SweetMockito
-                        .failF(mock.add(SweetMockito.any))(expectedException)
+                        .whenF2(mock.add(ArgumentMatchers.any()))
+                        .thenFail(expectedException)
           result   <- executor(command)
         yield assertTrue(
           result == GraboidCommandResult(

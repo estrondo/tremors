@@ -1,7 +1,7 @@
 package graboid.mock
 
 import graboid.EventPublisherManager
-import testkit.core.SweetMockito
 import zio.ZLayer
+import one.estrondo.sweetmockito.SweetMockito
 
 val EventPublisherManagerLayer = ZLayer.succeed(SweetMockito[EventPublisherManager])

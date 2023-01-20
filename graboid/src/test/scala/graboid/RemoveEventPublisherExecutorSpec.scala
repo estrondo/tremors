@@ -12,6 +12,8 @@ import zio.ZLayer
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
 
 object RemoveEventPublisherExecutorSpec extends Spec:
 
@@ -24,8 +26,9 @@ object RemoveEventPublisherExecutorSpec extends Spec:
           .copy(key = command.publisherKey)
 
         for
-          _        <- sweetMock[EventPublisherManager]
-                        .returnF(_.remove(command.publisherKey))(Some(eventPublisher))
+          _        <- SweetMockitoLayer[EventPublisherManager]
+                        .whenF2(_.remove(command.publisherKey))
+                        .thenReturn(Some(eventPublisher))
           executor <- ZIO.service[RemoveEventPublisherExecutor]
           result   <- executor(command)
         yield assertTrue(
@@ -40,8 +43,9 @@ object RemoveEventPublisherExecutorSpec extends Spec:
         val command = RemoveEventPublisherFixture.createRandom()
 
         for
-          _        <- sweetMock[EventPublisherManager]
-                        .returnF(_.remove(command.publisherKey))(None)
+          _        <- SweetMockitoLayer[EventPublisherManager]
+                        .whenF2(_.remove(command.publisherKey))
+                        .thenReturn(None)
           executor <- ZIO.service[RemoveEventPublisherExecutor]
           result   <- executor(command)
         yield assertTrue(

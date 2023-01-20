@@ -15,9 +15,11 @@ import zio.test.Assertion
 import zio.test.TestEnvironment
 import zio.test.assert
 import zio.test.assertTrue
-import testkit.core.SweetMockito
 import core.KeyGenerator
 import java.io.IOException
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
+import one.estrondo.sweetmockito.SweetMockito
 
 object EventPublisherManagerSpec extends Spec:
 
@@ -48,9 +50,11 @@ object EventPublisherManagerSpec extends Spec:
           expectedPublisher      = EventPublisherFixture.createRandom()
           expectedCause          = EventPublisher.Cause("I don't like this Publisher!")
           expectedThrowableCause = GraboidException.Invalid(expectedCause.reason)
-          _                      = SweetMockito.failF(validator(eqTo(expectedPublisher)))(
-                                     EventPublisher.Invalid(expectedPublisher, Seq(expectedCause))
-                                   )
+          _                      = SweetMockito
+                                     .whenF2(validator(eqTo(expectedPublisher)))
+                                     .thenFail(
+                                       EventPublisher.Invalid(expectedPublisher, Seq(expectedCause))
+                                     )
           exit                  <- manager.add(expectedPublisher).exit
         yield assert(exit)(
           Assertion.fails(
@@ -66,9 +70,11 @@ object EventPublisherManagerSpec extends Spec:
           expectedPublisher      = EventPublisherFixture.createRandom()
           expectedCause          = EventPublisher.Cause("I don't like this Publisher!")
           expectedThrowableCause = GraboidException.Invalid(expectedCause.reason)
-          _                      = SweetMockito.failF(validator(eqTo(expectedPublisher)))(
-                                     EventPublisher.Invalid(expectedPublisher, Seq(expectedCause))
-                                   )
+          _                      = SweetMockito
+                                     .whenF2(validator(eqTo(expectedPublisher)))
+                                     .thenFail(
+                                       EventPublisher.Invalid(expectedPublisher, Seq(expectedCause))
+                                     )
           exit                  <- manager.add(expectedPublisher).exit
         yield assertTrue(
           verify(repository, never()).add(expectedPublisher) == null
@@ -82,9 +88,11 @@ object EventPublisherManagerSpec extends Spec:
           expectedThrowable = IllegalStateException("!!!")
           expectedPublisher = EventPublisherFixture.createRandom()
           _                 = SweetMockito
-                                .returnF(validator(eqTo(expectedPublisher)))(expectedPublisher)
+                                .whenF2(validator(eqTo(expectedPublisher)))
+                                .thenReturn(expectedPublisher)
           _                 = SweetMockito
-                                .failF(repository.add(eqTo(expectedPublisher)))(expectedThrowable)
+                                .whenF2(repository.add(eqTo(expectedPublisher)))
+                                .thenFail(expectedThrowable)
           exit             <- manager.add(expectedPublisher).exit
         yield assert(exit)(
           Assertion.fails(Assertion.hasThrowableCause(Assertion.equalTo(expectedThrowable)))
@@ -95,8 +103,9 @@ object EventPublisherManagerSpec extends Spec:
         val expectedKey       = expectedPublisher.key
 
         for
-          _       <- sweetMock[EventPublisherRepository]
-                       .returnF(_.remove(expectedKey))(Some(expectedPublisher))
+          _       <- SweetMockitoLayer[EventPublisherRepository]
+                       .whenF2(_.remove(expectedKey))
+                       .thenReturn(Option(expectedPublisher))
           manager <- ZIO.service[EventPublisherManager]
           result  <- manager.remove(expectedKey)
         yield assertTrue(
@@ -107,8 +116,9 @@ object EventPublisherManagerSpec extends Spec:
         val expectedKey   = KeyGenerator.next64()
         val expectedCause = IOException("%%%")
         for
-          _       <- sweetMock[EventPublisherRepository]
-                       .failF(_.remove(expectedKey))(expectedCause)
+          _       <- SweetMockitoLayer[EventPublisherRepository]
+                       .whenF2(_.remove(expectedKey))
+                       .thenFail(expectedCause)
           manager <- ZIO.service[EventPublisherManager]
           exit    <- manager.remove(expectedKey).exit
         yield assert(exit)(
@@ -121,8 +131,9 @@ object EventPublisherManagerSpec extends Spec:
         val key       = publisher.key
 
         for
-          _       <- sweetMock[EventPublisherRepository]
-                       .returnF(_.update(key, update))(Some(publisher))
+          _       <- SweetMockitoLayer[EventPublisherRepository]
+                       .whenF2(_.update(key, update))
+                       .thenReturn(Option(publisher))
           manager <- ZIO.service[EventPublisherManager]
           result  <- manager.update(key, update)
         yield assertTrue(
@@ -134,8 +145,9 @@ object EventPublisherManagerSpec extends Spec:
         val publisher     = EventPublisherFixture.createRandom()
         val update        = EventPublisherFixture.updateFrom(publisher)
         for
-          _       <- sweetMock[EventPublisherRepository]
-                       .failF(_.update(publisher.key, update))(expectedCause)
+          _       <- SweetMockitoLayer[EventPublisherRepository]
+                       .whenF2(_.update(publisher.key, update))
+                       .thenFail(expectedCause)
           manager <- ZIO.service[EventPublisherManager]
           exit    <- manager.update(publisher.key, update).exit
         yield assert(exit)(

@@ -4,7 +4,6 @@ import graboid.fixture.EventRecordFixture
 import graboid.fixture.TimeWindowFixture
 import graboid.query.TimeWindowLink
 import org.mockito.ArgumentMatchers.any
-import testkit.core.SweetMockito
 import zio.Scope
 import zio.ULayer
 import zio.URIO
@@ -15,6 +14,9 @@ import zio.test.TestEnvironment
 import zio.test.assertTrue
 
 import java.net.URI
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.given
+import one.estrondo.sweetmockito.Answer
 
 object TimelineManagerSpec extends Spec:
 
@@ -26,7 +28,8 @@ object TimelineManagerSpec extends Spec:
           manager               <- getTimelineManager
           expectedEventRecord    = EventRecordFixture.createRandom()
           _                      = SweetMockito
-                                     .returnF(eventRecordRepository.add(expectedEventRecord))(expectedEventRecord)
+                                     .whenF2(eventRecordRepository.add(expectedEventRecord))
+                                     .thenReturn(expectedEventRecord)
           result                <- manager.addRecord(expectedEventRecord)
         yield assertTrue(
           result == expectedEventRecord
@@ -40,22 +43,25 @@ object TimelineManagerSpec extends Spec:
           eventRecordRepository <- getEventRecordRepository
           manager               <- getTimelineManager
           _                      = SweetMockito
-                                     .returnF(
+                                     .whenF2(
                                        timeWindowRepository.search(
                                          expected.publisherKey,
                                          expected.beginning,
                                          expected.ending
                                        )
-                                     )(None)
+                                     )
+                                     .thenReturn(None)
           _                      = SweetMockito
-                                     .returnF(timeWindowRepository.add(any()))(expected)
+                                     .whenF2(timeWindowRepository.add(any()))
+                                     .thenReturn(expected)
           _                      = SweetMockito
-                                     .returnF(
+                                     .whenF2(
                                        eventRecordRepository.searchByPublisher(
                                          expected.publisherKey,
                                          Some(TimeWindowLink.Unliked)
                                        )
-                                     )(ZStream.empty)
+                                     )
+                                     .thenReturn(ZStream.empty)
           result                <- manager
                                      .createWindow(expected.publisherKey, expected.beginning, expected.ending)
         yield assertTrue(
@@ -79,26 +85,31 @@ object TimelineManagerSpec extends Spec:
           eventRecordRepository <- getEventRecordRepository
           manager               <- getTimelineManager
           _                      = SweetMockito
-                                     .returnF(
+                                     .whenF2(
                                        timeWindowRepository.search(
                                          publisherKey = timeWindow.publisherKey,
                                          beginning = timeWindow.beginning,
                                          ending = timeWindow.ending
                                        )
-                                     )(None)
+                                     )
+                                     .thenReturn(None)
           _                      = SweetMockito
-                                     .returnF(timeWindowRepository.add(any()))(timeWindow)
+                                     .whenF2(timeWindowRepository.add(any()))
+                                     .thenReturn(timeWindow)
           _                      = SweetMockito
-                                     .returnF(
+                                     .whenF2(
                                        eventRecordRepository.searchByPublisher(
                                          timeWindow.publisherKey,
                                          Some(TimeWindowLink.Unliked)
                                        )
-                                     )(ZStream.fromIterable(unlikedSeq))
+                                     )
+                                     .thenReturn(ZStream.fromIterable(unlikedSeq))
           _                      = SweetMockito
-                                     .answerF(eventRecordRepository.update(any()))(invocation => invocation.getArgument[EventRecord](0))
+                                     .whenF2(eventRecordRepository.update(any()))
+                                     .thenAnswer(invocation => Answer.succeed(invocation.getArgument[EventRecord](0)))
           _                      = SweetMockito
-                                     .returnF(timeWindowRepository.update(expected))(expected)
+                                     .whenF2(timeWindowRepository.update(expected))
+                                     .thenReturn(expected)
           result                <-
             manager
               .createWindow(timeWindow.publisherKey, timeWindow.beginning, timeWindow.ending)

@@ -15,7 +15,9 @@ import zio.test.assert
 import zio.test.assertTrue
 
 import java.io.IOException
-import testkit.core.SweetMockito
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.given
+import ziorango.Ziorango
 
 object EventRecordRepositorySpec extends Spec:
 
@@ -30,9 +32,10 @@ object EventRecordRepositorySpec extends Spec:
           expectedDocument    = EventRecordRepository
                                   .given_Conversion_EventRecord_Document(expectedEventRecord)
           _                   = SweetMockito
-                                  .failF(collection.insert(eqTo(expectedDocument))(any(), any()))(
-                                    expectedThrowable
+                                  .whenF2(
+                                    collection.insert[EventRecordRepository.Document, Ziorango.F](eqTo(expectedDocument))(any(), any())
                                   )
+                                  .thenFail(expectedThrowable)
           exit               <- repository.add(expectedEventRecord).exit
         yield assert(exit)(
           Assertion.fails(Assertion.hasThrowableCause(Assertion.equalTo(expectedThrowable)))

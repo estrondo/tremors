@@ -4,7 +4,7 @@ object Dependencies {
 
   val ZHttpVersion          = "2.0.0-RC11"
   val ZKafkaVersion         = "2.0.0-M3"
-  val ZIOVersion            = "2.0.0"
+  val ZIOVersion            = "2.0.5"
   val ZIOLoggingVersion     = "2.1.0"
   val ZIOConfigVersion      = "3.0.2"
   val ZIOMockVersion        = "1.0.0-RC8"
@@ -22,6 +22,7 @@ object Dependencies {
   val MacwireVersion        = "2.5.8"
   val ZIOJsonVersion        = "0.3.0"
   val DucktapeVersion       = "0.1.0"
+  val SweetMockitoVersion   = "1.0.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -80,7 +81,9 @@ object Dependencies {
   )
 
   val Mockito = Seq(
-    "org.mockito" % "mockito-core" % MockitoVersion % Test
+    "org.mockito"   % "mockito-core"  % MockitoVersion      % Test,
+    "one.estrondo" %% "sweet-mockito" % SweetMockitoVersion % Test,
+    "one.estrondo" %% "sweet-mockito-zio" % SweetMockitoVersion % Test
   )
 
   val ArangoDB = Seq(

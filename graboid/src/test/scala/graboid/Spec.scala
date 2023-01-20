@@ -7,7 +7,7 @@ import zio.ZIO
 import zio.logging.backend.SLF4J
 import zio.test.ZIOSpecDefault
 
-abstract class Spec extends ZIOSpecDefault with SweetMockitoHelper:
+abstract class Spec extends ZIOSpecDefault:
 
   def logger: ULayer[Any] =
     Runtime.removeDefaultLoggers >>> SLF4J.slf4j

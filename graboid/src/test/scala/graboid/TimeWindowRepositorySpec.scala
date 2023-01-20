@@ -15,7 +15,9 @@ import zio.test.TestEnvironment
 import zio.test.assert
 import zio.test.assertTrue
 import zio.test.assertZIO
-import testkit.core.SweetMockito
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.given
+import ziorango.Ziorango
 
 object TimeWindowRepositorySpec extends Spec:
 
@@ -30,7 +32,10 @@ object TimeWindowRepositorySpec extends Spec:
           expectedDocument   = TimeWindowRepository
                                  .timeWindowToDocument(expectedTimeWindow)
           _                  = SweetMockito
-                                 .failF(collection.insert(eqTo(expectedDocument))(any(), any()))(expectedThrowable)
+                                 .whenF2(
+                                   collection.insert[TimeWindowRepository.Document, Ziorango.F](eqTo(expectedDocument))(any(), any())
+                                 )
+                                 .thenFail(expectedThrowable)
           exit              <- repository.add(expectedTimeWindow).exit
         yield assert(exit)(
           Assertion.fails(

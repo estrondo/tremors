@@ -26,7 +26,7 @@ import ziorango.given
 object EventRecordRepositoryIT extends IT:
 
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =
-    suite("EventRepository with Arango's container.")(
+    suite("EventRecordRepository with Arango's container.")(
       test("it should insert into Arango an EventRecord.") {
         for
           repository          <- getRepository

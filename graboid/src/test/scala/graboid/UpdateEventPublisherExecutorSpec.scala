@@ -12,6 +12,8 @@ import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
 import zio.test.laws.ZLaws
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
 
 object UpdateEventPublisherExecutorSpec extends Spec:
 
@@ -23,9 +25,11 @@ object UpdateEventPublisherExecutorSpec extends Spec:
         val publisher = EventPublisherFixture.from(command.descriptor)
 
         for
-          _        <- sweetMock[EventPublisherManager].returnF(_.update(command.descriptor.key, update))(
-                        Some(publisher)
-                      )
+          _        <- SweetMockitoLayer[EventPublisherManager]
+                        .whenF2(_.update(command.descriptor.key, update))
+                        .thenReturn(
+                          Some(publisher)
+                        )
           executor <- ZIO.service[UpdateEventPublisherExecutor]
           result   <- executor(command)
         yield assertTrue(
@@ -41,8 +45,9 @@ object UpdateEventPublisherExecutorSpec extends Spec:
         val update  = EventPublisherFixture.updateFrom(command.descriptor)
 
         for
-          _        <- sweetMock[EventPublisherManager]
-                        .returnF(_.update(command.descriptor.key, update))(None)
+          _        <- SweetMockitoLayer[EventPublisherManager]
+                        .whenF2(_.update(command.descriptor.key, update))
+                        .thenReturn(None)
           executor <- ZIO.service[UpdateEventPublisherExecutor]
           result   <- executor(command)
         yield assertTrue(
