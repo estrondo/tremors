@@ -22,7 +22,7 @@ services:
   arango3:
     image: docker.io/arangodb/arangodb:3.10.0
     ports:
-      - "8531:8529" 
+      - "8531:8529"
     volumes:
       - arango3:/var/lib/arangodb3
     environment:
@@ -63,6 +63,13 @@ services:
     image: docker.io/rthoth/estrondo:graboid
     environment:
       TREMORS_PROFILE: dev
+      GRABOID_ARANGO_DATABASE: _system
+      GRABOID_ARANGO_USERNAME: root
+      GRABOID_ARANGO_PASSWORD: tremors
+      GRABOID_ARANGO_HOSTS: arango1:8529,arango2:8529,arango3:8529
+      GRABOID_KAFKA_CLIENT_ID: graboid
+      GRABOID_KAFKA_CLOSE_TIMEOUT: 10 seconds
+      GRABOID_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
     ports:
       - "8080:8080"
 volumes:

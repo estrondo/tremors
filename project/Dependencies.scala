@@ -23,6 +23,7 @@ object Dependencies {
   val ZIOJsonVersion        = "0.3.0"
   val DucktapeVersion       = "0.1.0"
   val SweetMockitoVersion   = "1.1.0"
+  val ScalaCommonVersion    = "2.3.4"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -98,7 +99,8 @@ object Dependencies {
   )
 
   val Macwire = Seq(
-    "com.softwaremill.macwire" %% "macros" % MacwireVersion % Provided
+    "com.softwaremill.macwire" %% "macros"  % MacwireVersion     % Provided,
+    "com.softwaremill.common"  %% "tagging" % ScalaCommonVersion
   )
 
   val ZIOJson = Seq(

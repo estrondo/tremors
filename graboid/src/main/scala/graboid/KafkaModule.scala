@@ -1,19 +1,18 @@
 package graboid
 
-import zio.Task
-import zio.TaskLayer
-import zio.ZIO
-import zio.kafka.producer.Producer
 import com.softwaremill.macwire.wire
+import com.softwaremill.macwire.wireWith
 import graboid.config.KafkaConfig
+import graboid.kafka.GraboidGroup
+import graboid.kafka.KafkaManager
+import zio.Task
+import zio.ZIO
 import zio.kafka.consumer.ConsumerSettings
-import zio.kafka.consumer.Consumer
-import zio.kafka.consumer.Subscription
-import zio.kafka.serde.Serde
+import zio.kafka.producer.ProducerSettings
 
 trait KafkaModule:
 
-  def consume(topic: String, group: String, fn: (String, Array[Byte]) => Task[Any]): Unit
+  val kafkaManager: KafkaManager
 
 object KafkaModule:
 
@@ -21,15 +20,14 @@ object KafkaModule:
     wire[KafkaModuleImpl]
   }
 
-  private[graboid] class KafkaModuleImpl(config: KafkaConfig) extends KafkaModule:
+  private class KafkaModuleImpl(config: KafkaConfig) extends KafkaModule:
 
-    private val consumerSettings = ConsumerSettings(config.bootstrap.toList)
-      .withCloseTimeout(config.closeTimeout)
-      .withGroupId(config.group.getOrElse("graboid"))
+    val producerSettings = ProducerSettings(config.bootstrap.toList)
       .withClientId(config.clientId)
 
-    override def consume(
-        topic: String,
-        group: String,
-        fn: (String, Array[Byte]) => Task[Any]
-    ): Unit = ??? // TODO: Implement it.
+    val consumerSettings = ConsumerSettings(config.bootstrap.toList)
+      .withCloseTimeout(config.closeTimeout)
+      .withGroupId(config.group.getOrElse(GraboidGroup))
+      .withClientId(config.clientId)
+
+    override val kafkaManager: KafkaManager = wireWith(KafkaManager.apply)

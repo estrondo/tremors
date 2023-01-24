@@ -22,9 +22,14 @@ object Graboid extends ZIOAppDefault:
 
   def application(graboidConfig: GraboidConfig): Task[ExitCode] =
     for
-      httpModule  <- HttpModule(graboidConfig.httpClient)
-      kafkaModule <- KafkaModule(graboidConfig.kafka)
-      _           <- ZIO.logInfo(
-                       s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
-                     )
+      arangoModule  <- ArangoModule(graboidConfig.arango)
+      coreModule    <- CoreModule(graboidConfig, arangoModule)
+      kafkaModule   <- KafkaModule(graboidConfig.kafka)
+      httpModule    <- HttpModule(graboidConfig.httpClient)
+      commandModule <- CommandModule(coreModule, kafkaModule)
+      fiber1        <- commandModule.run().fork
+      _             <- ZIO.logInfo(
+                         s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
+                       )
+      _             <- fiber1.join
     yield ExitCode.success

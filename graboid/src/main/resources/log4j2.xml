@@ -28,6 +28,7 @@
   </Appenders>
 
   <Loggers>
+    <Logger name="com.arangodb" level="warn" />
     <Root level="${rootLevel}">
       <AppenderRef ref="defaultAppender" />
     </Root>
