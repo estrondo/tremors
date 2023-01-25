@@ -64,6 +64,16 @@ lazy val farango = (project in file("arangodb/farango"))
     ).flatten
   )
 
+lazy val farangoData = (project in file("arangodb/data"))
+  .settings(
+    name := "farango-data",
+    libraryDependencies ++= Seq(
+      Dependencies.Ducktape
+    ).flatten
+  ).dependsOn(
+    farango
+  )
+
 lazy val ziorango = (project in file("arangodb/ziorango"))
   .settings(
     name := "ziorango",
@@ -159,6 +169,7 @@ lazy val graboid = (project in file("graboid"))
     graboidProtocol,
     zioAppStarter,
     farango,
+    farangoData,
     ziorango,
     quakeml,
     cborQuakeml,

@@ -17,7 +17,7 @@ import zio.test.assertTrue
 import java.time.ZonedDateTime
 import farango.FarangoDocumentCollection
 import graboid.TimeWindowRepository.given
-import ziorango.Ziorango
+import ziorango.F
 import ziorango.given
 
 object TimeWindowRepositoryIT extends IT:
@@ -32,7 +32,7 @@ object TimeWindowRepositoryIT extends IT:
           repository  = TimeWindowRepository(collection)
           _          <- repository.add(shouldInsert)
           inserted   <-
-            collection.get[TimeWindowRepository.Document, Ziorango.F](shouldInsert.key).some
+            collection.get[TimeWindowRepository.Document, F](shouldInsert.key).some
         yield assertTrue(
           inserted == expectedDocument
         )

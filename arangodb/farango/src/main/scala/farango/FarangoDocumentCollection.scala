@@ -10,6 +10,7 @@ import com.arangodb.model.CollectionCreateOptions
 import com.arangodb.model.DocumentCreateOptions
 import com.arangodb.model.DocumentDeleteOptions
 import com.arangodb.model.DocumentUpdateOptions
+import farango.FAsyncStream
 
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
@@ -23,19 +24,19 @@ trait FarangoDocumentCollection:
 
   def name: String
 
-  def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]]
+  def get[T: ClassTag, F[_]: FAsync](key: String): F[Option[T]]
 
-  def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T]
+  def insert[T: ClassTag, F[_]: FAsync](document: T): F[T]
 
-  def loadAll[T: ClassTag, S[_]: FApplicativeStream]: S[T]
+  def loadAll[T: ClassTag, S[_]: FAsyncStream]: S[T]
 
-  def remove[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]]
+  def remove[T: ClassTag, F[_]: FAsync](key: String): F[Option[T]]
 
-  def update[U: ClassTag, T: ClassTag, F[_]: FApplicative](key: String, document: U): F[Option[T]]
+  def update[U: ClassTag, T: ClassTag, F[_]: FAsync](key: String, document: U): F[Option[T]]
 
 object FarangoDocumentCollection:
 
-  def apply[F[_]: FApplicative](
+  def apply[F[_]: FAsync](
       name: String,
       database: FarangoDatabase
   ): F[FarangoDocumentCollection] =
@@ -46,7 +47,7 @@ object FarangoDocumentCollection:
       else create(collection)
     }
 
-    FApplicative[F].mapFromCompletionStage(response)(_ => FarangoDocumentCollectionImpl(database, collection))
+    FAsync[F].mapFromCompletionStage(response)(_ => FarangoDocumentCollectionImpl(database, collection))
 
   private def create(collection: ArangoCollectionAsync): CompletableFuture[Unit] =
     val options = CollectionCreateOptions()
@@ -60,18 +61,18 @@ private[farango] class FarangoDocumentCollectionImpl(
 
   override def name: String = collection.name()
 
-  override def get[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]] =
-    FApplicative[F].mapFromCompletionStage(collection.getDocument(key, expectedType[T]))(Option(_))
+  override def get[T: ClassTag, F[_]: FAsync](key: String): F[Option[T]] =
+    FAsync[F].mapFromCompletionStage(collection.getDocument(key, expectedType[T]))(Option(_))
 
-  override def insert[T: ClassTag, F[_]: FApplicative](document: T): F[T] =
+  override def insert[T: ClassTag, F[_]: FAsync](document: T): F[T] =
     val options = DocumentCreateOptions()
       .returnNew(true)
 
-    FApplicative[F].mapFromCompletionStage(collection.insertDocument(document, options)) { entity =>
+    FAsync[F].mapFromCompletionStage(collection.insertDocument(document, options)) { entity =>
       entity.getNew()
     }
 
-  override def loadAll[T: ClassTag, S[_]: FApplicativeStream]: S[T] =
+  override def loadAll[T: ClassTag, S[_]: FAsyncStream]: S[T] =
     val completionStage = database.underlying
       .query(
         s"FOR e IN ${collection.name()} RETURN e",
@@ -79,9 +80,9 @@ private[farango] class FarangoDocumentCollectionImpl(
       )
       .thenApply(cursor => cursor.streamRemaining())
 
-    FApplicativeStream[S].mapFromCompletionStage(completionStage)(identity)
+    FAsyncStream[S].mapFromCompletionStage(completionStage)(identity)
 
-  override def remove[T: ClassTag, F[_]: FApplicative](key: String): F[Option[T]] =
+  override def remove[T: ClassTag, F[_]: FAsync](key: String): F[Option[T]] =
     val options = DocumentDeleteOptions()
       .returnOld(true)
 
@@ -89,9 +90,9 @@ private[farango] class FarangoDocumentCollectionImpl(
       .deleteDocument(key, expectedType, options)
       .exceptionallyCompose(alternativeEntity(DocumentDeleteEntity()))
 
-    FApplicative[F].mapFromCompletionStage(completionStage)(entity => Option(entity.getOld()))
+    FAsync[F].mapFromCompletionStage(completionStage)(entity => Option(entity.getOld()))
 
-  override def update[U: ClassTag, T: ClassTag, F[_]: FApplicative](
+  override def update[U: ClassTag, T: ClassTag, F[_]: FAsync](
       key: String,
       document: U
   ): F[Option[T]] =
@@ -102,7 +103,7 @@ private[farango] class FarangoDocumentCollectionImpl(
       .updateDocument(key, document, options, expectedType[T])
       .exceptionallyCompose(alternativeEntity(DocumentUpdateEntity()))
 
-    FApplicative[F].mapFromCompletionStage(completionStage)(entity => Option(entity.getOld()))
+    FAsync[F].mapFromCompletionStage(completionStage)(entity => Option(entity.getOld()))
 
   private inline def expectedType[T](using tag: ClassTag[T]): Class[T] =
     tag.runtimeClass.asInstanceOf[Class[T]]

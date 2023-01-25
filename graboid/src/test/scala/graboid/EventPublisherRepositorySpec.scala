@@ -16,7 +16,7 @@ import zio.test.TestEnvironment
 import zio.test.assertTrue
 import zio.test.assertZIO
 import ziorango.given
-import ziorango.Ziorango
+import ziorango.F
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.given
 
@@ -30,7 +30,7 @@ object EventPublisherRepositorySpec extends Spec:
           repository   <- ZIO.service[EventPublisherRepository]
           expectedCause = IllegalStateException("!!!")
           _             = SweetMockito
-                            .whenF2(collection.insert[EventPublisherRepository.Document, Ziorango.F](any())(any(), any()))
+                            .whenF2(collection.insert[EventPublisherRepository.Document, F](any())(any(), any()))
                             .thenFail(expectedCause)
           inserted     <- repository
                             .add(EventPublisherFixture.createRandom())

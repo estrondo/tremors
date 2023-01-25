@@ -2,15 +2,15 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import farango.FarangoDocumentCollection
-import graboid.arango.ArangoConversion.given
-import graboid.arango.ArangoRepository
-import graboid.arango.createZonedDateTime
+import farango.data.ArangoConversion.given
+import farango.data.ArangoRepository
 import graboid.query.TimeWindowLink
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import zio.Task
 import zio.stream.Stream
-import ziorango.Ziorango
+import ziorango.F
+import ziorango.S
 import ziorango.given
 
 import java.time.ZonedDateTime
@@ -92,7 +92,7 @@ object EventRecordRepository:
           (QueryByPublisher, Map.empty)
 
       database
-        .queryT[Document, EventRecord, Ziorango.F, Ziorango.S](
+        .queryT[Document, EventRecord, F, S](
           query,
           args ++ Map(
             "@collection"  -> collection.name,

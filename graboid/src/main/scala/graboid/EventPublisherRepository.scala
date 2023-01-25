@@ -1,15 +1,18 @@
 package graboid
 
 import farango.FarangoDocumentCollection
+import farango.data.ArangoConversion.given
+import farango.data.ArangoRepository
 import graboid.EventPublisher
-import graboid.arango.ArangoConversion.given
-import graboid.arango.ArangoRepository
-import io.github.arainko.ducktape.into
 import io.github.arainko.ducktape.Field
+import io.github.arainko.ducktape.Transformer
+import io.github.arainko.ducktape.into
 import zio.Cause
 import zio.Task
 import zio.Trace
 import zio.ZIO
+import ziorango.given
+import ziorango.F
 
 import java.lang.{Long => JLong}
 
@@ -22,6 +25,10 @@ trait EventPublisherRepository:
   def update(publisherKey: String, update: EventPublisher.Update): Task[Option[EventPublisher]]
 
 object EventPublisherRepository:
+
+  given Transformer[Crawler.Type, Int] = value => value.ordinal
+
+  given Transformer[Int, Crawler.Type] = value => Crawler.Type.fromOrdinal(value)
 
   def apply(collection: FarangoDocumentCollection): EventPublisherRepository =
     EventPublisherRepositoryImpl(collection)
@@ -82,7 +89,7 @@ object EventPublisherRepository:
       logUsage(
         message = s"Updating EventPublishe: $publisherKey.",
         errorMessage = s"It was impossible to update EventPublisher: $publisherKey."
-      )(repository.update[UpdateDocument, EventPublisher](publisherKey, update))
+      )(repository.update[UpdateDocument, EventPublisher, F](publisherKey, update))
 
     def logUsage[T](message: => String, errorMessage: => String)(effect: Task[T])(using trace: Trace): Task[T] =
       for

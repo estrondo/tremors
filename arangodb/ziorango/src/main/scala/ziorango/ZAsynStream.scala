@@ -1,18 +1,16 @@
 package ziorango
 
-import farango.FApplicativeStream
+import farango.FAsyncStream
 import zio.stream.ZStream
 import java.util.concurrent.CompletionStage
-import ziorango.Ziorango.S
+import ziorango.S
 import java.util.stream
 import scala.jdk.FutureConverters.CompletionStageOps.given
 import zio.ZIO
 
-given FApplicativeStream[Ziorango.S] = ZFApplicativeStream
+given ZAsyncStream: FAsyncStream[S] = new FAsyncStream[S]:
 
-object ZFApplicativeStream extends FApplicativeStream[Ziorango.S]:
-
-  override def mapFromJavaStream[A, B](stream: => JavaStream[A])(fn: A => B): Ziorango.S[B] =
+  override def mapFromJavaStream[A, B](stream: => JavaStream[A])(fn: A => B): S[B] =
     ZStream
       .fromJavaStream(stream)
       .map(fn)

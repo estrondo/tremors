@@ -1,19 +1,15 @@
-package graboid.arango
+package farango.data
 
-import java.time.temporal.ChronoUnit
-import java.time.temporal.ChronoField
-import java.time.ZonedDateTime
-import java.time.Clock
-import java.time.Instant
-import java.time.Duration
-import com.fasterxml.jackson.databind.util.Converter
-import scala.Conversion
-import java.lang.{Long => JLong}
-import java.net.URL
-import java.net.URI
 import io.github.arainko.ducktape.Transformer
-import graboid.Crawler
-import javax.xml.crypto.dsig.Transform
+
+import java.lang.{Long => JLong}
+import java.net.URI
+import java.net.URL
+import java.time.Clock
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
 
 object ArangoConversion:
 
@@ -32,10 +28,6 @@ object ArangoConversion:
   given Transformer[URL, String] = _.toExternalForm()
 
   given Transformer[String, URL] = URI.create(_).toURL()
-
-  given Transformer[Crawler.Type, Int] = value => value.ordinal
-
-  given Transformer[Int, Crawler.Type] = value => Crawler.Type.fromOrdinal(value)
 
   given ZoneDateTimeToJLong: Transformer[ZonedDateTime, JLong] =
     _.getLong(ChronoField.INSTANT_SECONDS)

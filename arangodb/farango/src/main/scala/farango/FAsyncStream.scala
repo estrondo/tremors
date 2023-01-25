@@ -2,15 +2,15 @@ package farango
 
 import com.arangodb.ArangoCursor
 
-import scala.util.Try
 import java.util.concurrent.CompletionStage
+import scala.util.Try
 
-object FApplicativeStream:
+object FAsyncStream:
 
-  transparent inline def apply[S[_]: FApplicativeStream]: FApplicativeStream[S] =
-    summon[FApplicativeStream[S]]
+  transparent inline def apply[S[_]: FAsyncStream]: FAsyncStream[S] =
+    summon[FAsyncStream[S]]
 
-trait FApplicativeStream[S[_]]:
+trait FAsyncStream[S[_]]:
 
   type JavaStream[T] = java.util.stream.Stream[T]
 

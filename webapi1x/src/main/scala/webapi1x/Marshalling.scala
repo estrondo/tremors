@@ -3,12 +3,13 @@ package webapi1x
 import zhttp.http.Request
 import zio.IO
 import zio.Task
-import zio.json.{given, *}
+import zio.ZIO
+import zio.json.{_, given}
 import zio.stream.ZSink
-import scala.collection.mutable
+
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import zio.ZIO
+import scala.collection.mutable
 
 object Marshalling:
 

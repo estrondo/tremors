@@ -20,7 +20,7 @@ import zio.test.TestEnvironment
 import zio.test.TestResult
 import zio.test.assertTrue
 import zio.test.ignored
-import ziorango.Ziorango
+import ziorango.F
 import ziorango.given
 
 object EventRecordRepositoryIT extends IT:
@@ -34,7 +34,7 @@ object EventRecordRepositoryIT extends IT:
           insertedEventRecord <- repository.add(expectedEventRecord).orDie
           collection          <- getCollection
           _                   <- collection
-                                   .get[EventRecordRepository.Document, Ziorango.F](expectedEventRecord.key)
+                                   .get[EventRecordRepository.Document, F](expectedEventRecord.key)
                                    .someOrFail("it was supposed to find something!")
         yield assertTrue(
           expectedEventRecord == insertedEventRecord

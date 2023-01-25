@@ -17,7 +17,7 @@ import zio.test.assertTrue
 import java.io.IOException
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.given
-import ziorango.Ziorango
+import ziorango.F
 
 object EventRecordRepositorySpec extends Spec:
 
@@ -33,7 +33,7 @@ object EventRecordRepositorySpec extends Spec:
                                   .given_Conversion_EventRecord_Document(expectedEventRecord)
           _                   = SweetMockito
                                   .whenF2(
-                                    collection.insert[EventRecordRepository.Document, Ziorango.F](eqTo(expectedDocument))(any(), any())
+                                    collection.insert[EventRecordRepository.Document, F](eqTo(expectedDocument))(any(), any())
                                   )
                                   .thenFail(expectedThrowable)
           exit               <- repository.add(expectedEventRecord).exit

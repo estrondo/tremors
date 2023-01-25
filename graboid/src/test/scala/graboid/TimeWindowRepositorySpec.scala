@@ -3,6 +3,8 @@ package graboid
 import farango.FarangoDocumentCollection
 import graboid.fixture.TimeWindowFixture
 import graboid.mock.FarangoDocumentCollectionMockLayer
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito
@@ -15,9 +17,7 @@ import zio.test.TestEnvironment
 import zio.test.assert
 import zio.test.assertTrue
 import zio.test.assertZIO
-import one.estrondo.sweetmockito.SweetMockito
-import one.estrondo.sweetmockito.zio.given
-import ziorango.Ziorango
+import ziorango.F
 
 object TimeWindowRepositorySpec extends Spec:
 
@@ -33,7 +33,7 @@ object TimeWindowRepositorySpec extends Spec:
                                  .timeWindowToDocument(expectedTimeWindow)
           _                  = SweetMockito
                                  .whenF2(
-                                   collection.insert[TimeWindowRepository.Document, Ziorango.F](eqTo(expectedDocument))(any(), any())
+                                   collection.insert[TimeWindowRepository.Document, F](eqTo(expectedDocument))(any(), any())
                                  )
                                  .thenFail(expectedThrowable)
           exit              <- repository.add(expectedTimeWindow).exit

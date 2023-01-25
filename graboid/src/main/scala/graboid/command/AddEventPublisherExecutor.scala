@@ -1,16 +1,19 @@
 package graboid.command
 
-import graboid.protocol.AddEventPublisher
-import graboid.EventPublisherManager
-import graboid.EventPublisher
-import io.github.arainko.ducktape.into
-import io.github.arainko.ducktape.Field
-import java.net.URL
 import graboid.Crawler
-import zio.{ZIO, UIO, Task}
+import graboid.EventPublisher
+import graboid.EventPublisherManager
+import graboid.protocol.AddEventPublisher
 import graboid.protocol.EventPublisherDescriptor
 import graboid.protocol.GraboidCommandResult
+import io.github.arainko.ducktape.Field
+import io.github.arainko.ducktape.into
+import zio.Task
+import zio.UIO
+import zio.ZIO
 import zio.ZIOAspect
+
+import java.net.URL
 
 trait AddEventPublisherExecutor extends GraboidCommandExecutor[AddEventPublisher]
 

@@ -14,7 +14,7 @@ import zio.ZLayer
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import ziorango.Ziorango
+import ziorango.F
 import ziorango.given
 
 import java.time.temporal.ChronoField
@@ -30,7 +30,7 @@ object EventPublisherRepositoryIT extends IT:
           repository <- getRepository
           result     <- repository.add(publisher)
           collection <- getCollection
-          found      <- collection.get[EventPublisherRepository.Document, Ziorango.F](publisher.key).some
+          found      <- collection.get[EventPublisherRepository.Document, F](publisher.key).some
         yield assertTrue(
           result == publisher,
           found.name == publisher.name
@@ -43,7 +43,7 @@ object EventPublisherRepositoryIT extends IT:
           _          <- repository.add(publisher)
           removed    <- repository.remove(publisher.key).some
           collection <- getCollection
-          notFound   <- collection.get[EventPublisherRepository.Document, Ziorango.F](publisher.key)
+          notFound   <- collection.get[EventPublisherRepository.Document, F](publisher.key)
         yield assertTrue(
           removed == publisher,
           notFound.isEmpty
@@ -58,7 +58,7 @@ object EventPublisherRepositoryIT extends IT:
           _          <- repository.add(publisher)
           _          <- repository.update(publisher.key, expectedUpdate).some
           collection <- getCollection
-          updated    <- collection.get[EventPublisherRepository.Document, Ziorango.F](publisher.key).some
+          updated    <- collection.get[EventPublisherRepository.Document, F](publisher.key).some
         yield assertTrue(
           updated._key == publisher.key,
           updated.name == expectedUpdate.name,

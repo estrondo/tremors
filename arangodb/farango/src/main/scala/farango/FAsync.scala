@@ -2,11 +2,11 @@ package farango
 
 import java.util.concurrent.CompletionStage
 
-object FApplicative:
+object FAsync:
 
-  transparent inline def apply[F[_]: FApplicative]: FApplicative[F] = summon[FApplicative[F]]
+  transparent inline def apply[F[_]: FAsync]: FAsync[F] = summon[FAsync[F]]
 
-trait FApplicative[F[_]]:
+trait FAsync[F[_]]:
 
   def map[A, B](a: F[A])(fn: A => B): F[B]
 
@@ -16,4 +16,6 @@ trait FApplicative[F[_]]:
 
   def flatMapFromCompletionStage[A, B](a: => CompletionStage[A])(fn: A => F[B]): F[B]
 
-  def pure[A](a: A): F[A]
+  def succeed[A](a: => A): F[A]
+
+  def none[A]: F[Option[A]]

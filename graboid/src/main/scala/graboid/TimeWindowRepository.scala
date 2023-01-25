@@ -3,13 +3,14 @@ package graboid
 import com.softwaremill.macwire.wire
 import farango.FarangoDatabase
 import farango.FarangoDocumentCollection
-import graboid.arango.ArangoConversion.given
-import graboid.arango.ArangoRepository
+import farango.data.ArangoConversion.given
+import farango.data.ArangoRepository
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import zio.Task
 import zio.stream.ZSink
-import ziorango.Ziorango
+import ziorango.F
+import ziorango.S
 import ziorango.given
 
 import java.time.ZonedDateTime
@@ -76,7 +77,7 @@ object TimeWindowRepository:
         ending: ZonedDateTime
     ): Task[Option[TimeWindow]] =
       for
-        stream <- database.queryT[Document, TimeWindow, Ziorango.F, Ziorango.S](
+        stream <- database.queryT[Document, TimeWindow, F, S](
                     QuerySearchWindow,
                     Map(
                       "@collection"  -> collection.name,

@@ -1,8 +1,9 @@
 package graboid.protocol
 
-import io.bullet.borer.Codec
-import io.bullet.borer.derivation.MapBasedCodecs.{deriveCodec, deriveAllCodecs}
 import graboid.protocol.GraboidCommandResult.Status
+import io.bullet.borer.Codec
+import io.bullet.borer.derivation.MapBasedCodecs.deriveAllCodecs
+import io.bullet.borer.derivation.MapBasedCodecs.deriveCodec
 
 object GraboidCommandResult:
 
