@@ -6,15 +6,16 @@ import io.bullet.borer.derivation.MapBasedCodecs.deriveAllCodecs
 import java.time.Duration
 import java.time.ZonedDateTime
 
+import graboid.protocol.PublisherDescriptor
 object GraboidCommand:
 
   given Codec[GraboidCommand] = deriveAllCodecs
 
 sealed trait GraboidCommand(val id: String)
 
-case class AddEventPublisher(override val id: String, descriptor: EventPublisherDescriptor) extends GraboidCommand(id)
+case class AddPublisher(override val id: String, descriptor: PublisherDescriptor) extends GraboidCommand(id)
 
-case class RemoveEventPublisher(override val id: String, publisherKey: String) extends GraboidCommand(id)
+case class RemovePublisher(override val id: String, publisherKey: String) extends GraboidCommand(id)
 
-case class UpdateEventPublisher(override val id: String, descriptor: EventPublisherDescriptor)
+case class UpdatePublisher(override val id: String, descriptor: PublisherDescriptor)
     extends GraboidCommand(id)

@@ -1,0 +1,103 @@
+package graboid
+
+import farango.DocumentCollection
+import farango.data.ArangoConversion.given
+import graboid.Publisher
+import io.github.arainko.ducktape.Field
+import io.github.arainko.ducktape.Transformer
+import io.github.arainko.ducktape.into
+import zio.Cause
+import zio.Task
+import zio.Trace
+import zio.ZIO
+import farango.zio.given
+
+import java.lang.{Long => JLong}
+import farango.UpdateReturn
+import zio.stream.ZStream
+
+trait PublisherRepository:
+
+  def all: ZStream[Any, Throwable, Publisher]
+
+  def add(publisher: Publisher): Task[Publisher]
+
+  def remove(publisherKey: String): Task[Option[Publisher]]
+
+  def update(publisherKey: String, update: Publisher.Update): Task[Option[Publisher]]
+
+object PublisherRepository:
+
+  given Transformer[Crawler.Type, Int] = value => value.ordinal
+
+  given Transformer[Int, Crawler.Type] = value => Crawler.Type.fromOrdinal(value)
+
+  def apply(collection: DocumentCollection): PublisherRepository =
+    PublisherRepositoryImpl(collection)
+
+  private[graboid] case class Document(
+      _key: String,
+      name: String,
+      url: String,
+      beginning: Long,
+      ending: JLong,
+      `type`: Int
+  )
+
+  private[graboid] case class UpdateDocument(
+      name: String,
+      url: String,
+      beginning: Long,
+      ending: JLong,
+      `type`: Int
+  )
+
+  private[graboid] given Conversion[Publisher, Document] = publisher =>
+    publisher
+      .into[Document]
+      .transform(
+        Field.renamed(_._key, _.key)
+      )
+
+  private[graboid] given Conversion[Document, Publisher] = document =>
+    document
+      .into[Publisher]
+      .transform(
+        Field.renamed(_.key, _._key)
+      )
+
+  private[graboid] given Conversion[Publisher.Update, UpdateDocument] = update =>
+    update
+      .into[UpdateDocument]
+      .transform()
+
+  private class PublisherRepositoryImpl(collection: DocumentCollection) extends PublisherRepository:
+
+    override def all: ZStream[Any, Throwable, Publisher] =
+      collection.documents[Document]()
+
+    override def add(publisher: Publisher): Task[Publisher] =
+      logUsage(
+        message = s"Adding Publisher: ${publisher.key}.",
+        errorMessage = s"It was impossible to add Publisher: ${publisher.key}."
+      )(collection.insert[Document](publisher))
+
+    override def remove(publisherKey: String): Task[Option[Publisher]] =
+      logUsage(
+        message = s"Removing Publisher: $publisherKey.",
+        errorMessage = s"It was impossible to remove Publisher: $publisherKey!"
+      )(collection.remove[Document](publisherKey))
+
+    override def update(publisherKey: String, update: Publisher.Update): Task[Option[Publisher]] =
+      logUsage(
+        message = s"Updating EventPublishe: $publisherKey.",
+        errorMessage = s"It was impossible to update Publisher: $publisherKey."
+      )(collection.update[UpdateDocument, Document](publisherKey, update, UpdateReturn.New))
+
+    def logUsage[T](message: => String, errorMessage: => String)(effect: Task[T])(using trace: Trace): Task[T] =
+      for
+        _      <- ZIO.logDebug(message)
+        result <- effect
+                    .mapError(GraboidException.unexpected(errorMessage))
+                    .tapError(error => ZIO.logErrorCause(Cause.die(error)))
+      yield result

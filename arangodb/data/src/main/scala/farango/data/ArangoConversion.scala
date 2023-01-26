@@ -35,9 +35,12 @@ object ArangoConversion:
   given JLongToZoneDateTime: Transformer[JLong, ZonedDateTime] = longValue =>
     ZonedDateTime.ofInstant(Instant.ofEpochSecond(longValue), ZoneId)
 
-  given [A, B >: Null](using Transformer[A, B]): Transformer[Option[A], B] =
-    _.map(summon[Transformer[A, B]].transform(_)).orNull
+  given [A, B](using Transformer[A, B], Null <:< B): Transformer[Option[A], B] =
+    _.map(summon[Transformer[A, B]].transform).orNull
 
-  given [A >: Null, B](using Transformer[A, B]): Transformer[A, Option[B]] = value =>
+  given [A, B](using Transformer[A, B]): Transformer[A, Option[B]] = value =>
     if value != null then Some(summon[Transformer[A, B]].transform(value))
     else None
+
+  given [A, B](using conversion: Conversion[A, B]): Transformer[A, B] =
+    conversion.apply(_)

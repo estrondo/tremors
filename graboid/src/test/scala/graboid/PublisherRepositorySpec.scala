@@ -1,7 +1,7 @@
 package graboid
 
 import farango.DocumentCollection
-import graboid.fixture.EventPublisherFixture
+import graboid.fixture.PublisherFixture
 import graboid.mock.FarangoDocumentCollectionMockLayer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo}
@@ -21,20 +21,23 @@ import farango.DocumentCollection
 import farango.zio.ZEffect
 import zio.test.TestAspect
 
-object EventPublisherRepositorySpec extends Spec:
+object PublisherRepositorySpec extends Spec:
 
   override def spec =
     suite("EventPublisherRepository with mocking")(
       test("should report a GraboidException.Unexpected for any Arango failure.") {
         val effect = for
           collection   <- ZIO.service[DocumentCollection]
-          repository   <- ZIO.service[EventPublisherRepository]
+          repository   <- ZIO.service[PublisherRepository]
           expectedCause = IllegalStateException("!!!")
           _             = SweetMockito
-                            .whenF2(collection.insert[EventPublisherRepository.Document, ZEffect](any())(any(), any()))
+                            .whenF2(
+                              collection
+                                .insert[PublisherRepository.Document][Publisher, ZEffect](any())(any(), any(), any())
+                            )
                             .thenFail(expectedCause)
           inserted     <- repository
-                            .add(EventPublisherFixture.createRandom())
+                            .add(PublisherFixture.createRandom())
         yield inserted
 
         assertZIO(effect.exit)(
@@ -43,10 +46,10 @@ object EventPublisherRepositorySpec extends Spec:
       } @@ TestAspect.ignore
     ).provideLayer(MockLayer)
 
-  val RepositoryMockLayer: ZLayer[DocumentCollection, Nothing, EventPublisherRepository] =
+  val RepositoryMockLayer: ZLayer[DocumentCollection, Nothing, PublisherRepository] =
     ZLayer {
       for collection <- ZIO.service[DocumentCollection]
-      yield EventPublisherRepository(collection)
+      yield PublisherRepository(collection)
     }
 
   val MockLayer =

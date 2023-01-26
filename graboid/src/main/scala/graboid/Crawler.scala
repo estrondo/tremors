@@ -12,12 +12,11 @@ import io.github.arainko.ducktape.Transformer
 
 object Crawler:
 
-  type Info   = Event | Origin | Magnitude
-  type Stream = ZStream[Any, Throwable, Crawler.Info]
+  type Info = Event | Origin | Magnitude
 
   enum Type:
     case FDSN
 
 trait Crawler:
 
-  def crawl(timeWindow: TimeWindow): Task[Crawler.Stream]
+  def crawl(timeWindow: TimeWindow): Task[ZStream[Any, Throwable, Crawler.Info]]

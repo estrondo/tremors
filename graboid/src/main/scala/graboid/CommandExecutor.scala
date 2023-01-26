@@ -1,16 +1,16 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import graboid.EventPublisherManager
-import graboid.command.AddEventPublisherExecutor
-import graboid.command.RemoveEventPublisherExecutor
-import graboid.command.UpdateEventPublisherExecutor
-import graboid.protocol.AddEventPublisher
-import graboid.protocol.EventPublisherDescriptor
+import graboid.PublisherManager
+import graboid.command.AddPublisherExecutor
+import graboid.command.RemovePublisherExecutor
+import graboid.command.UpdatePublisherExecutor
+import graboid.protocol.AddPublisher
+import graboid.protocol.PublisherDescriptor
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
-import graboid.protocol.RemoveEventPublisher
-import graboid.protocol.UpdateEventPublisher
+import graboid.protocol.RemovePublisher
+import graboid.protocol.UpdatePublisher
 import zio.Task
 import zio.UIO
 
@@ -21,19 +21,19 @@ trait CommandExecutor:
 object CommandExecutor:
 
   def apply(
-      addEventPublisherExecutor: AddEventPublisherExecutor,
-      removeEventPublisherExecutor: RemoveEventPublisherExecutor,
-      updateEventPublisherExecutor: UpdateEventPublisherExecutor
+      addPublisherExecutor: AddPublisherExecutor,
+      removePublisherExecutor: RemovePublisherExecutor,
+      updatePublisherExecutor: UpdatePublisherExecutor
   ): CommandExecutor =
     wire[CommandExecutorImpl]
 
   private class CommandExecutorImpl(
-      addEventPublisherExecutor: AddEventPublisherExecutor,
-      removeEventPublisherExecutor: RemoveEventPublisherExecutor,
-      updateEventPublisherExecutor: UpdateEventPublisherExecutor
+      addPublisherExecutor: AddPublisherExecutor,
+      removePublisherExecutor: RemovePublisherExecutor,
+      updatePublisherExecutor: UpdatePublisherExecutor
   ) extends CommandExecutor:
 
     override def apply(command: GraboidCommand): UIO[GraboidCommandResult] = command match
-      case cmd: AddEventPublisher    => addEventPublisherExecutor(cmd)
-      case cmd: RemoveEventPublisher => removeEventPublisherExecutor(cmd)
-      case cmd: UpdateEventPublisher => updateEventPublisherExecutor(cmd)
+      case cmd: AddPublisher    => addPublisherExecutor(cmd)
+      case cmd: RemovePublisher => removePublisherExecutor(cmd)
+      case cmd: UpdatePublisher => updatePublisherExecutor(cmd)

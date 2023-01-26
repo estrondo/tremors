@@ -11,38 +11,30 @@ import zio.ZIO
 
 trait CoreModule:
 
-  val eventPublisherManager: EventPublisherManager
+  val publisherManager: PublisherManager
 
 object CoreModule:
 
-  trait ForEventRecord
-  trait ForEventPublisher
+  trait ForPublisher
 
   case class CollectionWrapper(collection: DocumentCollection)
 
-  val EventPublisherCollectionName = "event_publisher"
-  val EventRecordCollectionName    = "event_record"
+  val PublisherCollectionName = "publisher"
 
   def apply(config: GraboidConfig, arangoModule: ArangoModule): Task[CoreModule] =
-    for
-      eventPublisherCollection <- arangoModule
-                                    .getDocumentCollection(EventPublisherCollectionName)
-                                    .map(CollectionWrapper.apply)
-                                    .taggedWithF[ForEventPublisher]
-      eventRecordCollection    <- arangoModule
-                                    .getDocumentCollection(EventRecordCollectionName)
-                                    .map(CollectionWrapper.apply)
-                                    .taggedWithF[ForEventRecord]
+    for publisherCollection <- arangoModule
+                                      .getDocumentCollection(PublisherCollectionName)
+                                      .map(CollectionWrapper.apply)
+                                      .taggedWithF[ForPublisher]
     yield wire[CoreModuleImpl]
 
   private class CoreModuleImpl(
       config: GraboidConfig,
-      eventPublisherCollection: CollectionWrapper @@ ForEventPublisher,
-      eventRecordCollection: CollectionWrapper @@ ForEventRecord
+      publisherCollection: CollectionWrapper @@ ForPublisher
   ) extends CoreModule:
 
-    val eventPublisherRepository = EventPublisherRepository(eventPublisherCollection.collection)
+    val publisherRepository = PublisherRepository(publisherCollection.collection)
 
-    val eventPublisherValidator: EventPublisherManager.Validator = ZIO.succeed(_)
+    val publisherValidator: PublisherManager.Validator = ZIO.succeed(_)
 
-    override val eventPublisherManager: EventPublisherManager = wireWith(EventPublisherManager.apply)
+    override val publisherManager: PublisherManager = wireWith(PublisherManager.apply)

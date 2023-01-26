@@ -1,11 +1,11 @@
 package testkit.graboid.protocol
 
-import graboid.protocol.RemoveEventPublisher
+import graboid.protocol.RemovePublisher
 import testkit.core._
 
-object RemoveEventPublisherFixture:
+object RemovePublisherFixture:
 
-  def createRandom() = RemoveEventPublisher(
+  def createRandom() = RemovePublisher(
     id = createRandomKey(16),
     publisherKey = createRandomKey(32)
   )

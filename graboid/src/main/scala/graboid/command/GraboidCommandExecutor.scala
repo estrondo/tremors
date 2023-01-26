@@ -47,7 +47,7 @@ trait GraboidCommandExecutor[T <: GraboidCommand]:
         )
 
     ZIO.logErrorCause(
-      "A error has happend during adding of an EventPublisher!",
+      "A error has happend during adding of an Publisher!",
       Cause.die(error)
     ) as GraboidCommandResult(
       command.id,

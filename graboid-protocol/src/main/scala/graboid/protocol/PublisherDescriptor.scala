@@ -5,11 +5,11 @@ import io.bullet.borer.derivation.MapBasedCodecs.deriveCodec
 import java.time.ZonedDateTime
 import cbor.core.given
 
-object EventPublisherDescriptor:
+object PublisherDescriptor:
 
-  given Codec[EventPublisherDescriptor] = deriveCodec
+  given Codec[PublisherDescriptor] = deriveCodec
 
-case class EventPublisherDescriptor(
+case class PublisherDescriptor(
     key: String,
     name: String,
     beginning: ZonedDateTime,

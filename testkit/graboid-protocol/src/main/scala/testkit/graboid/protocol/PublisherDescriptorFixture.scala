@@ -1,6 +1,6 @@
 package testkit.graboid.protocol
 
-import graboid.protocol.EventPublisherDescriptor
+import graboid.protocol.PublisherDescriptor
 import io.bullet.borer.derivation.key
 import testkit.core.createRandomKey
 import testkit.core.createRandomName
@@ -8,9 +8,9 @@ import testkit.core.createZonedDateTime
 import testkit.core.oneOf
 import java.time.temporal.ChronoUnit
 
-object EventPublisherDescriptorFixture:
+object PublisherDescriptorFixture:
 
-  def createRandom() = EventPublisherDescriptor(
+  def createRandom() = PublisherDescriptor(
     key = createRandomKey(),
     name = createRandomName(),
     beginning = createZonedDateTime(),

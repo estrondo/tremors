@@ -1,7 +1,7 @@
 package graboid
 
 import cats.syntax.validated
-import graboid.fixture.EventPublisherFixture
+import graboid.fixture.PublisherFixture
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mock
@@ -21,16 +21,17 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import one.estrondo.sweetmockito.SweetMockito
 
-object EventPublisherManagerSpec extends Spec:
+import graboid.PublisherRepository
+object PublisherManagerSpec extends Spec:
 
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =
-    suite("EventPublisherManager with mocking:")(
-      test("it should insert a valid EventPublisher into repository.") {
+    suite("PublisherManager with mocking:")(
+      test("it should insert a valid Publisher into repository.") {
         for
-          repository       <- ZIO.service[EventPublisherRepository]
-          validator        <- ZIO.service[EventPublisherManager.Validator]
-          manager          <- ZIO.service[EventPublisherManager]
-          expectedPublisher = EventPublisherFixture.createRandom()
+          repository       <- ZIO.service[PublisherRepository]
+          validator        <- ZIO.service[PublisherManager.Validator]
+          manager          <- ZIO.service[PublisherManager]
+          expectedPublisher = PublisherFixture.createRandom()
           _                 = Mockito
                                 .when(validator(eqTo(expectedPublisher)))
                                 .thenReturn(ZIO.succeed(expectedPublisher))
@@ -42,18 +43,18 @@ object EventPublisherManagerSpec extends Spec:
           inserted == expectedPublisher
         )
       },
-      test("it should report any invalid EventPublisher.") {
+      test("it should report any invalid Publisher.") {
         for
-          validator             <- ZIO.service[EventPublisherManager.Validator]
-          manager               <- ZIO.service[EventPublisherManager]
-          repository            <- ZIO.service[EventPublisherRepository]
-          expectedPublisher      = EventPublisherFixture.createRandom()
-          expectedCause          = EventPublisher.Cause("I don't like this Publisher!")
+          validator             <- ZIO.service[PublisherManager.Validator]
+          manager               <- ZIO.service[PublisherManager]
+          repository            <- ZIO.service[PublisherRepository]
+          expectedPublisher      = PublisherFixture.createRandom()
+          expectedCause          = Publisher.Cause("I don't like this Publisher!")
           expectedThrowableCause = GraboidException.Invalid(expectedCause.reason)
           _                      = SweetMockito
                                      .whenF2(validator(eqTo(expectedPublisher)))
                                      .thenFail(
-                                       EventPublisher.Invalid(expectedPublisher, Seq(expectedCause))
+                                       Publisher.Invalid(expectedPublisher, Seq(expectedCause))
                                      )
           exit                  <- manager.add(expectedPublisher).exit
         yield assert(exit)(
@@ -64,16 +65,16 @@ object EventPublisherManagerSpec extends Spec:
       },
       test("it should not insert into repository when validator fails.") {
         for
-          validator             <- ZIO.service[EventPublisherManager.Validator]
-          manager               <- ZIO.service[EventPublisherManager]
-          repository            <- ZIO.service[EventPublisherRepository]
-          expectedPublisher      = EventPublisherFixture.createRandom()
-          expectedCause          = EventPublisher.Cause("I don't like this Publisher!")
+          validator             <- ZIO.service[PublisherManager.Validator]
+          manager               <- ZIO.service[PublisherManager]
+          repository            <- ZIO.service[PublisherRepository]
+          expectedPublisher      = PublisherFixture.createRandom()
+          expectedCause          = Publisher.Cause("I don't like this Publisher!")
           expectedThrowableCause = GraboidException.Invalid(expectedCause.reason)
           _                      = SweetMockito
                                      .whenF2(validator(eqTo(expectedPublisher)))
                                      .thenFail(
-                                       EventPublisher.Invalid(expectedPublisher, Seq(expectedCause))
+                                       Publisher.Invalid(expectedPublisher, Seq(expectedCause))
                                      )
           exit                  <- manager.add(expectedPublisher).exit
         yield assertTrue(
@@ -82,11 +83,11 @@ object EventPublisherManagerSpec extends Spec:
       },
       test("it should report any repository failure.") {
         for
-          validator        <- ZIO.service[EventPublisherManager.Validator]
-          manager          <- ZIO.service[EventPublisherManager]
-          repository       <- ZIO.service[EventPublisherRepository]
+          validator        <- ZIO.service[PublisherManager.Validator]
+          manager          <- ZIO.service[PublisherManager]
+          repository       <- ZIO.service[PublisherRepository]
           expectedThrowable = IllegalStateException("!!!")
-          expectedPublisher = EventPublisherFixture.createRandom()
+          expectedPublisher = PublisherFixture.createRandom()
           _                 = SweetMockito
                                 .whenF2(validator(eqTo(expectedPublisher)))
                                 .thenReturn(expectedPublisher)
@@ -99,14 +100,14 @@ object EventPublisherManagerSpec extends Spec:
         )
       },
       test("it should remove a publisher from repository.") {
-        val expectedPublisher = EventPublisherFixture.createRandom()
+        val expectedPublisher = PublisherFixture.createRandom()
         val expectedKey       = expectedPublisher.key
 
         for
-          _       <- SweetMockitoLayer[EventPublisherRepository]
+          _       <- SweetMockitoLayer[PublisherRepository]
                        .whenF2(_.remove(expectedKey))
                        .thenReturn(Option(expectedPublisher))
-          manager <- ZIO.service[EventPublisherManager]
+          manager <- ZIO.service[PublisherManager]
           result  <- manager.remove(expectedKey)
         yield assertTrue(
           result == Some(expectedPublisher)
@@ -116,25 +117,25 @@ object EventPublisherManagerSpec extends Spec:
         val expectedKey   = KeyGenerator.next64()
         val expectedCause = IOException("%%%")
         for
-          _       <- SweetMockitoLayer[EventPublisherRepository]
+          _       <- SweetMockitoLayer[PublisherRepository]
                        .whenF2(_.remove(expectedKey))
                        .thenFail(expectedCause)
-          manager <- ZIO.service[EventPublisherManager]
+          manager <- ZIO.service[PublisherManager]
           exit    <- manager.remove(expectedKey).exit
         yield assert(exit)(
           Assertion.fails(Assertion.hasThrowableCause(Assertion.equalTo(expectedCause)))
         )
       },
       test("it should update a publisher from repository.") {
-        val publisher = EventPublisherFixture.createRandom()
-        val update    = EventPublisherFixture.updateFrom(publisher)
+        val publisher = PublisherFixture.createRandom()
+        val update    = PublisherFixture.updateFrom(publisher)
         val key       = publisher.key
 
         for
-          _       <- SweetMockitoLayer[EventPublisherRepository]
+          _       <- SweetMockitoLayer[PublisherRepository]
                        .whenF2(_.update(key, update))
                        .thenReturn(Option(publisher))
-          manager <- ZIO.service[EventPublisherManager]
+          manager <- ZIO.service[PublisherManager]
           result  <- manager.update(key, update)
         yield assertTrue(
           result == Some(publisher)
@@ -142,13 +143,13 @@ object EventPublisherManagerSpec extends Spec:
       },
       test("it should report any repository error during publisher updating.") {
         val expectedCause = IOException("%%%")
-        val publisher     = EventPublisherFixture.createRandom()
-        val update        = EventPublisherFixture.updateFrom(publisher)
+        val publisher     = PublisherFixture.createRandom()
+        val update        = PublisherFixture.updateFrom(publisher)
         for
-          _       <- SweetMockitoLayer[EventPublisherRepository]
+          _       <- SweetMockitoLayer[PublisherRepository]
                        .whenF2(_.update(publisher.key, update))
                        .thenFail(expectedCause)
-          manager <- ZIO.service[EventPublisherManager]
+          manager <- ZIO.service[PublisherManager]
           exit    <- manager.update(publisher.key, update).exit
         yield assert(exit)(
           Assertion.fails(Assertion.hasThrowableCause(Assertion.equalTo(expectedCause)))
@@ -159,14 +160,14 @@ object EventPublisherManagerSpec extends Spec:
     )
 
   private val RepositoryMockLayer =
-    ZLayer.succeed(Mockito.mock(classOf[EventPublisherRepository]))
+    ZLayer.succeed(Mockito.mock(classOf[PublisherRepository]))
 
   private val ValidatorMockLayer =
-    ZLayer.succeed(Mockito.mock(classOf[EventPublisherManager.Validator]))
+    ZLayer.succeed(Mockito.mock(classOf[PublisherManager.Validator]))
 
   private val ManagerLayer = ZLayer {
     for
-      repository <- ZIO.service[EventPublisherRepository]
-      validator  <- ZIO.service[EventPublisherManager.Validator]
-    yield EventPublisherManager(repository, validator)
+      repository <- ZIO.service[PublisherRepository]
+      validator  <- ZIO.service[PublisherManager.Validator]
+    yield PublisherManager(repository, validator)
   }

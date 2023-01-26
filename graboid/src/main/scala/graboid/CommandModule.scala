@@ -2,10 +2,10 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import com.softwaremill.macwire.wireWith
-import graboid.command.AddEventPublisherExecutorImpl
-import graboid.command.RemoveEventPublisherExecutor
-import graboid.command.RemoveEventPublisherExecutorImpl
-import graboid.command.UpdateEventPublisherExecutorImpl
+import graboid.command.AddPublisherExecutorImpl
+import graboid.command.RemovePublisherExecutor
+import graboid.command.RemovePublisherExecutorImpl
+import graboid.command.UpdatePublisherExecutorImpl
 import graboid.kafka.GraboidCommandTopic
 import zio.Task
 import zio.ZIO
@@ -25,13 +25,13 @@ object CommandModule:
 
   private class CommandModuleImpl(coreModule: CoreModule, kafkaModule: KafkaModule) extends CommandModule:
 
-    def eventPublisherManager = coreModule.eventPublisherManager
+    def publisherManager = coreModule.publisherManager
 
-    val addEventPublisherExecutor = wire[AddEventPublisherExecutorImpl]
+    val addPublisherExecutor = wire[AddPublisherExecutorImpl]
 
-    val updateEventPublisherExecutor = wire[UpdateEventPublisherExecutorImpl]
+    val updatePublisherExecutor = wire[UpdatePublisherExecutorImpl]
 
-    val removeEventPublisherExecutor = wire[RemoveEventPublisherExecutorImpl]
+    val removePublisherExecutor = wire[RemovePublisherExecutorImpl]
 
     override val commandExecutor: CommandExecutor = wireWith(CommandExecutor.apply)
     override val commandListener: CommandListener = wireWith(CommandListener.apply)

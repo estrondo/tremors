@@ -20,17 +20,18 @@ lazy val root = (project in file("."))
   )
   .aggregate(
     core,
-    testkitCore,
+    `testkit-core`,
+    `farango-data`,
     cbor,
     webapi1x,
-    graboidProtocol,
-    testkitGraboidProtocol,
+    `graboid-protocol`,
+    `testkit-graboid-protocol`,
     graboid,
     quakeml,
-    cborQuakeml,
-    testkitQuakeml,
-    testkitZIOTestcontainers,
-    zioAppStarter
+    `cbor-quakeml`,
+    `testkit-quakeml`,
+    `testkit-zio-testcontainers`,
+    `zip-app-starter`
   )
 
 lazy val core = (project in file("core"))
@@ -38,7 +39,7 @@ lazy val core = (project in file("core"))
     name := "core"
   )
 
-lazy val testkitCore = (project in file("testkit/core"))
+lazy val `testkit-core` = (project in file("testkit/core"))
   .settings(
     name := "teskit-core",
     libraryDependencies ++= Seq(
@@ -54,7 +55,7 @@ lazy val cbor = (project in file("cbor/core"))
     ).flatten
   )
 
-lazy val farangoData = (project in file("arangodb/data"))
+lazy val `farango-data` = (project in file("arangodb/data"))
   .settings(
     name := "farango-data",
     libraryDependencies ++= Seq(
@@ -69,7 +70,7 @@ lazy val quakeml = (project in file("quakeml"))
     ).flatten
   )
 
-lazy val testkitQuakeml = (project in file("testkit/quakeml"))
+lazy val `testkit-quakeml` = (project in file("testkit/quakeml"))
   .settings(
     name := "testkit-quakeml"
   )
@@ -77,7 +78,7 @@ lazy val testkitQuakeml = (project in file("testkit/quakeml"))
     quakeml
   )
 
-lazy val cborQuakeml = (project in file("cbor/quakeml"))
+lazy val `cbor-quakeml` = (project in file("cbor/quakeml"))
   .settings(
     name := "cbor-quakeml",
     libraryDependencies ++= Seq(
@@ -86,7 +87,7 @@ lazy val cborQuakeml = (project in file("cbor/quakeml"))
   )
   .dependsOn(quakeml)
 
-lazy val graboidProtocol = (project in file("graboid-protocol"))
+lazy val `graboid-protocol` = (project in file("graboid-protocol"))
   .settings(
     name := "graboid-protocol",
     libraryDependencies ++= Seq(
@@ -97,13 +98,13 @@ lazy val graboidProtocol = (project in file("graboid-protocol"))
     cbor
   )
 
-lazy val testkitGraboidProtocol = (project in file("testkit/graboid-protocol"))
+lazy val `testkit-graboid-protocol` = (project in file("testkit/graboid-protocol"))
   .settings(
     name := "testkit-graboid-protocol"
   )
   .dependsOn(
-    testkitCore,
-    graboidProtocol
+    `testkit-core`,
+    `graboid-protocol`
   )
 
 lazy val graboid = (project in file("graboid"))
@@ -144,17 +145,17 @@ lazy val graboid = (project in file("graboid"))
   )
   .dependsOn(
     core,
-    graboidProtocol,
-    zioAppStarter,
-    farangoData,
+    `graboid-protocol`,
+    `zip-app-starter`,
+    `farango-data`,
     quakeml,
-    cborQuakeml,
-    testkitQuakeml           % Test,
-    testkitZIOTestcontainers % Test,
-    testkitGraboidProtocol   % Test
+    `cbor-quakeml`,
+    `testkit-quakeml`            % Test,
+    `testkit-zio-testcontainers` % Test,
+    `testkit-graboid-protocol`   % Test
   )
 
-lazy val testkitZIOTestcontainers = (project in file("testkit/zio-testcontainers"))
+lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontainers"))
   .settings(
     name := "testkit-zio-testcontainers",
     libraryDependencies ++= Seq(
@@ -185,13 +186,13 @@ lazy val webapi1x = (project in file("webapi1x"))
   )
   .dependsOn(
     core,
-    zioAppStarter,
-    graboidProtocol,
-    testkitGraboidProtocol % Test,
-    testkitZIOTestcontainers
+    `zip-app-starter`,
+    `graboid-protocol`,
+    `testkit-graboid-protocol` % Test,
+    `testkit-zio-testcontainers`
   )
 
-lazy val zioAppStarter = (project in file("zio-app-starter"))
+lazy val `zip-app-starter` = (project in file("zio-app-starter"))
   .settings(
     name := "zio-app-starter",
     libraryDependencies ++= Seq(

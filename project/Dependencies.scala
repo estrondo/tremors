@@ -22,7 +22,7 @@ object Dependencies {
   val MacwireVersion        = "2.5.8"
   val ZIOJsonVersion        = "0.3.0"
   val DucktapeVersion       = "0.1.0"
-  val SweetMockitoVersion   = "1.1.0"
+  val SweetMockitoVersion   = "1.0.0+3-88ef51e9"
   val ScalaCommonVersion    = "2.3.4"
   val FarangoVersion        = "0.0.1-SNAPSHOT"
 

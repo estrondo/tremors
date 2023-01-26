@@ -1,13 +1,14 @@
 package graboid
 
-import graboid.protocol.EventPublisherDescriptor
+import graboid.protocol.PublisherDescriptor
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 
 import java.net.URL
 import java.time.ZonedDateTime
+import zio.logging.LogAnnotation
 
-case class EventPublisher(
+case class Publisher(
     key: String,
     name: String,
     url: URL,
@@ -16,9 +17,11 @@ case class EventPublisher(
     `type`: Crawler.Type
 )
 
-object EventPublisher:
+object Publisher:
 
-  case class Invalid(publisher: EventPublisher, cause: Seq[Cause])
+  val Annotation = LogAnnotation[Publisher]("Publisher", (_, x) => x, x => s"key=${x.key}, name=${x.name}")
+
+  case class Invalid(publisher: Publisher, cause: Seq[Cause])
 
   case class Cause(reason: String)
 
@@ -30,15 +33,15 @@ object EventPublisher:
       `type`: Crawler.Type
   )
 
-  def from(descriptor: EventPublisherDescriptor): EventPublisher =
+  def from(descriptor: PublisherDescriptor): Publisher =
     descriptor
-      .into[EventPublisher]
+      .into[Publisher]
       .transform(
         Field.const(_.url, URL(descriptor.location)),
         Field.const(_.`type`, Crawler.Type.valueOf(descriptor.`type`))
       )
 
-  def updateFrom(descriptor: EventPublisherDescriptor): Update =
+  def updateFrom(descriptor: PublisherDescriptor): Update =
     descriptor
       .into[Update]
       .transform(

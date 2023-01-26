@@ -21,7 +21,7 @@ import scala.annotation.tailrec
 
 trait QuakeMLParser:
 
-  def parse(stream: ZStream[Any, Throwable, Byte]): Task[Crawler.Stream]
+  def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, Crawler.Info]]
 
 object QuakeMLParser:
 
@@ -118,12 +118,13 @@ object QuakeMLParser:
       val eventParameters    = Transparent("eventParameters", eventElement)
       Root("quakeml", 64, eventParameters)
 
-    override def parse(stream: ZStream[Any, Throwable, Byte]): Task[Crawler.Stream] = ZIO.attempt {
-      stream
-        .grouped(ChunkSize)
-        .mapAccumZIO(None)(process)
-        .flattenIterables
-    }
+    override def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, Crawler.Info]] =
+      ZIO.attempt {
+        stream
+          .grouped(ChunkSize)
+          .mapAccumZIO(None)(process)
+          .flattenIterables
+      }
 
     private def process(
         state: Option[State],

@@ -18,7 +18,7 @@ import zio.stream.ZStream
 
 import java.net.URI
 import java.net.URL
-import graboid.EventPublisher
+import graboid.Publisher
 
 object FDSNCrawler:
 
@@ -29,7 +29,7 @@ object FDSNCrawler:
       queryURL: URL
   )
 
-  def apply(httpService: ULayer[HttpService])(publisher: EventPublisher): FDSNCrawler =
+  def apply(httpService: ULayer[HttpService])(publisher: Publisher): FDSNCrawler =
     new FDSNCrawler(
       Config(publisher.name, publisher.url),
       httpService,
@@ -42,7 +42,7 @@ class FDSNCrawler(
     parser: QuakeMLParser
 ) extends Crawler:
 
-  override def crawl(window: TimeWindow): Task[Crawler.Stream] =
+  override def crawl(window: TimeWindow): Task[ZStream[Any, Throwable, Crawler.Info]] =
     (
       for
         url      <- parseUrl(config.queryURL, window)
@@ -77,7 +77,7 @@ class FDSNCrawler(
       parsedUrl <- addParams(url, window)
     yield parsedUrl
 
-  private def readStream(response: Response): Task[Crawler.Stream] =
+  private def readStream(response: Response): Task[ZStream[Any, Throwable, Crawler.Info]] =
     for
       bodyStream <- extractBodyStream(response)
       stream     <- parser.parse(bodyStream)
