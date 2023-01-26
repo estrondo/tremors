@@ -26,8 +26,6 @@ lazy val root = (project in file("."))
     graboidProtocol,
     testkitGraboidProtocol,
     graboid,
-    farango,
-    ziorango,
     quakeml,
     cborQuakeml,
     testkitQuakeml,
@@ -56,33 +54,12 @@ lazy val cbor = (project in file("cbor/core"))
     ).flatten
   )
 
-lazy val farango = (project in file("arangodb/farango"))
-  .settings(
-    name := "farango", // Functional ArangoDB
-    libraryDependencies ++= Seq(
-      Dependencies.ArangoDB
-    ).flatten
-  )
-
 lazy val farangoData = (project in file("arangodb/data"))
   .settings(
     name := "farango-data",
     libraryDependencies ++= Seq(
       Dependencies.Ducktape
     ).flatten
-  ).dependsOn(
-    farango
-  )
-
-lazy val ziorango = (project in file("arangodb/ziorango"))
-  .settings(
-    name := "ziorango",
-    libraryDependencies ++= Seq(
-      Dependencies.ZIO
-    ).flatten
-  )
-  .dependsOn(
-    farango
   )
 
 lazy val quakeml = (project in file("quakeml"))
@@ -144,7 +121,8 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.Mockito,
       Dependencies.ArangoDB,
       Dependencies.Macwire,
-      Dependencies.Ducktape
+      Dependencies.Ducktape,
+      Dependencies.Farango
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
@@ -168,9 +146,7 @@ lazy val graboid = (project in file("graboid"))
     core,
     graboidProtocol,
     zioAppStarter,
-    farango,
     farangoData,
-    ziorango,
     quakeml,
     cborQuakeml,
     testkitQuakeml           % Test,

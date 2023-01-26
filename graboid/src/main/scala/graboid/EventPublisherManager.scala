@@ -1,7 +1,6 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import farango.FarangoDocumentCollection
 import graboid.EventPublisherManager.Validator
 import zio.IO
 import zio.Task

@@ -1,18 +1,21 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import farango.FarangoDatabase
-import farango.FarangoDocumentCollection
+import farango.Database
+import farango.DocumentCollection
 import graboid.config.ArangoConfig
 import zio.Schedule
 import zio.Task
 import zio.ZIO
 import zio.given
-import ziorango.given
+import farango.zio.given
+import com.arangodb.async.ArangoDBAsync
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.arangodb.mapping.ArangoJack
 
 trait ArangoModule:
 
-  def getDocumentCollection(name: String): Task[FarangoDocumentCollection]
+  def getDocumentCollection(name: String): Task[DocumentCollection]
 
 object ArangoModule:
 
@@ -26,14 +29,15 @@ object ArangoModule:
 
     val getDatabase =
       val memoized = ZIO.attempt {
-        FarangoDatabase(
-          FarangoDatabase.Config(
-            name = config.database,
-            user = config.username,
-            password = config.password,
-            hosts = config.hosts.map(x => (x.hostname, x.port))
-          )
-        )
+        var arangoDB = ArangoDBAsync
+          .Builder()
+          .serializer(ArangoJack())
+          .user(config.username)
+          .password(config.password)
+
+        for host <- config.hosts do arangoDB.host(host.hostname, host.port)
+
+        Database(arangoDB.build().db(config.database))
       }.memoize
 
       for
@@ -41,7 +45,7 @@ object ArangoModule:
         database <- effect
       yield database
 
-    override def getDocumentCollection(name: String): Task[FarangoDocumentCollection] =
+    override def getDocumentCollection(name: String): Task[DocumentCollection] =
       (for
         database   <- getDatabase
         collection <- database.documentCollection(name)

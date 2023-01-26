@@ -24,6 +24,7 @@ object Dependencies {
   val DucktapeVersion       = "0.1.0"
   val SweetMockitoVersion   = "1.1.0"
   val ScalaCommonVersion    = "2.3.4"
+  val FarangoVersion        = "0.0.1-SNAPSHOT"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -99,7 +100,7 @@ object Dependencies {
   )
 
   val Macwire = Seq(
-    "com.softwaremill.macwire" %% "macros"  % MacwireVersion     % Provided,
+    "com.softwaremill.macwire" %% "macros"  % MacwireVersion % Provided,
     "com.softwaremill.common"  %% "tagging" % ScalaCommonVersion
   )
 
@@ -109,5 +110,10 @@ object Dependencies {
 
   val Ducktape = Seq(
     "io.github.arainko" %% "ducktape" % DucktapeVersion
+  )
+
+  val Farango = Seq(
+    "one.estrondo" %% "farango" % FarangoVersion,
+    "one.estrondo" %% "zarango" % FarangoVersion
   )
 }

@@ -1,19 +1,17 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import farango.FarangoDocumentCollection
 import farango.data.ArangoConversion.given
-import farango.data.ArangoRepository
 import graboid.query.TimeWindowLink
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import zio.Task
 import zio.stream.Stream
-import ziorango.F
-import ziorango.S
-import ziorango.given
 
 import java.time.ZonedDateTime
+import farango.DocumentCollection
+import farango.zio.given
+import farango.zio.{ZEffect, ZEffectStream}
 
 trait EventRecordRepository:
 
@@ -28,7 +26,7 @@ trait EventRecordRepository:
 
 object EventRecordRepository:
 
-  def apply(collection: FarangoDocumentCollection): EventRecordRepository =
+  def apply(collection: DocumentCollection): EventRecordRepository =
     wire[EventRecordRepositoryImpl]
 
   private val QueryByPublisher = """ |FOR d IN @@collection
@@ -68,14 +66,14 @@ object EventRecordRepository:
         Field.renamed(_.key, _._key)
       )
 
-  private class EventRecordRepositoryImpl(collection: FarangoDocumentCollection) extends EventRecordRepository:
+  private class EventRecordRepositoryImpl(collection: DocumentCollection) extends EventRecordRepository:
 
-    val repository = ArangoRepository[Document](collection)
-
-    def database = repository.database
+    def database = collection.database
 
     override def add(record: EventRecord): Task[EventRecord] =
-      repository.add(record).mapError(handleAddError(record))
+      collection
+        .insertT[Document](record)
+        .mapError(handleAddError(record))
 
     override def searchByPublisher(
         publisherKey: String,
@@ -92,7 +90,7 @@ object EventRecordRepository:
           (QueryByPublisher, Map.empty)
 
       database
-        .queryT[Document, EventRecord, F, S](
+        .queryT[Document](
           query,
           args ++ Map(
             "@collection"  -> collection.name,

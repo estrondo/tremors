@@ -1,8 +1,7 @@
 package graboid
 
-import farango.FarangoDocumentCollection
+import farango.DocumentCollection
 import farango.data.ArangoConversion.given
-import farango.data.ArangoRepository
 import graboid.EventPublisher
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
@@ -11,10 +10,11 @@ import zio.Cause
 import zio.Task
 import zio.Trace
 import zio.ZIO
-import ziorango.given
-import ziorango.F
+import farango.zio.given
+import farango.zio.ZEffect
 
 import java.lang.{Long => JLong}
+import farango.UpdateReturn
 
 trait EventPublisherRepository:
 
@@ -30,7 +30,7 @@ object EventPublisherRepository:
 
   given Transformer[Int, Crawler.Type] = value => Crawler.Type.fromOrdinal(value)
 
-  def apply(collection: FarangoDocumentCollection): EventPublisherRepository =
+  def apply(collection: DocumentCollection): EventPublisherRepository =
     EventPublisherRepositoryImpl(collection)
 
   private[graboid] case class Document(
@@ -69,27 +69,25 @@ object EventPublisherRepository:
       .into[UpdateDocument]
       .transform()
 
-  private class EventPublisherRepositoryImpl(collection: FarangoDocumentCollection) extends EventPublisherRepository:
-
-    private val repository = ArangoRepository[Document](collection)
+  private class EventPublisherRepositoryImpl(collection: DocumentCollection) extends EventPublisherRepository:
 
     override def add(eventPublisher: EventPublisher): Task[EventPublisher] =
       logUsage(
         message = s"Adding EventPublisher: ${eventPublisher.key}.",
         errorMessage = s"It was impossible to add EventPublisher: ${eventPublisher.key}."
-      )(repository.add(eventPublisher))
+      )(collection.insertT[Document](eventPublisher))
 
     override def remove(publisherKey: String): Task[Option[EventPublisher]] =
       logUsage(
         message = s"Removing EventPublisher: $publisherKey.",
         errorMessage = s"It was impossible to remove EventPublisher: $publisherKey!"
-      )(repository.remove(publisherKey))
+      )(collection.removeT[Document, EventPublisher](publisherKey))
 
     override def update(publisherKey: String, update: EventPublisher.Update): Task[Option[EventPublisher]] =
       logUsage(
         message = s"Updating EventPublishe: $publisherKey.",
         errorMessage = s"It was impossible to update EventPublisher: $publisherKey."
-      )(repository.update[UpdateDocument, EventPublisher, F](publisherKey, update))
+      )(collection.updateT[UpdateDocument, Document](publisherKey, update, UpdateReturn.New))
 
     def logUsage[T](message: => String, errorMessage: => String)(effect: Task[T])(using trace: Trace): Task[T] =
       for

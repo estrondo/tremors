@@ -4,7 +4,7 @@ import com.softwaremill.macwire.wire
 import com.softwaremill.macwire.wireWith
 import com.softwaremill.tagging.@@
 import com.softwaremill.tagging.given
-import farango.FarangoDocumentCollection
+import farango.DocumentCollection
 import graboid.config.GraboidConfig
 import zio.Task
 import zio.ZIO
@@ -18,7 +18,7 @@ object CoreModule:
   trait ForEventRecord
   trait ForEventPublisher
 
-  case class CollectionWrapper(collection: FarangoDocumentCollection)
+  case class CollectionWrapper(collection: DocumentCollection)
 
   val EventPublisherCollectionName = "event_publisher"
   val EventRecordCollectionName    = "event_record"

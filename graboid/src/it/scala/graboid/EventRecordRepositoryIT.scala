@@ -1,8 +1,10 @@
 package graboid
 
 import core.KeyGenerator
-import farango.FarangoDatabase
-import farango.FarangoDocumentCollection
+import farango.Database
+import farango.DocumentCollection
+import farango.zio.ZEffect
+import farango.zio.given
 import graboid.fixture.EventRecordFixture
 import graboid.layer.ArangoDBLayer
 import graboid.layer.FarangoLayer
@@ -20,8 +22,6 @@ import zio.test.TestEnvironment
 import zio.test.TestResult
 import zio.test.assertTrue
 import zio.test.ignored
-import ziorango.F
-import ziorango.given
 
 object EventRecordRepositoryIT extends IT:
 
@@ -34,7 +34,7 @@ object EventRecordRepositoryIT extends IT:
           insertedEventRecord <- repository.add(expectedEventRecord).orDie
           collection          <- getCollection
           _                   <- collection
-                                   .get[EventRecordRepository.Document, F](expectedEventRecord.key)
+                                   .get[EventRecordRepository.Document, ZEffect](expectedEventRecord.key)
                                    .someOrFail("it was supposed to find something!")
         yield assertTrue(
           expectedEventRecord == insertedEventRecord
@@ -116,9 +116,9 @@ object EventRecordRepositoryIT extends IT:
       result.toSet == expected.toSet
     )
 
-  type TestLayer = (EventRecordRepository, FarangoDocumentCollection)
+  type TestLayer = (EventRecordRepository, DocumentCollection)
 
-  private val getCollection: RIO[TestLayer, FarangoDocumentCollection] =
+  private val getCollection: RIO[TestLayer, DocumentCollection] =
     for tuple <- ZIO.service[TestLayer]
     yield tuple._2
 
@@ -126,7 +126,7 @@ object EventRecordRepositoryIT extends IT:
     for tuple <- ZIO.service[TestLayer]
     yield tuple._1
 
-  private val TestLayer: ZLayer[FarangoDatabase, Throwable, TestLayer] = ZLayer {
+  private val TestLayer: ZLayer[Database, Throwable, TestLayer] = ZLayer {
     for collection <- FarangoLayer.documentCollection(s"event_record_${KeyGenerator.next4()}")
     yield (EventRecordRepository(collection), collection)
   }

@@ -1,7 +1,7 @@
 package graboid
 
 import core.KeyGenerator
-import farango.FarangoDatabase
+import farango.Database
 import graboid.fixture.TimeWindowFixture
 import graboid.layer.ArangoDBLayer
 import graboid.layer.FarangoLayer
@@ -13,12 +13,11 @@ import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.TestResult
 import zio.test.assertTrue
+import farango.zio.ZEffect
 
 import java.time.ZonedDateTime
-import farango.FarangoDocumentCollection
+import farango.DocumentCollection
 import graboid.TimeWindowRepository.given
-import ziorango.F
-import ziorango.given
 
 object TimeWindowRepositoryIT extends IT:
   override def spec: Spec[TestEnvironment & Scope, Any] =
@@ -32,7 +31,7 @@ object TimeWindowRepositoryIT extends IT:
           repository  = TimeWindowRepository(collection)
           _          <- repository.add(shouldInsert)
           inserted   <-
-            collection.get[TimeWindowRepository.Document, F](shouldInsert.key).some
+            collection.get[TimeWindowRepository.Document, ZEffect](shouldInsert.key).some
         yield assertTrue(
           inserted == expectedDocument
         )
@@ -94,7 +93,7 @@ object TimeWindowRepositoryIT extends IT:
       beginning: ZonedDateTime,
       ending: ZonedDateTime,
       expected: Option[TimeWindow]
-  ): ZIO[FarangoDatabase, Throwable, TestResult] =
+  ): ZIO[Database, Throwable, TestResult] =
     for
       collection  <- FarangoLayer.documentCollection(s"timeline_${KeyGenerator.next4()}")
       repository   = TimeWindowRepository(collection)
