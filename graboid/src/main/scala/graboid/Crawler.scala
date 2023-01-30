@@ -21,24 +21,28 @@ object Crawler:
 
   type Info = Event | Origin | Magnitude
 
+  private val EventTypeName     = classOf[Event].getSimpleName()
+  private val OriginTypeName    = classOf[Origin].getSimpleName()
+  private val MagnitudeTypeName = classOf[Magnitude].getSimpleName()
+
   given encoder: Encoder[Info] with
 
     override def write(w: Writer, value: Info): Writer =
       value match
         case event: Event         =>
-          Encoder[Event].write(w.writeInt(0), event)
+          Encoder[Event].write(w.writeString(EventTypeName), event)
         case origin: Origin       =>
-          Encoder[Origin].write(w.writeInt(1), origin)
+          Encoder[Origin].write(w.writeString(OriginTypeName), origin)
         case magnitude: Magnitude =>
-          Encoder[Magnitude].write(w.writeInt(2), magnitude)
+          Encoder[Magnitude].write(w.writeString(MagnitudeTypeName), magnitude)
 
   given decoder: Decoder[Info] with
     override def read(r: Reader): Info =
-      r.readInt() match
-        case 0     => Decoder[Event].read(r)
-        case 1     => Decoder[Origin].read(r)
-        case 2     => Decoder[Magnitude].read(r)
-        case value => throw IllegalArgumentException(s"Invalid Info Number: $value")
+      r.readString() match
+        case EventTypeName     => Decoder[Event].read(r)
+        case OriginTypeName    => Decoder[Origin].read(r)
+        case MagnitudeTypeName => Decoder[Magnitude].read(r)
+        case value             => throw IllegalArgumentException(s"Invalid Info Number: $value")
 
   given Codec[Info] = Codec(encoder, decoder)
 

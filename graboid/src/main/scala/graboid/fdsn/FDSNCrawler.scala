@@ -29,7 +29,7 @@ object FDSNCrawler:
       queryURL: URL
   )
 
-  def apply(httpService: ULayer[HttpService])(publisher: Publisher): FDSNCrawler =
+  def apply(httpService: ULayer[HttpService], publisher: Publisher): FDSNCrawler =
     new FDSNCrawler(
       Config(publisher.name, publisher.url),
       httpService,
