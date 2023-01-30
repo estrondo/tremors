@@ -20,9 +20,9 @@ case class CrawlerExecution(
     publisherKey: String,
     beginning: ZonedDateTime,
     ending: ZonedDateTime,
-    status: Option[CrawlerExecution.Status],
-    executionStarted: Option[ZonedDateTime],
-    expectedStop: Option[ZonedDateTime],
-    executionStopped: Option[ZonedDateTime],
-    message: Option[String]
+    status: Option[CrawlerExecution.Status] = None,
+    executionStarted: Option[ZonedDateTime] = None,
+    expectedStop: Option[ZonedDateTime] = None,
+    executionStopped: Option[ZonedDateTime] = None,
+    message: Option[String] = None
 )

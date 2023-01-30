@@ -3,20 +3,41 @@ package core
 import java.lang.Integer
 import scala.util.Random
 import java.util.concurrent.ThreadLocalRandom
+import core.KeyGenerator.KeyLength
 
 trait KeyGenerator:
 
-  def next4(): String
+  def next(length: KeyLength): String
 
-  def next8(): String
+  def next4(): String = next(KeyLength.L4)
 
-  def next16(): String
+  def next8(): String = next(KeyLength.L8)
 
-  def next32(): String
+  def next16(): String = next(KeyLength.L16)
 
-  def next64(): String
+  def next32(): String = next(KeyLength.L32)
+
+  def next64(): String = next(KeyLength.L64)
 
 object KeyGenerator extends KeyGenerator:
+
+  enum KeyLength(val value: Int):
+    case L4  extends KeyLength(1)
+    case L8  extends KeyLength(2)
+    case L12 extends KeyLength(3)
+    case L16 extends KeyLength(4)
+    case L20 extends KeyLength(5)
+    case L24 extends KeyLength(6)
+    case L28 extends KeyLength(7)
+    case L32 extends KeyLength(8)
+    case L36 extends KeyLength(9)
+    case L40 extends KeyLength(10)
+    case L44 extends KeyLength(11)
+    case L48 extends KeyLength(12)
+    case L52 extends KeyLength(13)
+    case L56 extends KeyLength(14)
+    case L60 extends KeyLength(15)
+    case L64 extends KeyLength(16)
 
   private val Radix = 32
 
@@ -26,15 +47,7 @@ object KeyGenerator extends KeyGenerator:
 
   private val E1 = 31
 
-  override def next4(): String = generate(1)
-
-  override def next8(): String = generate(2)
-
-  override def next16(): String = generate(4)
-
-  override def next32(): String = generate(8)
-
-  override def next64(): String = generate(16)
+  override def next(length: KeyLength): String = generate(length.value)
 
   private def generate(count: Int): String =
     val random  = ThreadLocalRandom.current()
