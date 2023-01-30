@@ -23,9 +23,9 @@ object CoreModule:
 
   def apply(config: GraboidConfig, arangoModule: ArangoModule): Task[CoreModule] =
     for publisherCollection <- arangoModule
-                                      .getDocumentCollection(PublisherCollectionName)
-                                      .map(CollectionWrapper.apply)
-                                      .taggedWithF[ForPublisher]
+                                 .getDocumentCollection(PublisherCollectionName)
+                                 .map(CollectionWrapper.apply)
+                                 .taggedWithF[ForPublisher]
     yield wire[CoreModuleImpl]
 
   private class CoreModuleImpl(

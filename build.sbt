@@ -75,6 +75,7 @@ lazy val `testkit-quakeml` = (project in file("testkit/quakeml"))
     name := "testkit-quakeml"
   )
   .dependsOn(
+    `testkit-core`,
     quakeml
   )
 
@@ -85,7 +86,7 @@ lazy val `cbor-quakeml` = (project in file("cbor/quakeml"))
       Dependencies.Borer
     ).flatten
   )
-  .dependsOn(quakeml)
+  .dependsOn(quakeml, cbor)
 
 lazy val `graboid-protocol` = (project in file("graboid-protocol"))
   .settings(

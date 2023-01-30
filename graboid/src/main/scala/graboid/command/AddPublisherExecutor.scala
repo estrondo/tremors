@@ -24,5 +24,5 @@ class AddPublisherExecutorImpl(
   override def execute(command: AddPublisher): Task[GraboidCommandResult.Status] =
     for
       publisher <- ZIO.attempt(Publisher.from(command.descriptor))
-      added          <- publisherManager.add(publisher)
+      added     <- publisherManager.add(publisher)
     yield GraboidCommandResult.Ok(s"Publisher(${added.key})")

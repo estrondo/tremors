@@ -18,27 +18,26 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import scala.util.Try
+import quakeml.Origin
+import quakeml.TimeQuantity
+import quakeml.Origin.DepthType
+import cbor.core.given
 
 private[cbor] val ZoneId = Clock.systemUTC().getZone()
 
-given Encoder[ZonedDateTime] =
-  Encoder.forLong.contramap(_.getLong(ChronoField.INSTANT_SECONDS))
-
-given Decoder[ZonedDateTime] =
-  Decoder.forLong.map(value => ZonedDateTime.ofInstant(Instant.ofEpochSecond(value), ZoneId))
-
-given Codec[ZonedDateTime] =
-  Codec(summon[Encoder[ZonedDateTime]], summon[Decoder[ZonedDateTime]])
-
-given Codec[EvaluationMode]        = deriveCodec[EvaluationMode]
-given Codec[EvaluationStatus]      = deriveCodec[EvaluationStatus]
-given Codec[RealQuantity]          = deriveCodec[RealQuantity]
-given Codec[Magnitude]             = deriveCodec[Magnitude]
-given Codec[ResourceReference]     = deriveCodec[ResourceReference]
-given Codec[Event.Type]            = deriveCodec[Event.Type]
-given Codec[Event.TypeCertainty]   = deriveCodec[Event.TypeCertainty]
-given Codec[Event.DescriptionType] = deriveCodec[Event.DescriptionType]
-given Codec[Event.Description]     = deriveCodec[Event.Description]
-given Codec[CreationInfo]          = deriveCodec[CreationInfo]
-given Codec[Comment]               = deriveCodec[Comment]
-given Codec[Event]                 = deriveCodec[Event]
+given Codec[EvaluationMode]          = deriveCodec
+given Codec[EvaluationStatus]        = deriveCodec
+given Codec[RealQuantity]            = deriveCodec
+given Codec[Magnitude]               = deriveCodec
+given Codec[ResourceReference]       = deriveCodec
+given eventType: Codec[Event.Type]   = deriveCodec
+given Codec[Event.TypeCertainty]     = deriveCodec
+given Codec[Event.DescriptionType]   = deriveCodec
+given Codec[Event.Description]       = deriveCodec
+given Codec[CreationInfo]            = deriveCodec
+given Codec[Comment]                 = deriveCodec
+given Codec[Event]                   = deriveCodec
+given Codec[TimeQuantity]            = deriveCodec
+given Codec[DepthType]               = deriveCodec
+given originType: Codec[Origin.Type] = deriveCodec
+given Codec[Origin]                  = deriveCodec

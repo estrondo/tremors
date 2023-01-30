@@ -20,7 +20,7 @@ object RemovePublisherExecutorSpec extends Spec:
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =
     suite("RemovePublisherCommandExecutor with mocking")(
       test("it should remove a publisher from PublisherManager.") {
-        val command        = RemovePublisherFixture.createRandom()
+        val command   = RemovePublisherFixture.createRandom()
         val publisher = PublisherFixture
           .createRandom()
           .copy(key = command.publisherKey)
