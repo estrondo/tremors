@@ -10,6 +10,7 @@ import graboid.kafka.GraboidCommandTopic
 import zio.Task
 import zio.ZIO
 
+import graboid.CoreModule
 trait CommandModule:
 
   val commandListener: CommandListener

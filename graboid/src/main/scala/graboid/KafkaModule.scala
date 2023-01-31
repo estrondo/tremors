@@ -6,13 +6,20 @@ import graboid.config.KafkaConfig
 import graboid.kafka.GraboidGroup
 import graboid.kafka.KafkaManager
 import zio.Task
+import zio.TaskLayer
 import zio.ZIO
 import zio.kafka.consumer.ConsumerSettings
 import zio.kafka.producer.ProducerSettings
+import zio.kafka.producer.Producer
+import zio.kafka.consumer.Consumer
 
 trait KafkaModule:
 
-  val kafkaManager: KafkaManager
+  def kafkaManager: KafkaManager
+
+  def consumerLayer: TaskLayer[Consumer]
+
+  def producerLayer: TaskLayer[Producer]
 
 object KafkaModule:
 
@@ -30,4 +37,8 @@ object KafkaModule:
       .withGroupId(config.group.getOrElse(GraboidGroup))
       .withClientId(config.clientId)
 
-    override val kafkaManager: KafkaManager = wireWith(KafkaManager.apply)
+    val kafkaManager: KafkaManager = wireWith(KafkaManager.apply)
+
+    val consumerLayer: TaskLayer[Consumer] = kafkaManager.consumerLayer
+
+    val producerLayer: TaskLayer[Producer] = kafkaManager.producerLayer
