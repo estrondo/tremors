@@ -15,10 +15,8 @@ object Graboid extends ZIOAppDefault:
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
-      args          <- ZIOAppArgs.getArgs
-      _             <- zio.Console.printLine("====" + args.mkString(", "))
       logger        <- LoggerModule().logger
-      graboidConfig <- ConfigModule().config.orDie.provideLayer(logger)
+      graboidConfig <- ConfigModule().config.orDie.provideSomeLayer(logger)
       exitCode      <- application(graboidConfig).orDie.provideLayer(logger)
     yield exitCode
 

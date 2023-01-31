@@ -32,7 +32,7 @@ object WebApi extends ZIOAppDefault:
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, ExitCode] =
     for
-      root          <- ZProfile.loadOnlyConfig[Root]()
+      root          <- ZProfile.loadOnlyConfig[Root](useFirstArgumentLine = true)
       kafkaModule   <- KafkaModule(root.webapi)
       crawlerModule <- GraboidModule(root.webapi, kafkaModule)
       httpModule    <- HttpModule(root.webapi)

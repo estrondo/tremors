@@ -5,12 +5,14 @@ import graboid.config.ArangoHost
 import graboid.config.GraboidConfig
 import zio.Task
 import zio.ZIO
+import zio.RIO
 import zio.config.magnolia.*
 import zioapp.ZProfile
+import zio.ZIOAppArgs
 
 trait ConfigModule:
 
-  def config: Task[GraboidConfig]
+  def config: RIO[ZIOAppArgs, GraboidConfig]
 
 object ConfigModule:
 
@@ -20,10 +22,10 @@ object ConfigModule:
 
     case class C(graboid: GraboidConfig)
 
-    def config: Task[GraboidConfig] =
+    def config: RIO[ZIOAppArgs, GraboidConfig] =
       for
         tuple            <- ZProfile
-                              .load[C]()
+                              .load[C](useFirstArgumentLine = true)
                               .orDieWith(GraboidException.IllegalState("It's impossible to start Graboid!", _))
         (config, profile) = tuple
         _                <- profile match
