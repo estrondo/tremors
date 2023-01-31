@@ -7,7 +7,7 @@ import graboid.kafka.GraboidDetectedEvent
 import io.bullet.borer.Cbor
 import org.apache.kafka.clients.producer.RecordMetadata
 import zio.Task
-import zio.ULayer
+import zio.TaskLayer
 import zio.ZIO
 import zio.kafka.producer.Producer
 import zio.kafka.serde.Serde
@@ -19,12 +19,12 @@ trait EventManager:
 object EventManager:
 
   def apply(
-      producerLayer: ULayer[Producer]
+      producerLayer: TaskLayer[Producer]
   ): EventManager =
     wire[Impl]
 
   private class Impl(
-      producerLayer: ULayer[Producer]
+      producerLayer: TaskLayer[Producer]
   ) extends EventManager:
 
     def register(info: Info, publisher: Publisher, execution: CrawlerExecution): Task[Info] =

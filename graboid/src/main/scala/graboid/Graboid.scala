@@ -15,6 +15,8 @@ object Graboid extends ZIOAppDefault:
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
+      args          <- ZIOAppArgs.getArgs
+      _             <- zio.Console.printLine("====" + args.mkString(", "))
       logger        <- LoggerModule().logger
       graboidConfig <- ConfigModule().config.orDie.provideLayer(logger)
       exitCode      <- application(graboidConfig).orDie.provideLayer(logger)
@@ -23,9 +25,9 @@ object Graboid extends ZIOAppDefault:
   def application(graboidConfig: GraboidConfig): Task[ExitCode] =
     for
       arangoModule  <- ArangoModule(graboidConfig.arango)
-      coreModule    <- CoreModule(graboidConfig, arangoModule)
       kafkaModule   <- KafkaModule(graboidConfig.kafka)
       httpModule    <- HttpModule(graboidConfig.httpClient)
+      coreModule    <- CoreModule(graboidConfig, arangoModule, kafkaModule, httpModule)
       commandModule <- CommandModule(coreModule, kafkaModule)
       fiber1        <- commandModule.run().fork
       _             <- ZIO.logInfo(

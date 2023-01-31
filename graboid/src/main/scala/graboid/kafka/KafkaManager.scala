@@ -18,8 +18,13 @@ import zio.kafka.producer.Producer
 import zio.kafka.producer.ProducerSettings
 import zio.kafka.serde.Serde
 import zio.stream.ZStream
+import zio.TaskLayer
 
 trait KafkaManager:
+
+  def producerLayer: TaskLayer[Producer]
+
+  def consumerLayer: TaskLayer[Consumer]
 
   def subscribe[A: Decoder, B, C: Encoder](
       topic: String,
@@ -41,10 +46,14 @@ object KafkaManager:
       producerSettings: ProducerSettings
   ) extends KafkaManager:
 
-    val producerLayer = Producer.make(producerSettings)
-    val consumerLayer = Consumer.make(consumerSettings)
+    val producer = Producer.make(producerSettings)
+    val consumer = Consumer.make(consumerSettings)
 
-    val kafkaLayer = ZLayer.scoped(producerLayer) ++ ZLayer.scoped(consumerLayer)
+    val producerLayer = ZLayer.scoped(producer)
+
+    val consumerLayer = ZLayer.scoped(consumer)
+
+    val kafkaLayer = producerLayer ++ consumerLayer
 
     def subscribe[A: Decoder, B, C: Encoder](
         topic: String,
