@@ -24,7 +24,7 @@ import zio.test.TestAspect
 object PublisherRepositorySpec extends Spec:
 
   override def spec =
-    suite("EventPublisherRepository with mocking")(
+    suite("PublisherRepository with mocking")(
       test("should report a GraboidException.Unexpected for any Arango failure.") {
         val effect = for
           collection   <- ZIO.service[DocumentCollection]

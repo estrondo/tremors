@@ -90,7 +90,7 @@ object PublisherRepository:
 
     override def update(publisherKey: String, update: Publisher.Update): Task[Option[Publisher]] =
       logUsage(
-        message = s"Updating EventPublishe: $publisherKey.",
+        message = s"Updating Publisher: $publisherKey.",
         errorMessage = s"It was impossible to update Publisher: $publisherKey."
       )(collection.update[UpdateDocument, Document](publisherKey, update, UpdateReturn.New))
 
