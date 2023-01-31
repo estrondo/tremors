@@ -17,10 +17,10 @@ trait KafkaModule:
 object KafkaModule:
 
   def apply(config: KafkaConfig): Task[KafkaModule] = ZIO.attempt {
-    wire[KafkaModuleImpl]
+    wire[Impl]
   }
 
-  private class KafkaModuleImpl(config: KafkaConfig) extends KafkaModule:
+  private class Impl(config: KafkaConfig) extends KafkaModule:
 
     val producerSettings = ProducerSettings(config.bootstrap.toList)
       .withClientId(config.clientId)

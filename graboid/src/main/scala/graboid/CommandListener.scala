@@ -1,11 +1,10 @@
 package graboid
 
+import com.softwaremill.macwire.wire
 import graboid.kafka.KafkaSubscriber
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
 import zio.Task
-
-import com.softwaremill.macwire.wire
 import zio.ZIO
 
 trait CommandListener extends KafkaSubscriber[GraboidCommand, GraboidCommandResult]
@@ -13,9 +12,9 @@ trait CommandListener extends KafkaSubscriber[GraboidCommand, GraboidCommandResu
 object CommandListener:
 
   def apply(executor: CommandExecutor): CommandListener =
-    wire[CommandListenerImpl]
+    wire[Impl]
 
-  private class CommandListenerImpl(
+  private class Impl(
       executor: CommandExecutor
   ) extends CommandListener:
 

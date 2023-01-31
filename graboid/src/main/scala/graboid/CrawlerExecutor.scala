@@ -1,21 +1,21 @@
 package graboid
 
+import _root_.quakeml.Event
+import _root_.quakeml.Magnitude
+import _root_.quakeml.Origin
 import com.softwaremill.macwire.wire
+import zio.Cause
+import zio.Clock
+import zio.RIO
 import zio.Task
-import zio.stream.ZStream
+import zio.UIO
+import zio.ZIO
 import zio.stream.UStream
+import zio.stream.ZStream
+import zio.stream.ZStreamAspect
 
 import java.awt.Taskbar
-import zio.ZIO
-import zio.UIO
-import zio.RIO
 import java.time.ZonedDateTime
-import zio.stream.ZStreamAspect
-import zio.Cause
-import _root_.quakeml.Event
-import _root_.quakeml.Origin
-import _root_.quakeml.Magnitude
-import zio.Clock
 
 trait CrawlerExecutor:
 
@@ -30,7 +30,7 @@ object CrawlerExecutor:
       eventManager: EventManager,
       crawlerFactory: CrawlerFactory
   ): CrawlerExecutor =
-    wire[CrawlerExecutorImpl]
+    wire[Impl]
 
   private case class CrawlerTask(crawler: Crawler, execution: CrawlerExecution, publisher: Publisher)
 
@@ -44,7 +44,7 @@ object CrawlerExecutor:
         case _: Origin    => copy(origins = origins + 1)
         case _: Magnitude => copy(magnitudes = magnitudes + 1)
 
-  private class CrawlerExecutorImpl(
+  private class Impl(
       repository: CrawlerExecutionRepository,
       scheduler: CrawlerScheduler,
       publisherManager: PublisherManager,

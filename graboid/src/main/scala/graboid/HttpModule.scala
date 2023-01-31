@@ -21,12 +21,12 @@ trait HttpModule:
 object HttpModule:
 
   def apply(clientConfig: HttpClientConfig): Task[HttpModule] = ZIO.attempt {
-    HttpModuleImpl(clientConfig.parallelism)
+    Impl(clientConfig.parallelism)
   }
 
-private[graboid] class HttpModuleImpl(parallelism: Int) extends HttpModule:
+  private[graboid] class Impl(parallelism: Int) extends HttpModule:
 
-  val eventLoopGroup: ULayer[EventLoopGroup] = EventLoopGroup.nio(parallelism)
+    val eventLoopGroup: ULayer[EventLoopGroup] = EventLoopGroup.nio(parallelism)
 
-  override def serviceLayer: ULayer[HttpService] =
-    HttpService.auto(channelFactory ++ eventLoopGroup)
+    override def serviceLayer: ULayer[HttpService] =
+      HttpService.auto(channelFactory ++ eventLoopGroup)

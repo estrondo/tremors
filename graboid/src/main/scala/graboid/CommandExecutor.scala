@@ -6,9 +6,9 @@ import graboid.command.AddPublisherExecutor
 import graboid.command.RemovePublisherExecutor
 import graboid.command.UpdatePublisherExecutor
 import graboid.protocol.AddPublisher
-import graboid.protocol.PublisherDescriptor
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
+import graboid.protocol.PublisherDescriptor
 import graboid.protocol.RemovePublisher
 import graboid.protocol.UpdatePublisher
 import zio.Task
@@ -25,9 +25,9 @@ object CommandExecutor:
       removePublisherExecutor: RemovePublisherExecutor,
       updatePublisherExecutor: UpdatePublisherExecutor
   ): CommandExecutor =
-    wire[CommandExecutorImpl]
+    wire[Impl]
 
-  private class CommandExecutorImpl(
+  private class Impl(
       addPublisherExecutor: AddPublisherExecutor,
       removePublisherExecutor: RemovePublisherExecutor,
       updatePublisherExecutor: UpdatePublisherExecutor

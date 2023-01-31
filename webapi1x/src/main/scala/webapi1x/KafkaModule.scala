@@ -16,24 +16,22 @@ trait KafkaModule:
 
 object KafkaModule:
 
-  def apply(config: WebApiConfig): Task[KafkaModule] = ZIO.attempt(wire[KafkaModuleImpl])
+  def apply(config: WebApiConfig): Task[KafkaModule] = ZIO.attempt(wire[Impl])
 
   val ClientID = s"${BuildInfo.name}:${BuildInfo.version}"
 
-import KafkaModule.*
+  private class Impl(config: WebApiConfig) extends KafkaModule:
 
-private class KafkaModuleImpl(config: WebApiConfig) extends KafkaModule:
+    private def kafkaConfig = config.kafka.producer
 
-  private def kafkaConfig = config.kafka.producer
+    override val producerLayer: URLayer[Scope, Producer] =
+      ZLayer(
+        Producer
+          .make(
+            ProducerSettings(bootstrapServers)
+              .withClientId(ClientID)
+          )
+          .orDie
+      )
 
-  override val producerLayer: URLayer[Scope, Producer] =
-    ZLayer(
-      Producer
-        .make(
-          ProducerSettings(bootstrapServers)
-            .withClientId(ClientID)
-        )
-        .orDie
-    )
-
-  private def bootstrapServers: List[String] = ???
+    private def bootstrapServers: List[String] = ???

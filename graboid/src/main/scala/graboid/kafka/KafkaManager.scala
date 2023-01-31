@@ -34,9 +34,9 @@ object KafkaManager:
   private type SourceStream[X] = ZStream[Producer & Consumer, Throwable, SourceElement[X]]
 
   def apply(consumerSettings: ConsumerSettings, producerSettings: ProducerSettings): KafkaManager =
-    wire[KafkaManagerImpl]
+    wire[Impl]
 
-  private class KafkaManagerImpl(
+  private class Impl(
       consumerSettings: ConsumerSettings,
       producerSettings: ProducerSettings
   ) extends KafkaManager:

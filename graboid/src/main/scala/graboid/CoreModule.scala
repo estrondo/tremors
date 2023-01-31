@@ -26,9 +26,9 @@ object CoreModule:
                                  .getDocumentCollection(PublisherCollectionName)
                                  .map(CollectionWrapper.apply)
                                  .taggedWithF[ForPublisher]
-    yield wire[CoreModuleImpl]
+    yield wire[Impl]
 
-  private class CoreModuleImpl(
+  private class Impl(
       config: GraboidConfig,
       publisherCollection: CollectionWrapper @@ ForPublisher
   ) extends CoreModule:

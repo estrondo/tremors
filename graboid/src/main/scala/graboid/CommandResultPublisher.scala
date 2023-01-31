@@ -11,9 +11,9 @@ trait CommandResultPublisher extends KafkaProducer[GraboidCommandResult, Graboid
 
 object CommandResultPublisher:
 
-  def apply(): CommandResultPublisher = CommandResultPublisherImpl()
+  def apply(): CommandResultPublisher = Impl()
 
-  private class CommandResultPublisherImpl extends CommandResultPublisher:
+  private class Impl extends CommandResultPublisher:
 
     def accept(key: String, result: GraboidCommandResult): Task[Seq[KafkaMessage[GraboidCommandResult]]] = ZIO.succeed {
       Seq(KafkaMessage(result, None, GraboidCommandResultTopic))

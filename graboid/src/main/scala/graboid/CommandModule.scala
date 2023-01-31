@@ -20,10 +20,10 @@ trait CommandModule:
 object CommandModule:
 
   def apply(coreModule: CoreModule, kafkaModule: KafkaModule): Task[CommandModule] = ZIO.attempt {
-    wire[CommandModuleImpl]
+    wire[Impl]
   }
 
-  private class CommandModuleImpl(coreModule: CoreModule, kafkaModule: KafkaModule) extends CommandModule:
+  private class Impl(coreModule: CoreModule, kafkaModule: KafkaModule) extends CommandModule:
 
     def publisherManager = coreModule.publisherManager
 

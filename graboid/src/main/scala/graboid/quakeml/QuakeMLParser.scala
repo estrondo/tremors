@@ -25,7 +25,7 @@ trait QuakeMLParser:
 
 object QuakeMLParser:
 
-  def apply(): QuakeMLParser = QuakeMLParserImpl()
+  def apply(): QuakeMLParser = Impl()
 
   private val ChunkSize = 1024
 
@@ -89,7 +89,7 @@ object QuakeMLParser:
         case _ =>
           this
 
-  private class QuakeMLParserImpl extends QuakeMLParser:
+  private class Impl extends QuakeMLParser:
 
     val root =
       val realQuantityAttributes = Seq[Child]("value", "uncertainty")

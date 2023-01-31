@@ -2,12 +2,11 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import graboid.PublisherManager.Validator
+import graboid.PublisherRepository
 import zio.IO
 import zio.Task
-import zio.stream.ZStream
-
-import graboid.PublisherRepository
 import zio.ZIO
+import zio.stream.ZStream
 trait PublisherManager:
 
   def getActives(): Task[ZStream[Any, Throwable, Publisher]]
@@ -23,9 +22,9 @@ object PublisherManager:
   trait Validator extends ((Publisher) => IO[Publisher.Invalid, Publisher])
 
   def apply(repository: PublisherRepository, validator: Validator): PublisherManager =
-    wire[PublisherManagerImpl]
+    wire[Impl]
 
-private[graboid] class PublisherManagerImpl(
+private[graboid] class Impl(
     repository: PublisherRepository,
     validator: Validator
 ) extends PublisherManager:

@@ -1,7 +1,9 @@
 package graboid
 
 import farango.DocumentCollection
+import farango.UpdateReturn
 import farango.data.ArangoConversion.given
+import farango.zio.given
 import graboid.Publisher
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
@@ -10,11 +12,9 @@ import zio.Cause
 import zio.Task
 import zio.Trace
 import zio.ZIO
-import farango.zio.given
+import zio.stream.ZStream
 
 import java.lang.{Long => JLong}
-import farango.UpdateReturn
-import zio.stream.ZStream
 
 trait PublisherRepository:
 
@@ -33,7 +33,7 @@ object PublisherRepository:
   given Transformer[Int, Crawler.Type] = value => Crawler.Type.fromOrdinal(value)
 
   def apply(collection: DocumentCollection): PublisherRepository =
-    PublisherRepositoryImpl(collection)
+    Impl(collection)
 
   private[graboid] case class Document(
       _key: String,
@@ -71,7 +71,7 @@ object PublisherRepository:
       .into[UpdateDocument]
       .transform()
 
-  private class PublisherRepositoryImpl(collection: DocumentCollection) extends PublisherRepository:
+  private class Impl(collection: DocumentCollection) extends PublisherRepository:
 
     override def all: ZStream[Any, Throwable, Publisher] =
       collection.documents[Document]()

@@ -19,23 +19,23 @@ object HttpModule:
   val DefaultPort     = 8080
 
   def apply(webapi: WebApi.WebApiConfig): Task[HttpModule] =
-    ZIO.attempt(wire[HttpModuleImpl])
+    ZIO.attempt(wire[Impl])
 
-private[webapi1x] class HttpModuleImpl(config: WebApi.WebApiConfig) extends HttpModule:
+  private[webapi1x] class Impl(config: WebApi.WebApiConfig) extends HttpModule:
 
-  import HttpModule.*
+    import HttpModule.*
 
-  private def eventLoopGroup = EventLoopGroup.nio(
-    nThreads = math.max(config.http.threads.getOrElse(-1), Runtime.getRuntime().availableProcessors())
-  )
+    private def eventLoopGroup = EventLoopGroup.nio(
+      nThreads = math.max(config.http.threads.getOrElse(-1), Runtime.getRuntime().availableProcessors())
+    )
 
-  private def serverChannelFactory = ServerChannelFactory.nio
+    private def serverChannelFactory = ServerChannelFactory.nio
 
-  override def runServer(httpApp: HttpApp[Any, Throwable]): Task[Nothing] =
-    Server(httpApp)
-      .withBinding(
-        config.http.hostname.getOrElse(DefaultHostname),
-        config.http.port.getOrElse(DefaultPort)
-      )
-      .start
-      .provideLayer(eventLoopGroup ++ serverChannelFactory)
+    override def runServer(httpApp: HttpApp[Any, Throwable]): Task[Nothing] =
+      Server(httpApp)
+        .withBinding(
+          config.http.hostname.getOrElse(DefaultHostname),
+          config.http.port.getOrElse(DefaultPort)
+        )
+        .start
+        .provideLayer(eventLoopGroup ++ serverChannelFactory)

@@ -32,12 +32,12 @@ object CrawlerScheduler:
 
   val UTCZoneId: ZoneId = ZoneOffset.UTC
 
-  def apply(): CrawlerScheduler = wire[CrawlerSchedulerImpl]
+  def apply(): CrawlerScheduler = wire[Impl]
 
   private def normalise(zonedDateTime: ZonedDateTime): ZonedDateTime =
     zonedDateTime.withZoneSameInstant(UTCZoneId)
 
-  private class CrawlerSchedulerImpl extends CrawlerScheduler:
+  private class Impl extends CrawlerScheduler:
 
     def computeSchedule(publisher: Publisher, reference: ZonedDateTime): Task[Iterator[CrawlerExecution]] =
       computeSchedule(publisher, normalise(publisher.beginning), normalise(reference))

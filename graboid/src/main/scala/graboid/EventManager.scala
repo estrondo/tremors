@@ -1,16 +1,16 @@
 package graboid
 
-import zio.Task
-import graboid.Crawler.Info
 import com.softwaremill.macwire.wire
-import zio.kafka.producer.Producer
-import zio.ULayer
-import io.bullet.borer.Cbor
+import graboid.Crawler.Info
 import graboid.Crawler.given
-import zio.ZIO
 import graboid.kafka.GraboidDetectedEvent
-import zio.kafka.serde.Serde
+import io.bullet.borer.Cbor
 import org.apache.kafka.clients.producer.RecordMetadata
+import zio.Task
+import zio.ULayer
+import zio.ZIO
+import zio.kafka.producer.Producer
+import zio.kafka.serde.Serde
 
 trait EventManager:
 
@@ -21,9 +21,9 @@ object EventManager:
   def apply(
       producerLayer: ULayer[Producer]
   ): EventManager =
-    wire[EventManagerImpl]
+    wire[Impl]
 
-  private class EventManagerImpl(
+  private class Impl(
       producerLayer: ULayer[Producer]
   ) extends EventManager:
 

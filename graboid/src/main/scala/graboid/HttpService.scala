@@ -1,12 +1,13 @@
 package graboid
 
-import java.net.URL
-import zhttp.http.Response
-import zio.*
 import zhttp.http.Http
+import zhttp.http.Response
 import zhttp.service.ChannelFactory
-import zhttp.service.EventLoopGroup
 import zhttp.service.Client
+import zhttp.service.EventLoopGroup
+import zio.*
+
+import java.net.URL
 
 trait HttpService:
 
@@ -15,14 +16,14 @@ trait HttpService:
 object HttpService:
 
   def auto(layer: ULayer[ChannelFactory & EventLoopGroup]): ULayer[HttpService] =
-    ZLayer.succeed(HttpServiceImpl(layer))
+    ZLayer.succeed(Impl(layer))
 
   def get(url: String): RIO[HttpService, Response] =
     ZIO.serviceWithZIO[HttpService](_.get(url))
 
-private class HttpServiceImpl(layer: ULayer[ChannelFactory & EventLoopGroup]) extends HttpService:
+  private class Impl(layer: ULayer[ChannelFactory & EventLoopGroup]) extends HttpService:
 
-  override def get(url: String): Task[Response] =
-    Client
-      .request(url.toString())
-      .provideLayer(layer)
+    override def get(url: String): Task[Response] =
+      Client
+        .request(url.toString())
+        .provideLayer(layer)

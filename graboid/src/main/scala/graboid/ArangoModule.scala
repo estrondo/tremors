@@ -1,17 +1,17 @@
 package graboid
 
+import com.arangodb.async.ArangoDBAsync
+import com.arangodb.mapping.ArangoJack
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.softwaremill.macwire.wire
 import farango.Database
 import farango.DocumentCollection
+import farango.zio.given
 import graboid.config.ArangoConfig
 import zio.Schedule
 import zio.Task
 import zio.ZIO
 import zio.given
-import farango.zio.given
-import com.arangodb.async.ArangoDBAsync
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.arangodb.mapping.ArangoJack
 
 trait ArangoModule:
 
@@ -20,10 +20,10 @@ trait ArangoModule:
 object ArangoModule:
 
   def apply(config: ArangoConfig): Task[ArangoModule] = ZIO.attempt {
-    wire[ArangoModuleImpl]
+    wire[Impl]
   }
 
-  private class ArangoModuleImpl(config: ArangoConfig) extends ArangoModule:
+  private class Impl(config: ArangoConfig) extends ArangoModule:
 
     val retryPolicy = Schedule.recurs(30) || Schedule.spaced(2.seconds)
 

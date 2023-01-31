@@ -15,20 +15,20 @@ object RouterModule:
 
   def apply(
       crawlerModule: GraboidModule
-  ): Task[RouterModule] = ZIO.attempt(wire[RouterModuleImpl])
+  ): Task[RouterModule] = ZIO.attempt(wire[Impl])
 
-private[webapi1x] class RouterModuleImpl(
-    crawlerModule: GraboidModule
-) extends RouterModule:
+  private[webapi1x] class Impl(
+      crawlerModule: GraboidModule
+  ) extends RouterModule:
 
-  private val aboutHandler = AboutHandler()
+    private val aboutHandler = AboutHandler()
 
-  override def createApp(): Task[HttpApp[Any, Throwable]] = ZIO.attempt {
-    Http.collectZIO {
-      case req @ Method.GET -> !! / "about" => aboutHandler(req)
-      case req                              => notFound(req)
+    override def createApp(): Task[HttpApp[Any, Throwable]] = ZIO.attempt {
+      Http.collectZIO {
+        case req @ Method.GET -> !! / "about" => aboutHandler(req)
+        case req                              => notFound(req)
+      }
     }
-  }
 
-  private def notFound(request: Request): UIO[Response] =
-    ZIO.succeed(Response(status = Status.NotFound, body = Body.fromCharSequence("Not Found!")))
+    private def notFound(request: Request): UIO[Response] =
+      ZIO.succeed(Response(status = Status.NotFound, body = Body.fromCharSequence("Not Found!")))

@@ -10,6 +10,6 @@ trait GraboidModule
 object GraboidModule:
 
   def apply(config: WebApiConfig, kafkaModule: KafkaModule): Task[GraboidModule] =
-    ZIO.attempt(wire[GraboidModuleImpl])
+    ZIO.attempt(wire[Impl])
 
-private[webapi1x] class GraboidModuleImpl(config: WebApiConfig, kafkaModule: KafkaModule) extends GraboidModule
+  private[webapi1x] class Impl(config: WebApiConfig, kafkaModule: KafkaModule) extends GraboidModule
