@@ -16,6 +16,7 @@ import java.time.ZonedDateTime
 
 trait CrawlerScheduler:
 
+  // TODO: Check if last execution is after reference, then is there no schedule?
   def computeSchedule(
       publisher: Publisher,
       last: CrawlerExecution,

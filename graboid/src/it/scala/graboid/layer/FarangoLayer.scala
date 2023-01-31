@@ -34,6 +34,10 @@ object FarangoLayer:
       Database(dbAsync.db("_system"))
   }
 
+  def documentCollectionLayer(name: String): RLayer[Database, DocumentCollection] = ZLayer {
+    ZIO.serviceWithZIO[Database](_.documentCollection(name))
+  }
+
   def documentCollection(name: String): ZIO[Database, Throwable, DocumentCollection] =
     for
       database   <- ZIO.service[Database]
