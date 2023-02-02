@@ -1,12 +1,12 @@
 {
   "AddPublisher": {
-    "id": null,
+    "id": "add-bra-usp",
     "descriptor": {
       "key": "bra-usp",
       "name": "Centro de Sismologia USP",
       "beginning": 1672596000,
       "ending": null,
-      "location": "http://www.moho.iag.usp.br/fdsnws/event/1/query",
+      "location": "https://www.moho.iag.usp.br/fdsnws/event/1/query",
       "type": "FDSN"
     }
   }

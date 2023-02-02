@@ -22,7 +22,8 @@ trait CommandModule:
 
   def run(): Task[Unit]
 
-  def start(): UIO[Fiber.Runtime[Throwable, Unit]]
+  def start(): UIO[Fiber.Runtime[Throwable, Unit]] =
+    run().fork
 
 object CommandModule:
 
@@ -50,6 +51,3 @@ object CommandModule:
         commandStream <- kafkaModule.subscribe(GraboidCommandTopic, commandListener, commandResultPublisher)
         _             <- commandStream.runDrain
       yield ()
-
-    override def start(): UIO[Fiber.Runtime[Throwable, Unit]] =
-      run().fork

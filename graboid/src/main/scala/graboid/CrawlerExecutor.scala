@@ -57,6 +57,7 @@ object CrawlerExecutor:
     def run(): Task[CrawlingReport] =
       for
         now    <- Clock.currentDateTime.map(_.toZonedDateTime())
+        _      <- ZIO.logInfo(s"Running Crawler Executor for $now.")
         stream <- publisherManager.getActives()
         report <- stream
                     .flatMapPar(processors)(createTasks(now))

@@ -23,15 +23,23 @@ object Graboid extends ZIOAppDefault:
 
   def application(graboidConfig: GraboidConfig): Task[ExitCode] =
     for
-      arangoModule       <- ArangoModule(graboidConfig.arango)
-      kafkaModule        <- KafkaModule(graboidConfig.kafka)
-      httpModule         <- HttpModule(graboidConfig.httpClient)
-      repositoryModule   <- RepositoryModule(arangoModule)
-      coreModule         <- CoreModule(graboidConfig, repositoryModule, kafkaModule, httpModule)
-      commandModule      <- CommandModule(coreModule, kafkaModule)
-      commandStreamFiber <- commandModule.start()
-      _                  <- ZIO.logInfo(
-                              s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
-                            )
-      _                  <- commandStreamFiber.join
+      arangoModule     <- ArangoModule(graboidConfig.arango)
+      kafkaModule      <- KafkaModule(graboidConfig.kafka)
+      httpModule       <- HttpModule(graboidConfig.httpClient)
+      repositoryModule <- RepositoryModule(arangoModule)
+      coreModule       <- CoreModule(graboidConfig, repositoryModule, kafkaModule, httpModule)
+      commandModule    <- CommandModule(coreModule, kafkaModule)
+
+      crawlerExecutorModule <-
+        CrawlerExecutorModule(graboidConfig.crawlerExecutor, repositoryModule, coreModule, httpModule)
+
+      commandStreamFiber   <- commandModule.start()
+      crawlerExecutorFiber <- crawlerExecutorModule.start()
+
+      _ <- ZIO.logInfo(
+             s"Graboid [${BuildInfo.version}] is starting, please keep yourself away from them 🪱."
+           )
+
+      _ <- commandStreamFiber.join
+      _ <- crawlerExecutorFiber.join
     yield ExitCode.success

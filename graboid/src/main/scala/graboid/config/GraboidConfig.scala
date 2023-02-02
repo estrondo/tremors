@@ -5,5 +5,6 @@ import graboid.fdsn.FDSNCrawler
 case class GraboidConfig(
     arango: ArangoConfig,
     httpClient: HttpClientConfig,
-    kafka: KafkaConfig
+    kafka: KafkaConfig,
+    crawlerExecutor: CrawlerExecutorConfig
 )

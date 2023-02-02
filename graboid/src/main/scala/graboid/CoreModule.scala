@@ -39,7 +39,3 @@ object CoreModule:
     override val publisherManager: PublisherManager = wireWith(PublisherManager.apply)
 
     override val eventManager: EventManager = EventManager(kafkaModule.producerLayer)
-
-    val scheduler: CrawlerScheduler = CrawlerScheduler()
-
-    val crawlerFactory: CrawlerFactory = CrawlerFactory(httpModule.serviceLayer)
