@@ -12,6 +12,11 @@ import zio.kafka.consumer.ConsumerSettings
 import zio.kafka.producer.ProducerSettings
 import zio.kafka.producer.Producer
 import zio.kafka.consumer.Consumer
+import zio.stream.ZStream
+import graboid.kafka.KafkaProducer
+import graboid.kafka.KafkaSubscriber
+import io.bullet.borer.Decoder
+import io.bullet.borer.Encoder
 
 trait KafkaModule:
 
@@ -20,6 +25,12 @@ trait KafkaModule:
   def consumerLayer: TaskLayer[Consumer]
 
   def producerLayer: TaskLayer[Producer]
+
+  def subscribe[A: Decoder, B, C: Encoder](
+      topic: String,
+      kafkaSubscriber: KafkaSubscriber[A, B],
+      kafkaProducer: KafkaProducer[B, C]
+  ): Task[ZStream[Any, Throwable, (B, Seq[C])]]
 
 object KafkaModule:
 
@@ -42,3 +53,10 @@ object KafkaModule:
     val consumerLayer: TaskLayer[Consumer] = kafkaManager.consumerLayer
 
     val producerLayer: TaskLayer[Producer] = kafkaManager.producerLayer
+
+    override def subscribe[A: Decoder, B, C: Encoder](
+        topic: String,
+        kafkaSubscriber: KafkaSubscriber[A, B],
+        kafkaProducer: KafkaProducer[B, C]
+    ): Task[ZStream[Any, Throwable, (B, Seq[C])]] =
+      kafkaManager.subscribe(topic, kafkaSubscriber, kafkaProducer)

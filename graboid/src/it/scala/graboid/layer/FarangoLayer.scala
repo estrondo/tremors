@@ -1,16 +1,16 @@
 package graboid.layer
 
-import zio.RLayer
-import farango.Database
-import zio.ZLayer
-import farango.DocumentCollection
-import zio.ZIO
-import zio.URIO
-import graboid.layer.ArangoDBLayer
 import com.arangodb.async.ArangoDBAsync
-import farango.zio.given
 import com.arangodb.mapping.ArangoJack
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import farango.Database
+import farango.DocumentCollection
+import farango.zio.given
+import graboid.layer.ArangoDBLayer
+import zio.RLayer
+import zio.URIO
+import zio.ZIO
+import zio.ZLayer
 
 object FarangoLayer:
 

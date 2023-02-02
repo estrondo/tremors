@@ -9,14 +9,20 @@ import graboid.command.UpdatePublisherExecutorImpl
 import graboid.kafka.GraboidCommandTopic
 import zio.Task
 import zio.ZIO
+import zio.UIO
 
 import graboid.CoreModule
+import zio.FiberRef
+import zio.Fiber
 trait CommandModule:
 
-  val commandListener: CommandListener
-  val commandExecutor: CommandExecutor
+  def commandListener: CommandListener
+
+  def commandExecutor: CommandExecutor
 
   def run(): Task[Unit]
+
+  def start(): UIO[Fiber.Runtime[Throwable, Unit]]
 
 object CommandModule:
 
@@ -26,7 +32,7 @@ object CommandModule:
 
   private class Impl(coreModule: CoreModule, kafkaModule: KafkaModule) extends CommandModule:
 
-    def publisherManager = coreModule.publisherManager
+    private def publisherManager = coreModule.publisherManager
 
     val addPublisherExecutor = wire[AddPublisherExecutorImpl]
 
@@ -41,7 +47,9 @@ object CommandModule:
 
     def run(): Task[Unit] =
       for
-        commandStream <- kafkaModule.kafkaManager
-                           .subscribe(GraboidCommandTopic, commandListener, commandResultPublisher)
+        commandStream <- kafkaModule.subscribe(GraboidCommandTopic, commandListener, commandResultPublisher)
         _             <- commandStream.runDrain
       yield ()
+
+    override def start(): UIO[Fiber.Runtime[Throwable, Unit]] =
+      run().fork

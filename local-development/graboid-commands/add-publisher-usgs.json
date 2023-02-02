@@ -1,0 +1,13 @@
+{
+  "AddPublisher": {
+    "id": "add-usa-usgs",
+    "descriptor": {
+      "key": "usa-usgs",
+      "name": "United States Geological Survey",
+      "beginning": 1672596000,
+      "ending": null,
+      "location": "http://earthquake.usgs.gov/fdsnws/event/1/query",
+      "type": "FDSN"
+    }
+  }
+}

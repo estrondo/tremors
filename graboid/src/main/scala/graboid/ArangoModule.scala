@@ -29,9 +29,13 @@ object ArangoModule:
 
     val getDatabase =
       val memoized = ZIO.attempt {
+
+        val arangoJack = ArangoJack()
+        arangoJack.configure(mapper => mapper.registerModule(DefaultScalaModule))
+
         var arangoDB = ArangoDBAsync
           .Builder()
-          .serializer(ArangoJack())
+          .serializer(arangoJack)
           .user(config.username)
           .password(config.password)
 

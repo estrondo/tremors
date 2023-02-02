@@ -12,6 +12,8 @@
 /.metals/
 /.vscode/
 
+/local-development/graboid-commands/*.cbor
+
 /core/target/
 /testkit/core/target/
 /testkit/zio-testcontainers/target/

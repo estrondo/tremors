@@ -1,0 +1,56 @@
+#!/bin/sh
+
+case $1 in
+arango)
+  case $2 in
+  start)
+    docker-compose up arango1 arango2 arango3
+    ;;
+
+  reset)
+    docker-compose rm -f -v arango1 arango2 arango3
+    docker-compose up arango1 arango2 arango3
+    ;;
+
+  *)
+    echo "Try ./service arango [start | reset]."
+    ;;
+  esac
+  ;;
+kafka)
+  case $2 in
+  start)
+    docker-compose up kafka1 kafka2
+    ;;
+
+  reset)
+    docker-compose rm -f -v kafka1 kafka2 zookeeper
+    docker-compose up kafka1 kafka2
+    ;;
+
+  *)
+    echo "Try ./service kafka [start | reset]."
+    ;;
+  esac
+  ;;
+
+graboid)
+  case $2 in
+  start)
+    docker-compose up graboid
+    ;;
+
+  reset)
+    docker-compose rm -f -v graboid
+    docker-compose up graboid
+    ;;
+
+  *)
+    echo "Try ./service graboid [start | reset]."
+    ;;
+  esac
+  ;;
+*)
+  echo "Try ./service [arango | kafka | graboid]"
+  ;;
+esac

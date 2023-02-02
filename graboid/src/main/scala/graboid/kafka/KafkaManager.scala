@@ -5,11 +5,14 @@ import io.bullet.borer.Cbor
 import io.bullet.borer.Decoder
 import io.bullet.borer.Encoder
 import org.apache.kafka.clients.producer.ProducerRecord
+import zio.Cause
 import zio.RIO
 import zio.Task
+import zio.TaskLayer
 import zio.UIO
 import zio.ZIO
 import zio.ZLayer
+import zio.kafka.consumer.CommittableRecord
 import zio.kafka.consumer.Consumer
 import zio.kafka.consumer.ConsumerSettings
 import zio.kafka.consumer.Offset
@@ -18,7 +21,6 @@ import zio.kafka.producer.Producer
 import zio.kafka.producer.ProducerSettings
 import zio.kafka.serde.Serde
 import zio.stream.ZStream
-import zio.TaskLayer
 
 trait KafkaManager:
 
@@ -70,17 +72,20 @@ object KafkaManager:
         Consumer
           .subscribeAnd(Subscription.topics(topic))
           .plainStream(Serde.string, Serde.byteArray)
-          .tap(record =>
-            ZIO.logDebug(
-              s"A new record has just been received: topic=$topic, key=${record.key} and offset=${record.offset.offset}."
-            )
-          )
           .mapZIO({ record =>
-            ZIO.fromTry {
-              for decoded <- Cbor.decode(record.value).to[A].valueTry
-              yield (record.offset, record.key, decoded)
-            }
+            ZIO
+              .fromTry({
+                for decoded <- Cbor.decode(record.value).to[A].valueTry
+                yield Some((record.offset, record.key, decoded))
+              })
+              .tap(_ =>
+                ZIO.logDebug(
+                  s"A new record has just been received topic=$topic, key=${record.key} and offset=${record.offset.offset}."
+                )
+              )
+              .catchAll(handleDecodeError(topic, record))
           })
+          .collectSome
           .mapZIO((offset, key, value) => subscriber.accept(key, value).map((offset, key, _)))
           .tap((_, _, message) =>
             ZIO.logDebug(
@@ -100,6 +105,14 @@ object KafkaManager:
         .mapZIO((offset, value, produced) => offset.commit as value.map(_ -> produced))
         .collectSome
     }
+
+    private def handleDecodeError(topic: String, record: CommittableRecord[String, Array[Byte]])(
+        cause: Throwable
+    ): UIO[Option[Nothing]] =
+      ZIO.logWarningCause(
+        s"It was impossible to consume message with key=${record.key} from topic=${topic}.",
+        Cause.die(cause)
+      ) *> ZIO.none
 
     def produceWith[B, C: Encoder](producer: KafkaProducer[B, C])(
         source: SourceElement[B]

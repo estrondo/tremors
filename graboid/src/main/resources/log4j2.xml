@@ -29,6 +29,7 @@
 
   <Loggers>
     <Logger name="com.arangodb" level="warn" />
+    <Logger name="org.apache.kafka" level="info" />
     <Root level="${rootLevel}">
       <AppenderRef ref="defaultAppender" />
     </Root>
