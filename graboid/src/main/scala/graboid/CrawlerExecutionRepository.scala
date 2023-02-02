@@ -19,6 +19,8 @@ trait CrawlerExecutionRepository:
 
   def searchLast(publisher: Publisher): Task[Option[CrawlerExecution]]
 
+  def update(execution: CrawlerExecution): Task[Option[CrawlerExecution]]
+
 object CrawlerExecutionRepository:
 
   def apply(collection: DocumentCollection): CrawlerExecutionRepository =
@@ -43,6 +45,14 @@ object CrawlerExecutionRepository:
       message: String
   )
 
+  private[graboid] case class UpdateDocument(
+      status: JInt,
+      executionStarted: JLong,
+      expectedStop: JLong,
+      executionStopped: JLong,
+      message: String
+  )
+
   private[graboid] given Conversion[CrawlerExecution, Document] =
     _.into[Document]
       .transform(
@@ -55,13 +65,17 @@ object CrawlerExecutionRepository:
         Field.renamed(_.key, _._key)
       )
 
+  private[graboid] given Conversion[CrawlerExecution, UpdateDocument] =
+    _.into[UpdateDocument]
+      .transform()
+
   private class Impl(collection: DocumentCollection) extends CrawlerExecutionRepository:
 
     private def database = collection.database
 
     def add(execution: CrawlerExecution): Task[CrawlerExecution] =
       collection.insert[Document](execution) <* ZIO.logInfo(
-        s"Added execution=${execution.key} for publisherKey=${execution.publisherKey}."
+        s"Added execution=${execution.key} for publisher=${execution.publisherKey}."
       )
 
     def searchLast(publisher: Publisher): Task[Option[CrawlerExecution]] =
@@ -75,3 +89,8 @@ object CrawlerExecutionRepository:
                   )
         head   <- stream.runHead
       yield head
+
+    override def update(execution: CrawlerExecution): Task[Option[CrawlerExecution]] =
+      collection.update[UpdateDocument, Document](execution.key, execution) <* ZIO.logDebug(
+        s"There was an attempt to update execution=${execution.key}."
+      )

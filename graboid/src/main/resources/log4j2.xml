@@ -29,8 +29,8 @@
 
   <Loggers>
     <Logger name="com.arangodb" level="warn" />
-    <Logger name="org.apache.kafka" level="warn" />
-    <Logger name="io.netty" level="trace" />
+    <Logger name="org.apache.kafka" level="error" />
+    <Logger name="io.netty" level="warn" />
     <Root level="${rootLevel}">
       <AppenderRef ref="defaultAppender" />
     </Root>

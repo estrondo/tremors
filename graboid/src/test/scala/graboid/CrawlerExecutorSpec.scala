@@ -53,9 +53,15 @@ object CrawlerExecutorSpec extends Spec:
           _        <- SweetMockitoLayer[CrawlerFactory]
                         .whenF2(_.apply(eqTo(publisher), any()))
                         .thenReturn(crawler)
+          _        <- SweetMockitoLayer[CrawlerExecutionRepository]
+                        .whenF2(_.add(any[CrawlerExecution]))
+                        .thenAnswer(invocation => Answer.succeed(invocation.getArgument[CrawlerExecution](0)))
           _        <- SweetMockitoLayer[EventManager]
                         .whenF2(_.register(eqTo(event), eqTo(publisher), any()))
                         .thenReturn(event)
+          _        <- SweetMockitoLayer[CrawlerExecutionRepository]
+                        .whenF2(_.update(any[CrawlerExecution]))
+                        .thenAnswer(invocation => Answer.succeed(Some(invocation.getArgument[CrawlerExecution](0))))
           executor <- ZIO.service[CrawlerExecutor]
           _        <- TestClock.setTime(now.toInstant())
           report   <- executor.run()

@@ -55,6 +55,46 @@ object CrawlerExecutionRepositoryIT extends IT:
           yield assertTrue(
             lastExecution == expected
           )
+        },
+        test("It should update an execution in collection.") {
+          val publisherKey = KeyGenerator.next64()
+
+          val toInsertStarted = createZonedDateTime()
+          val toInsertStop    = toInsertStarted.plusMinutes(5)
+          val toInsertStopped = toInsertStarted.plusMinutes(7)
+
+          val toInsert = CrawlerExecutionFixture
+            .createRandom()
+            .copy(
+              status = Some(CrawlerExecution.Status.Running),
+              executionStarted = Some(toInsertStarted),
+              expectedStop = Some(toInsertStop),
+              executionStopped = Some(toInsertStopped),
+              message = Some("Woohoo!")
+            )
+
+          val expectedStarted = createZonedDateTime().plusMinutes(29)
+          val expectedStop    = expectedStarted.plusMinutes(13)
+          val expectedStopped = expectedStarted.plusMinutes(19)
+
+          val expected = toInsert
+            .copy(
+              status = Some(CrawlerExecution.Status.Completed),
+              executionStarted = Some(expectedStarted),
+              expectedStop = Some(expectedStop),
+              executionStopped = Some(expectedStopped),
+              message = Some("I'm inevitable")
+            )
+
+          for
+            repository <- ZIO.service[CrawlerExecutionRepository]
+            _          <- repository.add(toInsert)
+            _          <- repository.update(expected)
+            collection <- ZIO.service[DocumentCollection]
+            updated    <- collection.get[Document](toInsert.key).some
+          yield assertTrue(
+            updated == expected
+          )
         }
       ).provideSome(
         ArangoDBLayer.layer,

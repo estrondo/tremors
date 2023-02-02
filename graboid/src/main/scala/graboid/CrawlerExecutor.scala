@@ -16,6 +16,14 @@ import zio.stream.ZStreamAspect
 
 import java.awt.Taskbar
 import java.time.ZonedDateTime
+import graboid.GraboidException.CrawlerException
+import java.net.URI
+import zio.RIO
+import java.time.temporal.ChronoUnit
+import java.time.temporal.ChronoField
+import scala.language.experimental
+import java.time.LocalDateTime
+import java.time.Instant
 
 trait CrawlerExecutor:
 
@@ -31,6 +39,8 @@ object CrawlerExecutor:
       crawlerFactory: CrawlerFactory
   ): CrawlerExecutor =
     wire[Impl]
+
+  private type State = (Long, Long) // (time in milliseconds, count)
 
   private case class CrawlerTask(crawler: Crawler, execution: CrawlerExecution, publisher: Publisher)
 
@@ -54,14 +64,26 @@ object CrawlerExecutor:
 
     def processors = math.max(Runtime.getRuntime().availableProcessors() / 2, 1)
 
+    private val ttu            = 1000L * 30L
+    private val maxCountUpdate = 50
+
+    private def computeNextTTU(now: Long) = now + ttu // Time To Update
+
     def run(): Task[CrawlingReport] =
       for
-        now    <- Clock.currentDateTime.map(_.toZonedDateTime())
+        offset <- Clock.currentDateTime
+        now     = offset.toZonedDateTime()
+
         _      <- ZIO.logInfo(s"Running Crawler Executor for $now.")
         stream <- publisherManager.getActives()
         report <- stream
                     .flatMapPar(processors)(createTasks(now))
-                    .mapZIOPar(processors)(executeTask)
+                    .mapZIOPar(processors)(crawlerTask =>
+                      for
+                        now    <- Clock.currentDateTime
+                        result <- executeTask(crawlerTask, now.toZonedDateTime())
+                      yield result
+                    )
                     .runFold(CrawlingReport(0L, 0L, 0L, 0L))(updateCrawlerReport)
       yield report
 
@@ -92,14 +114,114 @@ object CrawlerExecutor:
 
       effect.catchAll(handleCreateTask(publisher, execution))
 
-    def executeTask(task: CrawlerTask): UIO[CrawlerTaskReport] =
-      val CrawlerTask(crawler, execution, publisher) = task
+    def executeTask(task: CrawlerTask, now: ZonedDateTime): UIO[CrawlerTaskReport] =
+      val CrawlerTask(crawler, original, publisher) = task
+
+      val nextTTU   = computeNextTTU(now.getLong(ChronoField.INSTANT_SECONDS))
+      val execution = original.copy(
+        status = Some(CrawlerExecution.Status.Running),
+        executionStarted = Some(now),
+        expectedStop = Some(now.`with`(ChronoField.INSTANT_SECONDS, nextTTU / 1000L)),
+        executionStopped = None,
+        message = Some("Working")
+      )
+
       (for
-        stream <- crawler.crawl(TimeWindow(beginning = execution.beginning, ending = execution.ending))
+        stream <- crawler.crawl(TimeWindow(beginning = original.beginning, ending = original.ending))
+        _      <- repository.add(execution)
         report <- stream
                     .mapZIO(eventManager.register(_, publisher, execution))
+                    .mapAccumZIO((nextTTU, 0L))(accumUpdateCrawlerExecution(publisher, execution))
                     .runFoldZIO(CrawlerTaskReport(execution, Status(0L, 0L, 0L, None)))(summarise)
-      yield report).catchAll(handleExecuteTask(task))
+      yield report)
+        .foldZIO(failedExecution(publisher, execution), succeedExecution(publisher, execution))
+
+    private def accumUpdateCrawlerExecution(publisher: Publisher, execution: CrawlerExecution)(
+        state: State,
+        info: Crawler.Info
+    ): Task[(State, Crawler.Info)] =
+      val (ttu, count) = state
+
+      def computeNewState(now: Long): UIO[(State, Crawler.Info)] =
+        if now >= ttu || count >= maxCountUpdate then
+          val nextTTU = computeNextTTU(now)
+          updateCrawlerExecution(publisher, execution, nextTTU) as ((nextTTU, 0L), info)
+        else ZIO.succeed(((ttu, count + 1), info))
+
+      for
+        now      <- Clock.currentTime(ChronoUnit.SECONDS)
+        newState <- computeNewState(now)
+      yield newState
+
+    private def updateCrawlerExecution(
+        publisher: Publisher,
+        execution: CrawlerExecution,
+        nextTTU: Long
+    ): UIO[CrawlerExecution] =
+      for
+        clock           <- Clock.javaClock
+        updatedExecution = execution.copy(
+                             status = Some(CrawlerExecution.Status.Running),
+                             expectedStop =
+                               Some(ZonedDateTime.ofInstant(Instant.ofEpochSecond(nextTTU), clock.getZone())),
+                             executionStopped = None,
+                             message = Some("Working.")
+                           )
+        _               <-
+          repository
+            .update(updatedExecution)
+            .catchAll(cause =>
+              ZIO.logWarningCause(
+                s"It was impossible to update a running crawler-execution=${execution.key} from publisher=${publisher.key}.",
+                Cause.die(cause)
+              )
+            )
+      yield execution
+
+    private def failedExecution(publisher: Publisher, execution: CrawlerExecution)(
+        cause: Throwable
+    ): UIO[CrawlerTaskReport] =
+      for
+        now             <- Clock.currentDateTime
+        updatedExecution = execution.copy(
+                             status = Some(CrawlerExecution.Status.Failed),
+                             expectedStop = None,
+                             executionStopped = Some(now.toZonedDateTime()),
+                             message = Some("Failed: " + cause.getMessage())
+                           )
+        _               <-
+          repository
+            .update(updatedExecution)
+            .catchAll(cause =>
+              ZIO.logWarningCause(
+                s"It was impossible to update a failed crawler-execution=${execution.key} from publisher=${publisher.key}.",
+                Cause.die(cause)
+              )
+            )
+      yield CrawlerTaskReport(updatedExecution, cause)
+
+    private def succeedExecution(publisher: Publisher, execution: CrawlerExecution)(
+        report: CrawlerTaskReport
+    ): UIO[CrawlerTaskReport] =
+      for
+        now             <- Clock.currentDateTime
+        updatedExecution = execution
+                             .copy(
+                               status = Some(CrawlerExecution.Status.Completed),
+                               executionStopped = Some(now.toZonedDateTime()),
+                               expectedStop = None,
+                               message = Some("Ok!")
+                             )
+        _               <-
+          repository
+            .update(updatedExecution)
+            .catchAll(cause =>
+              ZIO.logWarningCause(
+                s"It was impossible to update a succeed crawler-execution=${execution.key} from publisher=${publisher.key}.",
+                Cause.die(cause)
+              )
+            )
+      yield report
 
     def summarise(report: CrawlerTaskReport, info: Crawler.Info): UIO[CrawlerTaskReport] =
       report.status match
@@ -129,11 +251,3 @@ object CrawlerExecutor:
         cause: Throwable
     ): UIO[Option[CrawlerTask]] =
       ZIO.logWarningCause("It was impossible to create a CrawlerTask.", Cause.die(cause)) as None
-
-    def handleExecuteTask(task: CrawlerTask)(cause: Throwable): UIO[CrawlerTaskReport] =
-      ZIO.logWarningCause("It was impossible to execute a Task.", Cause.die(cause)) as (
-        CrawlerTaskReport(
-          task.execution,
-          cause
-        )
-      )
