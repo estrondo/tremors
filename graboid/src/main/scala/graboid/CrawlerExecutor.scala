@@ -67,12 +67,14 @@ object CrawlerExecutor:
     private val ttu            = 1000L * 30L
     private val maxCountUpdate = 50
 
-    private def computeNextTTU(now: Long) = now + ttu // Time To Update
+    private def computeNextTTU(now: Long) = now + ttu // Time To Update 
 
     def run(): Task[CrawlingReport] =
       for
         offset <- Clock.currentDateTime
-        now     = offset.toZonedDateTime()
+        now     = offset
+                    .toZonedDateTime()
+                    .truncatedTo(ChronoUnit.SECONDS)
 
         _      <- ZIO.logInfo(s"Running Crawler Executor for $now.")
         stream <- publisherManager.getActives()

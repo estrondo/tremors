@@ -80,7 +80,7 @@ object KafkaManager:
               })
               .tap(_ =>
                 ZIO.logDebug(
-                  s"A new record has just been received topic=$topic, key=${record.key} and offset=${record.offset.offset}."
+                  s"A new record has just been received from topic=$topic, key=${record.key} and offset=${record.offset.offset}."
                 )
               )
               .catchAll(handleDecodeError(topic, record))

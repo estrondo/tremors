@@ -4,6 +4,16 @@ import scala.collection.immutable.HashMap
 
 private[quakeml] object Node:
 
+  given Conversion[Node, NodeMap] = level => HashMap(level.name -> level)
+
+  given Conversion[String, Child] = name => Child(name, EmptyNodeMap)
+
+  given Conversion[Iterable[Node], NodeMap] = iterable =>
+    HashMap.from {
+      for level <- iterable
+      yield level.name -> level
+    }
+
   type NodeMap = Map[String, Node]
 
   val EmptyNodeMap: NodeMap = Map.empty
@@ -31,19 +41,11 @@ private[quakeml] object Node:
 
     def this(name: String)(nodeMap: Node*) = this(name, nodeMap)
 
+    def withName(name: String): Child = Child(name, content)
+
   class Skip(name: String) extends Node(name): // others
 
     def nodeFor(childName: String): Node = Skip(childName)
-
-  given Conversion[Node, NodeMap] = level => HashMap(level.name -> level)
-
-  given Conversion[String, Child] = name => Child(name, EmptyNodeMap)
-
-  given Conversion[Iterable[Node], NodeMap] = iterable =>
-    HashMap.from {
-      for level <- iterable
-      yield level.name -> level
-    }
 
 private[quakeml] sealed abstract class Node(val name: String):
 

@@ -30,7 +30,7 @@ object EventManager:
     def register(info: Info, publisher: Publisher, execution: CrawlerExecution): Task[Info] =
       for
         metadata <- produce(info)
-        _        <- ZIO.logDebug(s"A new event has been sent do topic=${metadata.topic()}.")
+        _        <- ZIO.logDebug(s"A new event has been sent to topic=${metadata.topic()}.")
       yield info
 
     private def produce(info: Info): Task[RecordMetadata] =

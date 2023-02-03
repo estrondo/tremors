@@ -7,6 +7,8 @@ import quakeml.CreationInfo
 import java.time.ZonedDateTime
 import quakeml.Magnitude
 import quakeml.RealQuantity
+import quakeml.TimeQuantity
+import quakeml.Origin
 
 private[quakeml] object ChildReader:
 
@@ -19,6 +21,8 @@ private[quakeml] object ChildReader:
   given ChildReader[CreationInfo]          = newReader
   given ChildReader[String]                = newReader
   given ChildReader[ZonedDateTime]         = newReader
+  given ChildReader[TimeQuantity]          = newReader
+  given ChildReader[Origin]                = newReader
   given ChildReader[Magnitude]             = newReader
   given ChildReader[RealQuantity]          = newReader
   given ChildReader[Int]                   = newReader

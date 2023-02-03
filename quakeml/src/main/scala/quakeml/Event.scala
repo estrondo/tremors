@@ -28,5 +28,6 @@ case class Event(
     description: Seq[Event.Description],
     comment: Seq[Comment],
     creationInfo: Option[CreationInfo],
+    origin: Seq[Origin],
     magnitude: Seq[Magnitude]
 )

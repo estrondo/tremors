@@ -17,6 +17,7 @@ import javax.xml.stream.XMLStreamConstants.DTD
 import javax.xml.stream.XMLStreamConstants.END_ELEMENT
 import javax.xml.stream.XMLStreamConstants.START_DOCUMENT
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
+import javax.xml.stream.XMLStreamConstants.COMMENT
 import scala.annotation.tailrec
 
 trait QuakeMLParser:
@@ -66,7 +67,7 @@ object QuakeMLParser:
               (pushUp(element.get, tail), None)
 
             case _: Publishable =>
-              (copy(stack = tail), Some(Publisher(element.get)))
+              (copy(stack = tail), Some(QuakeMLPublisher(element.get)))
 
             case _ =>
               (copy(stack = tail), None)
@@ -92,8 +93,8 @@ object QuakeMLParser:
   private class Impl extends QuakeMLParser:
 
     val root =
-      val realQuantityAttributes = Seq[Child]("value", "uncertainty")
-      val creationInfoElement    = Child("creationInfo")(
+      val uncertaintyQuantityTemplate = Child("---")("value", "uncertainty")
+      val creationInfoElement         = Child("creationInfo")(
         "agencyID",
         "agencyURI",
         "author",
@@ -102,18 +103,43 @@ object QuakeMLParser:
         "version"
       )
 
-      val magnitudeElement   = Publishable("magnitude")(
+      val magnitudeElement = Publishable("magnitude")(
         "stationCount",
         creationInfoElement,
-        Child("mag")(realQuantityAttributes*)
+        uncertaintyQuantityTemplate.withName("mag"),
+        "type"
       )
+
+      val timeElement      = uncertaintyQuantityTemplate.withName("time")
+      val longitudeElement = uncertaintyQuantityTemplate.withName("longitude")
+      val latitudeElement  = uncertaintyQuantityTemplate.withName("latitude")
+      val depthElement     = uncertaintyQuantityTemplate.withName("depth")
+
+      val originElement = Publishable("origin")(
+        timeElement,
+        longitudeElement,
+        latitudeElement,
+        depthElement,
+        "depthType",
+        "referenceSystemID",
+        "methodID",
+        "earthModelID",
+        "type",
+        "region",
+        "evaluationMode",
+        "evaluationStatus",
+        "comment",
+        "creationInfo"
+      )
+
       val descriptionElement = Child("description")("text", "type")
       val eventType          = Child("type", EmptyNodeMap)
       val eventElement       = Publishable("event")(
         descriptionElement,
         eventType,
         creationInfoElement,
-        magnitudeElement.toChild()
+        magnitudeElement.toChild(),
+        originElement.toChild()
       )
       val eventParameters    = Transparent("eventParameters", eventElement)
       Root("quakeml", 64, eventParameters)
@@ -122,18 +148,17 @@ object QuakeMLParser:
       ZIO.attempt {
         stream
           .grouped(ChunkSize)
-          .mapAccumZIO(None)(process)
+          .mapAccumZIO(State(root))(process)
           .flattenIterables
       }
 
     private def process(
-        state: Option[State],
+        state: State,
         bytes: Chunk[Byte]
-    ): Task[(Option[State], Seq[Crawler.Info])] = ZIO.attempt {
-      val currentState          = state getOrElse State(root)
-      currentState.reader.feed(bytes.toArray)
-      val (newState, published) = read(currentState, Vector.empty)
-      (Some(newState), published)
+    ): Task[(State, Seq[Crawler.Info])] = ZIO.attempt {
+      state.reader.feed(bytes.toArray)
+      val (newState, published) = read(state, Vector.empty)
+      (newState, published)
     }
 
     @tailrec
@@ -142,7 +167,7 @@ object QuakeMLParser:
         case EVENT_INCOMPLETE =>
           (state, published)
 
-        case DTD | START_DOCUMENT =>
+        case DTD | START_DOCUMENT | COMMENT =>
           read(state, published)
 
         case START_ELEMENT =>

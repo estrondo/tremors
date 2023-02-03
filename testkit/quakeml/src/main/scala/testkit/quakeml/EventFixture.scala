@@ -13,6 +13,7 @@ object EventFixture:
     description = Seq(createRandomDescription()),
     comment = Seq(CommentFixture.createRandom()),
     creationInfo = Some(CreationInfoFixture.createRandom()),
+    origin = Seq(OriginFixture.createRandom()),
     magnitude = Seq(MagnitudeFixture.createRandom())
   )
 
