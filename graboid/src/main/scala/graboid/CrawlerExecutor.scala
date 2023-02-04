@@ -29,6 +29,10 @@ trait CrawlerExecutor:
 
   def run(): Task[CrawlingReport]
 
+  def runPublisher(publisherKey: String): Task[CrawlingReport]
+
+  def removeExecutions(publisherKey: String): Task[Long]
+
 object CrawlerExecutor:
 
   def apply(
@@ -67,7 +71,7 @@ object CrawlerExecutor:
     private val ttu            = 1000L * 30L
     private val maxCountUpdate = 50
 
-    private def computeNextTTU(now: Long) = now + ttu // Time To Update 
+    private def computeNextTTU(now: Long) = now + ttu // Time To Update
 
     def run(): Task[CrawlingReport] =
       for
@@ -78,16 +82,35 @@ object CrawlerExecutor:
 
         _      <- ZIO.logInfo(s"Running Crawler Executor for $now.")
         stream <- publisherManager.getActives()
-        report <- stream
-                    .flatMapPar(processors)(createTasks(now))
-                    .mapZIOPar(processors)(crawlerTask =>
-                      for
-                        now    <- Clock.currentDateTime
-                        result <- executeTask(crawlerTask, now.toZonedDateTime())
-                      yield result
-                    )
-                    .runFold(CrawlingReport(0L, 0L, 0L, 0L))(updateCrawlerReport)
+        report <- runStream(stream, now)
       yield report
+
+    override def runPublisher(publisherKey: String): Task[CrawlingReport] =
+      for
+        offset <- Clock.currentDateTime
+        now     = offset.toZonedDateTime()
+        option <- publisherManager.get(publisherKey)
+        report <- option match
+                    case Some(publisher) => runStream(ZStream.succeed(publisher), now)
+                    case None            => ZIO.logInfo(s"There is publisher=$publisherKey.") as CrawlingReport(0L, 0L, 0L, 0L)
+      yield report
+
+    private def runStream(stream: ZStream[Any, Throwable, Publisher], now: ZonedDateTime): Task[CrawlingReport] =
+      stream
+        .flatMapPar(processors)(createTasks(now))
+        .mapZIOPar(processors)(crawlerTask =>
+          for
+            now    <- Clock.currentDateTime
+            result <- executeTask(crawlerTask, now.toZonedDateTime())
+          yield result
+        )
+        .runFold(CrawlingReport(0L, 0L, 0L, 0L))(updateCrawlerReport)
+
+    override def removeExecutions(publisherKey: String): Task[Long] =
+      for
+        stream <- repository.removeWithPublisherKey(publisherKey)
+        count  <- stream.runCount
+      yield count
 
     def createTasks(now: ZonedDateTime)(publisher: Publisher): UStream[CrawlerTask] =
       val iteratorEffect = for

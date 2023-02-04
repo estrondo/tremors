@@ -9,9 +9,11 @@ import zio.ZIO
 import zio.stream.ZStream
 trait PublisherManager:
 
-  def getActives(): Task[ZStream[Any, Throwable, Publisher]]
-
   def add(publisher: Publisher): Task[Publisher]
+
+  def get(publisherKey: String): Task[Option[Publisher]]
+
+  def getActives(): Task[ZStream[Any, Throwable, Publisher]]
 
   def remove(publisherKey: String): Task[Option[Publisher]]
 
@@ -28,6 +30,9 @@ private[graboid] class Impl(
     repository: PublisherRepository,
     validator: Validator
 ) extends PublisherManager:
+
+  def get(publisherKey: String): Task[Option[Publisher]] =
+    repository.get(publisherKey)
 
   def getActives(): Task[ZStream[Any, Throwable, Publisher]] =
     ZIO.attempt(repository.all)

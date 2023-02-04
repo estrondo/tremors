@@ -21,6 +21,8 @@ trait CrawlerExecutionRepository:
 
   def update(execution: CrawlerExecution): Task[Option[CrawlerExecution]]
 
+  def removeWithPublisherKey(publisherKey: String): Task[ZStream[Any, Throwable, CrawlerExecution]]
+
 object CrawlerExecutionRepository:
 
   def apply(collection: DocumentCollection): CrawlerExecutionRepository =
@@ -31,7 +33,13 @@ object CrawlerExecutionRepository:
                                         | SORT doc.ending DESC
                                         | LIMIT 1
                                         | RETURN doc
-  """.stripMargin
+""".stripMargin
+
+  private val RemoveWithPublisherKeyQuery = """ |FOR doc IN @@collection
+                                                | FILTER doc.publisherKey == @publisherKey
+                                                | REMOVE doc._key IN @@collection
+                                                | RETURN doc
+""".stripMargin
 
   private[graboid] case class Document(
       _key: String,
@@ -76,6 +84,15 @@ object CrawlerExecutionRepository:
     def add(execution: CrawlerExecution): Task[CrawlerExecution] =
       collection.insert[Document](execution) <* ZIO.logInfo(
         s"Added execution=${execution.key} for publisher=${execution.publisherKey}."
+      )
+
+    override def removeWithPublisherKey(publisherKey: String): Task[ZStream[Any, Throwable, CrawlerExecution]] =
+      database.query[Document](
+        RemoveWithPublisherKeyQuery,
+        Map(
+          "@collection"  -> collection.name,
+          "publisherKey" -> publisherKey
+        )
       )
 
     def searchLast(publisher: Publisher): Task[Option[CrawlerExecution]] =

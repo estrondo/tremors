@@ -10,6 +10,8 @@ import zio.Schedule
 
 trait CrawlerExecutorModule:
 
+  def crawlerExecutor: CrawlerExecutor
+
   def run(): Task[CrawlingReport]
 
   def start(): UIO[Fiber.Runtime[Throwable, Long]]
@@ -37,7 +39,7 @@ object CrawlerExecutorModule:
       httpLayer = httpModule.serviceLayer
     )
 
-    private val crawlerExecutor: CrawlerExecutor = CrawlerExecutor(
+    val crawlerExecutor: CrawlerExecutor = CrawlerExecutor(
       repository = repositoryModule.crawlerExecutionRepository,
       scheduler = scheduler,
       publisherManager = coreModule.publisherManager,

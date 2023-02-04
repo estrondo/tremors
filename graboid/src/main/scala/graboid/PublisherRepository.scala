@@ -22,6 +22,8 @@ trait PublisherRepository:
 
   def add(publisher: Publisher): Task[Publisher]
 
+  def get(key: String): Task[Option[Publisher]]
+
   def remove(publisherKey: String): Task[Option[Publisher]]
 
   def update(publisherKey: String, update: Publisher.Update): Task[Option[Publisher]]
@@ -81,6 +83,9 @@ object PublisherRepository:
         message = s"Adding Publisher: ${publisher.key}.",
         errorMessage = s"It was impossible to add Publisher: ${publisher.key}."
       )(collection.insert[Document](publisher))
+
+    override def get(key: String): Task[Option[Publisher]] =
+      collection.get[Document](key)
 
     override def remove(publisherKey: String): Task[Option[Publisher]] =
       logUsage(

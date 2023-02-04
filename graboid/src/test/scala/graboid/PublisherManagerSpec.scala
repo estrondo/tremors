@@ -43,6 +43,18 @@ object PublisherManagerSpec extends Spec:
           inserted == expectedPublisher
         )
       },
+      test("it should get a specific Publisher from repository.") {
+        val publisher = PublisherFixture.createRandom()
+        for
+          _       <- SweetMockitoLayer[PublisherRepository]
+                       .whenF2(_.get(publisher.key))
+                       .thenReturn(Some(publisher))
+          manager <- ZIO.service[PublisherManager]
+          got     <- manager.get(publisher.key).some
+        yield assertTrue(
+          got == publisher
+        )
+      },
       test("it should report any invalid Publisher.") {
         for
           validator             <- ZIO.service[PublisherManager.Validator]

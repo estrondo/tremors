@@ -28,11 +28,11 @@ object Graboid extends ZIOAppDefault:
       httpModule       <- HttpModule(graboidConfig.httpClient)
       repositoryModule <- RepositoryModule(arangoModule)
       coreModule       <- CoreModule(graboidConfig, repositoryModule, kafkaModule, httpModule)
-      commandModule    <- CommandModule(coreModule, kafkaModule)
 
       crawlerExecutorModule <-
         CrawlerExecutorModule(graboidConfig.crawlerExecutor, repositoryModule, coreModule, httpModule)
 
+      commandModule        <- CommandModule(coreModule, kafkaModule, crawlerExecutorModule)
       commandStreamFiber   <- commandModule.start()
       crawlerExecutorFiber <- crawlerExecutorModule.start()
 

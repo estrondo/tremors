@@ -18,3 +18,7 @@ case class AddPublisher(override val id: String, descriptor: PublisherDescriptor
 case class RemovePublisher(override val id: String, publisherKey: String) extends GraboidCommand(id)
 
 case class UpdatePublisher(override val id: String, descriptor: PublisherDescriptor) extends GraboidCommand(id)
+
+case class RunAllPublishers(override val id: String) extends GraboidCommand(id)
+
+case class RunPublisher(override val id: String, publisherKey: String) extends GraboidCommand(id)

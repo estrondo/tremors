@@ -35,6 +35,19 @@ object PublisherRepositoryIT extends IT:
           found.name == publisher.name
         )
       },
+      test("It should get a specific publisher from collection") {
+        val publisher = PublisherFixture.createRandom()
+        for
+          repository <- getRepository
+          result     <- repository.add(publisher)
+          collection <- getCollection
+          stored     <- collection.getT[PublisherRepository.Document, ZEffect](publisher.key).some
+          retrieved  <- repository.get(publisher.key).some
+        yield assertTrue(
+          retrieved == publisher,
+          stored.name == publisher.name
+        )
+      },
       test("it should remove a publisher from collection.") {
         val publisher = PublisherFixture.createRandom()
         for

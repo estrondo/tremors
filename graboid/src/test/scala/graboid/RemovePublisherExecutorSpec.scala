@@ -19,48 +19,85 @@ object RemovePublisherExecutorSpec extends Spec:
 
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =
     suite("RemovePublisherCommandExecutor with mocking")(
-      test("it should remove a publisher from PublisherManager.") {
+      test("It should remove a publisher from PublisherManager.") {
         val command   = RemovePublisherFixture.createRandom()
         val publisher = PublisherFixture
           .createRandom()
           .copy(key = command.publisherKey)
 
         for
-          _        <- SweetMockitoLayer[PublisherManager]
-                        .whenF2(_.remove(command.publisherKey))
-                        .thenReturn(Some(publisher))
+          _ <- SweetMockitoLayer[PublisherManager]
+                 .whenF2(_.remove(command.publisherKey))
+                 .thenReturn(Some(publisher))
+          _ <- SweetMockitoLayer[CrawlerExecutor]
+                 .whenF2(_.removeExecutions(command.publisherKey))
+                 .thenReturn(5L)
+
           executor <- ZIO.service[RemovePublisherExecutor]
           result   <- executor(command)
         yield assertTrue(
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key})")
+            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key}, 5)")
           )
         )
       },
-      test("it should return no publisherKey when this key was not found.") {
+      test("It should return no publisherKey when this key was not found.") {
         val command = RemovePublisherFixture.createRandom()
 
         for
-          _        <- SweetMockitoLayer[PublisherManager]
-                        .whenF2(_.remove(command.publisherKey))
-                        .thenReturn(None)
+          _ <- SweetMockitoLayer[PublisherManager]
+                 .whenF2(_.remove(command.publisherKey))
+                 .thenReturn(None)
+          - <- SweetMockitoLayer[CrawlerExecutor]
+                 .whenF2(_.removeExecutions(command.publisherKey))
+                 .thenReturn(1L)
+
           executor <- ZIO.service[RemovePublisherExecutor]
           result   <- executor(command)
         yield assertTrue(
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok("Publisher()")
+            status = GraboidCommandResult.Ok("Publisher(, 0)")
+          )
+        )
+      },
+      test("It should ignore any failure in CrawlerExecutor.removeExecutions.") {
+        val publisher = PublisherFixture.createRandom()
+        val command   = RemovePublisherFixture.createRandom()
+        val failure   = IllegalStateException("$$$")
+
+        for
+          _ <- SweetMockitoLayer[PublisherManager]
+                 .whenF2(_.remove(command.publisherKey))
+                 .thenReturn(Some(publisher))
+          - <- SweetMockitoLayer[CrawlerExecutor]
+                 .whenF2(_.removeExecutions(command.publisherKey))
+                 .thenFail(failure)
+
+          executor <- ZIO.service[RemovePublisherExecutor]
+          result   <- executor(command)
+        yield assertTrue(
+          result == GraboidCommandResult(
+            id = command.id,
+            time = result.time,
+            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key}, 0)")
           )
         )
       }
-    ).provideSomeLayer(
-      PublisherManagerLayer ++ (PublisherManagerLayer >>> RemovePublisherExecutorLayer)
+    ).provideSome(
+      PublisherManagerLayer,
+      CrawlerExecutorLayer,
+      RemovePublisherExecutorLayer
     )
 
   private val RemovePublisherExecutorLayer = ZLayer {
-    for manager <- ZIO.service[PublisherManager]
-    yield RemovePublisherExecutorImpl(manager)
+    for
+      manager  <- ZIO.service[PublisherManager]
+      executor <- ZIO.service[CrawlerExecutor]
+    yield RemovePublisherExecutorImpl(manager, executor)
   }
+
+  private val CrawlerExecutorLayer = SweetMockitoLayer.newMockLayer[CrawlerExecutor]

@@ -6,6 +6,7 @@ import graboid.command.AddPublisherExecutorImpl
 import graboid.command.RemovePublisherExecutor
 import graboid.command.RemovePublisherExecutorImpl
 import graboid.command.UpdatePublisherExecutorImpl
+import graboid.command.RunAllPublishersExecutorImpl
 import graboid.kafka.GraboidCommandTopic
 import zio.Task
 import zio.ZIO
@@ -14,6 +15,7 @@ import zio.UIO
 import graboid.CoreModule
 import zio.FiberRef
 import zio.Fiber
+import graboid.command.RunPublisherExecutorImpl
 trait CommandModule:
 
   def commandListener: CommandListener
@@ -27,19 +29,26 @@ trait CommandModule:
 
 object CommandModule:
 
-  def apply(coreModule: CoreModule, kafkaModule: KafkaModule): Task[CommandModule] = ZIO.attempt {
+  def apply(
+      coreModule: CoreModule,
+      kafkaModule: KafkaModule,
+      crawlerExecutorModule: CrawlerExecutorModule
+  ): Task[CommandModule] = ZIO.attempt {
     wire[Impl]
   }
 
-  private class Impl(coreModule: CoreModule, kafkaModule: KafkaModule) extends CommandModule:
+  private class Impl(coreModule: CoreModule, kafkaModule: KafkaModule, crawlerExecutorModule: CrawlerExecutorModule)
+      extends CommandModule:
 
     private def publisherManager = coreModule.publisherManager
 
-    val addPublisherExecutor = wire[AddPublisherExecutorImpl]
+    private def crawlerExecutor = crawlerExecutorModule.crawlerExecutor
 
-    val updatePublisherExecutor = wire[UpdatePublisherExecutorImpl]
-
-    val removePublisherExecutor = wire[RemovePublisherExecutorImpl]
+    val addPublisherExecutor     = wire[AddPublisherExecutorImpl]
+    val updatePublisherExecutor  = wire[UpdatePublisherExecutorImpl]
+    val removePublisherExecutor  = wire[RemovePublisherExecutorImpl]
+    val runAllPublishersExecutor = wire[RunAllPublishersExecutorImpl]
+    val runPublisherExecutor     = wire[RunPublisherExecutorImpl]
 
     override val commandExecutor: CommandExecutor = wireWith(CommandExecutor.apply)
     override val commandListener: CommandListener = wireWith(CommandListener.apply)

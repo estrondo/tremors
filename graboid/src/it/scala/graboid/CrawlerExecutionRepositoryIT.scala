@@ -17,6 +17,9 @@ import graboid.fixture.PublisherFixture
 import scala.annotation.tailrec
 import scala.annotation.newMain
 import zio.test.TestAspect
+import zio.stream.ZStream
+import zio.Task
+import graboid.CrawlerExecutionRepository.given
 
 object CrawlerExecutionRepositoryIT extends IT:
 
@@ -50,10 +53,34 @@ object CrawlerExecutionRepositoryIT extends IT:
           for
             repository    <- ZIO.service[CrawlerExecutionRepository]
             _             <- ZIO.foreach(toInsert)(repository.add)
-            collection    <- ZIO.service[DocumentCollection]
             lastExecution <- repository.searchLast(publisher).some
           yield assertTrue(
             lastExecution == expected
+          )
+        },
+        test("It should remove executions by publisherKey.") {
+          val publisher = PublisherFixture.createRandom()
+
+          val toInsert = generateToInsert(100, createZonedDateTime().withHour(13))
+            .map(_.copy(publisherKey = publisher.key))
+
+          val publisherKeyToRemove = KeyGenerator.next64()
+          val toRemove             = generateToInsert(100, createZonedDateTime().withHour(13))
+            .map(_.copy(publisherKey = publisherKeyToRemove))
+
+          val expected = toInsert.last
+
+          for
+            repository     <- ZIO.service[CrawlerExecutionRepository]
+            collection     <- ZIO.service[DocumentCollection]
+            _              <- ZIO.foreach(toInsert ++ toRemove)(repository.add)
+            removeStream   <- repository.removeWithPublisherKey(publisherKeyToRemove)
+            removedCount   <- removeStream.runCount
+            documentsStream = collection.documents[Document]()
+            total          <- documentsStream.runCount
+          yield assertTrue(
+            removedCount == 100L,
+            total == 100L
           )
         },
         test("It should update an execution in collection.") {
