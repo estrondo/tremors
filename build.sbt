@@ -108,6 +108,44 @@ lazy val `testkit-graboid-protocol` = (project in file("testkit/graboid-protocol
     `graboid-protocol`
   )
 
+lazy val toph = (project in file("toph"))
+  .settings(
+    name := "toph",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZHttp,
+      Dependencies.ZIOLogging,
+      Dependencies.Logging,
+      Dependencies.ZIOConfig,
+      Dependencies.ZIOKafka,
+      Dependencies.Farango,
+      Dependencies.Macwire
+    ).flatten
+  )
+  .enablePlugins(ITPlugin)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoPackage := "toph"
+  )
+  .enablePlugins(AshScriptPlugin)
+  .enablePlugins(DockerPlugin)
+  .settings(
+    dockerBaseImage      := "docker.io/eclipse-temurin:17-jdk-alpine",
+    dockerRepository     := Some("docker.io/rthoth"),
+    dockerUpdateLatest   := false,
+    Docker / packageName := "estrondo",
+    Docker / version ~= ("toph_" + _),
+    dockerAliases ++= Seq(dockerAlias.value.withTag(Some("toph")))
+  )
+  .dependsOn(
+    core,
+    `zip-app-starter`,
+    quakeml,
+    `cbor-quakeml`,
+    `testkit-quakeml`            % Test,
+    `testkit-zio-testcontainers` % Test
+  )
+
 lazy val graboid = (project in file("graboid"))
   .settings(
     name := "graboid",
