@@ -33,3 +33,4 @@
 /zio-app-starter/target/
 /arangodb/data/target/
 /toph/target/
+/kafka/zkafka/target/

@@ -1,4 +1,4 @@
-package graboid.kafka
+package zkafka
 
 import zio.Task
 

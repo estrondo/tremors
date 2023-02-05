@@ -1,7 +1,6 @@
 package graboid.layer
 
 import testkit.zio.testcontainers.KafkaContainerLayer
-import graboid.kafka.KafkaManager
 import graboid.kafka.GraboidCommandTopic
 
 val ConsumerLayer = KafkaContainerLayer

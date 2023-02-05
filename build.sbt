@@ -27,11 +27,13 @@ lazy val root = (project in file("."))
     `graboid-protocol`,
     `testkit-graboid-protocol`,
     graboid,
+    toph,
     quakeml,
     `cbor-quakeml`,
     `testkit-quakeml`,
     `testkit-zio-testcontainers`,
-    `zip-app-starter`
+    `zip-app-starter`,
+    zkafka
   )
 
 lazy val core = (project in file("core"))
@@ -189,6 +191,7 @@ lazy val graboid = (project in file("graboid"))
     `farango-data`,
     quakeml,
     `cbor-quakeml`,
+    zkafka,
     `testkit-quakeml`            % Test,
     `testkit-zio-testcontainers` % Test,
     `testkit-graboid-protocol`   % Test
@@ -239,4 +242,23 @@ lazy val `zip-app-starter` = (project in file("zio-app-starter"))
       Dependencies.ZIOConfig,
       Dependencies.ZIOJson
     ).flatten
+  )
+
+lazy val `zkafka` = (project in file("kafka/zkafka"))
+  .settings(
+    name := "zkafka",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZKafka,
+      Dependencies.Borer,
+      Dependencies.Macwire,
+      Dependencies.Mockito,
+      Dependencies.ZIOLogging,
+      Dependencies.Logging
+    ).flatten
+  )
+  .enablePlugins(ITPlugin)
+  .dependsOn(
+    `testkit-core`,
+    `testkit-zio-testcontainers`
   )

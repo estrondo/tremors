@@ -1,4 +1,4 @@
-package graboid.kafka
+package zkafka
 
 import com.softwaremill.macwire.wire
 import io.bullet.borer.Cbor
@@ -43,19 +43,16 @@ object KafkaManager:
   def apply(consumerSettings: ConsumerSettings, producerSettings: ProducerSettings): KafkaManager =
     wire[Impl]
 
-  private class Impl(
-      consumerSettings: ConsumerSettings,
-      producerSettings: ProducerSettings
-  ) extends KafkaManager:
+  private class Impl(consumerSettings: ConsumerSettings, producerSettings: ProducerSettings) extends KafkaManager:
 
-    val producer = Producer.make(producerSettings)
-    val consumer = Consumer.make(consumerSettings)
+    private val producer = Producer.make(producerSettings)
+    private val consumer = Consumer.make(consumerSettings)
 
     val producerLayer = ZLayer.scoped(producer)
 
     val consumerLayer = ZLayer.scoped(consumer)
 
-    val kafkaLayer = producerLayer ++ consumerLayer
+    private val kafkaLayer = producerLayer ++ consumerLayer
 
     def subscribe[A: Decoder, B, C: Encoder](
         topic: String,
@@ -67,24 +64,12 @@ object KafkaManager:
         stream <- consumeAndProduce(topic, source, producer)
       yield stream.provideLayer(kafkaLayer)
 
-    def createSource[A: Decoder, B](topic: String, subscriber: KafkaSubscriber[A, B]): UIO[SourceStream[B]] =
+    private def createSource[A: Decoder, B](topic: String, subscriber: KafkaSubscriber[A, B]): UIO[SourceStream[B]] =
       ZIO.succeed {
         Consumer
           .subscribeAnd(Subscription.topics(topic))
           .plainStream(Serde.string, Serde.byteArray)
-          .mapZIO({ record =>
-            ZIO
-              .fromTry({
-                for decoded <- Cbor.decode(record.value).to[A].valueTry
-                yield Some((record.offset, record.key, decoded))
-              })
-              .tap(_ =>
-                ZIO.logDebug(
-                  s"A new record has just been received from topic=$topic, key=${record.key} and offset=${record.offset.offset}."
-                )
-              )
-              .catchAll(handleDecodeError(topic, record))
-          })
+          .mapZIO(decodeRecord(topic))
           .collectSome
           .mapZIO((offset, key, value) => subscriber.accept(key, value).map((offset, key, _)))
           .tap((_, _, message) =>
@@ -94,7 +79,7 @@ object KafkaManager:
           )
       }
 
-    def consumeAndProduce[B, C: Encoder](
+    private def consumeAndProduce[B, C: Encoder](
         topic: String,
         source: SourceStream[B],
         producer: KafkaProducer[B, C]
@@ -106,15 +91,26 @@ object KafkaManager:
         .collectSome
     }
 
+    private def decodeRecord[A: Decoder](
+        topic: String
+    )(record: CommittableRecord[String, Array[Byte]]): UIO[Option[(Offset, String, A)]] =
+      (for
+        decoded <- ZIO.fromTry(Cbor.decode(record.value).to[A].valueTry)
+        _       <- ZIO.logDebug(
+                     s"New record has been received from topic=$topic, key=${record.key} and offset=${record.offset.offset}."
+                   )
+      yield Some((record.offset, record.key, decoded)))
+        .catchAll(handleDecodeError(topic, record))
+
     private def handleDecodeError(topic: String, record: CommittableRecord[String, Array[Byte]])(
         cause: Throwable
     ): UIO[Option[Nothing]] =
       ZIO.logWarningCause(
-        s"It was impossible to consume message with key=${record.key} from topic=${topic}.",
+        s"It was impossible to consume record with key=${record.key} from topic=${topic}.",
         Cause.die(cause)
       ) *> ZIO.none
 
-    def produceWith[B, C: Encoder](producer: KafkaProducer[B, C])(
+    private def produceWith[B, C: Encoder](producer: KafkaProducer[B, C])(
         source: SourceElement[B]
     ): RIO[Producer, (Offset, Option[B], Seq[C])] =
       source match
@@ -127,14 +123,14 @@ object KafkaManager:
         case (offset, _, _) =>
           ZIO.succeed((offset, None, Nil))
 
-    def produceMessage[C: Encoder](message: KafkaMessage[C]): RIO[Producer, C] =
+    private def produceMessage[C: Encoder](message: KafkaMessage[C]): RIO[Producer, C] =
       for
         record   <- createRecord(message)
         metadata <- Producer.produce(record, Serde.string, Serde.byteArray)
         _        <- ZIO.logDebug(s"A message has just been sent: topic=${metadata.topic()} and offset=${metadata.offset()}.")
       yield message.value
 
-    def createRecord[C: Encoder](message: KafkaMessage[C]): Task[ProducerRecord[String, Array[Byte]]] =
+    private def createRecord[C: Encoder](message: KafkaMessage[C]): Task[ProducerRecord[String, Array[Byte]]] =
       for bytes <- ZIO.fromTry(Cbor.encode(message.value).toByteArrayTry)
       yield message.key match
         case Some(key) => ProducerRecord(message.topic, key, bytes)

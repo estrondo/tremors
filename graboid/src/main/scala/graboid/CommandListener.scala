@@ -1,7 +1,7 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import graboid.kafka.KafkaSubscriber
+import zkafka.KafkaSubscriber
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
 import zio.Task

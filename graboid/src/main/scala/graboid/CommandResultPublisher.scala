@@ -1,8 +1,8 @@
 package graboid
 
 import graboid.kafka.GraboidCommandResultTopic
-import graboid.kafka.KafkaMessage
-import graboid.kafka.KafkaProducer
+import zkafka.KafkaMessage
+import zkafka.KafkaProducer
 import graboid.protocol.GraboidCommandResult
 import zio.Task
 import zio.ZIO
@@ -11,7 +11,7 @@ trait CommandResultPublisher extends KafkaProducer[GraboidCommandResult, Graboid
 
 object CommandResultPublisher:
 
-  def apply(): CommandResultPublisher = Impl()
+  def apply(): CommandResultPublisher = new Impl()
 
   private class Impl extends CommandResultPublisher:
 

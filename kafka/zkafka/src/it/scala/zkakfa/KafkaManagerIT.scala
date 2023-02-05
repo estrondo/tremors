@@ -1,11 +1,5 @@
-package graboid
+package zkafka
 
-import cats.instances.byte
-import graboid.kafka.KafkaManager
-import graboid.kafka.KafkaMessage
-import graboid.kafka.KafkaProducer
-import graboid.kafka.KafkaSubscriber
-import graboid.layer.KafkaLayer
 import io.bullet.borer.Cbor
 import io.bullet.borer.Codec
 import io.bullet.borer.Encoder
@@ -23,7 +17,6 @@ import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
 
-import javax.swing.UIDefaults.ProxyLazyValue
 import zio.test.TestAspect
 
 object KafkaManagerIT extends IT:
@@ -85,9 +78,15 @@ object KafkaManagerIT extends IT:
 
   private val ProducerLayerMockLayer = ZLayer.succeed(SweetMockito[Producer])
 
-  private val ManagerLayer = KafkaLayer ++ (KafkaLayer >>> ZLayer {
+  private val KafkaConsumerLayer = KafkaContainerLayer.createConsumerLayer2("test")
+
+  private val KafkaProducerLayer = KafkaContainerLayer.producerLayer
+
+  private val KafkaLayer = KafkaContainerLayer.layer >+> KafkaConsumerLayer >+> KafkaProducerLayer
+
+  private val ManagerLayer = KafkaLayer >+> ZLayer {
     for
       producerSettings <- KafkaContainerLayer.producerSettings()
       consumerSettings <- KafkaContainerLayer.consumerSettings("test")
     yield KafkaManager(consumerSettings, producerSettings)
-  })
+  }

@@ -4,7 +4,7 @@ import com.softwaremill.macwire.wire
 import com.softwaremill.macwire.wireWith
 import graboid.config.KafkaConfig
 import graboid.kafka.GraboidGroup
-import graboid.kafka.KafkaManager
+import zkafka.KafkaManager
 import zio.Task
 import zio.TaskLayer
 import zio.ZIO
@@ -13,8 +13,8 @@ import zio.kafka.producer.ProducerSettings
 import zio.kafka.producer.Producer
 import zio.kafka.consumer.Consumer
 import zio.stream.ZStream
-import graboid.kafka.KafkaProducer
-import graboid.kafka.KafkaSubscriber
+import zkafka.KafkaProducer
+import zkafka.KafkaSubscriber
 import io.bullet.borer.Decoder
 import io.bullet.borer.Encoder
 
