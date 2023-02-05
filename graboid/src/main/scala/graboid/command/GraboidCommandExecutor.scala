@@ -36,21 +36,11 @@ trait GraboidCommandExecutor[T <: GraboidCommand]:
   protected def handleError(command: T, startTime: Long)(
       error: Throwable
   ): UIO[GraboidCommandResult] =
-
-    @tailrec
-    def toCause(error: Throwable, current: Seq[String]): Seq[String] =
-      if error == null then current
-      else
-        toCause(
-          error.getCause(),
-          current :+ s"${error.getClass().getCanonicalName()}: ${error.getMessage()}"
-        )
-
     ZIO.logErrorCause(
       "A error has happend during adding of an Publisher!",
       Cause.die(error)
     ) as GraboidCommandResult(
       command.id,
       System.currentTimeMillis() - startTime,
-      GraboidCommandResult.Failed(toCause(error, Vector.empty))
+      GraboidCommandResult.failed("An error ocurred!", error)
     )

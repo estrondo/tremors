@@ -41,7 +41,7 @@ object AddPublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key})")
+            status = GraboidCommandResult.ok("Publisher added.", "publisherKey" -> publisher.key)
           )
         )
       },
@@ -59,7 +59,7 @@ object AddPublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Failed(Seq("java.lang.IllegalArgumentException: ###"))
+            status = GraboidCommandResult.failed("An error ocurred!", Seq("###"))
           )
         )
       }

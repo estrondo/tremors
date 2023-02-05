@@ -14,6 +14,10 @@ class RunPublisherExecutorImpl(
 
   override def execute(command: RunPublisher): Task[Status] =
     for report <- crawlerExecutor.runPublisher(command.publisherKey)
-    yield GraboidCommandResult.Ok(
-      s"Run publisher=${command.publisherKey}: events=${report.events}, origins=${report.origins}, magnitudes=${report.magnitudes} and failures=${report.failures}."
+    yield GraboidCommandResult.ok(
+      "Publisher has been run.",
+      "events"     -> report.events.toString(),
+      "origins"    -> report.origins.toString(),
+      "magnitudes" -> report.magnitudes.toString(),
+      "failures"   -> report.failures.toString()
     )

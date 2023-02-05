@@ -29,7 +29,13 @@ object RunAllPublishersExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = runAll.id,
             time = result.time,
-            status = GraboidCommandResult.Ok("There were detected: events=1, origins=3, magnitudes=2 and failures=4.")
+            status = GraboidCommandResult.ok(
+              "All publisher have been run.",
+              "events"     -> "1",
+              "origins"    -> "3",
+              "magnitudes" -> "2",
+              "failures"   -> "4"
+            )
           )
         )
       },
@@ -46,7 +52,7 @@ object RunAllPublishersExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = runAll.id,
             time = result.time,
-            status = GraboidCommandResult.Failed(Seq("It was impossible to run all publishers.", "@@@"))
+            status = GraboidCommandResult.failed("It was impossible to run all publishers.", Seq("@@@"))
           )
         )
       }

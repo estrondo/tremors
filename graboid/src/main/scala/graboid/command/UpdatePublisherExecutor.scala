@@ -17,4 +17,4 @@ class UpdatePublisherExecutorImpl(
   override def execute(command: UpdatePublisher): Task[Status] =
     for updated <- manager
                      .update(command.descriptor.key, Publisher.updateFrom(command.descriptor))
-    yield GraboidCommandResult.Ok(s"Publisher(${updated.map(_.key).getOrElse("")})")
+    yield GraboidCommandResult.ok("Publisher has been updated.", "publisherKey" -> command.descriptor.key)

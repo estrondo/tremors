@@ -21,7 +21,11 @@ class RemovePublisherExecutorImpl(
       result <- publisherManager.remove(command.publisherKey)
       count  <- if result.isDefined then removeExecutions(command)
                 else ZIO.succeed(0L)
-    yield GraboidCommandResult.Ok(s"Publisher(${result.map(_.key).getOrElse("")}, $count)")
+    yield GraboidCommandResult.ok(
+      "Publisher has removed.",
+      "publisherKey" -> command.publisherKey,
+      "executions"   -> count.toString
+    )
 
   private def removeExecutions(command: RemovePublisher): Task[Long] =
     crawlerExecutor

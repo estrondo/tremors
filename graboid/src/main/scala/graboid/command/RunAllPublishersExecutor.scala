@@ -22,8 +22,12 @@ class RunAllPublishersExecutorImpl(
       .fold(reportFailure, reportSuccess)
 
   private def reportSuccess(report: CrawlingReport): Status =
-    GraboidCommandResult.Ok(
-      s"There were detected: events=${report.events}, origins=${report.origins}, magnitudes=${report.magnitudes} and failures=${report.failures}."
+    GraboidCommandResult.ok(
+      "All publisher have been run.",
+      "events"     -> report.events.toString(),
+      "origins"    -> report.origins.toString(),
+      "magnitudes" -> report.magnitudes.toString(),
+      "failures"   -> report.failures.toString()
     )
 
   private def reportFailure(cause: Throwable): Status =

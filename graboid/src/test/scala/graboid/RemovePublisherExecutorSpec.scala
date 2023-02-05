@@ -39,7 +39,11 @@ object RemovePublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key}, 5)")
+            status = GraboidCommandResult.ok(
+              "Publisher has removed.",
+              "publisherKey" -> command.publisherKey,
+              "executions"   -> "5"
+            )
           )
         )
       },
@@ -60,7 +64,11 @@ object RemovePublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok("Publisher(, 0)")
+            status = GraboidCommandResult.ok(
+              "Publisher has removed.",
+              "publisherKey" -> command.publisherKey,
+              "executions"   -> "0"
+            )
           )
         )
       },
@@ -83,7 +91,11 @@ object RemovePublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key}, 0)")
+            status = GraboidCommandResult.ok(
+              "Publisher has removed.",
+              "publisherKey" -> command.publisherKey,
+              "executions"   -> "0"
+            )
           )
         )
       }

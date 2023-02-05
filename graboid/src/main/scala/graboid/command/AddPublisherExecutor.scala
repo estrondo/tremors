@@ -25,4 +25,4 @@ class AddPublisherExecutorImpl(
     for
       publisher <- ZIO.attempt(Publisher.from(command.descriptor))
       added     <- publisherManager.add(publisher)
-    yield GraboidCommandResult.Ok(s"Publisher(${added.key})")
+    yield GraboidCommandResult.ok(s"Publisher added.", ("publisherKey" -> command.descriptor.key))

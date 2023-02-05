@@ -36,7 +36,7 @@ object UpdatePublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok(s"Publisher(${publisher.key})")
+            status = GraboidCommandResult.ok("Publisher has been updated.", "publisherKey" -> publisher.key)
           )
         )
       },
@@ -54,7 +54,7 @@ object UpdatePublisherExecutorSpec extends Spec:
           result == GraboidCommandResult(
             id = command.id,
             time = result.time,
-            status = GraboidCommandResult.Ok(s"Publisher()")
+            status = GraboidCommandResult.ok("Publisher has been updated.", "publisherKey" -> command.descriptor.key)
           )
         )
       }
