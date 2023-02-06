@@ -121,6 +121,7 @@ lazy val toph = (project in file("toph"))
       Dependencies.ZIOConfig,
       Dependencies.ZIOKafka,
       Dependencies.Farango,
+      Dependencies.Ducktape,
       Dependencies.Macwire
     ).flatten
   )
@@ -203,7 +204,8 @@ lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontai
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOKafka,
-      Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name)))
+      Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name))),
+      Dependencies.Farango
     ).flatten
   )
 

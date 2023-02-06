@@ -5,8 +5,8 @@ import farango.Database
 import farango.DocumentCollection
 import farango.zio.ZEffect
 import graboid.fixture.PublisherFixture
-import graboid.layer.ArangoDBLayer
-import graboid.layer.FarangoLayer
+import testkit.zio.testcontainers.ArangoDBLayer
+import testkit.zio.testcontainers.FarangoLayer
 import zio.RLayer
 import zio.Scope
 import zio.URIO

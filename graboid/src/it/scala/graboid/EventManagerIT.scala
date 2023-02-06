@@ -8,7 +8,6 @@ import io.bullet.borer.Cbor
 import testkit.quakeml.EventFixture
 import testkit.quakeml.MagnitudeFixture
 import testkit.quakeml.OriginFixture
-import testkit.zio.testcontainers.KafkaContainerLayer
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -19,6 +18,7 @@ import zio.stream.ZSink
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
+import testkit.zio.testcontainers.KafkaLayer
 
 object EventManagerIT extends IT:
 
@@ -34,7 +34,7 @@ object EventManagerIT extends IT:
 
           for
             manager        <- ZIO.service[EventManager]
-            consumerStream <- KafkaContainerLayer.consume(GraboidDetectedEvent)
+            consumerStream <- KafkaLayer.consume(GraboidDetectedEvent)
             _              <- manager.register(expectedEvent, publisher, execution)
             _              <- manager.register(expectedOrigin, publisher, execution)
             _              <- manager.register(expectedMagniture, publisher, execution)
@@ -52,10 +52,9 @@ object EventManagerIT extends IT:
             )
         }
       ).provideSomeLayer(
-        KafkaContainerLayer.layer ++ (KafkaContainerLayer.layer >>> (KafkaContainerLayer.producerLayer ++ KafkaContainerLayer
-          .createConsumerLayer2(
-            "graboid"
-          ) ++ (KafkaContainerLayer.producerLayer >>> EventManagerLayer)))
+        KafkaLayer.layer ++ (KafkaLayer.layer >>> (KafkaLayer.producerLayer ++ KafkaLayer.createConsumerLayer(
+          "graboid"
+        ) ++ (KafkaLayer.producerLayer >>> EventManagerLayer)))
       )
     )
 

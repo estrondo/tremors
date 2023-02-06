@@ -1,8 +1,7 @@
-package graboid.layer
+package testkit.zio.testcontainers
 
 import com.dimafeng.testcontainers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import testkit.zio.testcontainers.*
 import zio.TaskLayer
 import zio.URIO
 import zio.ZIO

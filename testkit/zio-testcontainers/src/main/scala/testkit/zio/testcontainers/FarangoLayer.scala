@@ -1,4 +1,4 @@
-package graboid.layer
+package testkit.zio.testcontainers
 
 import com.arangodb.async.ArangoDBAsync
 import com.arangodb.mapping.ArangoJack
@@ -6,11 +6,12 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import farango.Database
 import farango.DocumentCollection
 import farango.zio.given
-import graboid.layer.ArangoDBLayer
+import zio.RIO
 import zio.RLayer
-import zio.URIO
 import zio.ZIO
 import zio.ZLayer
+
+import scala.reflect.ClassTag
 
 object FarangoLayer:
 
@@ -43,3 +44,9 @@ object FarangoLayer:
       database   <- ZIO.service[Database]
       collection <- database.documentCollection(name).orDie
     yield collection
+
+  def getDocument[T: ClassTag, A](key: String)(using Conversion[T, A]): RIO[DocumentCollection, Option[A]] =
+    for
+      collection <- ZIO.service[DocumentCollection]
+      result     <- collection.get[T](key)
+    yield result

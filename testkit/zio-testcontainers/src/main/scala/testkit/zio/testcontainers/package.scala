@@ -1,23 +1,12 @@
 package testkit.zio.testcontainers
 
 import com.dimafeng.testcontainers.Container
-import com.dimafeng.testcontainers.GenericContainer.DockerImage
-import com.dimafeng.testcontainers.GenericContainer.FileSystemBind
 import com.dimafeng.testcontainers.SingleContainer
-import org.testcontainers.containers.BindMode
 import zio.Tag
-import zio.Task
 import zio.TaskLayer
 import zio.URIO
 import zio.ZIO
 import zio.ZLayer
-
-import java.io.File
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
-
-given Conversion[(String, String), FileSystemBind] = (source, target) =>
-  FileSystemBind(new File(source).getAbsolutePath(), target, BindMode.READ_ONLY)
 
 def layerOf[C <: Container: Tag](fn: => C): TaskLayer[C] = ZLayer.scoped {
   val acquire = ZIO.attemptBlocking {

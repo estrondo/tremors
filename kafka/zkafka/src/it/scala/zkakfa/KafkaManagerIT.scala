@@ -7,17 +7,16 @@ import io.bullet.borer.derivation.MapBasedCodecs.deriveCodec
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
-import testkit.zio.testcontainers.KafkaContainerLayer
+import testkit.zio.testcontainers.KafkaLayer
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
 import zio.given
 import zio.stream.ZSink
+import zio.test.TestAspect
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import zio.test.TestAspect
 
 object KafkaManagerIT extends IT:
 
@@ -52,8 +51,8 @@ object KafkaManagerIT extends IT:
                                  .thenReturn(Seq(KafkaMessage(expected, Some("k10"), "imdb")))
             manager         <- ZIO.service[KafkaManager]
             subscribeStream <- manager.subscribe("series", subscriber, producer)
-            _               <- KafkaContainerLayer.send("k9", bytes, "series")
-            responseStream  <- KafkaContainerLayer.consume("imdb")
+            _               <- KafkaLayer.send("k9", bytes, "series")
+            responseStream  <- KafkaLayer.consume("imdb")
             fiber1          <- subscribeStream.run(ZSink.head).some.fork
             fiber2          <- responseStream.run(ZSink.head).some.fork
             _               <- TestClock.adjust(2.seconds)
@@ -78,15 +77,15 @@ object KafkaManagerIT extends IT:
 
   private val ProducerLayerMockLayer = ZLayer.succeed(SweetMockito[Producer])
 
-  private val KafkaConsumerLayer = KafkaContainerLayer.createConsumerLayer2("test")
+  private val KafkaConsumerLayer = KafkaLayer.createConsumerLayer("test")
 
-  private val KafkaProducerLayer = KafkaContainerLayer.producerLayer
+  private val KafkaProducerLayer = KafkaLayer.producerLayer
 
-  private val KafkaLayer = KafkaContainerLayer.layer >+> KafkaConsumerLayer >+> KafkaProducerLayer
+  private val kafkaLayer = KafkaLayer.layer >+> KafkaConsumerLayer >+> KafkaProducerLayer
 
-  private val ManagerLayer = KafkaLayer >+> ZLayer {
+  private val ManagerLayer = kafkaLayer >+> ZLayer {
     for
-      producerSettings <- KafkaContainerLayer.producerSettings()
-      consumerSettings <- KafkaContainerLayer.consumerSettings("test")
+      producerSettings <- KafkaLayer.producerSettings()
+      consumerSettings <- KafkaLayer.consumerSettings("test")
     yield KafkaManager(consumerSettings, producerSettings)
   }

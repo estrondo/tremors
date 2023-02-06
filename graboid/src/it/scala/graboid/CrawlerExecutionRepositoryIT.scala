@@ -3,23 +3,24 @@ package graboid
 import core.KeyGenerator
 import farango.DocumentCollection
 import farango.zio.given
+import graboid.CrawlerExecutionRepository.given
 import graboid.fixture.CrawlerExecutionFixture
-import graboid.layer.ArangoDBLayer
-import graboid.layer.FarangoLayer
+import graboid.fixture.PublisherFixture
+import testkit.core.createZonedDateTime
+import testkit.zio.testcontainers.ArangoDBLayer
+import testkit.zio.testcontainers.FarangoLayer
 import zio.Scope
+import zio.Task
 import zio.ZIO
 import zio.ZLayer
+import zio.stream.ZStream
+import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import testkit.core.createZonedDateTime
+
 import java.time.ZonedDateTime
-import graboid.fixture.PublisherFixture
-import scala.annotation.tailrec
 import scala.annotation.newMain
-import zio.test.TestAspect
-import zio.stream.ZStream
-import zio.Task
-import graboid.CrawlerExecutionRepository.given
+import scala.annotation.tailrec
 
 object CrawlerExecutionRepositoryIT extends IT:
 
