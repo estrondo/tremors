@@ -33,3 +33,4 @@
 /toph/target/
 /kafka/zkafka/target/
 /arangodb/farango-zio-starter/target/
+/testkit/zio-repository/target/

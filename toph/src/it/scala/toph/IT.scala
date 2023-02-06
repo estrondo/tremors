@@ -9,5 +9,5 @@ import zio.test.testEnvironment
 
 trait IT extends ZIOSpecDefault:
 
-  override val bootstrap: ZLayer[Any, Any, TestEnvironment] = 
+  override val bootstrap: ZLayer[Any, Any, TestEnvironment] =
     Runtime.removeDefaultLoggers >>> SLF4J.slf4j >>> testEnvironment

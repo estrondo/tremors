@@ -33,6 +33,7 @@ lazy val root = (project in file("."))
     `cbor-quakeml`,
     `testkit-quakeml`,
     `testkit-zio-testcontainers`,
+    `testkit-zio-repository`,
     `zip-app-starter`,
     zkafka
   )
@@ -135,7 +136,8 @@ lazy val toph = (project in file("toph"))
       Dependencies.Farango,
       Dependencies.Ducktape,
       Dependencies.Macwire
-    ).flatten
+    ).flatten,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
@@ -158,8 +160,10 @@ lazy val toph = (project in file("toph"))
     quakeml,
     `cbor-quakeml`,
     `farango-zio-starter`,
+    `farango-data`,
     `testkit-quakeml`            % Test,
-    `testkit-zio-testcontainers` % Test
+    `testkit-zio-testcontainers` % Test,
+    `testkit-zio-repository`     % Test
   )
 
 lazy val graboid = (project in file("graboid"))
@@ -221,6 +225,18 @@ lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontai
       Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name))),
       Dependencies.Farango
     ).flatten
+  )
+
+lazy val `testkit-zio-repository` = (project in file("testkit/zio-repository"))
+  .settings(
+    name := "testkit-zio-repository",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO.map(_.withConfigurations(Some(Compile.name)))
+    ).flatten
+  )
+  .dependsOn(
+    `testkit-core`,
+    `testkit-zio-testcontainers`
   )
 
 lazy val webapi1x = (project in file("webapi1x"))

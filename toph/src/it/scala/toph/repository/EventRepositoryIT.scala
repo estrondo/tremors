@@ -16,39 +16,32 @@ import toph.model.Event
 import toph.IT
 import EventRepository.given
 import zio.test.TestAspect
+import testkit.zio.repository.RepositoryIT
+import zio.Task
+import EventRepository.Document
+import farango.zio.given
 
 object EventRepositoryIT extends IT:
 
+  given RepositoryIT[EventRepository, Event] with
+
+    override def create(collection: DocumentCollection): Task[EventRepository]         =
+      ZIO.succeed(EventRepository(collection))
+    override def get(collection: DocumentCollection, key: String): Task[Option[Event]] = collection.get[Document](key)
+    override def getKey(value: Event): String                                          = value.key
+    override def insert(repository: EventRepository, value: Event): Task[Any]          = repository.add(value)
+    override def remove(repository: EventRepository, value: Event): Task[Any]          = repository.remove(value.key)
   override def spec: Spec[TestEnvironment & Scope, Any] =
     suite("An EventRepository")(
       suite("With Arango's container")(
         test("It should add a event into collection.") {
-          val expectedEvent = EventFixture.createRandom()
-          for
-            repository <- ZIO.service[EventRepository]
-            _          <- repository.add(expectedEvent)
-            stored     <- FarangoLayer.getDocument[EventRepository.Document, Event](expectedEvent.key).some
-          yield assertTrue(
-            stored == expectedEvent
-          )
+          RepositoryIT.testAdd(EventFixture.createRandom())
         },
         test("It should remove a event from collection.") {
-          val expectedEvent = EventFixture.createRandom()
-          for
-            repository <- ZIO.service[EventRepository]
-            _          <- repository.add(expectedEvent)
-            removed    <- repository.remove(expectedEvent.key).some
-            notFound   <- FarangoLayer.getDocument[EventRepository.Document, Event](expectedEvent.key)
-          yield assertTrue(
-            removed == expectedEvent,
-            notFound.isEmpty
-          )
+          RepositoryIT.testRemove(EventFixture.createRandom())
         }
       ).provideSome(
-        ArangoDBLayer.layer,
-        FarangoLayer.database,
-        FarangoLayer.documentCollectionLayer(s"event_repository_${KeyGenerator.next4()}"),
-        EventREpositoryLayer
+        RepositoryIT.of[EventRepository, Event]
       ) @@ TestAspect.sequential
     )
 
