@@ -1,3 +1,7 @@
 package toph.config
 
-case class TophConfig(a: String)
+import farango.zio.starter.ArangoConfig
+
+case class TophConfig(
+    arango: ArangoConfig
+)

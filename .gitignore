@@ -27,10 +27,9 @@
 /graboid-protocol/target/
 /graboid-protocol-testkit/target/
 /logging/target/
-# /arangodb/farango/target/
-# /arangodb/ziorango/target/
 /quakeml/target/
 /zio-app-starter/target/
 /arangodb/data/target/
 /toph/target/
 /kafka/zkafka/target/
+/arangodb/farango-zio-starter/target/

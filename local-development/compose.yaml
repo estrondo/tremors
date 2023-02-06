@@ -83,7 +83,6 @@ services:
     environment:
       ZK_HOSTS: "zkcmak:2181"
 
-
   graboid:
     image: docker.io/rthoth/estrondo:graboid
     environment:
@@ -97,6 +96,18 @@ services:
       GRABOID_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
     ports:
       - "8080:8080"
+
+  toph:
+    image: docker.io/rthoth/estrondo:toph
+    environment:
+      TREMORS_PROFILE: dev
+      TOPH_ARANGO_DATABASE: _system
+      TOPH_ARANGO_USERNAME: root
+      TOPH_ARANGO_PASSWORD: tremors
+      TOPH_ARANGO_HOSTS: arango1:8529,arango2:8529,arango3:8529
+      TOPH_KAFKA_CLIENT_ID: graboid
+      TOPH_KAFKA_CLOSE_TIMEOUT: 10 seconds
+      TOPH_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
 volumes:
   arango1:
   arango2:

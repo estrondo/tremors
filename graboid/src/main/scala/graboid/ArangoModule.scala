@@ -7,10 +7,12 @@ import com.softwaremill.macwire.wire
 import farango.Database
 import farango.DocumentCollection
 import farango.zio.given
-import graboid.config.ArangoConfig
+import farango.zio.starter.ArangoConfig
+import farango.zio.starter.FarangoStarter
 import zio.Schedule
 import zio.Task
 import zio.ZIO
+import zio.ZLayer
 import zio.given
 
 trait ArangoModule:
@@ -25,32 +27,7 @@ object ArangoModule:
 
   private class Impl(config: ArangoConfig) extends ArangoModule:
 
-    val retryPolicy = Schedule.recurs(30) || Schedule.spaced(2.seconds)
-
-    val getDatabase =
-      val memoized = ZIO.attempt {
-
-        val arangoJack = ArangoJack()
-        arangoJack.configure(mapper => mapper.registerModule(DefaultScalaModule))
-
-        var arangoDB = ArangoDBAsync
-          .Builder()
-          .serializer(arangoJack)
-          .user(config.username)
-          .password(config.password)
-
-        for host <- config.hosts do arangoDB.host(host.hostname, host.port)
-
-        Database(arangoDB.build().db(config.database))
-      }.memoize
-
-      for
-        effect   <- memoized
-        database <- effect
-      yield database
+    private val DatabaseLayer = FarangoStarter.layer(config)
 
     override def getDocumentCollection(name: String): Task[DocumentCollection] =
-      (for
-        database   <- getDatabase
-        collection <- database.documentCollection(name)
-      yield collection).retry(retryPolicy)
+      FarangoStarter.getDocumentCollection(name).provideLayer(DatabaseLayer)

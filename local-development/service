@@ -50,6 +50,22 @@ graboid)
     ;;
   esac
   ;;
+toph)
+  case $2 in
+  start)
+    docker-compose up toph
+    ;;
+
+  reset)
+    docker-compose rm -f -v toph
+    docker-compose up toph
+    ;;
+
+  *)
+    echo "Try ./service toph [start | reset]."
+    ;;
+  esac
+  ;;
 *)
   echo "Try ./service [arango | kafka | graboid]"
   ;;

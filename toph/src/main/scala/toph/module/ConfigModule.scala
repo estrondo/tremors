@@ -8,7 +8,8 @@ import zioapp.ZProfile
 import toph.config.TophConfig
 import toph.BuildInfo
 
-trait ConfigModule
+trait ConfigModule:
+  def toph: TophConfig
 
 object ConfigModule:
 
@@ -16,8 +17,8 @@ object ConfigModule:
 
   def apply(): RIO[ZIOAppArgs, ConfigModule] =
     for
-      tuple <- ZProfile.load[C](useFirstArgumentLine = false)
+      tuple <- ZProfile.load[C](useFirstArgumentLine = true)
       _     <- ZIO.logInfo(s"🌎 Toph [${BuildInfo.version}] is going to start in [${tuple._2.getOrElse("default")}] mode.")
     yield Impl(tuple._1.toph)
 
-  private class Impl(toph: TophConfig) extends ConfigModule
+  private class Impl(override val toph: TophConfig) extends ConfigModule

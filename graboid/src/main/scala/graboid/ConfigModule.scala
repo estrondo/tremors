@@ -1,7 +1,7 @@
 package graboid
 
-import graboid.config.ArangoConfig
-import graboid.config.ArangoHost
+import farango.zio.starter.ArangoConfig
+import farango.zio.starter.ArangoHost
 import graboid.config.GraboidConfig
 import zio.Task
 import zio.ZIO
@@ -32,19 +32,6 @@ object ConfigModule:
                               case Some(profile) => ZIO.logInfo(s"Graboid has been started in [$profile].")
                               case None          => ZIO.logInfo("Graboid has been started in default mode.")
       yield config.graboid
-
-    private def toArangoHost(value: String): Seq[ArangoHost] =
-      for part <- value.split("\\s*,\\s*")
-      yield part.split(":") match
-        case Array(hostname, port) => ArangoHost(hostname, port.toInt)
-        case _                     => throw IllegalArgumentException(value)
-
-    private def fromArangoHost(values: Seq[ArangoHost]): String = throw IllegalStateException(
-      "fromArangoHost"
-    )
-
-    private given seqArangoHost: Descriptor[Seq[ArangoHost]] =
-      Descriptor.from(Descriptor[String].transform(toArangoHost, fromArangoHost))
 
     private given seqString: Descriptor[Seq[String]] =
       Descriptor.from(

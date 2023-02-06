@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
     core,
     `testkit-core`,
     `farango-data`,
+    `farango-zio-starter`,
     cbor,
     webapi1x,
     `graboid-protocol`,
@@ -62,6 +63,17 @@ lazy val `farango-data` = (project in file("arangodb/data"))
     name := "farango-data",
     libraryDependencies ++= Seq(
       Dependencies.Ducktape
+    ).flatten
+  )
+
+lazy val `farango-zio-starter` = (project in file("arangodb/farango-zio-starter"))
+  .settings(
+    name := "farango-zio-starter",
+    libraryDependencies ++= Seq(
+      Dependencies.ArangoDB,
+      Dependencies.Farango,
+      Dependencies.ZIO,
+      Dependencies.ZIOConfig
     ).flatten
   )
 
@@ -145,6 +157,7 @@ lazy val toph = (project in file("toph"))
     `zip-app-starter`,
     quakeml,
     `cbor-quakeml`,
+    `farango-zio-starter`,
     `testkit-quakeml`            % Test,
     `testkit-zio-testcontainers` % Test
   )
@@ -193,6 +206,7 @@ lazy val graboid = (project in file("graboid"))
     quakeml,
     `cbor-quakeml`,
     zkafka,
+    `farango-zio-starter`,
     `testkit-quakeml`            % Test,
     `testkit-zio-testcontainers` % Test,
     `testkit-graboid-protocol`   % Test
