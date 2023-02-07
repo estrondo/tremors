@@ -1,9 +1,11 @@
 package graboid
 
+import _root_.quakeml.DetectedEvent
 import _root_.quakeml.Event
 import _root_.quakeml.Magnitude
 import _root_.quakeml.Origin
 import com.softwaremill.macwire.wire
+import graboid.GraboidException.CrawlerException
 import zio.Cause
 import zio.Clock
 import zio.RIO
@@ -15,15 +17,13 @@ import zio.stream.ZStream
 import zio.stream.ZStreamAspect
 
 import java.awt.Taskbar
-import java.time.ZonedDateTime
-import graboid.GraboidException.CrawlerException
 import java.net.URI
-import zio.RIO
-import java.time.temporal.ChronoUnit
-import java.time.temporal.ChronoField
-import scala.language.experimental
-import java.time.LocalDateTime
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import scala.language.experimental
 
 trait CrawlerExecutor:
 
@@ -52,11 +52,8 @@ object CrawlerExecutor:
 
   private case class Status(events: Long, magnitudes: Long, origins: Long, last: Option[ZonedDateTime]):
 
-    def count(info: Crawler.Info): Status =
-      info match
-        case _: Event     => copy(events = events + 1)
-        case _: Origin    => copy(origins = origins + 1)
-        case _: Magnitude => copy(magnitudes = magnitudes + 1)
+    def count(event: DetectedEvent): Status =
+      copy(events = events + 1)
 
   private class Impl(
       repository: CrawlerExecutionRepository,
@@ -163,15 +160,15 @@ object CrawlerExecutor:
 
     private def accumUpdateCrawlerExecution(publisher: Publisher, execution: CrawlerExecution)(
         state: State,
-        info: Crawler.Info
-    ): Task[(State, Crawler.Info)] =
+        event: DetectedEvent
+    ): Task[(State, DetectedEvent)] =
       val (ttu, count) = state
 
-      def computeNewState(now: Long): UIO[(State, Crawler.Info)] =
+      def computeNewState(now: Long): UIO[(State, DetectedEvent)] =
         if now >= ttu || count >= maxCountUpdate then
           val nextTTU = computeNextTTU(now)
-          updateCrawlerExecution(publisher, execution, nextTTU) as ((nextTTU, 0L), info)
-        else ZIO.succeed(((ttu, count + 1), info))
+          updateCrawlerExecution(publisher, execution, nextTTU) as ((nextTTU, 0L), event)
+        else ZIO.succeed(((ttu, count + 1), event))
 
       for
         now      <- Clock.currentTime(ChronoUnit.SECONDS)
@@ -248,10 +245,10 @@ object CrawlerExecutor:
             )
       yield report
 
-    def summarise(report: CrawlerTaskReport, info: Crawler.Info): UIO[CrawlerTaskReport] =
+    def summarise(report: CrawlerTaskReport, event: DetectedEvent): UIO[CrawlerTaskReport] =
       report.status match
         case status: Status   =>
-          ZIO.succeed(report.copy(status = status.count(info)))
+          ZIO.succeed(report.copy(status = status.count(event)))
         case error: Throwable =>
           ZIO.succeed(report) <* ZIO.logWarningCause("Unexpected error!", Cause.die(error))
 

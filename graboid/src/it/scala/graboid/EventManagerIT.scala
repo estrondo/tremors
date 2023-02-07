@@ -1,13 +1,17 @@
 package graboid
 
+import _root_.quakeml.DetectedEvent
+import cbor.quakeml.given
 import graboid.Crawler.given
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
 import graboid.kafka.GraboidDetectedEvent
 import io.bullet.borer.Cbor
+import testkit.core.createZonedDateTime
 import testkit.quakeml.EventFixture
 import testkit.quakeml.MagnitudeFixture
 import testkit.quakeml.OriginFixture
+import testkit.zio.testcontainers.KafkaLayer
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -18,7 +22,6 @@ import zio.stream.ZSink
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import testkit.zio.testcontainers.KafkaLayer
 
 object EventManagerIT extends IT:
 
@@ -26,30 +29,23 @@ object EventManagerIT extends IT:
     suite("A EventManager")(
       suite("with Kafka's container")(
         test("It should send info objects to correct topic.") {
-          val expectedEvent     = EventFixture.createRandom()
-          val expectedOrigin    = OriginFixture.createRandom()
-          val expectedMagniture = MagnitudeFixture.createRandom()
-          val publisher         = PublisherFixture.createRandom()
-          val execution         = CrawlerExecutionFixture.createRandom()
+          val now              = createZonedDateTime()
+          val expectedEvent    = EventFixture.createRandom()
+          val publisher        = PublisherFixture.createRandom()
+          val execution        = CrawlerExecutionFixture.createRandom()
+          val expectedDetected = DetectedEvent(now, expectedEvent)
 
           for
             manager        <- ZIO.service[EventManager]
             consumerStream <- KafkaLayer.consume(GraboidDetectedEvent)
-            _              <- manager.register(expectedEvent, publisher, execution)
-            _              <- manager.register(expectedOrigin, publisher, execution)
-            _              <- manager.register(expectedMagniture, publisher, execution)
-            fiber          <- consumerStream.run(ZSink.take(3)).fork
+            _              <- manager.register(expectedDetected, publisher, execution)
+            fiber          <- consumerStream.run(ZSink.head).fork
             _              <- TestClock.adjust(1.second)
             result         <- fiber.join
-            restored       <- ZIO.foreach(result)(record => ZIO.attempt(Cbor.decode(record.value()).to[Crawler.Info].value))
-          yield
-            val map = restored.groupBy(_.getClass()).mapValues(_.head)
-            assertTrue(
-              map.size == 3,
-              map(expectedOrigin.getClass()) == expectedOrigin,
-              map(expectedMagniture.getClass()) == expectedMagniture,
-              map(expectedEvent.getClass()) == expectedEvent
-            )
+            restored       <- ZIO.foreach(result)(record => ZIO.attempt(Cbor.decode(record.value()).to[DetectedEvent].value))
+          yield assertTrue(
+            restored == Some(expectedDetected)
+          )
         }
       ).provideSomeLayer(
         KafkaLayer.layer ++ (KafkaLayer.layer >>> (KafkaLayer.producerLayer ++ KafkaLayer.createConsumerLayer(

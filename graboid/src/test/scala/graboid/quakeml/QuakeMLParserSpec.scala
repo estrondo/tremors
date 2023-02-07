@@ -1,10 +1,11 @@
 package graboid.quakeml
 
 import graboid.Spec
+import quakeml.Event
 import zio.stream.ZStream
 import zio.test.assertTrue
+
 import java.nio.file.Paths
-import quakeml.Event
 
 object QuakeMLParserSpec extends Spec:
 
@@ -16,7 +17,7 @@ object QuakeMLParserSpec extends Spec:
           stream <- QuakeMLParser().parse(quakemlStream)
           result <- stream.runCollect
         yield assertTrue(
-          result.collect({ case event: Event => event }).size == 10
+          result.size == 10
         )
       },
       test("It should process a big quakeml (10K events).") {

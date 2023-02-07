@@ -1,29 +1,31 @@
 package graboid
 
+import _root_.quakeml.DetectedEvent
+import com.softwaremill.macwire.wireWith
+import graboid.fixture.CrawlerExecutionFixture
+import graboid.fixture.PublisherFixture
+import one.estrondo.sweetmockito.Answer
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{eq => eqTo}
+import testkit.core.createZonedDateTime
+import testkit.quakeml.EventFixture
 import zio.Scope
-
-import zio.test.TestEnvironment
 import zio.ZIO
 import zio.ZLayer
-import com.softwaremill.macwire.wireWith
-import one.estrondo.sweetmockito.zio.SweetMockitoLayer
-import org.mockito.ArgumentMatchers.{eq => eqTo, any}
-import java.time.ZonedDateTime
-import one.estrondo.sweetmockito.Answer
-import one.estrondo.sweetmockito.zio.given
-import graboid.fixture.CrawlerExecutionFixture
-import zio.test.TestClock
-import zio.test.TestClock.Data
-import java.time.Instant
-import java.time.Clock
+import zio.stream.ZStream
 import zio.test.Annotations
 import zio.test.Live
+import zio.test.TestClock
+import zio.test.TestClock.Data
+import zio.test.TestEnvironment
 import zio.test.assertTrue
-import graboid.fixture.PublisherFixture
-import one.estrondo.sweetmockito.SweetMockito
-import zio.stream.ZStream
-import testkit.quakeml.EventFixture
-import testkit.core.createZonedDateTime
+
+import java.time.Clock
+import java.time.Instant
+import java.time.ZonedDateTime
 
 object CrawlerExecutorSpec extends Spec:
 
@@ -35,10 +37,11 @@ object CrawlerExecutorSpec extends Spec:
         val publisher  = PublisherFixture.createRandom()
         val event      = EventFixture.createRandom()
         val crawler    = SweetMockito[Crawler]
+        val detected   = DetectedEvent(now, event)
 
         SweetMockito
           .whenF2(crawler.crawl(any()))
-          .thenReturn(ZStream.succeed(event))
+          .thenReturn(ZStream.succeed(detected))
 
         for
           _        <- SweetMockitoLayer[PublisherManager]
@@ -57,8 +60,8 @@ object CrawlerExecutorSpec extends Spec:
                         .whenF2(_.add(any[CrawlerExecution]))
                         .thenAnswer(invocation => Answer.succeed(invocation.getArgument[CrawlerExecution](0)))
           _        <- SweetMockitoLayer[EventManager]
-                        .whenF2(_.register(eqTo(event), eqTo(publisher), any()))
-                        .thenReturn(event)
+                        .whenF2(_.register(eqTo(detected), eqTo(publisher), any()))
+                        .thenReturn(detected)
           _        <- SweetMockitoLayer[CrawlerExecutionRepository]
                         .whenF2(_.update(any[CrawlerExecution]))
                         .thenAnswer(invocation => Answer.succeed(Some(invocation.getArgument[CrawlerExecution](0))))
@@ -75,10 +78,11 @@ object CrawlerExecutorSpec extends Spec:
         val publisher  = PublisherFixture.createRandom()
         val event      = EventFixture.createRandom()
         val crawler    = SweetMockito[Crawler]
+        val detected   = DetectedEvent(now, event)
 
         SweetMockito
           .whenF2(crawler.crawl(any()))
-          .thenReturn(ZStream.succeed(event))
+          .thenReturn(ZStream.succeed(detected))
 
         for
           _        <- SweetMockitoLayer[PublisherManager]
@@ -97,8 +101,8 @@ object CrawlerExecutorSpec extends Spec:
                         .whenF2(_.add(any[CrawlerExecution]))
                         .thenAnswer(invocation => Answer.succeed(invocation.getArgument[CrawlerExecution](0)))
           _        <- SweetMockitoLayer[EventManager]
-                        .whenF2(_.register(eqTo(event), eqTo(publisher), any()))
-                        .thenReturn(event)
+                        .whenF2(_.register(eqTo(detected), eqTo(publisher), any()))
+                        .thenReturn(detected)
           _        <- SweetMockitoLayer[CrawlerExecutionRepository]
                         .whenF2(_.update(any[CrawlerExecution]))
                         .thenAnswer(invocation => Answer.succeed(Some(invocation.getArgument[CrawlerExecution](0))))

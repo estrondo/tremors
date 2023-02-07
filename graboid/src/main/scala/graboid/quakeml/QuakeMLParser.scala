@@ -2,27 +2,30 @@ package graboid.quakeml
 
 import com.fasterxml.aalto.AsyncXMLStreamReader.EVENT_INCOMPLETE
 import graboid.Crawler
+import graboid.GClock
 import graboid.quakeml.Node.Child
 import graboid.quakeml.Node.EmptyNodeMap
 import graboid.quakeml.Node.Publishable
 import graboid.quakeml.Node.Root
 import graboid.quakeml.Node.Transparent
+import quakeml.DetectedEvent
 import zio.Chunk
 import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
 
+import java.time.ZonedDateTime
 import javax.xml.stream.XMLStreamConstants.CHARACTERS
+import javax.xml.stream.XMLStreamConstants.COMMENT
 import javax.xml.stream.XMLStreamConstants.DTD
 import javax.xml.stream.XMLStreamConstants.END_ELEMENT
 import javax.xml.stream.XMLStreamConstants.START_DOCUMENT
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
-import javax.xml.stream.XMLStreamConstants.COMMENT
 import scala.annotation.tailrec
 
 trait QuakeMLParser:
 
-  def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, Crawler.Info]]
+  def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, DetectedEvent]]
 
 object QuakeMLParser:
 
@@ -59,7 +62,7 @@ object QuakeMLParser:
         case _ =>
           throw IllegalStateException(s"Invalid root element $localName!")
 
-    def endElement(): (State, Option[Crawler.Info]) =
+    def endElement(now: ZonedDateTime): (State, Option[DetectedEvent]) =
       stack match
         case (CurrentNode(node, _, _, element)) :: tail if node.name == localName =>
           node match
@@ -67,7 +70,7 @@ object QuakeMLParser:
               (pushUp(element.get, tail), None)
 
             case _: Publishable =>
-              (copy(stack = tail), Some(QuakeMLPublisher(element.get)))
+              (copy(stack = tail), Some(QuakeMLPublisher(now, element.get)))
 
             case _ =>
               (copy(stack = tail), None)
@@ -144,7 +147,7 @@ object QuakeMLParser:
       val eventParameters    = Transparent("eventParameters", eventElement)
       Root("quakeml", 64, eventParameters)
 
-    override def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, Crawler.Info]] =
+    override def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, DetectedEvent]] =
       ZIO.attempt {
         stream
           .grouped(ChunkSize)
@@ -155,27 +158,31 @@ object QuakeMLParser:
     private def process(
         state: State,
         bytes: Chunk[Byte]
-    ): Task[(State, Seq[Crawler.Info])] = ZIO.attempt {
-      state.reader.feed(bytes.toArray)
-      val (newState, published) = read(state, Vector.empty)
-      (newState, published)
-    }
+    ): Task[(State, Seq[DetectedEvent])] =
+      for
+        now    <- GClock.currentZonedDateTime()
+        result <- ZIO.attempt {
+                    state.reader.feed(bytes.toArray)
+                    val (newState, published) = read(state, Vector.empty, now)
+                    (newState, published)
+                  }
+      yield result
 
     @tailrec
-    private def read(state: State, published: Seq[Crawler.Info]): (State, Seq[Crawler.Info]) =
+    private def read(state: State, published: Seq[DetectedEvent], now: ZonedDateTime): (State, Seq[DetectedEvent]) =
       state.reader.next() match
         case EVENT_INCOMPLETE =>
           (state, published)
 
         case DTD | START_DOCUMENT | COMMENT =>
-          read(state, published)
+          read(state, published, now)
 
         case START_ELEMENT =>
-          read(state.startElement(), published)
+          read(state.startElement(), published, now)
 
         case END_ELEMENT =>
-          val (newState, newPublished) = state.endElement()
-          read(newState, published ++ newPublished)
+          val (newState, newPublished) = state.endElement(now)
+          read(newState, published ++ newPublished, now)
 
         case CHARACTERS =>
-          read(state.readText(), published)
+          read(state.readText(), published, now)

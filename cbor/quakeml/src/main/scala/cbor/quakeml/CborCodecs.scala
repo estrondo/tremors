@@ -1,27 +1,28 @@
 package cbor.quakeml
 
+import cbor.core.given
 import io.bullet.borer.Codec
 import io.bullet.borer.Decoder
 import io.bullet.borer.Encoder
 import io.bullet.borer.derivation.MapBasedCodecs.*
 import quakeml.Comment
 import quakeml.CreationInfo
+import quakeml.DetectedEvent
 import quakeml.EvaluationMode
 import quakeml.EvaluationStatus
 import quakeml.Event
 import quakeml.Magnitude
+import quakeml.Origin
+import quakeml.Origin.DepthType
 import quakeml.RealQuantity
 import quakeml.ResourceReference
+import quakeml.TimeQuantity
 
 import java.time.Clock
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import scala.util.Try
-import quakeml.Origin
-import quakeml.TimeQuantity
-import quakeml.Origin.DepthType
-import cbor.core.given
 
 private[cbor] val ZoneId = Clock.systemUTC().getZone()
 
@@ -41,3 +42,4 @@ given Codec[TimeQuantity]            = deriveCodec
 given Codec[DepthType]               = deriveCodec
 given originType: Codec[Origin.Type] = deriveCodec
 given Codec[Origin]                  = deriveCodec
+given Codec[DetectedEvent]           = deriveCodec

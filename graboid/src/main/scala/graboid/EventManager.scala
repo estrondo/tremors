@@ -1,7 +1,8 @@
 package graboid
 
+import _root_.quakeml.DetectedEvent
+import cbor.quakeml.given
 import com.softwaremill.macwire.wire
-import graboid.Crawler.Info
 import graboid.Crawler.given
 import graboid.kafka.GraboidDetectedEvent
 import io.bullet.borer.Cbor
@@ -14,7 +15,7 @@ import zio.kafka.serde.Serde
 
 trait EventManager:
 
-  def register(info: Crawler.Info, publisher: Publisher, execution: CrawlerExecution): Task[Crawler.Info]
+  def register(event: DetectedEvent, publisher: Publisher, execution: CrawlerExecution): Task[DetectedEvent]
 
 object EventManager:
 
@@ -27,17 +28,17 @@ object EventManager:
       producerLayer: TaskLayer[Producer]
   ) extends EventManager:
 
-    def register(info: Info, publisher: Publisher, execution: CrawlerExecution): Task[Info] =
+    def register(event: DetectedEvent, publisher: Publisher, execution: CrawlerExecution): Task[DetectedEvent] =
       for
-        metadata <- produce(info)
+        metadata <- produce(event)
         _        <- ZIO.logDebug(s"A new event has been sent to topic=${metadata.topic()}.")
-      yield info
+      yield event
 
-    private def produce(info: Info): Task[RecordMetadata] =
+    private def produce(event: DetectedEvent): Task[RecordMetadata] =
       for
-        bytes    <- ZIO.fromTry(Cbor.encode(info).toByteArrayTry)
+        bytes    <- ZIO.fromTry(Cbor.encode(event).toByteArrayTry)
         metadata <-
           Producer
-            .produce(GraboidDetectedEvent, s"event-${Crawler.getID(info)}", bytes, Serde.string, Serde.byteArray)
+            .produce(GraboidDetectedEvent, s"event-${event.id}", bytes, Serde.string, Serde.byteArray)
             .provideLayer(producerLayer)
       yield metadata

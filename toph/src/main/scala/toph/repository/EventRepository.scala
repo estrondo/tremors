@@ -2,12 +2,15 @@ package toph.repository
 
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
+import farango.data.ArangoConversion.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import toph.model.Event
 import zio.Task
 import zio.ZIO
+
+import java.lang.{Long => JLong}
 
 trait EventRepository:
 
@@ -20,8 +23,25 @@ object EventRepository:
   def apply(collection: DocumentCollection): EventRepository =
     wire[Impl]
 
+  private[repository] case class CreationInfoDocument(
+    agencyID: String,
+    agencyURI: String,
+    author: String,
+    creationTime: JLong,
+    version: String
+  )
+
   private[repository] case class Document(
-      _key: String
+      _key: String,
+      preferredOriginKey: String,
+      preferedMagnitudeKey: String,
+      `type`: String,
+      typeUncertainty: String,
+      description: Seq[String],
+      comment: Seq[String],
+      creationInfo: CreationInfoDocument,
+      originKey: Seq[String],
+      magnitudeKey: Seq[String]
   )
 
   private[repository] given Conversion[Event, Document] =
