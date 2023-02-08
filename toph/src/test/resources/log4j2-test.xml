@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration>
 
   <Appenders>
     <Console name="Out" target="SYSTEM_ERR">
       <PatternLayout>
-        <Pattern>%d{ISO8601} %p [%t] [%X] [%c] %m%n</Pattern>
+        <Pattern>%d{ISO8601} [%p] [%t] [%X] [%c] %m%n</Pattern>
       </PatternLayout>>
     </Console>
   </Appenders>

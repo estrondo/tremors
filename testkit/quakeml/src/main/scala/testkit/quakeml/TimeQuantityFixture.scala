@@ -7,5 +7,5 @@ object TimeQuantityFixture:
 
   def createRandom() = TimeQuantity(
     value = createZonedDateTime(),
-    uncertainty = Some(0.1)
+    uncertainty = Some(0)
   )

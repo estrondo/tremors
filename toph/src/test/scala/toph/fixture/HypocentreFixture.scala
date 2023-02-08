@@ -1,11 +1,17 @@
 package toph.fixture
 
-import toph.model.Hypocentre
 import core.KeyGenerator
-import toph.model.Point3D
-import scala.util.Random
-import toph.model.Uncertainty3D
+import quakeml.RealQuantity
+import quakeml.ResourceReference
+import quakeml.TimeQuantity
+import quakeml.{Origin => QOrigin}
 import testkit.core.createZonedDateTime
+import testkit.quakeml.RealQuantityFixture
+import toph.model.Hypocentre
+import toph.model.Point3D
+import toph.model.Uncertainty3D
+
+import scala.util.Random
 
 object HypocentreFixture:
 
@@ -16,3 +22,12 @@ object HypocentreFixture:
     time = createZonedDateTime(),
     timeUncertainty = Random.between(0, 30)
   )
+
+  def updateWith(origin: QOrigin, hypocentre: Hypocentre): QOrigin =
+    origin.copy(
+      publicID = ResourceReference(hypocentre.key),
+      latitude = RealQuantity(value = hypocentre.position.lat, uncertainty = Some(hypocentre.positionUncertainty.lat)),
+      longitude = RealQuantity(value = hypocentre.position.lng, uncertainty = Some(hypocentre.positionUncertainty.lng)),
+      depth = Some(RealQuantity(value = hypocentre.position.z, uncertainty = Some(hypocentre.positionUncertainty.z))),
+      time = TimeQuantity(value = hypocentre.time, uncertainty = Some(hypocentre.timeUncertainty))
+    )

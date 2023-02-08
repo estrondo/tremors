@@ -7,4 +7,4 @@ import zio.Task
 
 trait EventPublisher:
 
-  def publish(event: Event, origins: Seq[(Epicentre, Hypocentre)]): Task[(Event, Seq[(Epicentre, Hypocentre)])]
+  def publish(event: Event, origins: Seq[(Epicentre, Option[Hypocentre])]): Task[(Event, Seq[(Epicentre, Hypocentre)])]

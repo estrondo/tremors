@@ -72,10 +72,7 @@ object Dependencies {
   )
 
   val Logging = Seq(
-    "org.slf4j"                % "slf4j-api"         % SLF4jVersion,
-    "org.apache.logging.log4j" % "log4j"             % Log4j2Version,
-    "org.apache.logging.log4j" % "log4j-slf4j2-impl" % Log4j2Version,
-    "org.apache.logging.log4j" % "log4j-core"        % Log4j2Version
+    "org.apache.logging.log4j" % "log4j-slf4j-impl" % Log4j2Version
   )
 
   val AaltoXml = Seq(

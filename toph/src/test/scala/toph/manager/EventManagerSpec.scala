@@ -37,9 +37,9 @@ object EventManagerSpec extends Spec:
                              .thenReturn(expectedEvent)
           _             <- SweetMockitoLayer[SpatialManager]
                              .whenF2(_.accept(any()))
-                             .thenReturn((epicentre, hypocentre))
+                             .thenReturn((epicentre, Some(hypocentre)))
           _             <- SweetMockitoLayer[EventPublisher]
-                             .whenF2(_.publish(expectedEvent, Seq((epicentre, hypocentre))))
+                             .whenF2(_.publish(expectedEvent, Seq((epicentre, Some(hypocentre)))))
                              .thenReturn((expectedEvent, Seq((epicentre, hypocentre))))
           accepted      <- manager.accept(detectedEvent)
         yield assertTrue(
