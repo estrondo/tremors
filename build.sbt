@@ -123,6 +123,14 @@ lazy val `testkit-graboid-protocol` = (project in file("testkit/graboid-protocol
     `graboid-protocol`
   )
 
+lazy val `toph-message-protocol`= (project in file("toph-message-protocol"))
+  .settings(
+    name := "toph-message-protocol"
+  )
+  .dependsOn(
+    cbor
+  )
+
 lazy val toph = (project in file("toph"))
   .settings(
     name := "toph",
@@ -161,6 +169,8 @@ lazy val toph = (project in file("toph"))
     `cbor-quakeml`,
     `farango-zio-starter`,
     `farango-data`,
+    zkafka,
+    `toph-message-protocol`,
     `testkit-quakeml`            % Test,
     `testkit-zio-testcontainers` % Test,
     `testkit-zio-repository`     % Test

@@ -17,7 +17,7 @@ object EpicentreConverter:
       .transform(
         Field.const(_.key, origin.publicID: String),
         Field.const(_.positionUncertainty, Uncertainty2D.from(origin.longitude, origin.latitude)),
-        Field.const(_.timeUncertainty, origin.time.uncertainty getOrElse 0),
+        Field.const(_.timeUncertainty, origin.time.uncertainty.getOrElse(0D).toInt),
         Field.const(_.position, Point2D.from(origin.longitude, origin.latitude))
       )
   }

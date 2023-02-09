@@ -4,7 +4,7 @@ import java.time.ZonedDateTime
 
 case class TimeQuantity(
     value: ZonedDateTime,
-    uncertainty: Option[Int]
+    uncertainty: Option[Double]
 )
 
 case class RealQuantity(

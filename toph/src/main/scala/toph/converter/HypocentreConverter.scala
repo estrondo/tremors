@@ -18,7 +18,7 @@ object HypocentreConverter:
       .transform(
         Field.const(_.positionUncertainty, Uncertainty3D.from(origin.longitude, origin.latitude, depth)),
         Field.const(_.key, origin.publicID: String),
-        Field.const(_.timeUncertainty, origin.time.uncertainty.getOrElse(0)),
+        Field.const(_.timeUncertainty, origin.time.uncertainty.getOrElse(0d).toInt),
         Field.const(_.position, Point3D.from(origin.longitude, origin.latitude, depth))
       )
   }

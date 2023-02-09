@@ -31,6 +31,7 @@
 /zio-app-starter/target/
 /arangodb/data/target/
 /toph/target/
+/toph-message-protocol/target/
 /kafka/zkafka/target/
 /arangodb/farango-zio-starter/target/
 /testkit/zio-repository/target/

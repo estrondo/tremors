@@ -34,6 +34,8 @@ trait KafkaManager:
       producer: KafkaProducer[B, C]
   ): UIO[ZStream[Any, Throwable, (B, Seq[C])]]
 
+  def publish[A: Encoder](stream: ZStream[Any, Nothing, KafkaMessage[A]]): Task[ZStream[Any, Throwable, A]]
+
 object KafkaManager:
 
   private type SourceElement[X] = (Offset, String, Option[X])
@@ -63,6 +65,13 @@ object KafkaManager:
         source <- createSource(topic, subscriber)
         stream <- consumeAndProduce(topic, source, producer)
       yield stream.provideLayer(kafkaLayer)
+
+    override def publish[A: Encoder](stream: ZStream[Any, Nothing, KafkaMessage[A]]): Task[ZStream[Any, Throwable, A]] =
+      ZIO.attempt {
+        stream
+          .mapZIO(produceMessage)
+          .provideLayer(producerLayer)
+      }
 
     private def createSource[A: Decoder, B](topic: String, subscriber: KafkaSubscriber[A, B]): UIO[SourceStream[B]] =
       ZIO.succeed {
