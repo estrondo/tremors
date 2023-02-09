@@ -1,6 +1,7 @@
 package testkit.zio.repository
 
 import farango.DocumentCollection
+import farango.zio.given
 import testkit.core.createRandomKey
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
@@ -11,14 +12,14 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.TestResult
 import zio.test.assertTrue
-import farango.zio.given
+
 import scala.reflect.ClassTag
 
 type Ret[R] = ZIO[R & DocumentCollection, Throwable, TestResult]
 
 trait RepositoryIT[R, I]:
 
-  def get(collection: DocumentCollection, key: String): Task[Option[I]]
+  def get(collection: DocumentCollection, value: I): Task[Option[I]]
 
   def create(collection: DocumentCollection): Task[R]
 
@@ -26,11 +27,7 @@ trait RepositoryIT[R, I]:
 
   def remove(repository: R, value: I): Task[Any]
 
-  def getKey(value: I): String
-
 object RepositoryIT:
-
-  inline transparent def apply[R, I](using inline r: RepositoryIT[R, I]): RepositoryIT[R, I] = r
 
   def of[R: Tag, I](using RepositoryIT[R, I]): TaskLayer[R & DocumentCollection] =
     val layer = ZLayer {
@@ -41,10 +38,10 @@ object RepositoryIT:
     }
 
     (ArangoDBLayer.layer >>> FarangoLayer.database >>> FarangoLayer.documentCollectionLayer(
-      s"repository_it_${createRandomKey(8)}"
+      s"repository_it_${createRandomKey()}"
     )) >+> layer
 
-  def testAdd[R, I](input: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R]    =
+  def testAdd[R, I](input: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R] =
     val value        = input
     val repositoryIT = RepositoryIT[R, I]
 
@@ -52,10 +49,12 @@ object RepositoryIT:
       repository <- ZIO.service[R]
       _          <- repositoryIT.insert(repository, value)
       collection <- ZIO.service[DocumentCollection]
-      result     <- repositoryIT.get(collection, repositoryIT.getKey(value))
+      result     <- repositoryIT.get(collection, value)
     yield assertTrue(
-      result == Some(value)
+      result.contains(value)
     )
+
+  inline transparent def apply[R, I](using inline r: RepositoryIT[R, I]): RepositoryIT[R, I] = r
 
   def testRemove[R, I](input: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R] =
     val value        = input
@@ -65,10 +64,10 @@ object RepositoryIT:
       repository <- ZIO.service[R]
       _          <- repositoryIT.insert(repository, value)
       collection <- ZIO.service[DocumentCollection]
-      inserted   <- repositoryIT.get(collection, repositoryIT.getKey(value))
+      inserted   <- repositoryIT.get(collection, value)
       _          <- repositoryIT.remove(repository, value)
-      empty      <- repositoryIT.get(collection, repositoryIT.getKey(value))
+      empty      <- repositoryIT.get(collection, value)
     yield assertTrue(
-      inserted == Some(value),
-      empty == None
+      inserted.contains(value),
+      empty.isEmpty
     )

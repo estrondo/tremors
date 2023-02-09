@@ -1,18 +1,19 @@
 package toph.repository
 
-import toph.IT
-import zio.Scope
-import zio.test.Spec
-import zio.test.TestEnvironment
-import testkit.zio.repository.RepositoryIT
-import toph.model.Epicentre
-import zio.test.TestAspect
 import farango.DocumentCollection
+import farango.zio.given
+import testkit.zio.repository.RepositoryIT
+import toph.IT
+import toph.fixture.EpicentreFixture
+import toph.model.Epicentre
+import zio.Scope
 import zio.Task
 import zio.ZIO
+import zio.test.Spec
+import zio.test.TestAspect
+import zio.test.TestEnvironment
+
 import EpicentreRepository.Document
-import farango.zio.given
-import toph.fixture.EpicentreFixture
 
 object EpicentreRepositoryIT extends IT:
 
@@ -20,10 +21,8 @@ object EpicentreRepositoryIT extends IT:
     override def create(collection: DocumentCollection): Task[EpicentreRepository] =
       EpicentreRepository(collection)
 
-    override def get(collection: DocumentCollection, key: String): Task[Option[Epicentre]] =
-      collection.get[Document](key)
-
-    override def getKey(value: Epicentre): String = value.key
+    override def get(collection: DocumentCollection, value: Epicentre): Task[Option[Epicentre]] =
+      collection.get[Document](value.key)
 
     override def insert(repository: EpicentreRepository, value: Epicentre): Task[Any] =
       repository.add(value)
