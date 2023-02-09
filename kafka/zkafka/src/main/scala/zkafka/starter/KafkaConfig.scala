@@ -1,9 +1,9 @@
-package graboid.config
+package zkafka.starter
 
 import java.time.Duration
 
 case class KafkaConfig(
-    bootstrap: Seq[String],
+    bootstrap: List[String],
     clientId: String,
     closeTimeout: Duration,
     group: Option[String]

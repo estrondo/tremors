@@ -14,6 +14,7 @@ import zio.logging.backend.SLF4J
 import toph.module.RepositoryModule
 import zio.Schedule
 import zio.durationInt
+import toph.module.KafkaModule
 
 object Toph extends ZIOAppDefault:
 
@@ -30,4 +31,5 @@ object Toph extends ZIOAppDefault:
     for
       farangoModule    <- FarangoModule(configModule.toph.arango)
       repositoryModule <- RepositoryModule(farangoModule)
+      kafkaModule      <- KafkaModule(configModule.toph.kafka)
     yield ()

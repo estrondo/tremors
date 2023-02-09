@@ -32,8 +32,3 @@ object ConfigModule:
                               case Some(profile) => ZIO.logInfo(s"Graboid has been started in [$profile].")
                               case None          => ZIO.logInfo("Graboid has been started in default mode.")
       yield config.graboid
-
-    private given seqString: Descriptor[Seq[String]] =
-      Descriptor.from(
-        Descriptor[String].transform(string => string.split("""\s*,\s*""").toSeq, _.mkString(", "))
-      )

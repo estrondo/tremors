@@ -2,7 +2,6 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import com.softwaremill.macwire.wireWith
-import graboid.config.KafkaConfig
 import graboid.kafka.GraboidGroup
 import zkafka.KafkaManager
 import zio.Task
@@ -17,6 +16,8 @@ import zkafka.KafkaProducer
 import zkafka.KafkaSubscriber
 import io.bullet.borer.Decoder
 import io.bullet.borer.Encoder
+import zkafka.starter.KafkaConfig
+import zkafka.starter.KafkaManagerStarter
 
 trait KafkaModule:
 
@@ -34,22 +35,11 @@ trait KafkaModule:
 
 object KafkaModule:
 
-  def apply(config: KafkaConfig): Task[KafkaModule] = ZIO.attempt {
-    wire[Impl]
-  }
+  def apply(config: KafkaConfig): Task[KafkaModule] =
+    for kafkaManager <- KafkaManagerStarter(config, "graboid")
+    yield wire[Impl]
 
-  private class Impl(config: KafkaConfig) extends KafkaModule:
-
-    val producerSettings = ProducerSettings(config.bootstrap.toList)
-      .withClientId(config.clientId)
-
-    val consumerSettings = ConsumerSettings(config.bootstrap.toList)
-      .withCloseTimeout(config.closeTimeout)
-      .withGroupId(config.group.getOrElse(GraboidGroup))
-      .withClientId(config.clientId)
-
-    val kafkaManager: KafkaManager = wireWith(KafkaManager.apply)
-
+  private class Impl(override val kafkaManager: KafkaManager) extends KafkaModule:
     val consumerLayer: TaskLayer[Consumer] = kafkaManager.consumerLayer
 
     val producerLayer: TaskLayer[Producer] = kafkaManager.producerLayer

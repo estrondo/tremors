@@ -7,6 +7,7 @@ import com.softwaremill.macwire.wire
 import zioapp.ZProfile
 import toph.config.TophConfig
 import toph.BuildInfo
+import zio.config.magnolia.Descriptor
 
 trait ConfigModule:
   def toph: TophConfig
