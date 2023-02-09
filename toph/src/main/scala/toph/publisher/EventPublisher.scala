@@ -11,29 +11,24 @@ import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
 import zkafka.KafkaMessage
+import zkafka.KafkaProducer
+import toph.kafka.TophEventJournalTopic
 
-trait EventPublisher:
-
-  def publish(
-      event: Event,
-      origins: Seq[(Epicentre, Option[Hypocentre])]
-  ): Task[(Event, Seq[(Epicentre, Option[Hypocentre])])]
+trait EventPublisher extends KafkaProducer[(Event, Seq[(Epicentre, Option[Hypocentre])]), EventJournalMessage]
 
 object EventPublisher:
 
-  def apply(limit: Int = 1000): Task[(EventPublisher, ZStream[Any, Throwable, EventJournalMessage])] =
-    for queue <- Queue.bounded[EventJournalMessage](limit)
-    yield (wire[Impl], ZStream.fromQueue(queue))
+  def apply(): EventPublisher =
+    wire[Impl]
 
-  private class Impl(queue: Queue[EventJournalMessage]) extends EventPublisher:
+  private class Impl() extends EventPublisher:
+    override def accept(
+        key: String,
+        value: (Event, Seq[(Epicentre, Option[Hypocentre])])
+    ): Task[Seq[KafkaMessage[EventJournalMessage]]] =
+      val (event, centres) = value
 
-    override def publish(
-        event: Event,
-        centres: Seq[(Epicentre, Option[Hypocentre])]
-    ): Task[(Event, Seq[(Epicentre, Option[Hypocentre])])] =
-      (for
-        newEvent <- EventJournalMessageConverter.newEventFrom(event, centres)
-        _        <- queue.offer(newEvent)
-      yield (event, centres))
+      (for newEvent <- EventJournalMessageConverter.newEventFrom(event, centres)
+      yield Seq(KafkaMessage(newEvent, Some(event.key), TophEventJournalTopic)))
         .tap(_ => ZIO.logDebug(s"Event key=${event.key} was published."))
         .tapErrorCause(ZIO.logWarningCause(s"I was impossible to publish event=${event.key}!", _))

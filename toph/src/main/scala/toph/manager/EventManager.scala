@@ -9,24 +9,24 @@ import toph.publisher.EventPublisher
 import toph.repository.EventRepository
 import zio.Task
 import zio.ZIO
+import toph.model.Epicentre
+import toph.model.Hypocentre
 
 trait EventManager:
-  def accept(event: DetectedEvent): Task[Event]
+  def accept(event: DetectedEvent): Task[(Event, Seq[(Epicentre, Option[Hypocentre])])]
 
 object EventManager:
 
-  def apply(repository: EventRepository, spatialManager: SpatialManager, publisher: EventPublisher): EventManager =
+  def apply(repository: EventRepository, spatialManager: SpatialManager): EventManager =
     wire[Impl]
 
-  private class Impl(repository: EventRepository, spatialManager: SpatialManager, publisher: EventPublisher)
-      extends EventManager:
-    override def accept(detected: DetectedEvent): Task[Event] =
+  private class Impl(repository: EventRepository, spatialManager: SpatialManager) extends EventManager:
+    override def accept(detected: DetectedEvent): Task[(Event, Seq[(Epicentre, Option[Hypocentre])])] =
       for
         event   <- EventConverter.fromQEvent(detected.event)
         _       <- add(event)
         origins <- ZIO.foreach(detected.event.origin)(spatialManager.accept)
-        _       <- publisher.publish(event, origins)
-      yield event
+      yield (event, origins)
 
     private def add(event: Event): Task[Event] =
       repository

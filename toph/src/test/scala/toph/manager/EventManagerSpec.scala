@@ -10,7 +10,6 @@ import toph.Spec
 import toph.converter.EventConverter
 import toph.fixture.EpicentreFixture
 import toph.fixture.HypocentreFixture
-import toph.publisher.EventPublisher
 import toph.repository.EventRepository
 import zio.Scope
 import zio.ZIO
@@ -38,23 +37,18 @@ object EventManagerSpec extends Spec:
           _             <- SweetMockitoLayer[SpatialManager]
                              .whenF2(_.accept(any()))
                              .thenReturn((epicentre, Some(hypocentre)))
-          _             <- SweetMockitoLayer[EventPublisher]
-                             .whenF2(_.publish(expectedEvent, Seq((epicentre, Some(hypocentre)))))
-                             .thenReturn((expectedEvent, Seq((epicentre, Some(hypocentre)))))
           accepted      <- manager.accept(detectedEvent)
         yield assertTrue(
-          accepted == expectedEvent
+          accepted == (expectedEvent, Seq((epicentre, Some(hypocentre))))
         )
       }
     ).provideSome(
       SweetMockitoLayer.newMockLayer[EventRepository],
       SweetMockitoLayer.newMockLayer[SpatialManager],
-      SweetMockitoLayer.newMockLayer[EventPublisher],
       ZLayer {
         for
           repository     <- ZIO.service[EventRepository]
           spatialManager <- ZIO.service[SpatialManager]
-          publisher      <- ZIO.service[EventPublisher]
-        yield EventManager(repository, spatialManager, publisher)
+        yield EventManager(repository, spatialManager)
       }
     )

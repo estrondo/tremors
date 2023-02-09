@@ -1,17 +1,20 @@
 package toph.publisher
 
 import toph.Spec
-import zio.Scope
-import zio.test.TestEnvironment
-import zio.test.assertTrue
-import zio.ZIO
-import toph.fixture.EventFixture
 import toph.fixture.EpicentreFixture
+import toph.fixture.EventFixture
 import toph.fixture.HypocentreFixture
-import zio.ZLayer
-import zio.stream.ZStream
+import toph.kafka.TophEventJournalTopic
 import toph.message.protocol.EventJournalMessage
 import toph.message.protocol.NewEvent
+import zio.Scope
+import zio.ZIO
+import zio.ZLayer
+import zio.stream.ZStream
+import zio.test.TestEnvironment
+import zio.test.assertTrue
+import zkafka.KafkaManager
+import zkafka.KafkaMessage
 
 object EventPublisherSpec extends Spec:
 
@@ -27,20 +30,11 @@ object EventPublisherSpec extends Spec:
 
         for
           publisher <- ZIO.service[EventPublisher]
-          result    <- publisher.publish(event, Seq(epicentre -> Some(hypocentre)))
-          stream    <- ZIO.service[ZStream[Any, Throwable, EventJournalMessage]]
-          published <- stream.runHead
+          result    <- publisher.accept(event.key, (event, Seq(epicentre -> Some(hypocentre))))
         yield assertTrue(
-          result == (event, Seq(epicentre -> Some(hypocentre))),
-          published == Some(newEvent)
+          result == Seq(KafkaMessage(newEvent, Some(event.key), TophEventJournalTopic))
         )
       }
     ).provideSome(
-      testLayer
+      ZLayer.succeed(EventPublisher())
     )
-
-  private val testLayer =
-    val source    = ZLayer(EventPublisher())
-    val publisher = ZLayer(ZIO.serviceWith[(EventPublisher, ZStream[Any, Throwable, EventJournalMessage])](_._1))
-    val stream    = ZLayer(ZIO.serviceWith[(EventPublisher, ZStream[Any, Throwable, EventJournalMessage])](_._2))
-    source >>> (publisher ++ stream)
