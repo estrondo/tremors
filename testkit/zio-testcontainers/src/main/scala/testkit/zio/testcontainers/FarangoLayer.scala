@@ -10,6 +10,7 @@ import zio.RIO
 import zio.RLayer
 import zio.ZIO
 import zio.ZLayer
+import testkit.core.createRandomKey
 
 import scala.reflect.ClassTag
 
@@ -19,20 +20,22 @@ object FarangoLayer:
     for
       hostname <- ArangoDBLayer.hostname
       port     <- ArangoDBLayer.port
-    yield
+      database <- {
+        val serializer = ArangoJack()
+        serializer.configure(mapper => mapper.registerModule(DefaultScalaModule))
 
-      val serializer = ArangoJack()
-      serializer.configure(mapper => mapper.registerModule(DefaultScalaModule))
+        val dbAsync = ArangoDBAsync
+          .Builder()
+          .user("root")
+          .password("123456789")
+          .host(hostname, port)
+          .serializer(serializer)
+          .build()
 
-      val dbAsync = ArangoDBAsync
-        .Builder()
-        .user("root")
-        .password("123456789")
-        .host(hostname, port)
-        .serializer(serializer)
-        .build()
+        Database(dbAsync.db(s"it_test_database${createRandomKey()}"))
+      }
+    yield database
 
-      Database(dbAsync.db("_system"))
   }
 
   def documentCollectionLayer(name: String): RLayer[Database, DocumentCollection] = ZLayer {

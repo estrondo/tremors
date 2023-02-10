@@ -22,6 +22,7 @@ import zio.stream.ZSink
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
+import zio.test.TestAspect
 
 object EventManagerIT extends IT:
 
@@ -51,7 +52,7 @@ object EventManagerIT extends IT:
         KafkaLayer.layer ++ (KafkaLayer.layer >>> (KafkaLayer.producerLayer ++ KafkaLayer.createConsumerLayer(
           "graboid"
         ) ++ (KafkaLayer.producerLayer >>> EventManagerLayer)))
-      )
+      ) @@ TestAspect.sequential
     )
 
   private val EventManagerLayer = ZLayer {

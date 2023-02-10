@@ -235,6 +235,8 @@ lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontai
       Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name))),
       Dependencies.Farango
     ).flatten
+  ).dependsOn(
+    `testkit-core`
   )
 
 lazy val `testkit-zio-repository` = (project in file("testkit/zio-repository"))

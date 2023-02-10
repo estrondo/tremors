@@ -87,7 +87,7 @@ services:
     image: docker.io/rthoth/estrondo:graboid
     environment:
       TREMORS_PROFILE: dev
-      GRABOID_ARANGO_DATABASE: _system
+      GRABOID_ARANGO_DATABASE: graboid
       GRABOID_ARANGO_USERNAME: root
       GRABOID_ARANGO_PASSWORD: tremors
       GRABOID_ARANGO_HOSTS: arango1:8529,arango2:8529,arango3:8529
@@ -101,7 +101,7 @@ services:
     image: docker.io/rthoth/estrondo:toph
     environment:
       TREMORS_PROFILE: dev
-      TOPH_ARANGO_DATABASE: _system
+      TOPH_ARANGO_DATABASE: toph
       TOPH_ARANGO_USERNAME: root
       TOPH_ARANGO_PASSWORD: tremors
       TOPH_ARANGO_HOSTS: arango1:8529,arango2:8529,arango3:8529

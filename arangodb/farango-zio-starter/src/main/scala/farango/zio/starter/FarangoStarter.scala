@@ -17,7 +17,7 @@ import zio.durationInt
 
 object FarangoStarter:
 
-  def apply(config: ArangoConfig): Task[Database] = ZIO.attempt {
+  def apply(config: ArangoConfig): Task[Database] =
     val arangoJack = ArangoJack()
     arangoJack.configure(mapper => mapper.registerModule(DefaultScalaModule))
 
@@ -30,7 +30,6 @@ object FarangoStarter:
     for host <- config.hosts do arangoDB.host(host.hostname, host.port)
 
     Database(arangoDB.build().db(config.database))
-  }
 
   def layer(config: ArangoConfig): TaskLayer[Database] = ZLayer {
     for
