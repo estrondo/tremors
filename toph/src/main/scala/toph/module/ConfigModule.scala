@@ -1,13 +1,15 @@
 package toph.module
 
-import zio.RIO
-import zio.ZIOAppArgs
-import zio.ZIO
 import com.softwaremill.macwire.wire
-import zioapp.ZProfile
-import toph.config.TophConfig
 import toph.BuildInfo
+import toph.config.TophConfig
+import zio.RIO
+import zio.ZIO
+import zio.ZIOAppArgs
 import zio.config.magnolia.Descriptor
+import zioapp.ZProfile
+
+import ZProfile.given
 
 trait ConfigModule:
   def toph: TophConfig

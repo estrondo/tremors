@@ -296,7 +296,8 @@ lazy val `zkafka` = (project in file("kafka/zkafka"))
       Dependencies.Macwire,
       Dependencies.Mockito,
       Dependencies.ZIOLogging,
-      Dependencies.Logging
+      Dependencies.Logging,
+      Dependencies.ZIOConfig
     ).flatten
   )
   .enablePlugins(ITPlugin)

@@ -1,20 +1,21 @@
 package toph
 
 import toph.module.ConfigModule
+import toph.module.CoreModule
+import toph.module.FarangoModule
+import toph.module.KafkaModule
+import toph.module.RepositoryModule
+import zio.ExitCode
+import zio.Runtime
+import zio.Schedule
 import zio.Scope
+import zio.Task
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
-import zio.ExitCode
-import zio.Task
-import toph.module.FarangoModule
 import zio.ZLayer
-import zio.Runtime
-import zio.logging.backend.SLF4J
-import toph.module.RepositoryModule
-import zio.Schedule
 import zio.durationInt
-import toph.module.KafkaModule
+import zio.logging.backend.SLF4J
 
 object Toph extends ZIOAppDefault:
 
@@ -32,4 +33,6 @@ object Toph extends ZIOAppDefault:
       farangoModule    <- FarangoModule(configModule.toph.arango)
       repositoryModule <- RepositoryModule(farangoModule)
       kafkaModule      <- KafkaModule(configModule.toph.kafka)
+      coreModule       <- CoreModule(repositoryModule)
+      _                <- ZIO.logInfo("🌎 Toph is ready!")
     yield ()

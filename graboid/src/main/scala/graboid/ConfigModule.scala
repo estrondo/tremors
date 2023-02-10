@@ -3,12 +3,14 @@ package graboid
 import farango.zio.starter.ArangoConfig
 import farango.zio.starter.ArangoHost
 import graboid.config.GraboidConfig
+import zio.RIO
 import zio.Task
 import zio.ZIO
-import zio.RIO
+import zio.ZIOAppArgs
 import zio.config.magnolia.*
 import zioapp.ZProfile
-import zio.ZIOAppArgs
+
+import ZProfile.given
 
 trait ConfigModule:
 

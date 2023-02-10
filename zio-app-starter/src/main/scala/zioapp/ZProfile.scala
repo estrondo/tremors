@@ -4,17 +4,17 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import com.typesafe.config.ConfigSyntax
+import zio.RIO
 import zio.System
 import zio.Task
-import zio.RIO
-import zio.ZIO
 import zio.URIO
+import zio.ZIO
+import zio.ZIOAppArgs
 import zio.config.magnolia.Descriptor
 import zio.config.magnolia.descriptor
 import zio.config.read
 import zio.config.toKebabCase
 import zio.config.typesafe.TypesafeConfigSource
-import zio.ZIOAppArgs
 
 object ZProfile:
 
@@ -22,6 +22,12 @@ object ZProfile:
   val DefaultProfileEnvName      = "TREMORS_PROFILE"
   val DefaultResourcePattern     = "application-[profile].conf"
   val DefaultDefaultApplication  = "application.conf"
+
+  given Descriptor[Seq[String]] = Descriptor.from(
+    Descriptor[String].mapEither { value =>
+      Right(value.split(",").toSeq)
+    }
+  )
 
   private def parseOptions: ConfigParseOptions =
     ConfigParseOptions
@@ -59,12 +65,12 @@ object ZProfile:
     yield (parsed, userProfile)
 
   private def getUserProfile(
-      userFirstArgument: Boolean,
+      useFirstArgument: Boolean,
       propertyProfile: Option[String],
       envProfile: Option[String]
   ): URIO[ZIOAppArgs, Option[String]] =
     val fallback = propertyProfile.orElse(envProfile)
-    if !userFirstArgument then ZIO.succeed(fallback)
+    if !useFirstArgument then ZIO.succeed(fallback)
     else
       for args <- ZIOAppArgs.getArgs
       yield args.headOption.orElse(fallback)

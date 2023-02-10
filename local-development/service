@@ -66,6 +66,21 @@ toph)
     ;;
   esac
   ;;
+
+infra)
+  case $2 in
+  start)
+    docker-compose up arango1 arango2 arango3 kafka1 kafka2
+    ;;
+  reset)
+    docker-compose rm -f -v arango1 arango2 arango3 kafka1 kafka2 zookeeper
+    docker-compose up arango1 arango2 arango3 kafka1 kafka2
+    ;;
+  *)
+    echo "Try ./service infra [start | reset]."
+    ;;
+  esac
+  ;;
 *)
   echo "Try ./service [arango | kafka | graboid]"
   ;;
