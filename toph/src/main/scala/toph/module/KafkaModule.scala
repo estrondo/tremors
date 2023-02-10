@@ -6,12 +6,14 @@ import zkafka.KafkaManager
 import zkafka.starter.KafkaConfig
 import zkafka.starter.KafkaManagerStarter
 
-trait KafkaModule
+trait KafkaModule:
+
+  val manager: KafkaManager
 
 object KafkaModule:
 
   def apply(config: KafkaConfig): Task[KafkaModule] =
-    for kafkaManager <- KafkaManagerStarter(config, "toph")
+    for manager <- KafkaManagerStarter(config, "toph")
     yield wire[Impl]
 
-  private class Impl(kafkaManager: KafkaManager) extends KafkaModule
+  private class Impl(override val manager: KafkaManager) extends KafkaModule

@@ -16,6 +16,7 @@ import zio.ZIOAppDefault
 import zio.ZLayer
 import zio.durationInt
 import zio.logging.backend.SLF4J
+import toph.module.ListenerModule
 
 object Toph extends ZIOAppDefault:
 
@@ -30,9 +31,13 @@ object Toph extends ZIOAppDefault:
 
   private def run(configModule: ConfigModule): Task[Any] =
     for
-      farangoModule    <- FarangoModule(configModule.toph.arango)
-      repositoryModule <- RepositoryModule(farangoModule)
-      kafkaModule      <- KafkaModule(configModule.toph.kafka)
-      coreModule       <- CoreModule(repositoryModule)
-      _                <- ZIO.logInfo("🌎 Toph is ready!")
+      farangoModule      <- FarangoModule(configModule.toph.arango)
+      repositoryModule   <- RepositoryModule(farangoModule)
+      kafkaModule        <- KafkaModule(configModule.toph.kafka)
+      coreModule         <- CoreModule(repositoryModule)
+      listenerModule     <- ListenerModule(coreModule, kafkaModule)
+      eventJournalStream <- listenerModule.eventJournalStream
+      fiberEventJournal  <- eventJournalStream.runDrain.fork
+      _                  <- ZIO.logInfo("🌎 Toph is ready!")
+      _                  <- fiberEventJournal.join
     yield ()

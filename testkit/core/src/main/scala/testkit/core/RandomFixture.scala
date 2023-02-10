@@ -45,3 +45,10 @@ def createRandomKey(length: Int = 8): String =
 
 def createZonedDateTime(): ZonedDateTime =
   ZonedDateTime.now(Clock.systemUTC()).truncatedTo(ChronoUnit.SECONDS)
+
+def createRandomResourceID(): String =
+  val schema      = oneOf(Array("smi", "quakeml"))
+  val authorityId = createRandomKey(6)
+  val resource    = createRandomKey(16)
+  val localId     = createRandomKey(8)
+  s"$schema://$authorityId/$resource#$localId"

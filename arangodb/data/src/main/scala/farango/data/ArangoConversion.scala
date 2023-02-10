@@ -10,10 +10,17 @@ import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.net.URLDecoder
 
 object ArangoConversion:
 
   val ZoneId = Clock.systemUTC().getZone()
+
+  def convertToKey(x: String): String = URLEncoder.encode(x, StandardCharsets.UTF_8)
+
+  def convertFromKey(x: String): String = URLDecoder.decode(x, StandardCharsets.UTF_8)
 
   given zonedDateTimeToLong: Transformer[ZonedDateTime, Long] =
     _.getLong(ChronoField.INSTANT_SECONDS)

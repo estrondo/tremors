@@ -50,6 +50,8 @@ object KafkaManager:
     private val producer = Producer.make(producerSettings)
     private val consumer = Consumer.make(consumerSettings)
 
+    private def processors = math.max(Runtime.getRuntime().availableProcessors() / 2, 1)
+
     val producerLayer = ZLayer.scoped(producer)
 
     val consumerLayer = ZLayer.scoped(consumer)
@@ -80,13 +82,24 @@ object KafkaManager:
           .plainStream(Serde.string, Serde.byteArray)
           .mapZIO(decodeRecord(topic))
           .collectSome
-          .mapZIO((offset, key, value) => subscriber.accept(key, value).map((offset, key, _)))
-          .tap((_, _, message) =>
-            ZIO.logDebug(
-              s"A Subscriber has produced a value: topic=$topic and hasContent=${message.isDefined}."
-            )
+          .mapZIOPar(processors)((offset, key, value) =>
+            acceptWith(subscriber, topic, key, value).map((offset, key, _))
           )
       }
+
+    private def acceptWith[A, B](
+        subscriber: KafkaSubscriber[A, B],
+        topic: String,
+        key: String,
+        value: A
+    ): UIO[Option[B]] =
+      subscriber
+        .accept(key, value)
+        .tap({
+          case Some(_) => ZIO.logTrace(s"A subscriber of topic=$topic has produced a message for key=$key.")
+          case _       => ZIO.logTrace(s"A subscriber of topic=$topic has not produced a message for key=$key.")
+        })
+        .catchAll(handleSubscriberError(topic))
 
     private def consumeAndProduce[B, C: Encoder](
         topic: String,
@@ -94,7 +107,9 @@ object KafkaManager:
         producer: KafkaProducer[B, C]
     ): UIO[ZStream[Producer & Consumer, Throwable, (B, Seq[C])]] = ZIO.succeed {
       ZStream
-        .fromZIO(ZIO.logInfo(s"A new Subcriber and Producer have just been added to topic=$topic.")) *> source
+        .fromZIO(
+          ZIO.logInfo(s"A new Subcriber has been added to topic=$topic, there is also a Producer connected with it.")
+        ) *> source
         .mapZIO(produceWith(producer))
         .mapZIO((offset, value, produced) => offset.commit as value.map(_ -> produced))
         .collectSome
@@ -103,21 +118,28 @@ object KafkaManager:
     private def decodeRecord[A: Decoder](
         topic: String
     )(record: CommittableRecord[String, Array[Byte]]): UIO[Option[(Offset, String, A)]] =
-      (for
-        decoded <- ZIO.fromTry(Cbor.decode(record.value).to[A].valueTry)
-        _       <- ZIO.logDebug(
-                     s"New record has been received from topic=$topic, key=${record.key} and offset=${record.offset.offset}."
-                   )
+      (for decoded <- ZIO.fromTry(Cbor.decode(record.value).to[A].valueTry)
       yield Some((record.offset, record.key, decoded)))
+        .tap(_ =>
+          ZIO.logTrace(
+            s"New record has been received from topic=$topic, key=${record.key} and offset=${record.offset.offset}."
+          )
+        )
         .catchAll(handleDecodeError(topic, record))
 
     private def handleDecodeError(topic: String, record: CommittableRecord[String, Array[Byte]])(
         cause: Throwable
     ): UIO[Option[Nothing]] =
       ZIO.logWarningCause(
-        s"It was impossible to consume record with key=${record.key} from topic=${topic}.",
+        s"It was impossible to consume record with key=${record.key} from topic=$topic.",
         Cause.die(cause)
       ) *> ZIO.none
+
+    private def handleSubscriberError(topic: String)(cause: Throwable): UIO[None.type] =
+      ZIO.logWarningCause(
+        s"An error was ocurred during reading of topic=$topic!",
+        Cause.die(cause)
+      ) as None
 
     private def produceWith[B, C: Encoder](producer: KafkaProducer[B, C])(
         source: SourceElement[B]

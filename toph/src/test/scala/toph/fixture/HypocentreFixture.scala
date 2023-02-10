@@ -5,6 +5,7 @@ import quakeml.RealQuantity
 import quakeml.ResourceReference
 import quakeml.TimeQuantity
 import quakeml.{Origin => QOrigin}
+import testkit.core.createRandomResourceID
 import testkit.core.createZonedDateTime
 import testkit.quakeml.RealQuantityFixture
 import toph.model.Hypocentre
@@ -16,7 +17,7 @@ import scala.util.Random
 object HypocentreFixture:
 
   def createRandom() = Hypocentre(
-    key = KeyGenerator.next8(),
+    key = createRandomResourceID(),
     position = Point3DFixture.createRandom(),
     positionUncertainty = Uncertainty3DFixture.createRandom(),
     time = createZonedDateTime(),

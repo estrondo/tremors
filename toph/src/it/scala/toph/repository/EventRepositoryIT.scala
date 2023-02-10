@@ -2,6 +2,8 @@ package toph.repository
 
 import core.KeyGenerator
 import farango.DocumentCollection
+import farango.data.ArangoConversion.convertToKey
+import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
@@ -18,7 +20,6 @@ import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import farango.zio.given
 
 object EventRepositoryIT extends IT:
 
@@ -41,7 +42,7 @@ object EventRepositoryIT extends IT:
     override def create(collection: DocumentCollection): Task[EventRepository]          =
       ZIO.succeed(EventRepository(collection))
     override def get(collection: DocumentCollection, value: Event): Task[Option[Event]] =
-      collection.get[Document](value.key)
+      collection.get[Document](convertToKey(value.key))
 
     override def insert(repository: EventRepository, value: Event): Task[Any] = repository.add(value)
 

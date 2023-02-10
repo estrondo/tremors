@@ -1,7 +1,10 @@
 package toph.repository
 
+import com.arangodb.model.GeoIndexOptions
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
+import farango.data.ArangoConversion.convertFromKey
+import farango.data.ArangoConversion.convertToKey
 import farango.data.ArangoConversion.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
@@ -9,7 +12,6 @@ import io.github.arainko.ducktape.into
 import toph.model.Epicentre
 import zio.Task
 import zio.ZIO
-import com.arangodb.model.GeoIndexOptions
 
 trait EpicentreRepository:
 
@@ -33,13 +35,15 @@ object EpicentreRepository:
       timeUncertainty: Int
   )
 
-  private[repository] given Conversion[Epicentre, Document] =
-    _.into[Document]
-      .transform(Field.renamed(_._key, _.key))
+  private[repository] given Conversion[Epicentre, Document] = epicentre =>
+    epicentre
+      .into[Document]
+      .transform(Field.const(_._key, convertToKey(epicentre.key)))
 
-  private[repository] given Conversion[Document, Epicentre] =
-    _.into[Epicentre]
-      .transform(Field.renamed(_.key, _._key))
+  private[repository] given Conversion[Document, Epicentre] = document =>
+    document
+      .into[Epicentre]
+      .transform(Field.const(_.key, convertFromKey(document._key)))
 
   private class Impl(collection: DocumentCollection) extends EpicentreRepository:
 
@@ -51,6 +55,6 @@ object EpicentreRepository:
 
     override def remove(key: String): Task[Option[Epicentre]] =
       collection
-        .remove[Document](key)
+        .remove[Document](convertToKey(key))
         .tap(_ => ZIO.logDebug(s"An epicentre was removed: $key."))
         .tapErrorCause(ZIO.logWarningCause(s"It was impossible to remove an epicentre: $key!", _))

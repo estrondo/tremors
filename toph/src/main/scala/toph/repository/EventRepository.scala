@@ -2,6 +2,7 @@ package toph.repository
 
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
+import farango.data.ArangoConversion
 import farango.data.ArangoConversion.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
@@ -24,11 +25,11 @@ object EventRepository:
     wire[Impl]
 
   private[repository] case class CreationInfoDocument(
-    agencyID: String,
-    agencyURI: String,
-    author: String,
-    creationTime: JLong,
-    version: String
+      agencyID: String,
+      agencyURI: String,
+      author: String,
+      creationTime: JLong,
+      version: String
   )
 
   private[repository] case class Document(
@@ -44,13 +45,15 @@ object EventRepository:
       magnitudeKey: Seq[String]
   )
 
-  private[repository] given Conversion[Event, Document] =
-    _.into[Document]
-      .transform(Field.renamed(_._key, _.key))
+  private[repository] given Conversion[Event, Document] = event =>
+    event
+      .into[Document]
+      .transform(Field.const(_._key, ArangoConversion.convertToKey(event.key)))
 
-  private[repository] given Conversion[Document, Event] =
-    _.into[Event]
-      .transform(Field.renamed(_.key, _._key))
+  private[repository] given Conversion[Document, Event] = document =>
+    document
+      .into[Event]
+      .transform(Field.const(_.key, ArangoConversion.convertFromKey(document._key)))
 
   private class Impl(collection: DocumentCollection) extends EventRepository:
 
@@ -62,7 +65,7 @@ object EventRepository:
 
     override def remove(key: String): Task[Option[Event]] =
       collection
-        .remove[Document](key)
+        .remove[Document](ArangoConversion.convertToKey(key))
         .tap(opt =>
           if opt.isDefined then ZIO.logDebug(s"Event=${key} has been removed.")
           else ZIO.logDebug(s"There was not found event=$key to remove.")

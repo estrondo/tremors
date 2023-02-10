@@ -1,6 +1,7 @@
 package toph.fixture
 
 import core.KeyGenerator
+import testkit.core.createRandomResourceID
 import testkit.core.createZonedDateTime
 import toph.model.Epicentre
 import toph.model.Hypocentre
@@ -12,7 +13,7 @@ import scala.util.Random
 object EpicentreFixture:
 
   def createRandom() = Epicentre(
-    key = KeyGenerator.next8(),
+    key = createRandomResourceID(),
     position = Point2DFixture.createRandom(),
     positionUncertainty = Uncertainty2DFixture.createRandom(),
     time = createZonedDateTime(),

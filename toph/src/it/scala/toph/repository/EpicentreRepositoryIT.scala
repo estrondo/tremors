@@ -1,6 +1,7 @@
 package toph.repository
 
 import farango.DocumentCollection
+import farango.data.ArangoConversion.convertToKey
 import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import toph.IT
@@ -22,7 +23,7 @@ object EpicentreRepositoryIT extends IT:
       EpicentreRepository(collection)
 
     override def get(collection: DocumentCollection, value: Epicentre): Task[Option[Epicentre]] =
-      collection.get[Document](value.key)
+      collection.get[Document](convertToKey(value.key))
 
     override def insert(repository: EpicentreRepository, value: Epicentre): Task[Any] =
       repository.add(value)
