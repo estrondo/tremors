@@ -27,12 +27,19 @@ object EventManager:
   private class Impl(repository: EventRepository, spatialManager: SpatialManager, magnitudeManager: MagnitudeManager)
       extends EventManager:
     override def accept(detected: DetectedEvent): Task[(Event, Seq[(Epicentre, Option[Hypocentre])])] =
-      for
+      (for
         event      <- EventConverter.fromQEvent(detected.event)
         _          <- add(event)
         origins    <- ZIO.foreach(detected.event.origin)(spatialManager.accept)
         magnitudes <- ZIO.foreach(detected.event.magnitude)(magnitudeManager.accept)
-      yield (event, origins)
+      yield (event, origins))
+        .tap(_ => ZIO.logInfo(s"A detected with key=${detected.event.publicID.uri} event was accepted."))
+        .tapErrorCause(
+          ZIO.logWarningCause(
+            s"It was impossible to accept a detected event with key=${detected.event.publicID.uri}!",
+            _
+          )
+        )
 
     private def add(event: Event): Task[Event] =
       repository

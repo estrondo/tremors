@@ -1,5 +1,6 @@
 package toph.manager
 
+import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
@@ -8,6 +9,7 @@ import testkit.core.createZonedDateTime
 import testkit.quakeml.{EventFixture => QEventFixture}
 import toph.Spec
 import toph.converter.EventConverter
+import toph.converter.MagnitudeConverter
 import toph.fixture.EpicentreFixture
 import toph.fixture.HypocentreFixture
 import toph.repository.EventRepository
@@ -29,15 +31,19 @@ object EventManagerSpec extends Spec:
         val hypocentre    = HypocentreFixture.createRandom()
 
         for
-          expectedEvent <- EventConverter.fromQEvent(originalEvent)
-          manager       <- ZIO.service[EventManager]
-          _             <- SweetMockitoLayer[EventRepository]
-                             .whenF2(_.add(expectedEvent))
-                             .thenReturn(expectedEvent)
-          _             <- SweetMockitoLayer[SpatialManager]
-                             .whenF2(_.accept(any()))
-                             .thenReturn((epicentre, Some(hypocentre)))
-          accepted      <- manager.accept(detectedEvent)
+          expectedEvent      <- EventConverter.fromQEvent(originalEvent)
+          convertedMagnitude <- MagnitudeConverter.fromQMagnitude(originalEvent.magnitude.head)
+          manager            <- ZIO.service[EventManager]
+          _                  <- SweetMockitoLayer[EventRepository]
+                                  .whenF2(_.add(expectedEvent))
+                                  .thenReturn(expectedEvent)
+          _                  <- SweetMockitoLayer[SpatialManager]
+                                  .whenF2(_.accept(any()))
+                                  .thenReturn((epicentre, Some(hypocentre)))
+          _                  <- SweetMockitoLayer[MagnitudeManager]
+                                  .whenF2(_.accept(originalEvent.magnitude.head))
+                                  .thenReturn(convertedMagnitude)
+          accepted           <- manager.accept(detectedEvent)
         yield assertTrue(
           accepted == (expectedEvent, Seq((epicentre, Some(hypocentre))))
         )
