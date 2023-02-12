@@ -2,7 +2,7 @@ package farango.data
 
 import io.github.arainko.ducktape.Transformer
 
-import java.lang.{Long => JLong}
+import java.lang.{Long => JLong, Double => JDouble}
 import java.net.URI
 import java.net.URL
 import java.time.Clock
@@ -35,6 +35,14 @@ object ArangoConversion:
   given Transformer[URL, String] = _.toExternalForm()
 
   given Transformer[String, URL] = URI.create(_).toURL()
+
+  given Transformer[Double, JDouble] = identity
+
+  given Transformer[JDouble, Double] = identity
+
+  given Transformer[Integer, Int] = identity
+
+  given Transformer[Int, Integer] = identity
 
   given ZoneDateTimeToJLong: Transformer[ZonedDateTime, JLong] =
     _.getLong(ChronoField.INSTANT_SECONDS)
