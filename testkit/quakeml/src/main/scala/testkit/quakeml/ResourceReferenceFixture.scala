@@ -1,7 +1,8 @@
 package testkit.quakeml
 
 import quakeml.*
+import testkit.core.createRandomResourceID
 
 object ResourceReferenceFixture:
 
-  def createRandom() = ResourceReference(s"http://test/${createRandomString()}")
+  def createRandom() = ResourceReference(createRandomResourceID())

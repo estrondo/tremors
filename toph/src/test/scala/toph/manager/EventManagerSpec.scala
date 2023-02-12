@@ -45,10 +45,12 @@ object EventManagerSpec extends Spec:
     ).provideSome(
       SweetMockitoLayer.newMockLayer[EventRepository],
       SweetMockitoLayer.newMockLayer[SpatialManager],
+      SweetMockitoLayer.newMockLayer[MagnitudeManager],
       ZLayer {
         for
-          repository     <- ZIO.service[EventRepository]
-          spatialManager <- ZIO.service[SpatialManager]
-        yield EventManager(repository, spatialManager)
+          repository       <- ZIO.service[EventRepository]
+          spatialManager   <- ZIO.service[SpatialManager]
+          magnitudeManager <- ZIO.service[MagnitudeManager]
+        yield EventManager(repository, spatialManager, magnitudeManager)
       }
     )

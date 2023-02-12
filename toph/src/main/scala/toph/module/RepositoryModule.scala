@@ -8,6 +8,7 @@ import farango.zio.starter.FarangoStarter
 import toph.repository.EpicentreRepository
 import toph.repository.EventRepository
 import toph.repository.HypocentreRepository
+import toph.repository.MagnitudeRepository
 import zio.Task
 import zio.ZIO
 
@@ -19,9 +20,13 @@ trait RepositoryModule:
 
   val hypocentreRepository: HypocentreRepository
 
+  val magnitudeRepository: MagnitudeRepository
+
 object RepositoryModule:
 
   trait ForEvent
+
+  trait ForMagnitude
 
   case class Coll(collection: DocumentCollection)
 
@@ -34,14 +39,18 @@ object RepositoryModule:
   ): Task[RepositoryModule] =
     for
       collEvent            <- farangoModule.collection("event").coll[ForEvent]
+      collMagnitude        <- farangoModule.collection("magnitude").coll[ForMagnitude]
       epicentreRepository  <- farangoModule.collection("epicentre").flatMap(EpicentreRepository.apply)
       hypocentreRepository <- farangoModule.collection("hypocentre").flatMap(HypocentreRepository.apply)
     yield wire[Impl]
 
   private class Impl(
       collEvent: Coll @@ ForEvent,
+      collMagnitude: Coll @@ ForMagnitude,
       override val epicentreRepository: EpicentreRepository,
       override val hypocentreRepository: HypocentreRepository
   ) extends RepositoryModule:
 
     override val eventRepository: EventRepository = EventRepository(collEvent.collection)
+
+    override val magnitudeRepository: MagnitudeRepository = MagnitudeRepository(collMagnitude.collection)

@@ -2,6 +2,7 @@ package toph.module
 
 import com.softwaremill.macwire.wire
 import toph.manager.EventManager
+import toph.manager.MagnitudeManager
 import toph.manager.SpatialManager
 import zio.Task
 import zio.ZIO
@@ -11,6 +12,8 @@ trait CoreModule:
   val eventManager: EventManager
 
   val spatialManager: SpatialManager
+
+  val magnitudeManager: MagnitudeManager
 
 object CoreModule:
 
@@ -24,4 +27,7 @@ object CoreModule:
       hypocentreRepository = repositoryModule.hypocentreRepository
     )
 
-    override val eventManager: EventManager = EventManager(repositoryModule.eventRepository, spatialManager)
+    override val magnitudeManager: MagnitudeManager = MagnitudeManager(repositoryModule.magnitudeRepository)
+
+    override val eventManager: EventManager =
+      EventManager(repositoryModule.eventRepository, spatialManager, magnitudeManager)
