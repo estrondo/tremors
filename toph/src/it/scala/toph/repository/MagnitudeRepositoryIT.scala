@@ -9,9 +9,9 @@ import farango.DocumentCollection
 import zio.Task
 import zio.ZIO
 import MagnitudeRepository.Document
-import farango.data.ArangoConversion.convertToKey
 import farango.zio.given
 import toph.fixture.MagnitudeFixture
+import farango.data.Key
 
 object MagnitudeRepositoryIT extends Spec:
 
@@ -33,7 +33,7 @@ object MagnitudeRepositoryIT extends Spec:
       ZIO.succeed(MagnitudeRepository(collection))
 
     override def get(collection: DocumentCollection, value: Magnitude): Task[Option[Magnitude]] =
-      collection.get[Document](convertToKey(value.key))
+      collection.get[Document](Key.safe(value.key))
 
     override def insert(repository: MagnitudeRepository, value: Magnitude): Task[Any] =
       repository.add(value)

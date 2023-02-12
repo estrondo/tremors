@@ -13,6 +13,9 @@ import zio.ZLayer
 import testkit.core.createRandomKey
 
 import scala.reflect.ClassTag
+import java.time.Clock
+import java.util.TimeZone
+import farango.data.FarangoModule
 
 object FarangoLayer:
 
@@ -22,7 +25,11 @@ object FarangoLayer:
       port     <- ArangoDBLayer.port
       database <- {
         val serializer = ArangoJack()
-        serializer.configure(mapper => mapper.registerModule(DefaultScalaModule))
+        serializer.configure(mapper =>
+          mapper
+            .registerModule(DefaultScalaModule)
+            .registerModule(FarangoModule)
+        )
 
         val dbAsync = ArangoDBAsync
           .Builder()

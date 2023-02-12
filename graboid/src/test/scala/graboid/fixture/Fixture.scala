@@ -22,6 +22,5 @@ def createRandomString(length: Int = 8): String =
 
 def createZonedDateTime(): ZonedDateTime =
   ZonedDateTime
-    .now()
+    .now(Clock.systemUTC().getZone())
     .truncatedTo(ChronoUnit.SECONDS)
-    .withZoneSameInstant(Clock.systemUTC().getZone())

@@ -2,15 +2,14 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
-import farango.data.ArangoConversion.given
+import farango.data.fromConversion
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import zio.Task
-
-import java.lang.{Long => JLong, Integer => JInt}
 import zio.ZIO
 import zio.stream.ZStream
+
 import java.time.ZonedDateTime
 
 trait CrawlerExecutionRepository:
@@ -44,21 +43,21 @@ object CrawlerExecutionRepository:
   private[graboid] case class Document(
       _key: String,
       publisherKey: String,
-      beginning: Long,
-      ending: Long,
-      status: JInt,
-      executionStarted: JLong,
-      expectedStop: JLong,
-      executionStopped: JLong,
-      message: String
+      beginning: ZonedDateTime,
+      ending: ZonedDateTime,
+      status: Option[Int],
+      executionStarted: Option[ZonedDateTime],
+      expectedStop: Option[ZonedDateTime],
+      executionStopped: Option[ZonedDateTime],
+      message: Option[String]
   )
 
   private[graboid] case class UpdateDocument(
-      status: JInt,
-      executionStarted: JLong,
-      expectedStop: JLong,
-      executionStopped: JLong,
-      message: String
+      status: Option[Int],
+      executionStarted: Option[ZonedDateTime],
+      expectedStop: Option[ZonedDateTime],
+      executionStopped: Option[ZonedDateTime],
+      message: Option[String]
   )
 
   private[graboid] given Conversion[CrawlerExecution, Document] =

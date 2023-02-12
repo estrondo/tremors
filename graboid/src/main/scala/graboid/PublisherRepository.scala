@@ -2,7 +2,7 @@ package graboid
 
 import farango.DocumentCollection
 import farango.UpdateReturn
-import farango.data.ArangoConversion.given
+import farango.data.given
 import farango.zio.given
 import graboid.Publisher
 import io.github.arainko.ducktape.Field
@@ -15,6 +15,8 @@ import zio.ZIO
 import zio.stream.ZStream
 
 import java.lang.{Long => JLong}
+import java.net.URL
+import java.time.ZonedDateTime
 
 trait PublisherRepository:
 
@@ -40,17 +42,17 @@ object PublisherRepository:
   private[graboid] case class Document(
       _key: String,
       name: String,
-      url: String,
-      beginning: Long,
-      ending: JLong,
+      url: URL,
+      beginning: ZonedDateTime,
+      ending: Option[ZonedDateTime],
       `type`: Int
   )
 
   private[graboid] case class UpdateDocument(
       name: String,
-      url: String,
-      beginning: Long,
-      ending: JLong,
+      url: URL,
+      beginning: Option[ZonedDateTime],
+      ending: Option[ZonedDateTime],
       `type`: Int
   )
 

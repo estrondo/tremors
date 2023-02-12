@@ -2,9 +2,8 @@ package toph.repository
 
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
-import farango.data.ArangoConversion.convertFromKey
-import farango.data.ArangoConversion.convertToKey
-import farango.data.ArangoConversion.given
+import farango.data.Key
+import farango.data.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
@@ -14,6 +13,7 @@ import zio.Task
 
 import java.lang.{Double => JDouble}
 import java.lang.{Long => JLong}
+import java.time.ZonedDateTime
 
 trait MagnitudeRepository:
 
@@ -29,25 +29,25 @@ object MagnitudeRepository:
     wire[Impl]
 
   private[repository] case class Document(
-      _key: String,
+      _key: Key,
       mag: Double,
-      azimuthalGap: JDouble,
-      creationInfo: CreationInfoDocument,
-      stationCount: Integer,
+      azimuthalGap: Option[Double],
+      creationInfo: Option[CreationInfoDocument],
+      stationCount: Option[Int],
       comment: Seq[String],
-      `type`: String,
-      evaluationMode: String,
-      methodID: String,
-      evaluationStatus: String,
-      originID: String
+      `type`: Option[String],
+      evaluationMode: Option[String],
+      methodID: Option[String],
+      evaluationStatus: Option[String],
+      originID: Option[String]
   )
 
   private[repository] case class CreationInfoDocument(
-      author: String,
-      version: String,
-      agencyID: String,
-      agencyURI: String,
-      creationTime: JLong
+      author: Option[String],
+      version: Option[String],
+      agencyID: Option[String],
+      agencyURI: Option[String],
+      creationTime: Option[ZonedDateTime]
   )
 
   private[repository] given Conversion[CreationInfoDocument, CreationInfo] = document =>
@@ -63,12 +63,12 @@ object MagnitudeRepository:
   private[repository] given Conversion[Magnitude, Document] = magnitude =>
     magnitude
       .into[Document]
-      .transform(Field.const(_._key, convertToKey(magnitude.key)))
+      .transform(Field.const(_._key, magnitude.key: Key))
 
   private[repository] given Conversion[Document, Magnitude] = document =>
     document
       .into[Magnitude]
-      .transform(Field.const(_.key, convertFromKey(document._key)))
+      .transform(Field.const(_.key, document._key: String))
 
   private class Impl(collection: DocumentCollection) extends MagnitudeRepository:
 
@@ -77,7 +77,7 @@ object MagnitudeRepository:
         .insert[Document](magnitude)
 
     override def get(key: String): Task[Option[Magnitude]] =
-      collection.get[Document](convertToKey(key))
+      collection.get[Document](Key.safe(key))
 
     override def remove(key: String): Task[Option[Magnitude]] =
-      collection.remove[Document](convertToKey(key))
+      collection.remove[Document](Key.safe(key))

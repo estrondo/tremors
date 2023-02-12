@@ -19,7 +19,10 @@ object FarangoStarter:
 
   def apply(config: ArangoConfig): Task[Database] =
     val arangoJack = ArangoJack()
-    arangoJack.configure(mapper => mapper.registerModule(DefaultScalaModule))
+    arangoJack.configure(mapper =>
+      mapper
+        .registerModule(DefaultScalaModule)
+    )
 
     var arangoDB = ArangoDBAsync
       .Builder()

@@ -74,8 +74,8 @@ object PublisherRepositoryIT extends IT:
         yield assertTrue(
           updated._key == publisher.key,
           updated.name == expectedUpdate.name,
-          updated.beginning == expectedUpdate.beginning.getLong(ChronoField.INSTANT_SECONDS),
-          updated.ending.longValue() == expectedUpdate.ending.get.getLong(ChronoField.INSTANT_SECONDS)
+          updated.beginning == expectedUpdate.beginning,
+          updated.ending == expectedUpdate.ending
         )
       }
     ).provideSomeLayer(ArangoDBLayer.layer >>> FarangoLayer.database >>> RepositoryLayer) @@ TestAspect.sequential

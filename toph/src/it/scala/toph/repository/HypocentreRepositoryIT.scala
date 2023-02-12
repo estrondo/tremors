@@ -1,7 +1,6 @@
 package toph.repository
 
 import farango.DocumentCollection
-import farango.data.ArangoConversion.convertToKey
 import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import toph.IT
@@ -17,6 +16,7 @@ import zio.test.assertTrue
 
 import HypocentreRepository.given
 import HypocentreRepository.Document
+import farango.data.Key
 
 object HypocentreRepositoryIT extends IT:
 
@@ -25,7 +25,7 @@ object HypocentreRepositoryIT extends IT:
       HypocentreRepository(collection)
 
     override def get(collection: DocumentCollection, value: Hypocentre): Task[Option[Hypocentre]] =
-      collection.get[Document](convertToKey(value.key))
+      collection.get[Document](Key.safe(value.key))
 
     override def insert(repository: HypocentreRepository, value: Hypocentre): Task[Any] =
       repository.add(value)

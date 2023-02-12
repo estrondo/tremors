@@ -63,7 +63,8 @@ lazy val `farango-data` = (project in file("arangodb/data"))
   .settings(
     name := "farango-data",
     libraryDependencies ++= Seq(
-      Dependencies.Ducktape
+      Dependencies.Ducktape,
+      Dependencies.Jackson
     ).flatten
   )
 
@@ -233,10 +234,12 @@ lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontai
       Dependencies.ZIO,
       Dependencies.ZIOKafka,
       Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name))),
-      Dependencies.Farango
+      Dependencies.Farango,
+      Dependencies.ArangoDB
     ).flatten
   ).dependsOn(
-    `testkit-core`
+    `testkit-core`,
+    `farango-data`
   )
 
 lazy val `testkit-zio-repository` = (project in file("testkit/zio-repository"))
