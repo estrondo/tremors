@@ -47,7 +47,7 @@ lazy val `testkit-core` = (project in file("testkit/core"))
   .settings(
     name := "teskit-core",
     libraryDependencies ++= Seq(
-      Dependencies.Mockito.map(_.withConfigurations(None))
+      Dependencies.SweetMockito.map(_.withConfigurations(None))
     ).flatten
   )
 
@@ -189,7 +189,7 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.ZIOKafka,
       Dependencies.LemonScalaUri,
       Dependencies.AaltoXml,
-      Dependencies.Mockito,
+      Dependencies.SweetMockito,
       Dependencies.ArangoDB,
       Dependencies.Macwire,
       Dependencies.Ducktape,
@@ -263,7 +263,7 @@ lazy val webapi1x = (project in file("webapi1x"))
       Dependencies.Macwire,
       Dependencies.ZKafka,
       Dependencies.Ducktape,
-      Dependencies.Mockito,
+      Dependencies.SweetMockito,
       Dependencies.Logging
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
@@ -299,7 +299,7 @@ lazy val `zkafka` = (project in file("kafka/zkafka"))
       Dependencies.ZKafka,
       Dependencies.Borer,
       Dependencies.Macwire,
-      Dependencies.Mockito,
+      Dependencies.SweetMockito,
       Dependencies.ZIOLogging,
       Dependencies.Logging,
       Dependencies.ZIOConfig

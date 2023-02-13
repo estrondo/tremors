@@ -3,30 +3,30 @@ import sbt._
 object Dependencies {
 
   val ZHttpVersion            = "2.0.0-RC11"
-  val ZKafkaVersion           = "2.0.0-M3"
-  val ZIOVersion              = "2.0.5"
-  val ZIOLoggingVersion       = "2.1.0"
-  val ZIOConfigVersion        = "3.0.2"
+  val ZKafkaVersion           = "2.0.7"
+  val ZIOVersion              = "2.0.8"
+  val ZIOLoggingVersion       = "2.1.9"
+  val ZIOConfigVersion        = "3.0.7"
   val ZIOMockVersion          = "1.0.0-RC8"
-  val ZIOKafkaVersion         = "2.0.1"
+  val ZIOKafkaVersion         = "2.0.7"
   val MUnitVersion            = "1.0.0-M6"
   val MUnitZIOVersion         = "0.1.0"
-  val LemonScalaUriVersion    = "4.0.2"
+  val LemonScalaUriVersion    = "4.0.3"
   val Log4j2Version           = "2.19.0"
   val SLF4jVersion            = "2.0.3"
   val AaltoXmlVersion         = "1.3.2"
   val MockitoVersion          = "4.8.0"
-  val ArangoDBVersion         = "6.19.0"
+  val ArangoDBVersion         = "6.20.0"
   val ArangoVelocypackVersion = "3.0.1"
-  val BorerVersion            = "1.10.0"
-  val TestcontainersVersion   = "0.40.11"
+  val BorerVersion            = "1.10.2"
+  val TestcontainersVersion   = "0.40.12"
   val MacwireVersion          = "2.5.8"
-  val ZIOJsonVersion          = "0.3.0"
-  val DucktapeVersion         = "0.1.0"
+  val ZIOJsonVersion          = "0.4.2"
+  val DucktapeVersion         = "0.1.3"
   val SweetMockitoVersion     = "1.0.0+3-88ef51e9"
   val ScalaCommonVersion      = "2.3.4"
   val FarangoVersion          = "0.0.1-SNAPSHOT"
-  val JacksonVersion          = "2.14.1"
+  val JacksonVersion          = "2.14.2"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -81,7 +81,7 @@ object Dependencies {
     "com.fasterxml" % "aalto-xml" % AaltoXmlVersion
   )
 
-  val Mockito = Seq(
+  val SweetMockito = Seq(
     "org.mockito"   % "mockito-core"      % MockitoVersion      % Test,
     "one.estrondo" %% "sweet-mockito"     % SweetMockitoVersion % Test,
     "one.estrondo" %% "sweet-mockito-zio" % SweetMockitoVersion % Test
