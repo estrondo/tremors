@@ -8,7 +8,10 @@ import quakeml.RealQuantity
 import quakeml.ResourceReference
 import quakeml.TimeQuantity
 
+import java.time.Clock
 import java.time.ZonedDateTime
+
+val ZoneId = Clock.systemUTC().getZone()
 
 given Transformer[ResourceReference, String] = _.uri
 
@@ -19,6 +22,13 @@ given Transformer[RealQuantity, Double] = _.value
 given Transformer[EvaluationMode, String] = _.value
 
 given Transformer[EvaluationStatus, String] = _.value
+
+given Transformer[String, ZonedDateTime] =
+  ZonedDateTime
+    .parse(_)
+    .withZoneSameInstant(ZoneId)
+
+given Transformer[ZonedDateTime, String] = _.toString()
 
 given [A, B](using tranformer: Transformer[A, B]): Conversion[A, B] =
   tranformer.transform(_)

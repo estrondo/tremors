@@ -3,22 +3,27 @@ package toph.repository
 import com.arangodb.model.GeoIndexOptions
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
+import farango.data.Key
 import farango.data.given
+import farango.query.ForQuery
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import toph.model.Epicentre
+import toph.query.spatial.SpatialEpicentreQuery
 import zio.Task
 import zio.ZIO
+import zio.stream.ZStream
 
 import java.time.ZonedDateTime
-import farango.data.Key
 
 trait EpicentreRepository:
 
   def add(epicentre: Epicentre): Task[Epicentre]
 
   def remove(key: String): Task[Option[Epicentre]]
+
+  def query(query: SpatialEpicentreQuery): ZStream[Any, Throwable, Epicentre]
 
 object EpicentreRepository:
 
@@ -48,6 +53,8 @@ object EpicentreRepository:
 
   private class Impl(collection: DocumentCollection) extends EpicentreRepository:
 
+    private def database = collection.database
+
     override def add(epicentre: Epicentre): Task[Epicentre] =
       collection
         .insert[Document](epicentre)
@@ -59,3 +66,20 @@ object EpicentreRepository:
         .remove[Document](Key.safe(key))
         .tap(_ => ZIO.logDebug(s"An epicentre was removed: $key."))
         .tapErrorCause(ZIO.logWarningCause(s"It was impossible to remove an epicentre: $key!", _))
+
+    override def query(query: SpatialEpicentreQuery): ZStream[Any, Throwable, Epicentre] =
+      var forQuery = ForQuery(collection.name)
+        .filter(
+          "GEO_DISTANCE(@position, d.position) < @limit",
+          "position" -> query.boundary,
+          "limit"    -> query.boundaryRadius.getOrElse(1)
+        )
+
+      if query.startTime.isDefined then
+        forQuery = forQuery.filter("d.time >= @startTime", "startTime" -> query.startTime.get)
+
+      if query.endTime.isDefined then forQuery = forQuery.filter("d.time < @endTime", "endTime" -> query.endTime.get)
+
+      ZStream
+        .fromZIO(forQuery[Document](database).query())
+        .flatten

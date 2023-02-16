@@ -5,12 +5,15 @@ import com.softwaremill.macwire.wire
 import farango.DocumentCollection
 import farango.data.Key
 import farango.data.given
+import farango.query.ForQuery
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import toph.model.Hypocentre
+import toph.query.spatial.SpatialHypocentreQuery
 import zio.Task
 import zio.ZIO
+import zio.stream.ZStream
 
 import java.time.ZonedDateTime
 
@@ -19,6 +22,8 @@ trait HypocentreRepository:
   def add(hypocentre: Hypocentre): Task[Hypocentre]
 
   def remove(key: String): Task[Option[Hypocentre]]
+
+  def query(query: SpatialHypocentreQuery): ZStream[Any, Throwable, Hypocentre]
 
 object HypocentreRepository:
 
@@ -48,6 +53,8 @@ object HypocentreRepository:
 
   private class Impl(collection: DocumentCollection) extends HypocentreRepository:
 
+    private def database = collection.database
+
     override def add(hypocentre: Hypocentre): Task[Hypocentre] =
       collection
         .insert[Document](hypocentre)
@@ -59,3 +66,26 @@ object HypocentreRepository:
         .remove[Document](Key.safe(key))
         .tap(_ => ZIO.logDebug(s"A hypocentre was removed: $key."))
         .tapErrorCause(ZIO.logWarningCause(s"It was impossible to remove a hypocentre: $key!", _))
+
+    override def query(query: SpatialHypocentreQuery): ZStream[Any, Throwable, Hypocentre] =
+      var forQuery = ForQuery(collection.name)
+        .filter(
+          "GEO_DISTANCE(@location, d.position) <= @limit",
+          "location" -> query.boundary,
+          "limit"    -> query.boundaryRadius.getOrElse(1)
+        )
+
+      if query.startTime.isDefined then
+        forQuery = forQuery.filter("d.startTime >= @startTime", "startTime" -> query.startTime.get)
+
+      if query.endTime.isDefined then forQuery = forQuery.filter("d.endTime < @endTime", "endTime" -> query.endTime.get)
+
+      if query.minDepth.isDefined then
+        forQuery = forQuery.filter("d.depth >= @minDepth", "minDepth" -> query.minDepth.get)
+
+      if query.maxDepth.isDefined then
+        forQuery = forQuery.filter("d.depth <= @maxDepth", "maxDepth" -> query.maxDepth.get)
+
+      ZStream
+        .fromZIO(forQuery[Document](database).query())
+        .flatten

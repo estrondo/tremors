@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package toph.grpc;
+
+message EpicentreQuery {
+    repeated double boundary = 1; // [lng0, lat0, ..., lngN, latN]
+    optional double boundaryRadius = 2; // in meters.
+    optional double minMagnitude = 3;
+    optional double maxMagnitude = 4;
+    optional string startTime = 5; // ISO format UTC: YYYY-MM-DDTHH:MM:SS
+    optional string endTime = 6; // ISO format UTC: YYYY-MM-DDTHH:MM:SS
+}
+
+message HypocentreQuery {
+  repeated double boundary = 1; // [lng0, lat0, ..., lngN, latN]
+  optional double boundaryRadius = 2; // in meters.
+  optional double minMagnitude = 3;
+  optional double maxMagnitude = 4;
+  optional string startTime = 5; // ISO format UTC: YYYY-MM-DDTHH:MM:SS
+  optional string endTime = 6; // ISO format UTC: YYYY-MM-DDTHH:MM:SS
+  optional double minDepth = 7; // in meters
+  optional double maxDepth = 8; // in meters
+}
+
+message GRPCEpicentre {
+  string key = 1;
+  double lng = 2;
+  double lat = 3;
+  double magnitude = 4;
+  string magnitudeType = 5;
+  string time = 6;
+}
+
+message GRPCHypocentre {
+  string key = 1;
+  double lng = 2;
+  double lat = 3;
+  double depth = 4;
+  double magnitude = 5;
+  string magnitudeType = 6;
+  string time = 7;
+}
+
+service SpatialService {
+  rpc SearchEpicentre (EpicentreQuery) returns (stream GRPCEpicentre);
+
+  rpc SearchHypocentre (HypocentreQuery) returns (stream GRPCHypocentre);
+}

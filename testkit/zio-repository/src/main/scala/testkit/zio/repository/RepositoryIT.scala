@@ -5,6 +5,7 @@ import farango.zio.given
 import testkit.core.createRandomKey
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
+import zio.RIO
 import zio.Tag
 import zio.Task
 import zio.TaskLayer
@@ -40,6 +41,13 @@ object RepositoryIT:
     (ArangoDBLayer.layer >>> FarangoLayer.database >>> FarangoLayer.documentCollectionLayer(
       s"repository_it_${createRandomKey()}"
     )) >+> layer
+
+  def insertAndReturnRepo[R, I](values: Seq[I])(using RepositoryIT[R, I], Tag[R]): RIO[R, R] =
+    val repositoryIT = RepositoryIT[R, I]
+    for
+      repository <- ZIO.service[R]
+      _          <- ZIO.foreach(values)(value => repositoryIT.insert(repository, value))
+    yield repository
 
   def testAdd[R, I](input: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R] =
     val value        = input

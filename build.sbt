@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
     core,
     `testkit-core`,
     `farango-data`,
+    `farango-query`,
     `farango-zio-starter`,
     cbor,
     webapi1x,
@@ -68,6 +69,14 @@ lazy val `farango-data` = (project in file("arangodb/data"))
     ).flatten
   )
 
+lazy val `farango-query` = (project in file("arangodb/query"))
+  .settings(
+    name := "farango-query",
+    libraryDependencies ++= Seq(
+      Dependencies.Farango
+    ).flatten
+  )
+
 lazy val `farango-zio-starter` = (project in file("arangodb/farango-zio-starter"))
   .settings(
     name := "farango-zio-starter",
@@ -77,6 +86,9 @@ lazy val `farango-zio-starter` = (project in file("arangodb/farango-zio-starter"
       Dependencies.ZIO,
       Dependencies.ZIOConfig
     ).flatten
+  )
+  .dependsOn(
+    `farango-data`
   )
 
 lazy val quakeml = (project in file("quakeml"))
@@ -124,7 +136,7 @@ lazy val `testkit-graboid-protocol` = (project in file("testkit/graboid-protocol
     `graboid-protocol`
   )
 
-lazy val `toph-message-protocol`= (project in file("toph-message-protocol"))
+lazy val `toph-message-protocol` = (project in file("toph-message-protocol"))
   .settings(
     name := "toph-message-protocol"
   )
@@ -134,7 +146,7 @@ lazy val `toph-message-protocol`= (project in file("toph-message-protocol"))
 
 lazy val toph = (project in file("toph"))
   .settings(
-    name := "toph",
+    name                 := "toph",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
@@ -144,9 +156,15 @@ lazy val toph = (project in file("toph"))
       Dependencies.ZIOKafka,
       Dependencies.Farango,
       Dependencies.Ducktape,
-      Dependencies.Macwire
+      Dependencies.Macwire,
+      Dependencies.GRPC,
+      Dependencies.ZCache
     ).flatten,
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+    )
   )
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
@@ -170,6 +188,7 @@ lazy val toph = (project in file("toph"))
     `cbor-quakeml`,
     `farango-zio-starter`,
     `farango-data`,
+    `farango-query`,
     zkafka,
     `toph-message-protocol`,
     `testkit-quakeml`            % Test,
@@ -237,7 +256,8 @@ lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontai
       Dependencies.Farango,
       Dependencies.ArangoDB
     ).flatten
-  ).dependsOn(
+  )
+  .dependsOn(
     `testkit-core`,
     `farango-data`
   )

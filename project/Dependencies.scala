@@ -119,4 +119,13 @@ object Dependencies {
     "one.estrondo" %% "farango" % FarangoVersion,
     "one.estrondo" %% "zarango" % FarangoVersion
   )
+
+  val GRPC = Seq(
+    "io.grpc"               % "grpc-netty"           % "1.41.0",
+    "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+  )
+
+  val ZCache = Seq(
+    "dev.zio" %% "zio-cache" % "0.1.5"
+  )
 }

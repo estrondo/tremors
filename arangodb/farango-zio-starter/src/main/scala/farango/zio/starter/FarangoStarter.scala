@@ -5,6 +5,7 @@ import com.arangodb.mapping.ArangoJack
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import farango.Database
 import farango.DocumentCollection
+import farango.data.FarangoModule
 import farango.zio.given
 import zio.RIO
 import zio.Schedule
@@ -22,6 +23,7 @@ object FarangoStarter:
     arangoJack.configure(mapper =>
       mapper
         .registerModule(DefaultScalaModule)
+        .registerModule(FarangoModule)
     )
 
     var arangoDB = ArangoDBAsync

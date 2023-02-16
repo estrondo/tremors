@@ -3,20 +3,20 @@ package toph
 import toph.module.ConfigModule
 import toph.module.CoreModule
 import toph.module.FarangoModule
+import toph.module.GRPCModule
 import toph.module.KafkaModule
+import toph.module.ListenerModule
 import toph.module.RepositoryModule
+import toph.module.ServiceModule
 import zio.ExitCode
 import zio.Runtime
-import zio.Schedule
 import zio.Scope
 import zio.Task
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
 import zio.ZLayer
-import zio.durationInt
 import zio.logging.backend.SLF4J
-import toph.module.ListenerModule
 
 object Toph extends ZIOAppDefault:
 
@@ -36,8 +36,11 @@ object Toph extends ZIOAppDefault:
       kafkaModule        <- KafkaModule(configModule.toph.kafka)
       coreModule         <- CoreModule(repositoryModule)
       listenerModule     <- ListenerModule(coreModule, kafkaModule)
+      serviceModule      <- ServiceModule(coreModule)
+      gRPCModule         <- GRPCModule(configModule.toph.grpc, serviceModule)
       eventJournalStream <- listenerModule.eventJournalStream
       fiberEventJournal  <- eventJournalStream.runDrain.fork
       _                  <- ZIO.logInfo("🌎 Toph is ready!")
+      _                  <- gRPCModule.run()
       _                  <- fiberEventJournal.join
     yield ()

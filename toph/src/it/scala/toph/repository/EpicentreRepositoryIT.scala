@@ -1,20 +1,24 @@
 package toph.repository
 
 import farango.DocumentCollection
+import farango.data.Key
 import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import toph.IT
 import toph.fixture.EpicentreFixture
 import toph.model.Epicentre
+import toph.query.spatial.SpatialEpicentreQuery
+import zio.RIO
 import zio.Scope
 import zio.Task
 import zio.ZIO
 import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
+import zio.test.TestResult
+import zio.test.assertTrue
 
 import EpicentreRepository.Document
-import farango.data.Key
 
 object EpicentreRepositoryIT extends IT:
 
@@ -39,8 +43,47 @@ object EpicentreRepositoryIT extends IT:
         },
         test("It should remove a epicentre from collection.") {
           RepositoryIT.testRemove(EpicentreFixture.createRandom())
+        },
+        test("It should search for epicentres by a spatial-epicentre-query.") {
+          val epicentre = EpicentreFixture.createRandom()
+
+          val query = SpatialEpicentreQuery(
+            boundary = Seq(epicentre.position.lng + .5, epicentre.position.lat + .5),
+            boundaryRadius = Some(150000),
+            minMagnitude = Some(1),
+            maxMagnitude = Some(5),
+            startTime = Some(epicentre.time.minusDays(3)),
+            endTime = Some(epicentre.time.plusDays(3))
+          )
+
+          testSpatialEpicentreQuery(Seq(epicentre), query, Seq(epicentre))
+        },
+        test("It should not found epicentres by some spatial-epicentre-queries.") {
+          val epicentre = EpicentreFixture.createRandom()
+
+          val query = SpatialEpicentreQuery(
+            boundary = Seq(epicentre.position.lng + .5, epicentre.position.lat + .5),
+            boundaryRadius = Some(15000),
+            minMagnitude = Some(1),
+            maxMagnitude = Some(5),
+            startTime = Some(epicentre.time.minusDays(3)),
+            endTime = Some(epicentre.time.plusDays(3))
+          )
+          testSpatialEpicentreQuery(Seq(epicentre), query, Nil)
         }
       ).provideSomeLayer(
         RepositoryIT.of[EpicentreRepository, Epicentre]
       ) @@ TestAspect.sequential
+    )
+
+  private def testSpatialEpicentreQuery(
+      input: Seq[Epicentre],
+      query: SpatialEpicentreQuery,
+      expected: Seq[Epicentre]
+  ): RIO[EpicentreRepository, TestResult] =
+    for
+      repository <- RepositoryIT.insertAndReturnRepo(input)
+      result     <- repository.query(query).runCollect
+    yield assertTrue(
+      result == expected
     )

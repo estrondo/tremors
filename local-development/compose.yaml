@@ -94,11 +94,11 @@ services:
       GRABOID_KAFKA_CLIENT_ID: graboid
       GRABOID_KAFKA_CLOSE_TIMEOUT: 10 seconds
       GRABOID_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
-    ports:
-      - "8080:8080"
 
   toph:
     image: docker.io/rthoth/estrondo:toph
+    ports:
+      - "9000:9000"
     environment:
       TREMORS_PROFILE: dev
       TOPH_ARANGO_DATABASE: toph
@@ -108,6 +108,7 @@ services:
       TOPH_KAFKA_CLIENT_ID: graboid
       TOPH_KAFKA_CLOSE_TIMEOUT: 10 seconds
       TOPH_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
+      TOPH_GRPC_PORT: 9000
 volumes:
   arango1:
   arango2:

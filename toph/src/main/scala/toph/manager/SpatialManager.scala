@@ -6,14 +6,20 @@ import toph.converter.EpicentreConverter
 import toph.converter.HypocentreConverter
 import toph.model.Epicentre
 import toph.model.Hypocentre
+import toph.query.spatial.SpatialEpicentreQuery
+import toph.query.spatial.SpatialHypocentreQuery
+import toph.query.spatial.SpatialQuery
 import toph.repository.EpicentreRepository
 import toph.repository.HypocentreRepository
 import zio.Task
 import zio.ZIO
+import zio.stream.ZStream
 
 trait SpatialManager:
 
   def accept(origin: QOrigin): Task[(Epicentre, Option[Hypocentre])]
+
+  def search[T](query: SpatialQuery[T]): ZStream[Any, Throwable, T]
 
 object SpatialManager:
 
@@ -22,12 +28,22 @@ object SpatialManager:
 
   private class Impl(epicentreRepository: EpicentreRepository, hypocentreRepository: HypocentreRepository)
       extends SpatialManager:
-
     override def accept(origin: QOrigin): Task[(Epicentre, Option[Hypocentre])] =
       for
         epicentre  <- createEpicentre(origin)
         hypocentre <- createHypocentre(origin)
       yield (epicentre, hypocentre)
+
+    override def search[T](query: SpatialQuery[T]): ZStream[Any, Throwable, T] =
+      query match
+        case query: SpatialEpicentreQuery  => _search(query)
+        case query: SpatialHypocentreQuery => _search(query)
+
+    private def _search(query: SpatialEpicentreQuery): ZStream[Any, Throwable, Epicentre] =
+      ZStream.logDebug("Searching for epicentre.") *> epicentreRepository.query(query)
+
+    private def _search(query: SpatialHypocentreQuery): ZStream[Any, Throwable, Hypocentre] =
+      ZStream.logDebug("Searching for hypocentres.") *> hypocentreRepository.query(query)
 
     private def createEpicentre(origin: QOrigin): Task[Epicentre] =
       (for
