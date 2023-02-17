@@ -2,20 +2,21 @@ package testkit.zio.testcontainers
 
 import com.arangodb.async.ArangoDBAsync
 import com.arangodb.mapping.ArangoJack
+import com.bedatadriven.jackson.datatype.jts.JtsModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import farango.Database
 import farango.DocumentCollection
+import farango.data.FarangoModule
 import farango.zio.given
+import testkit.core.createRandomKey
 import zio.RIO
 import zio.RLayer
 import zio.ZIO
 import zio.ZLayer
-import testkit.core.createRandomKey
 
-import scala.reflect.ClassTag
 import java.time.Clock
 import java.util.TimeZone
-import farango.data.FarangoModule
+import scala.reflect.ClassTag
 
 object FarangoLayer:
 
@@ -29,6 +30,7 @@ object FarangoLayer:
           mapper
             .registerModule(DefaultScalaModule)
             .registerModule(FarangoModule)
+            .registerModule(new JtsModule())
         )
 
         val dbAsync = ArangoDBAsync

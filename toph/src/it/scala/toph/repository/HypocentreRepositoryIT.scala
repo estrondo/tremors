@@ -6,7 +6,9 @@ import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import toph.IT
 import toph.fixture.HypocentreFixture
-import toph.fixture.Point3DFixture
+import toph.fixture.PointFixture
+import toph.geom.CoordinateSequenceFactory
+import toph.geom.create
 import toph.model.Hypocentre
 import toph.query.spatial.SpatialHypocentreQuery
 import zio.RIO
@@ -46,31 +48,33 @@ object HypocentreRepositoryIT extends IT:
         test("It should remove a hypocentre from collection.") {
           RepositoryIT.testRemove(HypocentreFixture.createRandom())
         },
-        test("It should search for hypocentres by a spatial-epicentre-query.") {
-          val epicentre = HypocentreFixture
-            .createRandom()
-            .copy(position = Point3DFixture.createRandom().copy(z = 3))
-
-          val query = SpatialHypocentreQuery(
-            boundary = Seq(epicentre.position.lng + .5, epicentre.position.lat + .5),
-            boundaryRadius = Some(150000),
-            minMagnitude = Some(1),
-            maxMagnitude = Some(5),
-            startTime = Some(epicentre.time.minusDays(3)),
-            endTime = Some(epicentre.time.plusDays(3)),
-            minDepth = Some(1),
-            maxDepth = Some(4)
-          )
-
-          testHypocentreQuery(Seq(epicentre), query, Seq(epicentre))
-        } @@ TestAspect.ignore,
-        test("It should not found hypocentres by some spatial-epicentre-queries.") {
+        test("It should search for hypocentres by a spatial-hypocentre-query.") {
           val hypocentre = HypocentreFixture
             .createRandom()
-            .copy(position = Point3DFixture.createRandom().copy(z = 3))
+            .copy(depth = 13456)
 
           val query = SpatialHypocentreQuery(
-            boundary = Seq(hypocentre.position.lng + .5, hypocentre.position.lat + .5),
+            boundary =
+              CoordinateSequenceFactory.create(hypocentre.position.getX() + .1, hypocentre.position.getY() + .1),
+            boundaryRadius = Some(30000),
+            minMagnitude = Some(1),
+            maxMagnitude = Some(5),
+            startTime = Some(hypocentre.time.minusDays(3)),
+            endTime = Some(hypocentre.time.plusDays(3)),
+            minDepth = Some(10000),
+            maxDepth = Some(20000)
+          )
+
+          testHypocentreQuery(Seq(hypocentre), query, Seq(hypocentre))
+        },
+        test("It should not found hypocentres by some spatial-hypocentre-queries.") {
+          val hypocentre = HypocentreFixture
+            .createRandom()
+            .copy(position = PointFixture.createRandom())
+
+          val query = SpatialHypocentreQuery(
+            boundary =
+              CoordinateSequenceFactory.create(hypocentre.position.getX() + .5, hypocentre.position.getY() + .5),
             boundaryRadius = Some(15000),
             minMagnitude = Some(1),
             maxMagnitude = Some(5),
@@ -80,7 +84,7 @@ object HypocentreRepositoryIT extends IT:
             maxDepth = Some(4)
           )
           testHypocentreQuery(Seq(hypocentre), query, Nil)
-        } @@ TestAspect.ignore
+        }
       ).provideSomeLayer(
         RepositoryIT.of[HypocentreRepository, Hypocentre]
       ) @@ TestAspect.sequential

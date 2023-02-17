@@ -14,11 +14,11 @@ object GRPCHypocentreConverter:
     input
       .into[GRPCHypocentre]
       .transform(
-        Field.const(_.lng, input.position.lng),
-        Field.const(_.lat, input.position.lat),
+        Field.const(_.lng, input.position.getX()),
+        Field.const(_.lat, input.position.getY()),
         Field.const(_.magnitudeType, ""),
         Field.const(_.magnitude, 0d),
-        Field.const(_.depth, input.position.z),
+        Field.const(_.depth, input.depth),
         Field.const(_.unknownFields, UnknownFieldSet.empty)
       )
   }

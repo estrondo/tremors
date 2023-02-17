@@ -43,7 +43,7 @@ object ForQuery:
 
       Effect[F].flatMap(queryEffect) { query =>
         Effect[F].flatMap(paramsEffect) { params =>
-          database.query[T](query, params)
+          database.query(query, params)
         }
       }
 

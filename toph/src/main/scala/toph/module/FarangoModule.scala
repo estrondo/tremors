@@ -1,12 +1,14 @@
 package toph.module
 
+import com.bedatadriven.jackson.datatype.jts.JtsModule
 import com.softwaremill.macwire.wire
 import farango.Database
+import farango.DocumentCollection
 import farango.zio.starter.ArangoConfig
 import farango.zio.starter.FarangoStarter
+import toph.geom.Factory
 import zio.Task
 import zio.ZIO
-import farango.DocumentCollection
 import zio.ZLayer
 
 trait FarangoModule:
@@ -16,7 +18,7 @@ trait FarangoModule:
 object FarangoModule:
 
   def apply(config: ArangoConfig): Task[FarangoModule] =
-    for database <- FarangoStarter(config)
+    for database <- FarangoStarter(config, Some({ mapper => mapper.registerModule(new JtsModule(Factory)) }))
     yield wire[Impl]
 
   private class Impl(database: Database) extends FarangoModule:

@@ -14,8 +14,8 @@ object GRPCEpicentreConverter:
     input
       .into[GRPCEpicentre]
       .transform(
-        Field.const(_.lat, input.position.lat),
-        Field.const(_.lng, input.position.lng),
+        Field.const(_.lat, input.position.getY()),
+        Field.const(_.lng, input.position.getX()),
         Field.const(_.magnitudeType, ""),
         Field.const(_.magnitude, 0d),
         Field.const(_.unknownFields, UnknownFieldSet.empty)

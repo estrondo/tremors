@@ -9,8 +9,10 @@ import farango.query.ForQuery
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
+import org.locationtech.jts.geom.Point
 import toph.model.Hypocentre
 import toph.query.spatial.SpatialHypocentreQuery
+import toph.query.spatial.toQueriableGeometry
 import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
@@ -29,13 +31,14 @@ object HypocentreRepository:
 
   def apply(collection: DocumentCollection): Task[HypocentreRepository] =
     for
-      indexEntry <- collection.ensureGeoIndex(Seq("position"), GeoIndexOptions().geoJson(false))
+      indexEntry <- collection.ensureGeoIndex(Seq("position"), GeoIndexOptions().geoJson(true))
       a          <- ZIO.logDebug(s"GeoIndex ${indexEntry.getName()} was created for collection ${collection.name}.")
     yield wire[Impl]
 
   private[repository] case class Document(
       _key: Key,
-      position: Array[Double],
+      position: Point,
+      depth: Double,
       positionUncertainty: Array[Double],
       time: ZonedDateTime,
       timeUncertainty: Int
@@ -70,15 +73,15 @@ object HypocentreRepository:
     override def query(query: SpatialHypocentreQuery): ZStream[Any, Throwable, Hypocentre] =
       var forQuery = ForQuery(collection.name)
         .filter(
-          "GEO_DISTANCE(@location, d.position) <= @limit",
-          "location" -> query.boundary,
+          "GEO_DISTANCE(@position, d.position) <= @limit",
+          "position" -> toQueriableGeometry(query.boundary),
           "limit"    -> query.boundaryRadius.getOrElse(1)
         )
 
       if query.startTime.isDefined then
-        forQuery = forQuery.filter("d.startTime >= @startTime", "startTime" -> query.startTime.get)
+        forQuery = forQuery.filter("d.time >= @startTime", "startTime" -> query.startTime.get)
 
-      if query.endTime.isDefined then forQuery = forQuery.filter("d.endTime < @endTime", "endTime" -> query.endTime.get)
+      if query.endTime.isDefined then forQuery = forQuery.filter("d.time < @endTime", "endTime" -> query.endTime.get)
 
       if query.minDepth.isDefined then
         forQuery = forQuery.filter("d.depth >= @minDepth", "minDepth" -> query.minDepth.get)

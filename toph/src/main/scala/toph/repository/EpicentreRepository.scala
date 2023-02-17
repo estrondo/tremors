@@ -9,8 +9,10 @@ import farango.query.ForQuery
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
+import org.locationtech.jts.geom.Point
 import toph.model.Epicentre
 import toph.query.spatial.SpatialEpicentreQuery
+import toph.query.spatial.toQueriableGeometry
 import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
@@ -29,13 +31,13 @@ object EpicentreRepository:
 
   def apply(collection: DocumentCollection): Task[EpicentreRepository] =
     for
-      indexEntry <- collection.ensureGeoIndex(Seq("position"), GeoIndexOptions().geoJson(false))
+      indexEntry <- collection.ensureGeoIndex(Seq("position"), GeoIndexOptions().geoJson(true))
       a          <- ZIO.logDebug(s"GeoIndex ${indexEntry.getName()} was created for collection ${collection.name}.")
     yield wire[Impl]
 
   private[repository] case class Document(
       _key: Key,
-      position: Array[Double],
+      position: Point,
       positionUncertainty: Array[Double],
       time: ZonedDateTime,
       timeUncertainty: Int
@@ -70,8 +72,8 @@ object EpicentreRepository:
     override def query(query: SpatialEpicentreQuery): ZStream[Any, Throwable, Epicentre] =
       var forQuery = ForQuery(collection.name)
         .filter(
-          "GEO_DISTANCE(@position, d.position) < @limit",
-          "position" -> query.boundary,
+          "GEO_DISTANCE(@position, d.position) <= @limit",
+          "position" -> toQueriableGeometry(query.boundary),
           "limit"    -> query.boundaryRadius.getOrElse(1)
         )
 

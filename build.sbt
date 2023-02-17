@@ -158,7 +158,9 @@ lazy val toph = (project in file("toph"))
       Dependencies.Ducktape,
       Dependencies.Macwire,
       Dependencies.GRPC,
-      Dependencies.ZCache
+      Dependencies.ZCache,
+      Dependencies.JTS,
+      Dependencies.JTSJackson
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     Compile / PB.targets := Seq(
@@ -254,7 +256,8 @@ lazy val `testkit-zio-testcontainers` = (project in file("testkit/zio-testcontai
       Dependencies.ZIOKafka,
       Dependencies.Testcontainers.map(_.withConfigurations(Some(Compile.name))),
       Dependencies.Farango,
-      Dependencies.ArangoDB
+      Dependencies.ArangoDB,
+      Dependencies.JTSJackson
     ).flatten
   )
   .dependsOn(

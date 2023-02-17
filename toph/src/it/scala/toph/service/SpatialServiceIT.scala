@@ -25,6 +25,8 @@ import zio.durationInt
 import zio.test.Spec
 import zio.test.TestEnvironment
 import zio.test.assertTrue
+import zio.test.TestAspect
+import org.mockito.ArgumentMatchers.any
 
 object SpatialServiceIT extends IT:
 
@@ -53,8 +55,8 @@ object SpatialServiceIT extends IT:
             result == Chunk(
               GRPCEpicentre(
                 key = epicentre.key,
-                lng = epicentre.position.lng,
-                lat = epicentre.position.lat,
+                lng = epicentre.position.getX(),
+                lat = epicentre.position.getY(),
                 magnitude = 0.0,
                 magnitudeType = "",
                 time = epicentre.time.toString()
@@ -86,9 +88,9 @@ object SpatialServiceIT extends IT:
             result == Chunk(
               GRPCHypocentre(
                 key = hypocentre.key,
-                lng = hypocentre.position.lng,
-                lat = hypocentre.position.lat,
-                depth = hypocentre.position.z,
+                lng = hypocentre.position.getX(),
+                lat = hypocentre.position.getY(),
+                depth = hypocentre.depth,
                 magnitude = 0.0,
                 magnitudeType = "",
                 time = hypocentre.time.toString()
@@ -100,7 +102,7 @@ object SpatialServiceIT extends IT:
     ).provideSome[Scope](
       serviceLayer,
       GRPC.serverLayerFor[ZSpatialService[RequestContext]]
-    )
+    ) @@ TestAspect.sequential
 
   private val serviceLayer =
     SweetMockitoLayer.newMockLayer[SpatialManager] >+> ZLayer(ZIO.serviceWith[SpatialManager](SpatialService.apply))

@@ -2,6 +2,7 @@ package farango.zio.starter
 
 import com.arangodb.async.ArangoDBAsync
 import com.arangodb.mapping.ArangoJack
+import com.arangodb.mapping.ArangoJack.ConfigureFunction
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import farango.Database
 import farango.DocumentCollection
@@ -18,13 +19,15 @@ import zio.durationInt
 
 object FarangoStarter:
 
-  def apply(config: ArangoConfig): Task[Database] =
+  def apply(config: ArangoConfig, configureFunction: Option[ConfigureFunction] = None): Task[Database] =
     val arangoJack = ArangoJack()
     arangoJack.configure(mapper =>
       mapper
         .registerModule(DefaultScalaModule)
         .registerModule(FarangoModule)
     )
+
+    if configureFunction.isDefined then arangoJack.configure(configureFunction.get)
 
     var arangoDB = ArangoDBAsync
       .Builder()

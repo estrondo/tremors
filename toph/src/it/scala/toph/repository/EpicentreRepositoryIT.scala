@@ -6,6 +6,8 @@ import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import toph.IT
 import toph.fixture.EpicentreFixture
+import toph.geom.CoordinateSequenceFactory
+import toph.geom.create
 import toph.model.Epicentre
 import toph.query.spatial.SpatialEpicentreQuery
 import zio.RIO
@@ -48,8 +50,8 @@ object EpicentreRepositoryIT extends IT:
           val epicentre = EpicentreFixture.createRandom()
 
           val query = SpatialEpicentreQuery(
-            boundary = Seq(epicentre.position.lng + .5, epicentre.position.lat + .5),
-            boundaryRadius = Some(150000),
+            boundary = CoordinateSequenceFactory.create(epicentre.position.getX() + .1, epicentre.position.getY() + .1),
+            boundaryRadius = Some(30000),
             minMagnitude = Some(1),
             maxMagnitude = Some(5),
             startTime = Some(epicentre.time.minusDays(3)),
@@ -62,7 +64,7 @@ object EpicentreRepositoryIT extends IT:
           val epicentre = EpicentreFixture.createRandom()
 
           val query = SpatialEpicentreQuery(
-            boundary = Seq(epicentre.position.lng + .5, epicentre.position.lat + .5),
+            boundary = CoordinateSequenceFactory.create(epicentre.position.getX() + .5, epicentre.position.getY() + .5),
             boundaryRadius = Some(15000),
             minMagnitude = Some(1),
             maxMagnitude = Some(5),

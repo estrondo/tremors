@@ -10,8 +10,9 @@ import toph.converter.EpicentreConverter
 import toph.converter.HypocentreConverter
 import toph.fixture.EpicentreFixture
 import toph.fixture.HypocentreFixture
+import toph.geom.CoordinateSequenceFactory
+import toph.geom.create
 import toph.model.Epicentre
-import toph.model.Point2D
 import toph.model.Uncertainty2D
 import toph.query.spatial.SpatialEpicentreQuery
 import toph.query.spatial.SpatialHypocentreQuery
@@ -31,7 +32,7 @@ object SpatialManagerSpec extends Spec:
       test("It should map corrrectly.") {
         val hypocentre = HypocentreFixture.createRandom()
         val epicentre  = EpicentreFixture.from(hypocentre)
-        val origin     = HypocentreFixture.updateWith(OriginFixture.createRandom(), hypocentre)
+        val origin     = HypocentreFixture.updateOriginWith(OriginFixture.createRandom(), hypocentre)
         for
           convertedEpicentre  <- EpicentreConverter.from(origin)
           convertedHypocentre <- HypocentreConverter.from(origin)
@@ -43,7 +44,7 @@ object SpatialManagerSpec extends Spec:
       test("It should add epicentre and hypocentre from a origin with both.") {
         val hypocentre = HypocentreFixture.createRandom()
         val epicentre  = EpicentreFixture.from(hypocentre)
-        val origin     = HypocentreFixture.updateWith(OriginFixture.createRandom(), hypocentre)
+        val origin     = HypocentreFixture.updateOriginWith(OriginFixture.createRandom(), hypocentre)
 
         for
           manager <- ZIO.service[SpatialManager]
@@ -62,7 +63,7 @@ object SpatialManagerSpec extends Spec:
         val hypocentre = HypocentreFixture.createRandom()
         val epicentre  = EpicentreFixture.from(hypocentre)
         val origin     = HypocentreFixture
-          .updateWith(OriginFixture.createRandom(), hypocentre)
+          .updateOriginWith(OriginFixture.createRandom(), hypocentre)
           .copy(depth = None)
 
         for
@@ -77,7 +78,7 @@ object SpatialManagerSpec extends Spec:
       },
       test("It should search for epicentres when receive a SpatialEpicentreQuery.") {
         val spatiaQuery = SpatialEpicentreQuery(
-          boundary = Seq(-45, -21, -44, -20),
+          boundary = CoordinateSequenceFactory.create(-45, -21, -44, -20),
           boundaryRadius = Some(15000),
           minMagnitude = Some(1),
           maxMagnitude = Some(5),
@@ -99,7 +100,7 @@ object SpatialManagerSpec extends Spec:
       },
       test("It should search for hypocentres when receive a SpatialHypocentreQuery.") {
         val spatiaQuery = SpatialHypocentreQuery(
-          boundary = Seq(-45, -21, -44, -20),
+          boundary = CoordinateSequenceFactory.create(-45, -21, -44, -20),
           boundaryRadius = Some(15000),
           minMagnitude = Some(1),
           maxMagnitude = Some(5),

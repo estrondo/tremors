@@ -27,6 +27,7 @@ object Dependencies {
   val ScalaCommonVersion      = "2.3.4"
   val FarangoVersion          = "0.0.1-SNAPSHOT"
   val JacksonVersion          = "2.14.2"
+  val JTSVersion              = "1.19.0"
 
   val ZHttp = Seq(
     "io.d11" %% "zhttp" % ZHttpVersion
@@ -127,5 +128,13 @@ object Dependencies {
 
   val ZCache = Seq(
     "dev.zio" %% "zio-cache" % "0.1.5"
+  )
+
+  val JTS = Seq(
+    "org.locationtech.jts" % "jts-core" % JTSVersion
+  )
+
+  val JTSJackson = Seq(
+    "com.graphhopper.external" % "jackson-datatype-jts" % "2.14"
   )
 }
