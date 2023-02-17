@@ -35,15 +35,15 @@ object EventRepository:
 
   private[repository] case class Document(
       _key: Key,
-      preferredOriginKey: Option[String],
-      preferedMagnitudeKey: Option[String],
+      preferredOriginKey: Option[Key],
+      preferedMagnitudeKey: Option[Key],
       `type`: Option[String],
       typeUncertainty: Option[String],
       description: Seq[String],
       comment: Seq[String],
       creationInfo: Option[CreationInfoDocument],
-      originKey: Seq[String],
-      magnitudeKey: Seq[String]
+      originKey: Seq[Key],
+      magnitudeKey: Seq[Key]
   )
 
   private[repository] given Conversion[CreationInfo, CreationInfoDocument] = creationInfo =>

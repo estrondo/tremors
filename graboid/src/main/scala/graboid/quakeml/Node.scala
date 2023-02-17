@@ -37,7 +37,7 @@ private[quakeml] object Node:
 
     def toChild(): Child = Child(name, content)
 
-  class Child(name: String, content: NodeMap) extends Container(name, content): // some ..............
+  class Child(name: String, content: NodeMap = Map.empty) extends Container(name, content): // some ..............
 
     def this(name: String)(nodeMap: Node*) = this(name, nodeMap)
 

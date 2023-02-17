@@ -106,11 +106,16 @@ object QuakeMLParser:
         "version"
       )
 
+      val commentElement = Child("comment")("text", "creationInfo")
+
       val magnitudeElement = Publishable("magnitude")(
         "stationCount",
         creationInfoElement,
         uncertaintyQuantityTemplate.withName("mag"),
-        "type"
+        "type",
+        commentElement,
+        "originID",
+        "methodID"
       )
 
       val timeElement      = uncertaintyQuantityTemplate.withName("time")
@@ -131,18 +136,22 @@ object QuakeMLParser:
         "region",
         "evaluationMode",
         "evaluationStatus",
-        "comment",
-        "creationInfo"
+        commentElement,
+        creationInfoElement
       )
 
       val descriptionElement = Child("description")("text", "type")
       val eventType          = Child("type", EmptyNodeMap)
       val eventElement       = Publishable("event")(
         descriptionElement,
-        eventType,
         creationInfoElement,
         magnitudeElement.toChild(),
-        originElement.toChild()
+        originElement.toChild(),
+        eventType,
+        "typeCertainty",
+        commentElement,
+        "preferredMagnitudeID",
+        "preferredOriginID"
       )
       val eventParameters    = Transparent("eventParameters", eventElement)
       Root("quakeml", 64, eventParameters)
