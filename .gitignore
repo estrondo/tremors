@@ -42,7 +42,7 @@
 /toph-message-protocol/target/
 /toph/target/
 
-/webapi1x/target/
-/webapi1x/.bloop/
+/webapi/target/
+/webapi/.bloop/
 
 /zio-app-starter/target/

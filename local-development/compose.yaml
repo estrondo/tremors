@@ -97,18 +97,30 @@ services:
 
   toph:
     image: docker.io/rthoth/estrondo:toph
-    ports:
-      - "9000:9000"
     environment:
       TREMORS_PROFILE: dev
       TOPH_ARANGO_DATABASE: toph
       TOPH_ARANGO_USERNAME: root
       TOPH_ARANGO_PASSWORD: tremors
       TOPH_ARANGO_HOSTS: arango1:8529,arango2:8529,arango3:8529
-      TOPH_KAFKA_CLIENT_ID: graboid
+      TOPH_KAFKA_CLIENT_ID: toph
       TOPH_KAFKA_CLOSE_TIMEOUT: 10 seconds
       TOPH_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
       TOPH_GRPC_PORT: 9000
+  webapi:
+    image: docker.io/rthoth/estrondo:webapi
+    ports:
+      - "8080:8080"
+    environment:
+      TREMORS_PROFILE: dev
+      WEBAPI_ARANGO_DATABASE: webapi
+      WEBAPI_ARANGO_USERNAME: root
+      WEBAPI_ARANGO_PASSWORD: tremors
+      WEBAPI_ARANGO_HOSTS: arango1:8529,arango2:8529,arango3:8529
+      WEBAPI_KAFKA_CLIENT_ID: graboid
+      WEBAPI_KAFKA_CLOSE_TIMEOUT: 10 seconds
+      WEBAPI_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
+      WEBAPI_HTTP_PORT: 8080
 volumes:
   arango1:
   arango2:

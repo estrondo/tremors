@@ -66,6 +66,22 @@ toph)
     ;;
   esac
   ;;
+webapi)
+  case $2 in
+  start)
+    docker-compose up webapi
+    ;;
+
+  reset)
+    docker-compose rm -f -v webapi
+    docker-compose up webapi
+    ;;
+
+  *)
+    echo "Try ./service webapi [start | reset]."
+    ;;
+  esac
+  ;;
 
 infra)
   case $2 in

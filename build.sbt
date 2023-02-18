@@ -25,7 +25,7 @@ lazy val root = (project in file("."))
     `farango-query`,
     `farango-zio-starter`,
     cbor,
-    webapi1x,
+    webapi,
     `graboid-protocol`,
     `testkit-graboid-protocol`,
     graboid,
@@ -224,7 +224,6 @@ lazy val graboid = (project in file("graboid"))
     buildInfoPackage := "graboid"
   )
   .enablePlugins(AshScriptPlugin)
-  .enablePlugins(GraalVMNativeImagePlugin)
   .enablePlugins(DockerPlugin, DockerHelperPlugin)
   .settings(
     dockerBaseImage      := "docker.io/eclipse-temurin:17-jdk-alpine",
@@ -277,12 +276,13 @@ lazy val `testkit-zio-repository` = (project in file("testkit/zio-repository"))
     `testkit-zio-testcontainers`
   )
 
-lazy val webapi1x = (project in file("webapi1x"))
+lazy val webapi = (project in file("webapi"))
   .settings(
-    name := "webapp1x",
+    name := "webapi",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
+      Dependencies.ZIOLogging,
       Dependencies.Macwire,
       Dependencies.ZKafka,
       Dependencies.Ducktape,
@@ -294,12 +294,24 @@ lazy val webapi1x = (project in file("webapi1x"))
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    buildInfoPackage := "webapi1x"
+    buildInfoPackage := "webapi"
+  )
+  .enablePlugins(AshScriptPlugin)
+  .enablePlugins(DockerPlugin)
+  .settings(
+    dockerBaseImage      := "docker.io/eclipse-temurin:17-jdk-alpine",
+    dockerRepository     := Some("docker.io/rthoth"),
+    dockerUpdateLatest   := false,
+    Docker / packageName := "estrondo",
+    Docker / version ~= ("webapi_" + _),
+    dockerAliases ++= Seq(dockerAlias.value.withTag(Some("webapi")))
   )
   .dependsOn(
     core,
     `zip-app-starter`,
     `graboid-protocol`,
+    `farango-zio-starter`,
+    zkafka,
     `testkit-graboid-protocol` % Test,
     `testkit-zio-testcontainers`
   )
