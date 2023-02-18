@@ -39,6 +39,9 @@ object HypocentreRepositoryIT extends IT:
     override def remove(repository: HypocentreRepository, value: Hypocentre): Task[Any] =
       repository.remove(value.key)
 
+    override def update(repository: HypocentreRepository, originalValue: Hypocentre, updateValue: Any): Task[Any] = 
+      ???
+
   override def spec: Spec[TestEnvironment & Scope, Any] =
     suite("A HypocentreRepository")(
       suite("With Arango's container")(

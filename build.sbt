@@ -313,7 +313,8 @@ lazy val webapi = (project in file("webapi"))
     `farango-zio-starter`,
     zkafka,
     `testkit-graboid-protocol` % Test,
-    `testkit-zio-testcontainers`
+    `testkit-zio-testcontainers`,
+    `testkit-zio-repository`
   )
 
 lazy val `zip-app-starter` = (project in file("zio-app-starter"))

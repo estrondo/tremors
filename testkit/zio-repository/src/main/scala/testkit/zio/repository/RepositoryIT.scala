@@ -28,7 +28,11 @@ trait RepositoryIT[R, I]:
 
   def remove(repository: R, value: I): Task[Any]
 
+  def update(repository: R, originalValue: I, updateValue: Any): Task[Any]
+
 object RepositoryIT:
+
+  inline transparent def apply[R, I](using inline r: RepositoryIT[R, I]): RepositoryIT[R, I] = r
 
   def of[R: Tag, I](using RepositoryIT[R, I]): TaskLayer[R & DocumentCollection] =
     val layer = ZLayer {
@@ -59,10 +63,8 @@ object RepositoryIT:
       collection <- ZIO.service[DocumentCollection]
       result     <- repositoryIT.get(collection, value)
     yield assertTrue(
-      result.contains(value)
+      result == Some(value)
     )
-
-  inline transparent def apply[R, I](using inline r: RepositoryIT[R, I]): RepositoryIT[R, I] = r
 
   def testRemove[R, I](input: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R] =
     val value        = input
@@ -78,4 +80,20 @@ object RepositoryIT:
     yield assertTrue(
       inserted.contains(value),
       empty.isEmpty
+    )
+
+  def testUpdate[R, I, U](input: => I, update: => U, expected: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R] =
+    val inputValue    = input
+    val updateValue   = update
+    val expectedValue = expected
+    val repositoryIT  = RepositoryIT[R, I]
+
+    for
+      repository <- ZIO.service[R]
+      _          <- repositoryIT.insert(repository, inputValue)
+      _          <- repositoryIT.update(repository, inputValue, updateValue)
+      collection <- ZIO.service[DocumentCollection]
+      result     <- repositoryIT.get(collection, inputValue)
+    yield assertTrue(
+      result == Some(expectedValue)
     )

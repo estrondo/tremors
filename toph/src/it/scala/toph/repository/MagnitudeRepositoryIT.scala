@@ -40,3 +40,6 @@ object MagnitudeRepositoryIT extends Spec:
 
     override def remove(repository: MagnitudeRepository, value: Magnitude): Task[Any] =
       repository.remove(value.key)
+
+    override def update(repository: MagnitudeRepository, originalValue: Magnitude, updateValue: Any): Task[Any] =
+      ???

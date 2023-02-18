@@ -47,3 +47,6 @@ object EventRepositoryIT extends IT:
     override def insert(repository: EventRepository, value: Event): Task[Any] = repository.add(value)
 
     override def remove(repository: EventRepository, value: Event): Task[Any] = repository.remove(value.key)
+
+    override def update(repository: EventRepository, originalValue: Event, updateValue: Any): Task[Any] = 
+      ???

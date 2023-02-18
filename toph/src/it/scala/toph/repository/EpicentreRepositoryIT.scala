@@ -37,6 +37,9 @@ object EpicentreRepositoryIT extends IT:
     override def remove(repository: EpicentreRepository, value: Epicentre): Task[Any] =
       repository.remove(value.key)
 
+    override def update(repository: EpicentreRepository, originalValue: Epicentre, updateValue: Any): Task[Any] = 
+      ???
+
   override def spec: Spec[TestEnvironment & Scope, Any] =
     suite("An EpicentreRepository")(
       suite("With Arango's container")(
