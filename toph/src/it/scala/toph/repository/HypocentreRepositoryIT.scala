@@ -33,6 +33,9 @@ object HypocentreRepositoryIT extends IT:
     override def get(collection: DocumentCollection, value: Hypocentre): Task[Option[Hypocentre]] =
       collection.get[Document](Key.safe(value.key))
 
+    override def get(repository: HypocentreRepository, value: Hypocentre): Task[Option[Hypocentre]] = 
+      ???
+
     override def insert(repository: HypocentreRepository, value: Hypocentre): Task[Any] =
       repository.add(value)
 

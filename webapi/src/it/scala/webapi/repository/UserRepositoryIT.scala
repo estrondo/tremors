@@ -23,6 +23,9 @@ object UserRepositoryIT extends IT:
       test("It should add a new user.") {
         RepositoryIT.testAdd(UserFixture.createRandom())
       },
+      test("It should get a user by email.") {
+        RepositoryIT.testGet(UserFixture.createRandom())
+      },
       test("It should update a user.") {
         val user     = UserFixture.createRandom()
         val update   = User.Update(
@@ -45,6 +48,9 @@ object UserRepositoryIT extends IT:
 
     override def get(collection: DocumentCollection, value: User): Task[Option[User]] =
       collection.get[Document](Key.safe(value.email))
+
+    override def get(repository: UserRepository, value: User): Task[Option[User]] =
+      repository.get(value.email)
 
     override def insert(repository: UserRepository, value: User): Task[Any] =
       repository.add(value)

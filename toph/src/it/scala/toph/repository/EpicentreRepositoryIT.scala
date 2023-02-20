@@ -31,6 +31,9 @@ object EpicentreRepositoryIT extends IT:
     override def get(collection: DocumentCollection, value: Epicentre): Task[Option[Epicentre]] =
       collection.get[Document](Key.safe(value.key))
 
+    override def get(repository: EpicentreRepository, value: Epicentre): Task[Option[Epicentre]] = 
+      ???
+
     override def insert(repository: EpicentreRepository, value: Epicentre): Task[Any] =
       repository.add(value)
 

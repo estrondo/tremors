@@ -41,8 +41,12 @@ object EventRepositoryIT extends IT:
 
     override def create(collection: DocumentCollection): Task[EventRepository]          =
       ZIO.succeed(EventRepository(collection))
+
     override def get(collection: DocumentCollection, value: Event): Task[Option[Event]] =
       collection.get[Document](Key.safe(value.key))
+
+    override def get(repository: EventRepository, value: Event): Task[Option[Event]] = 
+      ???
 
     override def insert(repository: EventRepository, value: Event): Task[Any] = repository.add(value)
 

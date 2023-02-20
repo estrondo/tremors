@@ -111,6 +111,9 @@ object AlertRepositoryIT extends IT:
     override def get(collection: DocumentCollection, value: Alert): Task[Option[Alert]] =
       collection.get[Document](Key.safe(value.key))
 
+    override def get(repository: AlertRepository, value: Alert): Task[Option[Alert]] =
+      ???
+
     override def insert(repository: AlertRepository, value: Alert): Task[Any] =
       repository.add(value)
 

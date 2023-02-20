@@ -35,6 +35,9 @@ object MagnitudeRepositoryIT extends Spec:
     override def get(collection: DocumentCollection, value: Magnitude): Task[Option[Magnitude]] =
       collection.get[Document](Key.safe(value.key))
 
+    override def get(repository: MagnitudeRepository, value: Magnitude): Task[Option[Magnitude]] =
+      repository.get(value.key)
+
     override def insert(repository: MagnitudeRepository, value: Magnitude): Task[Any] =
       repository.add(value)
 

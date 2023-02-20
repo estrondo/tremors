@@ -17,6 +17,8 @@ trait UserRepository:
 
   def add(user: User): Task[User]
 
+  def get(email: String): Task[Option[User]]
+
   def update(email: String, update: User.Update): Task[Option[User]]
 
   def remove(email: String): Task[Option[User]]
@@ -62,6 +64,9 @@ object UserRepository:
         .insert[Document](user)
         .tap(_ => ZIO.logDebug("A new user was added."))
         .tapErrorCause(ZIO.logErrorCause("It was impossible to add an user!", _))
+
+    override def get(email: String): Task[Option[User]] =
+      collection.get[Document](Key.safe(email))
 
     override def update(email: String, update: User.Update): Task[Option[User]] =
       collection

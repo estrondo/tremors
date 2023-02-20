@@ -22,6 +22,8 @@ trait RepositoryIT[R, I]:
 
   def get(collection: DocumentCollection, value: I): Task[Option[I]]
 
+  def get(repository: R, value: I): Task[Option[I]]
+
   def create(collection: DocumentCollection): Task[R]
 
   def insert(repository: R, value: I): Task[Any]
@@ -62,6 +64,18 @@ object RepositoryIT:
       _          <- repositoryIT.insert(repository, value)
       collection <- ZIO.service[DocumentCollection]
       result     <- repositoryIT.get(collection, value)
+    yield assertTrue(
+      result == Some(value)
+    )
+
+  def testGet[R, I](input: => I)(using RepositoryIT[R, I], Tag[R]): Ret[R] =
+    val value        = input
+    val repositoryIT = RepositoryIT[R, I]
+
+    for
+      repository <- ZIO.service[R]
+      _          <- repositoryIT.insert(repository, value)
+      result     <- repositoryIT.get(repository, value)
     yield assertTrue(
       result == Some(value)
     )
