@@ -1,9 +1,8 @@
 package toph.publisher
 
 import toph.Spec
-import toph.fixture.EpicentreFixture
-import toph.fixture.EventFixture
-import toph.fixture.HypocentreFixture
+import toph.fixture.EventDataFixture
+import toph.fixture.HypocentreDataFixture
 import toph.kafka.TophEventJournalTopic
 import toph.message.protocol.EventJournalMessage
 import toph.message.protocol.NewEvent
@@ -15,22 +14,23 @@ import zio.test.TestEnvironment
 import zio.test.assertTrue
 import zkafka.KafkaManager
 import zkafka.KafkaMessage
+import toph.fixture.MagnitudeDataFixture
 
 object EventPublisherSpec extends Spec:
 
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =
     suite("An EventPublisher")(
-      test("It should offer a event with hypocentre and epicentre in the stream.") {
-        val event      = EventFixture.createRandom()
-        val epicentre  = EpicentreFixture.createRandom()
-        val hypocentre = HypocentreFixture.createRandom()
+      test("It should offer a event with hypocentre in the stream.") {
+        val event      = EventDataFixture.createRandom()
+        val hypocentre = HypocentreDataFixture.createRandom()
+        val magnitude  = MagnitudeDataFixture.createRandom()
         val newEvent   = NewEvent(
           key = event.key
         )
 
         for
           publisher <- ZIO.service[EventPublisher]
-          result    <- publisher.accept(event.key, (event, Seq(epicentre -> Some(hypocentre))))
+          result    <- publisher.accept(event.key, (event, Seq(hypocentre), Seq(magnitude)))
         yield assertTrue(
           result == Seq(KafkaMessage(newEvent, Some(event.key), TophEventJournalTopic))
         )

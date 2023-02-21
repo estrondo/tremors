@@ -1,21 +1,26 @@
 package toph.fixture
 
-import core.KeyGenerator
-import testkit.core.createRandomName
-import testkit.core.createRandomResourceID
 import toph.model.Event
+import testkit.core.createRandomKey
+import testkit.core.createZonedDateTime
+import scala.util.Random
 
 object EventFixture:
 
   def createRandom() = Event(
-    key = createRandomResourceID(),
-    preferredOriginKey = Some(KeyGenerator.next32()),
-    preferedMagnitudeKey = Some(KeyGenerator.next32()),
-    `type` = Some(KeyGenerator.next4()),
-    typeUncertainty = Some(KeyGenerator.next4()),
-    description = Seq(createRandomName()),
-    comment = Seq(createRandomName()),
-    creationInfo = Some(CreationInfoFixture.createRandom()),
-    originKey = Seq(KeyGenerator.next32()),
-    magnitudeKey = Seq(KeyGenerator.next32())
+    key = createRandomKey(),
+    eventKey = createRandomKey(),
+    hypocentreKey = Some(createRandomKey()),
+    magnitudeKey = Some(createRandomKey()),
+    eventType = Some(createRandomKey()),
+    position = Some(PointFixture.createRandom()),
+    positionUncertainty = Some(Uncertainty2DFixture.createRandom()),
+    depth = Some(Random.between(1500, 15000)),
+    depthUncertainty = Some(Random.between(500, 1000)),
+    time = Some(createZonedDateTime()),
+    timeUncertainty = Some(Random.between(10, 20)),
+    stationCount = Some(Random.between(2, 12)),
+    magnitude = Some(Random.between(0d, 8d)),
+    magnitudeType = Some(createRandomKey()),
+    creationInfo = Some(CreationInfoDataFixture.createRandom())
   )

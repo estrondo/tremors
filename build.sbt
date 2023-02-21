@@ -35,8 +35,10 @@ lazy val root = (project in file("."))
     `testkit-quakeml`,
     `testkit-zio-testcontainers`,
     `testkit-zio-repository`,
+    `testkit-zio-grpc`,
     `zip-app-starter`,
-    zkafka
+    zkafka,
+    `ducktape-jts`
   )
 
 lazy val core = (project in file("core"))
@@ -146,7 +148,7 @@ lazy val `toph-message-protocol` = (project in file("toph-message-protocol"))
 
 lazy val toph = (project in file("toph"))
   .settings(
-    name                 := "toph",
+    name                      := "toph",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
@@ -160,13 +162,15 @@ lazy val toph = (project in file("toph"))
       Dependencies.GRPC,
       Dependencies.ZCache,
       Dependencies.JTS,
-      Dependencies.JTSJackson
+      Dependencies.JTSJackson,
+      Dependencies.SweetMockito
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Compile / PB.targets := Seq(
+    Compile / PB.targets      := Seq(
       scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
-    )
+    ),
+    Compile / PB.protoSources := Seq(file("grpc/toph"))
   )
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
@@ -192,10 +196,12 @@ lazy val toph = (project in file("toph"))
     `farango-data`,
     `farango-query`,
     zkafka,
+    `ducktape-jts`,
     `toph-message-protocol`,
     `testkit-quakeml`            % Test,
     `testkit-zio-testcontainers` % Test,
-    `testkit-zio-repository`     % Test
+    `testkit-zio-repository`     % Test,
+    `testkit-zio-grpc`           % Test
   )
 
 lazy val graboid = (project in file("graboid"))
@@ -276,9 +282,22 @@ lazy val `testkit-zio-repository` = (project in file("testkit/zio-repository"))
     `testkit-zio-testcontainers`
   )
 
+lazy val `testkit-zio-grpc` = (project in file("testkit/zio-grpc"))
+  .settings(
+    name                 := "testkit-zio-grpc",
+    libraryDependencies ++= Seq(
+      Dependencies.GRPC,
+      Dependencies.ZIO
+    ).flatten,
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+    )
+  )
+
 lazy val webapi = (project in file("webapi"))
   .settings(
-    name := "webapi",
+    name                      := "webapi",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
@@ -287,9 +306,15 @@ lazy val webapi = (project in file("webapi"))
       Dependencies.ZKafka,
       Dependencies.Ducktape,
       Dependencies.SweetMockito,
-      Dependencies.Logging
+      Dependencies.Logging,
+      Dependencies.GRPC
     ).flatten,
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    Compile / PB.targets      := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+    ),
+    Compile / PB.protoSources := Seq(file("grpc/toph"), file("grpc/webapi"))
   )
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
@@ -312,9 +337,11 @@ lazy val webapi = (project in file("webapi"))
     `graboid-protocol`,
     `farango-zio-starter`,
     zkafka,
-    `testkit-graboid-protocol` % Test,
-    `testkit-zio-testcontainers`,
-    `testkit-zio-repository`
+    `ducktape-jts`,
+    `testkit-graboid-protocol`   % Test,
+    `testkit-zio-testcontainers` % Test,
+    `testkit-zio-repository`     % Test,
+    `testkit-zio-grpc`           % Test
   )
 
 lazy val `zip-app-starter` = (project in file("zio-app-starter"))
@@ -345,4 +372,13 @@ lazy val `zkafka` = (project in file("kafka/zkafka"))
   .dependsOn(
     `testkit-core`,
     `testkit-zio-testcontainers`
+  )
+
+lazy val `ducktape-jts` = (project in file("ducktape/jts"))
+  .settings(
+    name := "ducktape-jts",
+    libraryDependencies ++= Seq(
+      Dependencies.Ducktape,
+      Dependencies.JTS
+    ).flatten
   )

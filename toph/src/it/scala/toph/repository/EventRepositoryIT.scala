@@ -1,56 +1,108 @@
 package toph.repository
 
-import core.KeyGenerator
 import farango.DocumentCollection
+import farango.data.Key
 import farango.zio.given
 import testkit.zio.repository.RepositoryIT
-import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
 import toph.IT
 import toph.fixture.EventFixture
+import toph.geom.CoordinateSequenceFactory
+import toph.geom.create
 import toph.model.Event
-import toph.repository.EventRepository
-import toph.repository.EventRepository.Document
+import toph.query.EventQuery
+import zio.RIO
 import zio.Scope
 import zio.Task
-import zio.ZIO
-import zio.ZLayer
 import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
+import zio.test.TestResult
 import zio.test.assertTrue
-import farango.data.Key
+
+import EventRepository.Document
 
 object EventRepositoryIT extends IT:
 
   override def spec: Spec[TestEnvironment & Scope, Any] =
-    suite("An EventRepository")(
-      suite("With Arango's container")(
-        test("It should add a event into collection.") {
-          RepositoryIT.testAdd(EventFixture.createRandom())
-        },
-        test("It should remove a event from collection.") {
-          RepositoryIT.testRemove(EventFixture.createRandom())
-        }
-      ).provideSome(
-        RepositoryIT.of[EventRepository, Event]
-      ) @@ TestAspect.sequential
+    suite("A QueriableEventRepository")(
+      test("It should add a queriable-event.") {
+        RepositoryIT.testAdd(EventFixture.createRandom())
+      },
+      test("It should remove a queriable-event.") {
+        RepositoryIT.testRemove(EventFixture.createRandom())
+      },
+      test("It should find an event.") {
+        val event = EventFixture.createRandom()
+        val point = event.position.get
+
+        val query = EventQuery(
+          boundary = Some(CoordinateSequenceFactory.create(point.getX() + .1, point.getY() + .1)),
+          boundaryRadius = Some(30000),
+          startTime = Some(event.time.get.minusDays(1)),
+          endTime = Some(event.time.get.plusDays(1)),
+          minDepth = Some(event.depth.get - 1500),
+          maxDepth = Some(event.depth.get + 20000),
+          minMagnitude = Some(event.magnitude.get - 0.5),
+          maxMagnitude = Some(event.magnitude.get + 3),
+          magnitudeType = Some(Set.from(event.magnitudeType))
+        )
+
+        testQuery(query, Seq(event), Seq(event))
+      },
+      test("It should not find any event.") {
+        val event = EventFixture.createRandom()
+        val point = event.position.get
+
+        val query = EventQuery(
+          boundary = Some(CoordinateSequenceFactory.create(point.getX() + .1, point.getY() + .1)),
+          boundaryRadius = Some(7000),
+          startTime = Some(event.time.get.minusDays(1)),
+          endTime = Some(event.time.get.plusDays(1)),
+          minDepth = Some(event.depth.get - 1500),
+          maxDepth = Some(event.depth.get + 20000),
+          minMagnitude = Some(event.magnitude.get - 0.5),
+          maxMagnitude = Some(event.magnitude.get + 3),
+          magnitudeType = Some(Set("@@@@"))
+        )
+
+        testQuery(query, Seq(event), Nil)
+      }
+    ).provideSome(
+      RepositoryIT.of[EventRepository, Event]
+    ) @@ TestAspect.sequential
+
+  private def testQuery(
+      query: EventQuery,
+      input: Seq[Event],
+      expected: Seq[Event]
+  ): RIO[EventRepository, TestResult] =
+    for
+      repository <- RepositoryIT.insertAndReturnRepo(input)
+      result     <- repository.search(query).runCollect
+    yield assertTrue(
+      result == expected
     )
 
-  given RepositoryIT[EventRepository, Event] with
+  private given RepositoryIT[EventRepository, Event] with
 
-    override def create(collection: DocumentCollection): Task[EventRepository]          =
-      ZIO.succeed(EventRepository(collection))
+    override def create(collection: DocumentCollection): Task[EventRepository] =
+      EventRepository(collection)
 
     override def get(collection: DocumentCollection, value: Event): Task[Option[Event]] =
       collection.get[Document](Key.safe(value.key))
 
-    override def get(repository: EventRepository, value: Event): Task[Option[Event]] = 
+    override def get(repository: EventRepository, value: Event): Task[Option[Event]] =
       ???
 
-    override def insert(repository: EventRepository, value: Event): Task[Any] = repository.add(value)
+    override def insert(repository: EventRepository, value: Event): Task[Any] =
+      repository.add(value)
 
-    override def remove(repository: EventRepository, value: Event): Task[Any] = repository.remove(value.key)
+    override def remove(repository: EventRepository, value: Event): Task[Any] =
+      repository.remove(value.key)
 
-    override def update(repository: EventRepository, originalValue: Event, updateValue: Any): Task[Any] = 
-      ???
+    override def update(
+        repository: EventRepository,
+        originalValue: Event,
+        updateValue: Any
+    ): Task[Any] = ???

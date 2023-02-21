@@ -1,7 +1,7 @@
 package graboid.quakeml
 
 import graboid.Spec
-import quakeml.Event
+import quakeml.QuakeMLEvent
 import zio.stream.ZStream
 import zio.test.assertTrue
 

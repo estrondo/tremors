@@ -8,7 +8,7 @@ import graboid.quakeml.Node.EmptyNodeMap
 import graboid.quakeml.Node.Publishable
 import graboid.quakeml.Node.Root
 import graboid.quakeml.Node.Transparent
-import quakeml.DetectedEvent
+import quakeml.QuakeMLDetectedEvent
 import zio.Chunk
 import zio.Task
 import zio.ZIO
@@ -25,7 +25,7 @@ import scala.annotation.tailrec
 
 trait QuakeMLParser:
 
-  def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, DetectedEvent]]
+  def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, QuakeMLDetectedEvent]]
 
 object QuakeMLParser:
 
@@ -62,7 +62,7 @@ object QuakeMLParser:
         case _ =>
           throw IllegalStateException(s"Invalid root element $localName!")
 
-    def endElement(now: ZonedDateTime): (State, Option[DetectedEvent]) =
+    def endElement(now: ZonedDateTime): (State, Option[QuakeMLDetectedEvent]) =
       stack match
         case (CurrentNode(node, _, _, element)) :: tail if node.name == localName =>
           node match
@@ -156,7 +156,7 @@ object QuakeMLParser:
       val eventParameters    = Transparent("eventParameters", eventElement)
       Root("quakeml", 64, eventParameters)
 
-    override def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, DetectedEvent]] =
+    override def parse(stream: ZStream[Any, Throwable, Byte]): Task[ZStream[Any, Throwable, QuakeMLDetectedEvent]] =
       ZIO.attempt {
         stream
           .grouped(ChunkSize)
@@ -167,7 +167,7 @@ object QuakeMLParser:
     private def process(
         state: State,
         bytes: Chunk[Byte]
-    ): Task[(State, Seq[DetectedEvent])] =
+    ): Task[(State, Seq[QuakeMLDetectedEvent])] =
       for
         now    <- GClock.currentZonedDateTime()
         result <- ZIO.attempt {
@@ -178,7 +178,11 @@ object QuakeMLParser:
       yield result
 
     @tailrec
-    private def read(state: State, published: Seq[DetectedEvent], now: ZonedDateTime): (State, Seq[DetectedEvent]) =
+    private def read(
+        state: State,
+        published: Seq[QuakeMLDetectedEvent],
+        now: ZonedDateTime
+    ): (State, Seq[QuakeMLDetectedEvent]) =
       state.reader.next() match
         case EVENT_INCOMPLETE =>
           (state, published)

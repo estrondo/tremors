@@ -11,7 +11,7 @@ object FarangoModule
       Version.unknownVersion(),
       Map(
         classOf[ZonedDateTime] -> ZonedDateTimeDeserializer,
-        classOf[Key] -> KeyDeserializer
+        classOf[Key]           -> KeyDeserializer
       ).asJava,
       Seq(
         ZonedDateTimeSerializer,

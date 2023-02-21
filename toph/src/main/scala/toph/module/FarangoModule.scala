@@ -6,7 +6,7 @@ import farango.Database
 import farango.DocumentCollection
 import farango.zio.starter.ArangoConfig
 import farango.zio.starter.FarangoStarter
-import toph.geom.Factory
+import toph.geom.GeometryFactory
 import zio.Task
 import zio.ZIO
 import zio.ZLayer
@@ -18,7 +18,7 @@ trait FarangoModule:
 object FarangoModule:
 
   def apply(config: ArangoConfig): Task[FarangoModule] =
-    for database <- FarangoStarter(config, Some({ mapper => mapper.registerModule(new JtsModule(Factory)) }))
+    for database <- FarangoStarter(config, Some({ mapper => mapper.registerModule(new JtsModule(GeometryFactory)) }))
     yield wire[Impl]
 
   private class Impl(database: Database) extends FarangoModule:

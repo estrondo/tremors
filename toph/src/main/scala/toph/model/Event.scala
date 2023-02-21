@@ -1,14 +1,24 @@
 package toph.model
 
+import org.locationtech.jts.geom.Point
+import toph.model.data.CreationInfoData
+
+import java.time.ZonedDateTime
+
 case class Event(
     key: String,
-    preferredOriginKey: Option[String],
-    preferedMagnitudeKey: Option[String],
-    `type`: Option[String],
-    typeUncertainty: Option[String],
-    description: Seq[String],
-    comment: Seq[String],
-    creationInfo: Option[CreationInfo],
-    originKey: Seq[String],
-    magnitudeKey: Seq[String]
+    eventKey: String,
+    hypocentreKey: Option[String],
+    magnitudeKey: Option[String],
+    eventType: Option[String],
+    position: Option[Point],
+    positionUncertainty: Option[Uncertainty2D],
+    depth: Option[Double],
+    depthUncertainty: Option[Double],
+    time: Option[ZonedDateTime],
+    timeUncertainty: Option[Int],
+    stationCount: Option[Int],
+    magnitude: Option[Double],
+    magnitudeType: Option[String],
+    creationInfo: Option[CreationInfoData]
 )

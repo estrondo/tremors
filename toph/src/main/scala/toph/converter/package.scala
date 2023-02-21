@@ -1,29 +1,34 @@
 package toph.converter
 
+import grpc.toph.spatial.{CreationInfo => GRPCCreationInfo}
+import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
+import io.github.arainko.ducktape.into
 import org.locationtech.jts.geom.CoordinateSequence
-import quakeml.Comment
-import quakeml.EvaluationMode
-import quakeml.EvaluationStatus
-import quakeml.RealQuantity
-import quakeml.ResourceReference
-import quakeml.TimeQuantity
+import quakeml.QuakeMLComment
+import quakeml.QuakeMLEvaluationMode
+import quakeml.QuakeMLEvaluationStatus
+import quakeml.QuakeMLRealQuantity
+import quakeml.QuakeMLResourceReference
+import quakeml.QuakeMLTimeQuantity
+import scalapb.UnknownFieldSet
 import toph.geom.CoordinateSequenceFactory
+import toph.model.data.CreationInfoData
 
 import java.time.Clock
 import java.time.ZonedDateTime
 
 val ZoneId = Clock.systemUTC().getZone()
 
-given Transformer[ResourceReference, String] = _.uri
+given Transformer[QuakeMLResourceReference, String] = _.uri
 
-given Transformer[TimeQuantity, ZonedDateTime] = _.value
+given Transformer[QuakeMLTimeQuantity, ZonedDateTime] = _.value
 
-given Transformer[RealQuantity, Double] = _.value
+given Transformer[QuakeMLRealQuantity, Double] = _.value
 
-given Transformer[EvaluationMode, String] = _.value
+given Transformer[QuakeMLEvaluationMode, String] = _.value
 
-given Transformer[EvaluationStatus, String] = _.value
+given Transformer[QuakeMLEvaluationStatus, String] = _.value
 
 given Transformer[String, ZonedDateTime] =
   ZonedDateTime
@@ -31,6 +36,13 @@ given Transformer[String, ZonedDateTime] =
     .withZoneSameInstant(ZoneId)
 
 given Transformer[ZonedDateTime, String] = _.toString()
+
+given Transformer[CreationInfoData, GRPCCreationInfo] = input =>
+  input
+    .into[GRPCCreationInfo]
+    .transform(
+      Field.const(_.unknownFields, UnknownFieldSet.empty)
+    )
 
 given seqDoubleToCoordinateSequence: Transformer[Seq[Double], CoordinateSequence] = values =>
   if values.size % 2 == 0 then
@@ -47,4 +59,9 @@ given [A, B](using tranformer: Transformer[A, B]): Conversion[A, B] =
 given [A, B](using transformer: Transformer[A, B]): Conversion[Option[A], Option[B]] =
   _.map(transformer.transform)
 
-given Transformer[Comment, String] = _.text
+given [A, B](using transformer: Transformer[A, Seq[B]]): Transformer[Option[A], Seq[B]] = {
+  case None        => Seq.empty
+  case Some(value) => transformer.transform(value)
+}
+
+given Transformer[QuakeMLComment, String] = _.text

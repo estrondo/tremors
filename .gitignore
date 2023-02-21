@@ -23,6 +23,8 @@
 
 /core/target/
 
+/ducktape/jts/target/
+
 /graboid/target/
 /graboid-protocol/target/
 /graboid-protocol-testkit/target/
@@ -36,6 +38,7 @@
 /testkit/core/target/
 /testkit/graboid-protocol/target/
 /testkit/quakeml/target/
+/testkit/zio-grpc/target/
 /testkit/zio-repository/target/
 /testkit/zio-testcontainers/target/
 

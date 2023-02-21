@@ -1,49 +1,50 @@
 package graboid.quakeml
 
-import quakeml.ResourceReference
-import quakeml.Event
-import quakeml.Comment
-import quakeml.CreationInfo
+import quakeml.QuakeMLComment
+import quakeml.QuakeMLCreationInfo
+import quakeml.QuakeMLEvaluationMode
+import quakeml.QuakeMLEvaluationStatus
+import quakeml.QuakeMLEvent
+import quakeml.QuakeMLMagnitude
+import quakeml.QuakeMLOrigin
+import quakeml.QuakeMLRealQuantity
+import quakeml.QuakeMLResourceReference
+import quakeml.QuakeMLTimeQuantity
+
 import java.time.ZonedDateTime
-import quakeml.Magnitude
-import quakeml.RealQuantity
-import quakeml.EvaluationMode
-import quakeml.EvaluationStatus
-import quakeml.Origin
-import quakeml.TimeQuantity
 
 private[quakeml] object ElementReader:
 
-  given ElementReader[String]                  = element => element.text
-  given ElementReader[ResourceReference]       = element => ResourceReference(element.text)
-  given eventType: ElementReader[Event.Type]   = element => Event.Type(element.text)
-  given ElementReader[Event.TypeCertainty]     = element => Event.TypeCertainty(element.text)
-  given ElementReader[Event.DescriptionType]   = element => Event.DescriptionType(element.text)
-  given ElementReader[ZonedDateTime]           = element => ZonedDateTime.parse(element.text)
-  given ElementReader[Int]                     = element => element.text.toInt
-  given ElementReader[Double]                  = element => element.text.toDouble
-  given ElementReader[EvaluationMode]          = element => EvaluationMode(element.text)
-  given ElementReader[EvaluationStatus]        = element => EvaluationStatus(element.text)
-  given ElementReader[Origin.DepthType]        = element => Origin.DepthType(element.text)
-  given originType: ElementReader[Origin.Type] = element => Origin.Type(element.text)
+  given ElementReader[String]                         = element => element.text
+  given ElementReader[QuakeMLResourceReference]       = element => QuakeMLResourceReference(element.text)
+  given eventType: ElementReader[QuakeMLEvent.Type]   = element => QuakeMLEvent.Type(element.text)
+  given ElementReader[QuakeMLEvent.TypeCertainty]     = element => QuakeMLEvent.TypeCertainty(element.text)
+  given ElementReader[QuakeMLEvent.DescriptionType]   = element => QuakeMLEvent.DescriptionType(element.text)
+  given ElementReader[ZonedDateTime]                  = element => ZonedDateTime.parse(element.text)
+  given ElementReader[Int]                            = element => element.text.toInt
+  given ElementReader[Double]                         = element => element.text.toDouble
+  given ElementReader[QuakeMLEvaluationMode]          = element => QuakeMLEvaluationMode(element.text)
+  given ElementReader[QuakeMLEvaluationStatus]        = element => QuakeMLEvaluationStatus(element.text)
+  given ElementReader[QuakeMLOrigin.DepthType]        = element => QuakeMLOrigin.DepthType(element.text)
+  given originType: ElementReader[QuakeMLOrigin.Type] = element => QuakeMLOrigin.Type(element.text)
 
   def apply[T: ElementReader]: ElementReader[T] = summon[ElementReader[T]]
 
-  given ElementReader[Comment] = element =>
-    Comment(
+  given ElementReader[QuakeMLComment] = element =>
+    QuakeMLComment(
       text = ChildReader.read("text", element),
       id = ChildReader.read("text", element),
       creationInfo = ChildReader.read("creationInfo", element)
     )
 
-  given ElementReader[Event.Description] = element =>
-    Event.Description(
+  given ElementReader[QuakeMLEvent.Description] = element =>
+    QuakeMLEvent.Description(
       text = ChildReader.read("text", element),
       `type` = ChildReader.read("type", element)
     )
 
-  given ElementReader[CreationInfo] = element =>
-    CreationInfo(
+  given ElementReader[QuakeMLCreationInfo] = element =>
+    QuakeMLCreationInfo(
       agencyID = ChildReader.read("agencyID", element),
       agencyURI = ChildReader.read("agencyURI", element),
       author = ChildReader.read("author", element),
@@ -52,14 +53,14 @@ private[quakeml] object ElementReader:
       version = ChildReader.read("version", element)
     )
 
-  given ElementReader[TimeQuantity] = element =>
-    TimeQuantity(
+  given ElementReader[QuakeMLTimeQuantity] = element =>
+    QuakeMLTimeQuantity(
       value = ChildReader.read("value", element),
       uncertainty = ChildReader.read("uncertainty", element)
     )
 
-  given ElementReader[Origin] = element =>
-    Origin(
+  given ElementReader[QuakeMLOrigin] = element =>
+    QuakeMLOrigin(
       publicID = AttributeReader.read("publicID", element),
       time = ChildReader.read("time", element),
       longitude = ChildReader.read("longitude", element),
@@ -77,8 +78,8 @@ private[quakeml] object ElementReader:
       creationInfo = ChildReader.read("creationInfo", element)
     )
 
-  given ElementReader[Magnitude] = element =>
-    Magnitude(
+  given ElementReader[QuakeMLMagnitude] = element =>
+    QuakeMLMagnitude(
       publicID = AttributeReader.read("publicID", element),
       mag = ChildReader.read("mag", element),
       `type` = ChildReader.read("type", element),
@@ -92,8 +93,8 @@ private[quakeml] object ElementReader:
       creationInfo = ChildReader.read("creationInfo", element)
     )
 
-  given ElementReader[Event] = element =>
-    Event(
+  given ElementReader[QuakeMLEvent] = element =>
+    QuakeMLEvent(
       publicID = AttributeReader.read("publicID", element),
       preferredOriginID = ChildReader.read("preferredOriginID", element),
       preferredMagnitudeID = ChildReader.read("preferredMagnitudeID", element),
@@ -106,8 +107,8 @@ private[quakeml] object ElementReader:
       magnitude = ChildReader.read("magnitude", element)
     )
 
-  given ElementReader[RealQuantity] = element =>
-    RealQuantity(
+  given ElementReader[QuakeMLRealQuantity] = element =>
+    QuakeMLRealQuantity(
       value = ChildReader.read("value", element),
       uncertainty = ChildReader.read("uncertainty", element)
     )

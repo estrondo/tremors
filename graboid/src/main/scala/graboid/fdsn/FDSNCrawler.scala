@@ -11,7 +11,7 @@ import graboid.quakeml.QuakeMLParser
 import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
 import io.lemonlabs.uri.config.UriConfig
-import quakeml.DetectedEvent
+import quakeml.QuakeMLDetectedEvent
 import zhttp.http.Response
 import zio.Task
 import zio.ULayer
@@ -43,7 +43,7 @@ class FDSNCrawler(
     parser: QuakeMLParser
 ) extends Crawler:
 
-  override def crawl(window: TimeWindow): Task[ZStream[Any, Throwable, DetectedEvent]] =
+  override def crawl(window: TimeWindow): Task[ZStream[Any, Throwable, QuakeMLDetectedEvent]] =
     (
       for
         url      <- parseUrl(config.queryURL, window)
@@ -78,7 +78,7 @@ class FDSNCrawler(
       parsedUrl <- addParams(url, window)
     yield parsedUrl
 
-  private def readStream(response: Response): Task[ZStream[Any, Throwable, DetectedEvent]] =
+  private def readStream(response: Response): Task[ZStream[Any, Throwable, QuakeMLDetectedEvent]] =
     for
       bodyStream <- extractBodyStream(response)
       stream     <- parser.parse(bodyStream)

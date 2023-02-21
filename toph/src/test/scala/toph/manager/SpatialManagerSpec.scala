@@ -1,23 +1,25 @@
 package toph.manager
 
+import core.KeyGenerator
+import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
 import testkit.core.createZonedDateTime
-import testkit.quakeml.OriginFixture
-import testkit.quakeml.RealQuantityFixture
+import testkit.quakeml.QuakeMLOriginFixture
+import testkit.quakeml.QuakeMLRealQuantityFixture
 import toph.Spec
-import toph.converter.EpicentreConverter
-import toph.converter.HypocentreConverter
-import toph.fixture.EpicentreFixture
-import toph.fixture.HypocentreFixture
+import toph.converter.HypocentreDataConverter
+import toph.fixture.EventDataFixture
+import toph.fixture.HypocentreDataFixture
+import toph.fixture.MagnitudeDataFixture
 import toph.geom.CoordinateSequenceFactory
 import toph.geom.create
-import toph.model.Epicentre
+import toph.model.Event
 import toph.model.Uncertainty2D
-import toph.query.spatial.SpatialEpicentreQuery
-import toph.query.spatial.SpatialHypocentreQuery
-import toph.repository.EpicentreRepository
-import toph.repository.HypocentreRepository
+import toph.repository.HypocentreDataRepository
+import toph.repository.EventRepository
 import zio.Chunk
 import zio.Scope
 import zio.ZIO
@@ -25,110 +27,135 @@ import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
 
+import javax.xml.crypto.dsig.keyinfo.KeyName
+import toph.fixture.EventFixture
+import toph.query.EventQuery
+
 object SpatialManagerSpec extends Spec:
 
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =
     suite("A SpatialManager")(
       test("It should map corrrectly.") {
-        val hypocentre = HypocentreFixture.createRandom()
-        val epicentre  = EpicentreFixture.from(hypocentre)
-        val origin     = HypocentreFixture.updateOriginWith(OriginFixture.createRandom(), hypocentre)
+        val hypocentre            = HypocentreDataFixture.createRandom()
+        val origin                = HypocentreDataFixture.updateOriginWith(QuakeMLOriginFixture.createRandom(), hypocentre)
+        val hypocentreWithNoDepth = hypocentre.copy(depth = None, depthUncertainty = None)
+        val originWithNoDepth     = HypocentreDataFixture.updateOriginWith(origin, hypocentreWithNoDepth)
+
         for
-          convertedEpicentre  <- EpicentreConverter.from(origin)
-          convertedHypocentre <- HypocentreConverter.from(origin)
+          convertedHypocentre            <- HypocentreDataConverter.from(origin)
+          convertedHypocentreWithNoDepth <- HypocentreDataConverter.from(originWithNoDepth)
         yield assertTrue(
-          convertedEpicentre == epicentre,
-          convertedHypocentre == Some(hypocentre)
+          convertedHypocentre == hypocentre,
+          convertedHypocentreWithNoDepth == hypocentreWithNoDepth
         )
       },
-      test("It should add epicentre and hypocentre from a origin with both.") {
-        val hypocentre = HypocentreFixture.createRandom()
-        val epicentre  = EpicentreFixture.from(hypocentre)
-        val origin     = HypocentreFixture.updateOriginWith(OriginFixture.createRandom(), hypocentre)
+      test("It should add hypocentre from an origin.") {
+        val hypocentre = HypocentreDataFixture.createRandom()
+        val origin     = HypocentreDataFixture.updateOriginWith(QuakeMLOriginFixture.createRandom(), hypocentre)
 
         for
-          manager <- ZIO.service[SpatialManager]
-          _       <- SweetMockitoLayer[EpicentreRepository]
-                       .whenF2(_.add(epicentre))
-                       .thenReturn(epicentre)
-          _       <- SweetMockitoLayer[HypocentreRepository]
-                       .whenF2(_.add(hypocentre))
-                       .thenReturn(hypocentre)
-          result  <- manager.accept(origin)
+          _      <- SweetMockitoLayer[HypocentreDataRepository]
+                      .whenF2(_.add(hypocentre))
+                      .thenReturn(hypocentre)
+          result <- ZIO.serviceWithZIO[SpatialManager](_.accept(origin))
         yield assertTrue(
-          result == (epicentre, Some(hypocentre))
+          result == hypocentre
         )
       },
-      test("It should add just epicentre from an origin with no depth.") {
-        val hypocentre = HypocentreFixture.createRandom()
-        val epicentre  = EpicentreFixture.from(hypocentre)
-        val origin     = HypocentreFixture
-          .updateOriginWith(OriginFixture.createRandom(), hypocentre)
-          .copy(depth = None)
+      test("It should add hypocentre with no depth.") {
+        val hypocentre = HypocentreDataFixture
+          .createRandom()
+          .copy(depth = None, depthUncertainty = None)
+
+        val origin = HypocentreDataFixture
+          .updateOriginWith(QuakeMLOriginFixture.createRandom(), hypocentre)
 
         for
-          manager <- ZIO.service[SpatialManager]
-          _       <- SweetMockitoLayer[EpicentreRepository]
-                       .whenF2(_.add(epicentre))
-                       .thenReturn(epicentre)
-          result  <- manager.accept(origin)
+          _      <- SweetMockitoLayer[HypocentreDataRepository]
+                      .whenF2(_.add(hypocentre))
+                      .thenReturn(hypocentre)
+          result <- ZIO.serviceWithZIO[SpatialManager](_.accept(origin))
         yield assertTrue(
-          result == (epicentre, None)
+          result == hypocentre
         )
       },
-      test("It should search for epicentres when receive a SpatialEpicentreQuery.") {
-        val spatiaQuery = SpatialEpicentreQuery(
-          boundary = CoordinateSequenceFactory.create(-45, -21, -44, -20),
-          boundaryRadius = Some(15000),
-          minMagnitude = Some(1),
-          maxMagnitude = Some(5),
-          startTime = Some(createZonedDateTime()),
-          endTime = Some(createZonedDateTime())
+      test("It should create some queriable-events.") {
+        val hypocentre = HypocentreDataFixture.createRandom()
+        val magnitude  = MagnitudeDataFixture.createRandom()
+
+        val event = EventDataFixture
+          .createRandom()
+          .copy(
+            preferredOriginKey = Some(hypocentre.key),
+            preferedMagnitudeKey = Some(magnitude.key),
+            originKey = Seq(hypocentre.key),
+            magnitudeKey = Seq(magnitude.key)
+          )
+
+        val queriableKey = KeyGenerator.next32()
+
+        val queriableEvent = Event(
+          key = queriableKey,
+          eventKey = event.key,
+          hypocentreKey = Some(hypocentre.key),
+          magnitudeKey = Some(magnitude.key),
+          eventType = event.`type`,
+          position = Some(hypocentre.position),
+          positionUncertainty = Some(hypocentre.positionUncertainty),
+          depth = hypocentre.depth,
+          depthUncertainty = hypocentre.depthUncertainty,
+          time = Some(hypocentre.time),
+          timeUncertainty = Some(hypocentre.timeUncertainty),
+          stationCount = magnitude.stationCount,
+          magnitude = Some(magnitude.mag),
+          magnitudeType = magnitude.`type`,
+          creationInfo = event.creationInfo
         )
 
-        val epicentre = EpicentreFixture.createRandom()
-
         for
-          _       <- SweetMockitoLayer[EpicentreRepository]
-                       .whenF2(_.query(spatiaQuery))
-                       .thenReturn(epicentre)
-          manager <- ZIO.service[SpatialManager]
-          result  <- manager.search(spatiaQuery).runCollect
+          _      <- ZIO.serviceWith[KeyGenerator](x => Mockito.when(x.next32()).thenReturn(queriableKey))
+          _      <- SweetMockitoLayer[EventRepository]
+                      .whenF2(_.add(queriableEvent))
+                      .thenReturn(queriableEvent)
+          result <- ZIO.serviceWithZIO[SpatialManager](
+                      _.createEvents(event, Seq(hypocentre), Seq(magnitude))
+                    )
         yield assertTrue(
-          result == Chunk(epicentre)
+          result == Seq(queriableEvent)
         )
       },
-      test("It should search for hypocentres when receive a SpatialHypocentreQuery.") {
-        val spatiaQuery = SpatialHypocentreQuery(
-          boundary = CoordinateSequenceFactory.create(-45, -21, -44, -20),
-          boundaryRadius = Some(15000),
-          minMagnitude = Some(1),
-          maxMagnitude = Some(5),
-          startTime = Some(createZonedDateTime()),
-          endTime = Some(createZonedDateTime()),
-          minDepth = Some(1),
-          maxDepth = Some(3)
+      test("It should search for queriable-events.") {
+        val event = EventFixture.createRandom()
+        val query = EventQuery(
+          boundary = None,
+          boundaryRadius = None,
+          startTime = None,
+          endTime = None,
+          minDepth = None,
+          maxDepth = None,
+          minMagnitude = None,
+          maxMagnitude = None,
+          magnitudeType = None
         )
 
-        val hypocentre = HypocentreFixture.createRandom()
-
         for
-          _       <- SweetMockitoLayer[HypocentreRepository]
-                       .whenF2(_.query(spatiaQuery))
-                       .thenReturn(hypocentre)
-          manager <- ZIO.service[SpatialManager]
-          result  <- manager.search(spatiaQuery).runCollect
+          _      <- SweetMockitoLayer[EventRepository]
+                      .whenF2(_.search(query))
+                      .thenReturn(event)
+          result <- ZIO.serviceWithZIO[SpatialManager](_.search(query).runCollect)
         yield assertTrue(
-          result == Chunk(hypocentre)
+          result == Seq(event)
         )
       }
     ).provideSome(
-      SweetMockitoLayer.newMockLayer[EpicentreRepository],
-      SweetMockitoLayer.newMockLayer[HypocentreRepository],
+      SweetMockitoLayer.newMockLayer[HypocentreDataRepository],
+      SweetMockitoLayer.newMockLayer[EventRepository],
+      SweetMockitoLayer.newMockLayer[KeyGenerator],
       ZLayer {
         for
-          epicentreRepository  <- ZIO.service[EpicentreRepository]
-          hypocentreRepository <- ZIO.service[HypocentreRepository]
-        yield SpatialManager(epicentreRepository, hypocentreRepository)
+          hypocentreRepository     <- ZIO.service[HypocentreDataRepository]
+          queriableEventRepository <- ZIO.service[EventRepository]
+          keyGenerator             <- ZIO.service[KeyGenerator]
+        yield SpatialManager(hypocentreRepository, queriableEventRepository, keyGenerator)
       }
     )

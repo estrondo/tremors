@@ -1,19 +1,20 @@
 package toph.module
 
 import com.softwaremill.macwire.wire
-import toph.manager.EventManager
-import toph.manager.MagnitudeManager
+import toph.manager.EventDataManager
+import toph.manager.MagnitudeDataManager
 import toph.manager.SpatialManager
 import zio.Task
 import zio.ZIO
+import core.KeyGenerator
 
 trait CoreModule:
 
-  val eventManager: EventManager
+  val eventManager: EventDataManager
 
   val spatialManager: SpatialManager
 
-  val magnitudeManager: MagnitudeManager
+  val magnitudeManager: MagnitudeDataManager
 
 object CoreModule:
 
@@ -22,12 +23,14 @@ object CoreModule:
 
   private class Impl(repositoryModule: RepositoryModule) extends CoreModule:
 
-    override val spatialManager: SpatialManager = SpatialManager(
-      epicentreRepository = repositoryModule.epicentreRepository,
-      hypocentreRepository = repositoryModule.hypocentreRepository
-    )
+    override val spatialManager: SpatialManager =
+      SpatialManager(
+        hypocentreRepository = repositoryModule.hypocentreRepository,
+        eventRepository = repositoryModule.queriableEventRepository,
+        keyGenerator = KeyGenerator
+      )
 
-    override val magnitudeManager: MagnitudeManager = MagnitudeManager(repositoryModule.magnitudeRepository)
+    override val magnitudeManager: MagnitudeDataManager = MagnitudeDataManager(repositoryModule.magnitudeRepository)
 
-    override val eventManager: EventManager =
-      EventManager(repositoryModule.eventRepository, spatialManager, magnitudeManager)
+    override val eventManager: EventDataManager =
+      EventDataManager(repositoryModule.eventRepository, spatialManager, magnitudeManager)

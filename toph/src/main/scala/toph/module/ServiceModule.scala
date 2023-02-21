@@ -2,7 +2,7 @@ package toph.module
 
 import com.softwaremill.macwire.wire
 import scalapb.zio_grpc.RequestContext
-import toph.grpc.spatial.ZioSpatial.ZSpatialService
+import grpc.toph.spatial.ZioSpatial.ZSpatialService
 import toph.service.SpatialService
 import zio.Task
 import zio.TaskLayer

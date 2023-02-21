@@ -1,32 +1,33 @@
 package graboid.quakeml
 
-import quakeml.ResourceReference
-import quakeml.Event
-import quakeml.Comment
-import quakeml.CreationInfo
+import quakeml.QuakeMLComment
+import quakeml.QuakeMLCreationInfo
+import quakeml.QuakeMLEvent
+import quakeml.QuakeMLMagnitude
+import quakeml.QuakeMLOrigin
+import quakeml.QuakeMLRealQuantity
+import quakeml.QuakeMLResourceReference
+import quakeml.QuakeMLTimeQuantity
+
 import java.time.ZonedDateTime
-import quakeml.Magnitude
-import quakeml.RealQuantity
-import quakeml.TimeQuantity
-import quakeml.Origin
 
 private[quakeml] object ChildReader:
 
-  given ChildReader[ResourceReference]     = newReader
-  given ChildReader[Event.DescriptionType] = newReader
-  given ChildReader[Event.Type]            = newReader
-  given ChildReader[Event.TypeCertainty]   = newReader
-  given ChildReader[Event.Description]     = newReader
-  given ChildReader[Comment]               = newReader
-  given ChildReader[CreationInfo]          = newReader
-  given ChildReader[String]                = newReader
-  given ChildReader[ZonedDateTime]         = newReader
-  given ChildReader[TimeQuantity]          = newReader
-  given ChildReader[Origin]                = newReader
-  given ChildReader[Magnitude]             = newReader
-  given ChildReader[RealQuantity]          = newReader
-  given ChildReader[Int]                   = newReader
-  given ChildReader[Double]                = newReader
+  given ChildReader[QuakeMLResourceReference]     = newReader
+  given ChildReader[QuakeMLEvent.DescriptionType] = newReader
+  given ChildReader[QuakeMLEvent.Type]            = newReader
+  given ChildReader[QuakeMLEvent.TypeCertainty]   = newReader
+  given ChildReader[QuakeMLEvent.Description]     = newReader
+  given ChildReader[QuakeMLComment]               = newReader
+  given ChildReader[QuakeMLCreationInfo]          = newReader
+  given ChildReader[String]                       = newReader
+  given ChildReader[ZonedDateTime]                = newReader
+  given ChildReader[QuakeMLTimeQuantity]          = newReader
+  given ChildReader[QuakeMLOrigin]                = newReader
+  given ChildReader[QuakeMLMagnitude]             = newReader
+  given ChildReader[QuakeMLRealQuantity]          = newReader
+  given ChildReader[Int]                          = newReader
+  given ChildReader[Double]                       = newReader
 
   given [T](using ElementReader[T]): ChildReader[Option[T]] = (parent, name) => {
     for child <- parent.getChild(name)

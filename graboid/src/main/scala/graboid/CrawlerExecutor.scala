@@ -1,9 +1,9 @@
 package graboid
 
-import _root_.quakeml.DetectedEvent
-import _root_.quakeml.Event
-import _root_.quakeml.Magnitude
-import _root_.quakeml.Origin
+import _root_.quakeml.QuakeMLDetectedEvent
+import _root_.quakeml.QuakeMLEvent
+import _root_.quakeml.QuakeMLMagnitude
+import _root_.quakeml.QuakeMLOrigin
 import com.softwaremill.macwire.wire
 import graboid.GraboidException.CrawlerException
 import zio.Cause
@@ -52,7 +52,7 @@ object CrawlerExecutor:
 
   private case class Status(events: Long, magnitudes: Long, origins: Long, last: Option[ZonedDateTime]):
 
-    def count(event: DetectedEvent): Status =
+    def count(event: QuakeMLDetectedEvent): Status =
       copy(events = events + 1)
 
   private class Impl(
@@ -160,11 +160,11 @@ object CrawlerExecutor:
 
     private def accumUpdateCrawlerExecution(publisher: Publisher, execution: CrawlerExecution)(
         state: State,
-        event: DetectedEvent
-    ): Task[(State, DetectedEvent)] =
+        event: QuakeMLDetectedEvent
+    ): Task[(State, QuakeMLDetectedEvent)] =
       val (ttu, count) = state
 
-      def computeNewState(now: Long): UIO[(State, DetectedEvent)] =
+      def computeNewState(now: Long): UIO[(State, QuakeMLDetectedEvent)] =
         if now >= ttu || count >= maxCountUpdate then
           val nextTTU = computeNextTTU(now)
           updateCrawlerExecution(publisher, execution, nextTTU) as ((nextTTU, 0L), event)
@@ -245,7 +245,7 @@ object CrawlerExecutor:
             )
       yield report
 
-    def summarise(report: CrawlerTaskReport, event: DetectedEvent): UIO[CrawlerTaskReport] =
+    def summarise(report: CrawlerTaskReport, event: QuakeMLDetectedEvent): UIO[CrawlerTaskReport] =
       report.status match
         case status: Status   =>
           ZIO.succeed(report.copy(status = status.count(event)))

@@ -1,6 +1,6 @@
 package graboid
 
-import _root_.quakeml.DetectedEvent
+import _root_.quakeml.QuakeMLDetectedEvent
 import com.softwaremill.macwire.wireWith
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
@@ -11,7 +11,7 @@ import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo}
 import testkit.core.createZonedDateTime
-import testkit.quakeml.EventFixture
+import testkit.quakeml.QuakeMLEventFixture
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -35,9 +35,9 @@ object CrawlerExecutorSpec extends Spec:
         val now        = createZonedDateTime()
         val executions = CrawlerExecutionFixture.createRandomSeq(10)
         val publisher  = PublisherFixture.createRandom()
-        val event      = EventFixture.createRandom()
+        val event      = QuakeMLEventFixture.createRandom()
         val crawler    = SweetMockito[Crawler]
-        val detected   = DetectedEvent(now, event)
+        val detected   = QuakeMLDetectedEvent(now, event)
 
         SweetMockito
           .whenF2(crawler.crawl(any()))
@@ -76,9 +76,9 @@ object CrawlerExecutorSpec extends Spec:
         val now        = createZonedDateTime()
         val executions = CrawlerExecutionFixture.createRandomSeq(10)
         val publisher  = PublisherFixture.createRandom()
-        val event      = EventFixture.createRandom()
+        val event      = QuakeMLEventFixture.createRandom()
         val crawler    = SweetMockito[Crawler]
-        val detected   = DetectedEvent(now, event)
+        val detected   = QuakeMLDetectedEvent(now, event)
 
         SweetMockito
           .whenF2(crawler.crawl(any()))

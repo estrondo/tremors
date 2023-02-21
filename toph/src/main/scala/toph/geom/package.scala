@@ -10,7 +10,7 @@ import toph.converter.seqDoubleToCoordinateSequence
 
 val CoordinateSequenceFactory = PackedCoordinateSequenceFactory.DOUBLE_FACTORY
 
-val Factory = new GeometryFactory(PrecisionModel(PrecisionModel.FLOATING), 4326, CoordinateSequenceFactory)
+val GeometryFactory = new GeometryFactory(PrecisionModel(PrecisionModel.FLOATING), 4326, CoordinateSequenceFactory)
 
 extension (factory: CoordinateSequenceFactory)
   def create(values: Double*): CoordinateSequence =

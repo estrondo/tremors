@@ -62,6 +62,34 @@ case class ForQuery(
   def filter(expression: FilterExpression, parameters: (String, Any)*): ForQuery =
     filter(expression, Map.from(parameters))
 
+  def inRangeFilter(
+      value: String,
+      low: (String, Option[Any]),
+      high: (String, Option[Any]),
+      iLow: Boolean,
+      iHigh: Boolean
+  ): ForQuery =
+    val (lowParam, lowOpt)   = low
+    val (highParam, highOpt) = high
+
+    (lowOpt, highOpt) match
+      case (Some(low), Some(high)) =>
+        filter(
+          s"IN_RANGE($value, @$lowParam, @$highParam, @iLow, @iHigh)",
+          lowParam  -> low,
+          highParam -> high,
+          "iLow"    -> iLow,
+          "iHigh"   -> iHigh
+        )
+
+      case (Some(low), _) =>
+        filter(s"$value ${if iLow then ">=" else ">"} @$lowParam", lowParam -> low)
+
+      case (_, Some(high)) =>
+        filter(s"$value ${if iHigh then "<=" else "<"} @$highParam", highParam -> high)
+
+      case _ => this
+
   private def buildQueryExpression(): String =
     val builder = StringBuilder()
     builder.append(s"FOR $variableName IN ${collection.render()}")
