@@ -11,7 +11,7 @@ import zio.stream.ZStream
 
 trait AlertManager:
 
-  def add(alert: Alert): RIO[UserManager, Alert]
+  def add(alert: Alert): RIO[AccountManager, Alert]
 
   def all(): Task[ZStream[Any, Throwable, Alert]]
 
@@ -28,9 +28,9 @@ object AlertManager:
 
   private class Impl(repository: AlertRepository) extends AlertManager:
 
-    override def add(alert: Alert): RIO[UserManager, Alert] =
+    override def add(alert: Alert): RIO[AccountManager, Alert] =
       for
-        opt    <- ZIO.serviceWithZIO[UserManager](_.get(alert.email))
+        opt    <- ZIO.serviceWithZIO[AccountManager](_.get(alert.email))
         result <- if opt.isDefined then _add(alert)
                   else ZIO.fail(WebAPIException.Invalid(s"There is no user with email: ${alert.email}."))
       yield result

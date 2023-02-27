@@ -5,7 +5,7 @@ import one.estrondo.sweetmockito.zio.given
 import webapi.Spec
 import webapi.WebAPIException
 import webapi.fixture.AlertFixture
-import webapi.fixture.UserFixture
+import webapi.fixture.AccountFixture
 import webapi.repository.AlertRepository
 import zio.Scope
 import zio.ZIO
@@ -23,9 +23,9 @@ object AlertManagerSpec extends Spec:
     suite("An AlertManager")(
       test("It should add a new alert.") {
         val alert = AlertFixture.createRandom()
-        val user  = UserFixture.createRandom().copy(email = alert.email)
+        val user  = AccountFixture.createRandom().copy(email = alert.email)
         for
-          _      <- SweetMockitoLayer[UserManager]
+          _      <- SweetMockitoLayer[AccountManager]
                       .whenF2(_.get(alert.email))
                       .thenReturn(Some(user))
           _      <- SweetMockitoLayer[AlertRepository]
@@ -39,7 +39,7 @@ object AlertManagerSpec extends Spec:
       test("It should fail when the user was not found.") {
         val alert = AlertFixture.createRandom()
         for
-          _    <- SweetMockitoLayer[UserManager]
+          _    <- SweetMockitoLayer[AccountManager]
                     .whenF2(_.get(alert.email))
                     .thenReturn(None)
           exit <- ZIO.serviceWithZIO[AlertManager](_.add(alert)).exit
@@ -112,6 +112,6 @@ object AlertManagerSpec extends Spec:
       }
     ).provideSome(
       SweetMockitoLayer.newMockLayer[AlertRepository],
-      SweetMockitoLayer.newMockLayer[UserManager],
+      SweetMockitoLayer.newMockLayer[AccountManager],
       ZLayer(ZIO.serviceWith[AlertRepository](AlertManager.apply))
     )

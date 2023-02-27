@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package grpc.webapi;
+
+message Account {
+  string email = 1;
+  string name = 2;
+}
+
+message AccountKey {
+  string email = 1;
+}
+
+message AccountUpdate {
+  string email = 1;
+  optional string newName = 2;
+}
+
+message AccountActivation {
+  string email = 1;
+  string code = 2;
+}
+
+message AccountReponse {
+  string email = 1;
+}
+
+enum IMType {
+  WHATSAPP = 0;
+  TELEGRAM = 1;
+}
+
+
+service AccountService {
+  rpc Activate(AccountActivation) returns (AccountReponse);
+  rpc Create(Account) returns (AccountReponse);
+  rpc Update(AccountUpdate) returns (AccountReponse);
+  rpc Remove(AccountKey) returns (AccountReponse);
+}

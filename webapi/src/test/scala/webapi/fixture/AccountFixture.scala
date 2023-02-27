@@ -1,15 +1,18 @@
 package webapi.fixture
 
-import webapi.model.User
+import core.KeyGenerator
 import testkit.core.createRandomName
 import testkit.core.createZonedDateTime
+import webapi.model.Account
 
-object UserFixture:
+object AccountFixture:
 
   def createRandom() =
     val name = createRandomName()
-    User(
+    Account(
       name = name,
       email = s"$name@estrondo.one",
-      createdAt = createZonedDateTime()
+      createdAt = createZonedDateTime(),
+      active = true,
+      secret = KeyGenerator.next4()
     )

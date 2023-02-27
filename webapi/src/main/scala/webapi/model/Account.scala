@@ -2,14 +2,16 @@ package webapi.model
 
 import java.time.ZonedDateTime
 
-object User:
+object Account:
 
   case class Update(
       name: String
   )
 
-case class User(
+case class Account(
     email: String,
     name: String,
+    active: Boolean,
+    secret: String,
     createdAt: ZonedDateTime
 )
