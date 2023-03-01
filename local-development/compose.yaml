@@ -107,6 +107,7 @@ services:
       TOPH_KAFKA_CLOSE_TIMEOUT: 10 seconds
       TOPH_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
       TOPH_GRPC_PORT: 9000
+
   webapi:
     image: docker.io/rthoth/estrondo:webapi
     ports:
@@ -120,7 +121,8 @@ services:
       WEBAPI_KAFKA_CLIENT_ID: graboid
       WEBAPI_KAFKA_CLOSE_TIMEOUT: 10 seconds
       WEBAPI_KAFKA_BOOTSTRAP: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092
-      WEBAPI_HTTP_PORT: 8080
+      WEBAPI_SERVICE_PORT: 8080
+      WEBAPI_SERVICE_SPATIAL_TOPH: "toph:9000"
 volumes:
   arango1:
   arango2:

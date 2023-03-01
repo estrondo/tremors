@@ -12,7 +12,9 @@ import zio.Task
 
 trait FarangoModule:
 
-  def collection[W, T](name: String)(using DocumentCollection => W): Task[W @@ T]
+  def collection(name: String): Task[DocumentCollection]
+
+  def taggedCollection[W, T](name: String)(using DocumentCollection => W): Task[W @@ T]
 
 object FarangoModule:
 
@@ -22,7 +24,9 @@ object FarangoModule:
 
   private class Impl(database: Database) extends FarangoModule:
 
-    override def collection[W, T](name: String)(using fn: DocumentCollection => W): Task[W @@ T] =
-      database
-        .documentCollection(name)
+    override def collection(name: String): Task[DocumentCollection] =
+      database.documentCollection(name)
+
+    override def taggedCollection[W, T](name: String)(using fn: DocumentCollection => W): Task[W @@ T] =
+      collection(name)
         .map(fn(_).taggedWith[T])

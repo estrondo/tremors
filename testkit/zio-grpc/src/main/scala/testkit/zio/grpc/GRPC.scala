@@ -1,4 +1,4 @@
-package teskit.zio.grpc
+package testkit.zio.grpc
 
 import io.grpc.ManagedChannelBuilder
 import io.grpc.ServerBuilder

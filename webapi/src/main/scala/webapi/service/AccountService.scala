@@ -1,5 +1,6 @@
 package webapi.service
 
+import core.KeyGenerator
 import grpc.webapi.account.AccountActivation
 import grpc.webapi.account.AccountKey
 import grpc.webapi.account.AccountReponse
@@ -17,10 +18,13 @@ import zio.ZIO
 
 object AccountService:
 
-  def apply(): RIO[AccountManager, ZAccountService[RequestContext]] =
-    ZIO.serviceWith[AccountManager](Impl(_))
+  def apply(): RIO[AccountManager & KeyGenerator, ZAccountService[RequestContext]] =
+    for
+      manager      <- ZIO.service[AccountManager]
+      keyGenerator <- ZIO.service[KeyGenerator]
+    yield Impl(manager, keyGenerator)
 
-  private class Impl(manager: AccountManager) extends ZAccountService[RequestContext]:
+  private class Impl(manager: AccountManager, keyGenerator: KeyGenerator) extends ZAccountService[RequestContext]:
 
     override def activate(request: AccountActivation, context: RequestContext): IO[Status, AccountReponse] =
       for _ <- manager
@@ -32,7 +36,7 @@ object AccountService:
     override def create(request: GRPCAccount, context: RequestContext): IO[Status, AccountReponse] =
       for
         account <- AccountConverter
-                     .from(request)
+                     .from(request, keyGenerator)
                      .tapErrorCause(ZIO.logErrorCause("It was impossible to read the request!", _))
                      .mapError(_ => Status.INVALID_ARGUMENT)
         added   <- manager

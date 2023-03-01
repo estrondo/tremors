@@ -1,5 +1,6 @@
 package webapi.service
 
+import core.KeyGenerator
 import grpc.webapi.account.AccountKey
 import grpc.webapi.account.AccountReponse
 import grpc.webapi.account.AccountUpdate
@@ -10,7 +11,7 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
-import teskit.zio.grpc.GRPC
+import testkit.zio.grpc.GRPC
 import webapi.IT
 import webapi.fixture.AccountFixture
 import webapi.manager.AccountManager
@@ -26,13 +27,16 @@ import zio.test.TestEnvironment
 import zio.test.assertTrue
 
 import scala.annotation.newMain
+import org.mockito.Mockito
 
 object AccountServiceIT extends IT:
 
   override def spec: Spec[TestEnvironment & Scope, Any] =
     suite("An AccountService")(
       test("It should create an account.") {
-        val account = AccountFixture.createRandom()
+        val account = AccountFixture
+          .createRandom()
+          .copy(active = false)
 
         val request = GRPCAccount(
           email = account.email,
@@ -43,6 +47,7 @@ object AccountServiceIT extends IT:
           _       <- SweetMockitoLayer[AccountManager]
                        .whenF2(_.add(account))
                        .thenReturn(account)
+          _       <- ZIO.serviceWith[KeyGenerator](m => Mockito.when(m.next4()).thenReturn(account.secret))
           channel <- GRPC.createChannel
           _       <- TestClock.setTime(account.createdAt.toInstant())
           client  <- AccountServiceClient.scoped(channel)
@@ -62,7 +67,7 @@ object AccountServiceIT extends IT:
           _       <- SweetMockitoLayer[AccountManager]
                        .whenF2(_.update(account.email, Account.Update(name = account.name + "@")))
                        .thenReturn(Some(account))
-          result  <- client.update(request) 
+          result  <- client.update(request)
         yield assertTrue(
           result == AccountReponse(account.email)
         )
@@ -84,6 +89,7 @@ object AccountServiceIT extends IT:
       }
     ).provideSome[Scope](
       SweetMockitoLayer.newMockLayer[AccountManager],
+      SweetMockitoLayer.newMockLayer[KeyGenerator],
       GRPC.serverLayerFor[ZAccountService[RequestContext]],
       ZLayer(AccountService())
     ) @@ TestAspect.sequential

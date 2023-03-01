@@ -9,7 +9,7 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
 import scalapb.zio_grpc.RequestContext
-import teskit.zio.grpc.GRPC
+import testkit.zio.grpc.GRPC
 import toph.IT
 import toph.fixture.EventFixture
 import toph.manager.SpatialManager

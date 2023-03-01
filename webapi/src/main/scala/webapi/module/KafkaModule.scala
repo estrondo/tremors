@@ -9,4 +9,5 @@ import zkafka.starter.KafkaManagerStarter
 object KafkaModule:
 
   def apply(config: KafkaConfig): Task[KafkaManager] =
-    KafkaManagerStarter(config, "toph")
+    for manager <- KafkaManagerStarter(config, "webapi")
+    yield manager
