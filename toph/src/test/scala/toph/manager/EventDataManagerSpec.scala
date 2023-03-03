@@ -17,6 +17,7 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
+import toph.fixture.EventFixture
 
 object EventDataManagerSpec extends Spec:
 
@@ -27,6 +28,7 @@ object EventDataManagerSpec extends Spec:
         val originalEvent = QEventFixture.createRandom()
         val detectedEvent = QuakeMLDetectedEvent(now, originalEvent)
         val hypocentre    = HypocentreDataFixture.createRandom()
+        val event         = EventFixture.createRandom()
 
         for
           expectedEvent      <- EventDataConverter.fromQEvent(originalEvent)
@@ -41,6 +43,9 @@ object EventDataManagerSpec extends Spec:
           _                  <- SweetMockitoLayer[MagnitudeDataManager]
                                   .whenF2(_.accept(originalEvent.magnitude.head))
                                   .thenReturn(convertedMagnitude)
+          _                  <- SweetMockitoLayer[SpatialManager]
+                                  .whenF2(_.createEvents(expectedEvent, Seq(hypocentre), Seq(convertedMagnitude)))
+                                  .thenReturn(Seq(event))
           accepted           <- manager.accept(detectedEvent)
         yield assertTrue(
           accepted == (expectedEvent, Seq(hypocentre), Seq(convertedMagnitude))

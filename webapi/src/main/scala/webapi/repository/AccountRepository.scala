@@ -12,6 +12,7 @@ import zio.Task
 import zio.ZIO
 
 import java.time.ZonedDateTime
+import farango.UpdateReturn
 
 trait AccountRepository:
 
@@ -85,7 +86,7 @@ object AccountRepository:
 
     override def update(email: String, update: Account.Update): Task[Option[Account]] =
       collection
-        .update[UpdateDocument, Document](Key.safe(email), update)
+        .update[UpdateDocument, Document](Key.safe(email), update, UpdateReturn.New)
         .tap(_ => ZIO.logDebug(s"User $email has been updated."))
         .tapErrorCause(ZIO.logErrorCause(s"It was impossible to updated account $email!", _))
 

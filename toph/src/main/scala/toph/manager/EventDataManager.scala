@@ -35,6 +35,7 @@ object EventDataManager:
         _           <- add(event)
         magnitudes  <- ZIO.foreach(detected.event.magnitude)(magnitudeManager.accept)
         hypocentres <- ZIO.foreach(detected.event.origin)(spatialManager.accept)
+        _           <- spatialManager.createEvents(event, hypocentres, magnitudes)
       yield (event, hypocentres, magnitudes))
         .tap(_ => ZIO.logInfo(s"A detected with key=${detected.event.publicID.uri} event was accepted."))
         .tapErrorCause(

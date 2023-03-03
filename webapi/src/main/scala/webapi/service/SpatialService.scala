@@ -30,7 +30,7 @@ object SpatialService:
                        .from(request)
                        .tapErrorCause(ZIO.logErrorCause("It was impossible to read request!", _))
                        .mapError(_ => Status.INVALID_ARGUMENT)
-            _     <- ZIO.logDebug("Searching for events.")
+            _     <- ZIO.logInfo(s"Searching for events: $query.")
           yield tophClient
             .searchEvent(query)
             .mapZIO(GRPCEventConverter.from)

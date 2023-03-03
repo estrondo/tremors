@@ -38,10 +38,10 @@ object RepositoryModule:
       farangoModule: FarangoModule
   ): Task[RepositoryModule] =
     for
-      collEvent                <- farangoModule.collection("event").coll[ForEvent]
-      collMagnitude            <- farangoModule.collection("magnitude").coll[ForMagnitude]
-      hypocentreRepository     <- farangoModule.collection("hypocentre").flatMap(HypocentreDataRepository.apply)
-      queriableEventRepository <- farangoModule.collection("queriable-event").flatMap(EventRepository.apply)
+      collEvent            <- farangoModule.collection("event-data").coll[ForEvent]
+      collMagnitude        <- farangoModule.collection("magnitude-data").coll[ForMagnitude]
+      hypocentreRepository <- farangoModule.collection("hypocentre-data").flatMap(HypocentreDataRepository.apply)
+      eventRepository      <- farangoModule.collection("event").flatMap(EventRepository.apply)
     yield wire[Impl]
 
   private class Impl(

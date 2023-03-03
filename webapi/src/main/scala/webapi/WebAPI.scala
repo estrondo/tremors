@@ -10,8 +10,13 @@ import zio.ZIOAppDefault
 import webapi.module.ServiceModule
 import webapi.module.CoreModule
 import webapi.module.RepositoryModule
+import zio.ZLayer
+import zio.logging.backend.SLF4J
 
 object WebAPI extends ZIOAppDefault:
+
+  override val bootstrap: ZLayer[ZIOAppArgs, Any, Any] =
+    zio.Runtime.removeDefaultLoggers >>> SLF4J.slf4j
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for

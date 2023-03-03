@@ -95,7 +95,7 @@ object EventRepository:
         q.filter(
           "GEO_DISTANCE(@boundary, d.position) < @distance",
           "boundary" -> toQueriableGeometry(boundary),
-          "distance" -> query.boundaryRadius.getOrElse(1)
+          "distance" -> query.boundaryRadius.getOrElse(10000)
         )
       }
 
