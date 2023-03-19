@@ -1,0 +1,5 @@
+#/bin/sh
+
+rm -rf server/utils/@types
+
+./node_modules/.bin/proto-loader-gen-types --enums=String --grpcLib=@grpc/grpc-js --outDir=server/utils/@types server/utils/grpc/*.proto

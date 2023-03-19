@@ -1,0 +1,50 @@
+div.dialog {
+  z-index: @z-index-dialog;
+  position: absolute;
+
+  background-color: @dialog-background-color;
+  padding: 3px;
+  bottom: 84px;
+  left: 12px;
+
+  border: @dialog-border;
+  overflow: hidden;
+  box-shadow: @box-shadow;
+
+  font-family: 'Roboto Mono', monospace;
+
+  div.dialog-title {
+    cursor: grab;
+    user-select: none;
+    border-bottom: @dialog-title-border-bottom;
+    position: relative;
+
+    >span {
+      box-sizing: border-box;
+      display: inline-block;
+      padding: 0.5em;
+      width: 100%;
+      text-align: center;
+    }
+
+    .close {
+      display: block;
+      cursor: pointer;
+
+      width: 14px;
+      height: 14px;
+      background-image: url('images/close.png');
+      background-color: transparent;
+      border: none;
+
+      position: absolute;
+      margin-top: -7px;
+      right: 3px;
+      top: 50%;
+    }
+  }
+
+  div.dialog-content {
+    padding: 12px;
+  }
+}

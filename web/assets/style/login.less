@@ -1,0 +1,69 @@
+div.login-method {
+  width: 30rem;
+
+  button {
+    box-sizing: border-box;
+    border: none;
+    background-color: @login-method-background-color;
+    cursor: pointer;
+
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+
+    width: 100%;
+    line-height: 4rem;
+
+    font-weight: bold;
+    text-align: left;
+    text-indent: 32px;
+
+    >div {
+      float: left;
+      background-image: url("images/login-method-logos.png");
+      background-repeat: no-repeat;
+      background-position-y: center;
+      height: 4rem;
+      width: 32px;
+      margin-left: 12px;
+
+      @logos: twitter,
+      microsft,
+      facebook,
+      google;
+
+      each(@logos, {
+        &.@{value} {
+          background-position-x: (@index - 1) * -32px;
+        }
+      })
+  }
+}
+}
+
+div.logout {
+
+  width: 100%;
+  height: 3rem;
+
+  button {
+    cursor: pointer;
+    float: right;
+    background-color: @login-method-background-color;
+    border: none;
+    font-size: 1rem;
+    line-height: 3rem;
+    margin: 0px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+
+    div.icon {
+      float: left;
+      background-image: url("images/account-sprite.png");
+      background-repeat: no-repeat;
+      background-position: center center;
+      width: 15px;
+      height: 3rem;
+      margin-right: 1rem;
+    }
+  }
+}

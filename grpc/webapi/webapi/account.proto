@@ -36,4 +36,5 @@ service AccountService {
   rpc Create(Account) returns (AccountReponse);
   rpc Update(AccountUpdate) returns (AccountReponse);
   rpc Remove(AccountKey) returns (AccountReponse);
+  rpc Get(AccountKey) returns (Account);
 }

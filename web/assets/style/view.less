@@ -1,0 +1,66 @@
+div.tremors-main-map {
+  height: 100%;
+  width: 100%;
+}
+
+div.tremors-main-map>div.globe-view {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+div.view-toolbox {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  padding: 0px;
+  margin: 0px;
+  z-index: @z-index-view-toolbox;
+
+  border-width: 1px;
+  border-style: solid;
+  border-color: @view-toolbox-border-color;
+  box-shadow: @box-shadow;
+
+  >button {
+    display: block;
+    padding: 0px;
+    margin: 0px;
+    background-color: @view-toolbox-background-color;
+    background-image: url("images/map-toolbox.png");
+    cursor: pointer;
+    float: left;
+    height: 60px;
+    width: 60px;
+    border: none;
+
+    &:hover {
+      background-color: darken(@view-toolbox-background-color, 10);
+    }
+
+    span.tooltip {
+      position: relative;
+      display: none;
+      background-color: #333333;
+      color: #ffffff;
+      padding: 1em;
+      margin: 0px;
+      top: -4em;
+      white-space: nowrap;
+      z-index: 100;
+    }
+
+    &:hover span.tooltip {
+      display: inline-block;
+    }
+
+    @buttons: account, undo, redo, zoom-in, zoom-out, zoom-reset, layer, alert, search, about;
+
+    each(@buttons, {
+      &.@{value} {
+        background-position-x: (@index - 1) * -60px;
+        background-position-y: 0px;
+      }
+    });
+}
+}
