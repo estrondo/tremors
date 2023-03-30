@@ -5,6 +5,10 @@ import io.bullet.borer.Codec
 import io.bullet.borer.Decoder
 import io.bullet.borer.Encoder
 import io.bullet.borer.derivation.MapBasedCodecs.*
+import java.time.Clock
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
 import quakeml.QuakeMLComment
 import quakeml.QuakeMLCreationInfo
 import quakeml.QuakeMLDetectedEvent
@@ -17,11 +21,6 @@ import quakeml.QuakeMLOrigin.DepthType
 import quakeml.QuakeMLRealQuantity
 import quakeml.QuakeMLResourceReference
 import quakeml.QuakeMLTimeQuantity
-
-import java.time.Clock
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoField
 import scala.util.Try
 
 private[cbor] val ZoneId = Clock.systemUTC().getZone()

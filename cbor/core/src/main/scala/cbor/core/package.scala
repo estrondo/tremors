@@ -1,7 +1,6 @@
 package cbor.core
 
 import io.bullet.borer.Codec
-
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant

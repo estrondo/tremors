@@ -4,12 +4,15 @@ import _root_.quakeml.QuakeMLDetectedEvent
 import com.softwaremill.macwire.wireWith
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
+import java.time.Clock
+import java.time.Instant
+import java.time.ZonedDateTime
 import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo}
+import org.mockito.ArgumentMatchers.any
 import testkit.core.createZonedDateTime
 import testkit.quakeml.QuakeMLEventFixture
 import zio.Scope
@@ -22,10 +25,6 @@ import zio.test.TestClock
 import zio.test.TestClock.Data
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import java.time.Clock
-import java.time.Instant
-import java.time.ZonedDateTime
 
 object CrawlerExecutorSpec extends Spec:
 

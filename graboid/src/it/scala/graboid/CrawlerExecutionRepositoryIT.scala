@@ -6,6 +6,9 @@ import farango.zio.given
 import graboid.CrawlerExecutionRepository.given
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
+import java.time.ZonedDateTime
+import scala.annotation.newMain
+import scala.annotation.tailrec
 import testkit.core.createZonedDateTime
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
@@ -17,10 +20,6 @@ import zio.stream.ZStream
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import java.time.ZonedDateTime
-import scala.annotation.newMain
-import scala.annotation.tailrec
 
 object CrawlerExecutionRepositoryIT extends IT:
 

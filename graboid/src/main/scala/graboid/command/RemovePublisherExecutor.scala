@@ -1,13 +1,13 @@
 package graboid.command
 
+import graboid.CrawlerExecutor
 import graboid.PublisherManager
 import graboid.protocol.GraboidCommandResult
 import graboid.protocol.GraboidCommandResult.Status
 import graboid.protocol.RemovePublisher
-import zio.Task
-import graboid.CrawlerExecutor
-import zio.ZIO
 import zio.Cause
+import zio.Task
+import zio.ZIO
 
 trait RemovePublisherExecutor extends GraboidCommandExecutor[RemovePublisher]
 

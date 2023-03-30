@@ -1,10 +1,11 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import com.softwaremill.tagging.{@@, given}
+import com.softwaremill.tagging.@@
+import com.softwaremill.tagging.given
+import farango.DocumentCollection
 import zio.Task
 import zio.ZIO
-import farango.DocumentCollection
 
 trait RepositoryModule:
 

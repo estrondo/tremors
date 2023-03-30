@@ -2,11 +2,11 @@ package testkit.graboid.protocol
 
 import graboid.protocol.PublisherDescriptor
 import io.bullet.borer.derivation.key
+import java.time.temporal.ChronoUnit
 import testkit.core.createRandomKey
 import testkit.core.createRandomName
 import testkit.core.createZonedDateTime
 import testkit.core.oneOf
-import java.time.temporal.ChronoUnit
 
 object PublisherDescriptorFixture:
 

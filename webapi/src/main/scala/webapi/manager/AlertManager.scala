@@ -2,11 +2,11 @@ package webapi.manager
 
 import webapi.WebAPIException
 import webapi.model.Alert
+import webapi.model.Alert.Update
 import webapi.repository.AlertRepository
 import zio.RIO
 import zio.Task
 import zio.ZIO
-import webapi.model.Alert.Update
 import zio.stream.ZStream
 
 trait AlertManager:

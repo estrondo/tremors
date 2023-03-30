@@ -1,9 +1,9 @@
 package toph.converter
 
-import zio.Task
 import toph.message.protocol.NewEvent
 import toph.model.data.EventData
 import toph.model.data.HypocentreData
+import zio.Task
 import zio.ZIO
 
 object EventJournalMessageConverter:

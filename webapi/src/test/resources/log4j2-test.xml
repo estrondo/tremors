@@ -15,6 +15,7 @@
     <Logger name="org.apache.kafka" level="error" />
     <Logger name="io.netty" level="off" />
     <Logger name="com.arangodb" level="error" />
+    <Logger name="io.grpc.netty" level="off" />
     <Root level="debug">
       <AppenderRef ref="Out" />
     </Root>

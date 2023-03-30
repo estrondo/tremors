@@ -5,6 +5,8 @@ import graboid.command.RemovePublisherExecutorImpl
 import graboid.fixture.PublisherFixture
 import graboid.mock.PublisherManagerLayer
 import graboid.protocol.GraboidCommandResult
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
 import testkit.graboid.protocol.RemovePublisherFixture
 import zio.Scope
 import zio.ZIO
@@ -12,8 +14,6 @@ import zio.ZLayer
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import one.estrondo.sweetmockito.zio.SweetMockitoLayer
-import one.estrondo.sweetmockito.zio.given
 
 object RemovePublisherExecutorSpec extends Spec:
 

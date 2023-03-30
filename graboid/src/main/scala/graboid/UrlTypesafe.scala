@@ -1,7 +1,6 @@
 package graboid
 
 import io.lemonlabs.uri.typesafe.QueryValue
-
 import java.time.ZonedDateTime
 
 object UrlTypesafe:

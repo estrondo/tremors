@@ -1,9 +1,8 @@
 package testkit.graboid.protocol
 
 import graboid.protocol.GraboidCommandResult
-
-import testkit.core.*
 import scala.util.Random
+import testkit.core.*
 
 object GraboidCommandResultFixture:
 

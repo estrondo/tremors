@@ -2,7 +2,6 @@ package graboid.quakeml
 
 import graboid.Crawler
 import quakeml.QuakeMLEvent
-
 import scala.collection.immutable.HashMap
 
 private[quakeml] case class Element(

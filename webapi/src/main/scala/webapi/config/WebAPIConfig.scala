@@ -6,5 +6,6 @@ import zkafka.starter.KafkaConfig
 case class WebAPIConfig(
     arango: ArangoConfig,
     kafka: KafkaConfig,
-    service: ServiceConfig
+    service: ServiceConfig,
+    openid: OpenIDConfig
 )

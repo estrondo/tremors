@@ -8,15 +8,14 @@ import graboid.Publisher
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
 import io.github.arainko.ducktape.into
+import java.lang.{Long => JLong}
+import java.net.URL
+import java.time.ZonedDateTime
 import zio.Cause
 import zio.Task
 import zio.Trace
 import zio.ZIO
 import zio.stream.ZStream
-
-import java.lang.{Long => JLong}
-import java.net.URL
-import java.time.ZonedDateTime
 
 trait PublisherRepository:
 

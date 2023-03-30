@@ -6,10 +6,11 @@ import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
 import quakeml.QuakeMLDetectedEvent
 import testkit.core.createZonedDateTime
-import testkit.quakeml.{QuakeMLEventFixture => QEventFixture}
+import testkit.quakeml.QuakeMLEventFixture as QEventFixture
 import toph.Spec
 import toph.converter.EventDataConverter
 import toph.converter.MagnitudeDataConverter
+import toph.fixture.EventFixture
 import toph.fixture.HypocentreDataFixture
 import toph.repository.EventDataRepository
 import zio.Scope
@@ -17,7 +18,6 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import toph.fixture.EventFixture
 
 object EventDataManagerSpec extends Spec:
 

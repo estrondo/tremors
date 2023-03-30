@@ -1,8 +1,8 @@
 package farango.data
 
-import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.ser.std.StdSerializer
 
 object KeySerializer extends StdSerializer[Key](classOf[Key]):
 

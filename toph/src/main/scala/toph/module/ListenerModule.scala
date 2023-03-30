@@ -1,13 +1,14 @@
 package toph.module
 
-import com.softwaremill.macwire.wire
-import zio.{Task, ZIO}
-import zio.stream.ZStream
-import toph.message.protocol.EventJournalMessage
-import toph.listener.EventListener
-import toph.publisher.EventPublisher
-import toph.kafka.GraboidDetectedEventTopic
 import cbor.quakeml.given
+import com.softwaremill.macwire.wire
+import toph.kafka.GraboidDetectedEventTopic
+import toph.listener.EventListener
+import toph.message.protocol.EventJournalMessage
+import toph.publisher.EventPublisher
+import zio.Task
+import zio.ZIO
+import zio.stream.ZStream
 
 trait ListenerModule:
 

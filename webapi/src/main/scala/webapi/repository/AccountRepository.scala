@@ -2,17 +2,16 @@ package webapi.repository
 
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
+import farango.UpdateReturn
 import farango.data.Key
 import farango.data.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
+import java.time.ZonedDateTime
 import webapi.model.Account
 import zio.Task
 import zio.ZIO
-
-import java.time.ZonedDateTime
-import farango.UpdateReturn
 
 trait AccountRepository:
 

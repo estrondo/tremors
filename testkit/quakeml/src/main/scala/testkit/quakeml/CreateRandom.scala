@@ -1,8 +1,7 @@
 package testkit.quakeml
 
-import quakeml.*
-
 import java.util.UUID
+import quakeml.*
 import scala.util.Random
 
 def createRandomString(): String =

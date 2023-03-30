@@ -1,11 +1,11 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import zkafka.KafkaSubscriber
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
 import zio.Task
 import zio.ZIO
+import zkafka.KafkaSubscriber
 
 trait CommandListener extends KafkaSubscriber[GraboidCommand, GraboidCommandResult]
 

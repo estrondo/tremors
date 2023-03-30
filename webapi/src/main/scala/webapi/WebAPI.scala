@@ -1,15 +1,16 @@
 package webapi
 
 import webapi.module.ConfigModule
+import webapi.module.CoreModule
 import webapi.module.FarangoModule
 import webapi.module.KafkaModule
+import webapi.module.OpenIDModule
+import webapi.module.RepositoryModule
+import webapi.module.ServiceModule
 import zio.Scope
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
-import webapi.module.ServiceModule
-import webapi.module.CoreModule
-import webapi.module.RepositoryModule
 import zio.ZLayer
 import zio.logging.backend.SLF4J
 
@@ -25,7 +26,8 @@ object WebAPI extends ZIOAppDefault:
       kafkaManager     <- KafkaModule(config.kafka)
       repositoryModule <- RepositoryModule(farangoModule)
       coreModule       <- CoreModule(repositoryModule)
-      serviceModule    <- ServiceModule(config.service, coreModule)
+      openIDModule     <- OpenIDModule(config.openid)
+      serviceModule    <- ServiceModule(config.service, coreModule, openIDModule)
       _                <- ZIO.logInfo("🐧 Tremors WebAPI is ready. Grab your popcorn, soda and enjoy it!")
       _                <- serviceModule.server.launch
     yield exit

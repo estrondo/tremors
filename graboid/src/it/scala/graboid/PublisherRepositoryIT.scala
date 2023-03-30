@@ -5,6 +5,8 @@ import farango.Database
 import farango.DocumentCollection
 import farango.zio.ZEffect
 import graboid.fixture.PublisherFixture
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
 import zio.RLayer
@@ -15,9 +17,6 @@ import zio.ZLayer
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import java.time.temporal.ChronoField
-import java.time.temporal.ChronoUnit
 
 object PublisherRepositoryIT extends IT:
 

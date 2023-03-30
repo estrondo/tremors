@@ -2,17 +2,17 @@ package toph.publisher
 
 import com.softwaremill.macwire.wire
 import toph.converter.EventJournalMessageConverter
+import toph.kafka.TophEventJournalTopic
 import toph.message.protocol.EventJournalMessage
+import toph.model.data.EventData
+import toph.model.data.HypocentreData
+import toph.model.data.MagnitudeData
 import zio.Queue
 import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
 import zkafka.KafkaMessage
 import zkafka.KafkaProducer
-import toph.kafka.TophEventJournalTopic
-import toph.model.data.EventData
-import toph.model.data.HypocentreData
-import toph.model.data.MagnitudeData
 
 trait EventPublisher extends KafkaProducer[(EventData, Seq[HypocentreData], Seq[MagnitudeData]), EventJournalMessage]
 

@@ -3,7 +3,6 @@ package graboid
 import graboid.protocol.PublisherDescriptor
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
-
 import java.net.URL
 import java.time.ZonedDateTime
 import zio.logging.LogAnnotation

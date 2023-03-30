@@ -1,12 +1,12 @@
 package toph.module
 
 import com.softwaremill.macwire.wire
+import core.KeyGenerator
 import toph.manager.EventDataManager
 import toph.manager.MagnitudeDataManager
 import toph.manager.SpatialManager
 import zio.Task
 import zio.ZIO
-import core.KeyGenerator
 
 trait CoreModule:
 

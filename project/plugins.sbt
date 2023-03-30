@@ -6,6 +6,6 @@ addSbtPlugin("org.scalameta"  % "sbt-scalafmt"        % "2.4.6")
 
 addDependencyTreePlugin
 
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.2")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6")
 
-libraryDependencies += "com.thesamet.scalapb.zio-grpc" %% "zio-grpc-codegen" % "0.6.0-rc2"
+libraryDependencies += "com.thesamet.scalapb.zio-grpc" %% "zio-grpc-codegen" % "0.6.0-rc5"

@@ -3,12 +3,13 @@ package testkit.zio.testcontainers
 import com.dimafeng.testcontainers.KafkaContainer
 import com.github.dockerjava.api.model.Task
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.producer.RecordMetadata
 import org.testcontainers.utility.DockerImageName
 import zio.RIO
-import zio.UIO
 import zio.RLayer
 import zio.Scope
 import zio.TaskLayer
+import zio.UIO
 import zio.ZIO
 import zio.ZLayer
 import zio.kafka.consumer.Consumer
@@ -18,7 +19,6 @@ import zio.kafka.producer.Producer
 import zio.kafka.producer.ProducerSettings
 import zio.kafka.serde.Serde
 import zio.stream.ZStream
-import org.apache.kafka.clients.producer.RecordMetadata
 
 object KafkaLayer:
 
@@ -41,8 +41,7 @@ object KafkaLayer:
   ): UIO[ZStream[KafkaContainer & Scope, Throwable, ConsumerRecord[String, Array[Byte]]]] =
     ZIO.succeed(
       Consumer
-        .subscribeAnd(Subscription.topics(topic))
-        .plainStream(Serde.string, Serde.byteArray)
+        .plainStream(Subscription.topics(topic), Serde.string, Serde.byteArray)
         .map(_.record)
         .provideLayer(createConsumerLayer(groupId, offsetReset))
     )

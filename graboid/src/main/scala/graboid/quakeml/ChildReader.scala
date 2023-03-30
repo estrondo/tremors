@@ -1,5 +1,6 @@
 package graboid.quakeml
 
+import java.time.ZonedDateTime
 import quakeml.QuakeMLComment
 import quakeml.QuakeMLCreationInfo
 import quakeml.QuakeMLEvent
@@ -8,8 +9,6 @@ import quakeml.QuakeMLOrigin
 import quakeml.QuakeMLRealQuantity
 import quakeml.QuakeMLResourceReference
 import quakeml.QuakeMLTimeQuantity
-
-import java.time.ZonedDateTime
 
 private[quakeml] object ChildReader:
 

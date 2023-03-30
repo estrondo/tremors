@@ -78,8 +78,7 @@ object KafkaManager:
     private def createSource[A: Decoder, B](topic: String, subscriber: KafkaSubscriber[A, B]): UIO[SourceStream[B]] =
       ZIO.succeed {
         Consumer
-          .subscribeAnd(Subscription.topics(topic))
-          .plainStream(Serde.string, Serde.byteArray)
+          .plainStream(Subscription.topics(topic), Serde.string, Serde.byteArray)
           .mapZIO(decodeRecord(topic))
           .collectSome
           .mapZIOPar(processors)((offset, key, value) =>
@@ -95,10 +94,10 @@ object KafkaManager:
     ): UIO[Option[B]] =
       subscriber
         .accept(key, value)
-        .tap({
+        .tap {
           case Some(_) => ZIO.logTrace(s"A subscriber of topic=$topic has produced a message for key=$key.")
           case _       => ZIO.logTrace(s"A subscriber of topic=$topic has not produced a message for key=$key.")
-        })
+        }
         .catchAll(handleSubscriberError(topic))
 
     private def consumeAndProduce[B, C: Encoder](

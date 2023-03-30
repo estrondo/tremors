@@ -1,10 +1,10 @@
 package toph.fixture
 
-import testkit.core.createRandomResourceID
+import scala.util.Random
 import testkit.core.createRandomKey
 import testkit.core.createRandomName
+import testkit.core.createRandomResourceID
 import toph.model.data.MagnitudeData
-import scala.util.Random
 
 object MagnitudeDataFixture:
 

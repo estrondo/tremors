@@ -8,8 +8,7 @@ import zio.ZIO
 import zio.ZIOAppArgs
 import zio.config.magnolia.Descriptor
 import zioapp.ZProfile
-
-import ZProfile.given
+import zioapp.ZProfile.given
 
 trait ConfigModule:
   def toph: TophConfig

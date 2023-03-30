@@ -1,8 +1,7 @@
 package toph.query
 
-import org.locationtech.jts.geom.CoordinateSequence
-
 import java.time.ZonedDateTime
+import org.locationtech.jts.geom.CoordinateSequence
 
 case class EventQuery(
     boundary: Option[CoordinateSequence],

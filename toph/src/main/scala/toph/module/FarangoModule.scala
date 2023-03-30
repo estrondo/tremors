@@ -18,7 +18,7 @@ trait FarangoModule:
 object FarangoModule:
 
   def apply(config: ArangoConfig): Task[FarangoModule] =
-    for database <- FarangoStarter(config, Some({ mapper => mapper.registerModule(new JtsModule(GeometryFactory)) }))
+    for database <- FarangoStarter(config, Some { mapper => mapper.registerModule(new JtsModule(GeometryFactory)) })
     yield wire[Impl]
 
   private class Impl(database: Database) extends FarangoModule:

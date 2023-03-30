@@ -1,12 +1,12 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import zio.Task
-import zio.ZIO
-import zio.UIO
-import zio.Fiber
 import graboid.config.CrawlerExecutorConfig
+import zio.Fiber
 import zio.Schedule
+import zio.Task
+import zio.UIO
+import zio.ZIO
 
 trait CrawlerExecutorModule:
 

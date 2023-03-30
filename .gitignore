@@ -49,3 +49,5 @@
 /webapi/.bloop/
 
 /zio-app-starter/target/
+
+/openid/zio/target/

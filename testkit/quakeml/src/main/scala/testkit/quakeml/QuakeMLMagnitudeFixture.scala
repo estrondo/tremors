@@ -1,7 +1,6 @@
 package testkit.quakeml
 
 import quakeml.QuakeMLMagnitude
-
 import scala.util.Random
 
 object QuakeMLMagnitudeFixture:

@@ -4,6 +4,8 @@ import grpc.toph.spatial.{CreationInfo => GRPCCreationInfo}
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
 import io.github.arainko.ducktape.into
+import java.time.Clock
+import java.time.ZonedDateTime
 import org.locationtech.jts.geom.CoordinateSequence
 import quakeml.QuakeMLComment
 import quakeml.QuakeMLEvaluationMode
@@ -14,9 +16,6 @@ import quakeml.QuakeMLTimeQuantity
 import scalapb.UnknownFieldSet
 import toph.geom.CoordinateSequenceFactory
 import toph.model.data.CreationInfoData
-
-import java.time.Clock
-import java.time.ZonedDateTime
 
 val ZoneId = Clock.systemUTC().getZone()
 

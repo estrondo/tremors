@@ -1,5 +1,7 @@
 package webapi.repository
 
+import AlertRepository.Document
+import AlertRepository.given
 import farango.DocumentCollection
 import farango.data.Key
 import farango.zio.given
@@ -17,9 +19,6 @@ import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import AlertRepository.Document
-import AlertRepository.given
 
 object AlertRepositoryIT extends IT:
 
@@ -46,9 +45,9 @@ object AlertRepositoryIT extends IT:
         for
           repository <- RepositoryIT.insertAndReturnRepo(Seq(original))
           updated    <- repository.enable(original.key, false)
-          result     <- ZIO.serviceWithZIO[DocumentCollection]({ collection =>
+          result     <- ZIO.serviceWithZIO[DocumentCollection] { collection =>
                           collection.get[Document](Key.safe(original.key))
-                        })
+                        }
         yield assertTrue(
           result == Some(disabled)
         )
@@ -59,9 +58,9 @@ object AlertRepositoryIT extends IT:
         for
           repository <- RepositoryIT.insertAndReturnRepo(Seq(original))
           updated    <- repository.enable(original.key, true)
-          result     <- ZIO.serviceWithZIO[DocumentCollection]({ collection =>
+          result     <- ZIO.serviceWithZIO[DocumentCollection] { collection =>
                           collection.get[Document](Key.safe(original.key))
-                        })
+                        }
         yield assertTrue(
           result == Some(disabled)
         )

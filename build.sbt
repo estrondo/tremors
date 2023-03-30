@@ -19,29 +19,29 @@ lazy val root = (project in file("."))
     name := "tremors"
   )
   .aggregate(
-    core,
+    `core`,
     `testkit-core`,
     `farango-data`,
     `farango-query`,
     `farango-zio-starter`,
-    cbor,
-    webapi,
+    `cbor`,
+    `webapi`,
     `graboid-protocol`,
     `testkit-graboid-protocol`,
-    graboid,
-    toph,
-    quakeml,
+    `graboid`,
+    `toph`,
+    `quakeml`,
     `cbor-quakeml`,
     `testkit-quakeml`,
     `testkit-zio-testcontainers`,
     `testkit-zio-repository`,
     `testkit-zio-grpc`,
     `zip-app-starter`,
-    zkafka,
+    `zkafka`,
     `ducktape-jts`
   )
 
-lazy val core = (project in file("core"))
+lazy val `core` = (project in file("core"))
   .settings(
     name := "core"
   )
@@ -54,7 +54,7 @@ lazy val `testkit-core` = (project in file("testkit/core"))
     ).flatten
   )
 
-lazy val cbor = (project in file("cbor/core"))
+lazy val `cbor` = (project in file("cbor/core"))
   .settings(
     name := "cbor-core",
     libraryDependencies ++= Seq(
@@ -93,7 +93,7 @@ lazy val `farango-zio-starter` = (project in file("arangodb/farango-zio-starter"
     `farango-data`
   )
 
-lazy val quakeml = (project in file("quakeml"))
+lazy val `quakeml` = (project in file("quakeml"))
   .settings(
     name := "quakeml",
     libraryDependencies ++= Seq(
@@ -106,7 +106,7 @@ lazy val `testkit-quakeml` = (project in file("testkit/quakeml"))
   )
   .dependsOn(
     `testkit-core`,
-    quakeml
+    `quakeml`
   )
 
 lazy val `cbor-quakeml` = (project in file("cbor/quakeml"))
@@ -116,7 +116,7 @@ lazy val `cbor-quakeml` = (project in file("cbor/quakeml"))
       Dependencies.Borer
     ).flatten
   )
-  .dependsOn(quakeml, cbor)
+  .dependsOn(`quakeml`, `cbor`)
 
 lazy val `graboid-protocol` = (project in file("graboid-protocol"))
   .settings(
@@ -126,7 +126,7 @@ lazy val `graboid-protocol` = (project in file("graboid-protocol"))
     ).flatten
   )
   .dependsOn(
-    cbor
+    `cbor`
   )
 
 lazy val `testkit-graboid-protocol` = (project in file("testkit/graboid-protocol"))
@@ -143,10 +143,10 @@ lazy val `toph-message-protocol` = (project in file("toph-message-protocol"))
     name := "toph-message-protocol"
   )
   .dependsOn(
-    cbor
+    `cbor`
   )
 
-lazy val toph = (project in file("toph"))
+lazy val `toph` = (project in file("toph"))
   .settings(
     name                      := "toph",
     libraryDependencies ++= Seq(
@@ -160,7 +160,6 @@ lazy val toph = (project in file("toph"))
       Dependencies.Ducktape,
       Dependencies.Macwire,
       Dependencies.GRPC,
-      Dependencies.ZCache,
       Dependencies.JTS,
       Dependencies.JTSJackson,
       Dependencies.SweetMockito
@@ -188,14 +187,14 @@ lazy val toph = (project in file("toph"))
     dockerAliases ++= Seq(dockerAlias.value.withTag(Some("toph")))
   )
   .dependsOn(
-    core,
+    `core`,
     `zip-app-starter`,
-    quakeml,
+    `quakeml`,
     `cbor-quakeml`,
     `farango-zio-starter`,
     `farango-data`,
     `farango-query`,
-    zkafka,
+    `zkafka`,
     `ducktape-jts`,
     `toph-message-protocol`,
     `testkit-quakeml`            % Test,
@@ -204,7 +203,7 @@ lazy val toph = (project in file("toph"))
     `testkit-zio-grpc`           % Test
   )
 
-lazy val graboid = (project in file("graboid"))
+lazy val `graboid` = (project in file("graboid"))
   .settings(
     name := "graboid",
     libraryDependencies ++= Seq(
@@ -240,13 +239,13 @@ lazy val graboid = (project in file("graboid"))
     dockerAliases ++= Seq(dockerAlias.value.withTag(Some("graboid")))
   )
   .dependsOn(
-    core,
+    `core`,
     `graboid-protocol`,
     `zip-app-starter`,
     `farango-data`,
-    quakeml,
+    `quakeml`,
     `cbor-quakeml`,
-    zkafka,
+    `zkafka`,
     `farango-zio-starter`,
     `testkit-quakeml`            % Test,
     `testkit-zio-testcontainers` % Test,
@@ -295,19 +294,21 @@ lazy val `testkit-zio-grpc` = (project in file("testkit/zio-grpc"))
     )
   )
 
-lazy val webapi = (project in file("webapi"))
+lazy val `webapi` = (project in file("webapi"))
   .settings(
     name                      := "webapi",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
       Dependencies.ZIOLogging,
+      Dependencies.Logging,
       Dependencies.Macwire,
       Dependencies.ZKafka,
       Dependencies.Ducktape,
       Dependencies.SweetMockito,
       Dependencies.Logging,
-      Dependencies.GRPC
+      Dependencies.GRPC,
+      Dependencies.JotawtZIO
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     Compile / PB.targets      := Seq(
@@ -332,11 +333,11 @@ lazy val webapi = (project in file("webapi"))
     dockerAliases ++= Seq(dockerAlias.value.withTag(Some("webapi")))
   )
   .dependsOn(
-    core,
+    `core`,
     `zip-app-starter`,
     `graboid-protocol`,
     `farango-zio-starter`,
-    zkafka,
+    `zkafka`,
     `ducktape-jts`,
     `testkit-graboid-protocol`   % Test,
     `testkit-zio-testcontainers` % Test,

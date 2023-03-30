@@ -1,13 +1,13 @@
 package webapi.service
 
 import core.KeyGenerator
-import grpc.toph.spatial.ZioSpatial.{SpatialServiceClient => TophSpatialServiceClient}
 import grpc.toph.spatial.{Event => TophGRPCEvent}
 import grpc.toph.spatial.{EventQuery => TophGRPCEventQuery}
-import grpc.webapi.spatial.ZioSpatial.SpatialServiceClient
-import grpc.webapi.spatial.ZioSpatial.ZSpatialService
+import grpc.toph.spatial.ZioSpatial.{SpatialServiceClient => TophSpatialServiceClient}
 import grpc.webapi.spatial.{Event => GRPCEvent}
 import grpc.webapi.spatial.{EventQuery => GRPCEventQuery}
+import grpc.webapi.spatial.ZioSpatial.SpatialServiceClient
+import grpc.webapi.spatial.ZioSpatial.ZSpatialService
 import io.bullet.borer.derivation.key
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given

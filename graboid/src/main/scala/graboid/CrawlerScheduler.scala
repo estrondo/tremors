@@ -3,16 +3,15 @@ package graboid
 import com.softwaremill.macwire.wire
 import core.KeyGenerator
 import core.KeyGenerator.KeyLength
-import zio.Task
-import zio.ZIO
-import zio.stream.UStream
-
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalTime
+import java.time.ZonedDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.time.ZonedDateTime
+import zio.Task
+import zio.ZIO
+import zio.stream.UStream
 
 trait CrawlerScheduler:
 

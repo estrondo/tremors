@@ -6,11 +6,10 @@ import farango.data.fromConversion
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
+import java.time.ZonedDateTime
 import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
-
-import java.time.ZonedDateTime
 
 trait CrawlerExecutionRepository:
 

@@ -11,15 +11,14 @@ import graboid.quakeml.QuakeMLParser
 import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
 import io.lemonlabs.uri.config.UriConfig
+import java.net.URI
+import java.net.URL
 import quakeml.QuakeMLDetectedEvent
-import zhttp.http.Response
 import zio.Task
 import zio.ULayer
 import zio.ZIO
+import zio.http.Response
 import zio.stream.ZStream
-
-import java.net.URI
-import java.net.URL
 
 object FDSNCrawler:
 

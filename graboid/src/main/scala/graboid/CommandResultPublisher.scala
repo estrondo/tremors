@@ -1,11 +1,11 @@
 package graboid
 
 import graboid.kafka.GraboidCommandResultTopic
-import zkafka.KafkaMessage
-import zkafka.KafkaProducer
 import graboid.protocol.GraboidCommandResult
 import zio.Task
 import zio.ZIO
+import zkafka.KafkaMessage
+import zkafka.KafkaProducer
 
 trait CommandResultPublisher extends KafkaProducer[GraboidCommandResult, GraboidCommandResult]
 

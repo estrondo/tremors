@@ -1,13 +1,11 @@
 package farango.query
 
+import ForQuery.*
 import farango.Database
 import farango.Effect
 import farango.EffectConversion
 import farango.EffectStream
-
 import scala.reflect.ClassTag
-
-import ForQuery.*
 
 object ForQuery:
 

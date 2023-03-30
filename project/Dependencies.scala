@@ -2,39 +2,40 @@ import sbt._
 
 object Dependencies {
 
-  val ZHttpVersion            = "2.0.0-RC11"
-  val ZKafkaVersion           = "2.0.7"
-  val ZIOVersion              = "2.0.8"
-  val ZIOLoggingVersion       = "2.1.9"
+  val ZHttpVersion            = "0.0.5"
+  val ZIOKafkaVersion         = "2.2"
+  val ZIOVersion              = "2.0.12"
+  val ZIOLoggingVersion       = "2.1.12"
   val ZIOConfigVersion        = "3.0.7"
   val ZIOMockVersion          = "1.0.0-RC8"
-  val ZIOKafkaVersion         = "2.0.7"
   val MUnitVersion            = "1.0.0-M6"
   val MUnitZIOVersion         = "0.1.0"
   val LemonScalaUriVersion    = "4.0.3"
-  val Log4j2Version           = "2.19.0"
+  val Log4j2Version           = "2.20.0"
   val SLF4jVersion            = "2.0.3"
   val AaltoXmlVersion         = "1.3.2"
-  val MockitoVersion          = "4.8.0"
-  val ArangoDBVersion         = "6.20.0"
-  val ArangoVelocypackVersion = "3.0.1"
+  val MockitoVersion          = "5.3.0"
+  val ArangoDBVersion         = "6.21.0"
+  val ArangoVelocypackVersion = "4.0.1"
   val BorerVersion            = "1.10.2"
-  val TestcontainersVersion   = "0.40.12"
+  val TestcontainersVersion   = "0.40.14"
   val MacwireVersion          = "2.5.8"
-  val ZIOJsonVersion          = "0.4.2"
-  val DucktapeVersion         = "0.1.3"
+  val ZIOJsonVersion          = "0.5.0"
+  val DucktapeVersion         = "0.1.4"
   val SweetMockitoVersion     = "1.0.0+3-88ef51e9"
   val ScalaCommonVersion      = "2.3.4"
   val FarangoVersion          = "0.0.1-SNAPSHOT"
   val JacksonVersion          = "2.14.2"
   val JTSVersion              = "1.19.0"
+  val JotawtVersion           = "0.0.1-SNAPSHOT"
 
   val ZHttp = Seq(
-    "io.d11" %% "zhttp" % ZHttpVersion
+    "dev.zio" %% "zio-http"         % ZHttpVersion,
+    "dev.zio" %% "zio-http-testkit" % ZHttpVersion % Test
   )
 
   val ZKafka = Seq(
-    "dev.zio" %% "zio-kafka" % ZKafkaVersion
+    "dev.zio" %% "zio-kafka" % ZIOKafkaVersion
   )
 
   val ZIO = Seq(
@@ -52,7 +53,7 @@ object Dependencies {
 
   val ZIOLogging = Seq(
     "dev.zio" %% "zio-logging"       % ZIOLoggingVersion,
-    "dev.zio" %% "zio-logging-slf4j" % ZIOLoggingVersion
+    "dev.zio" %% "zio-logging-slf4j2" % ZIOLoggingVersion
   )
 
   val ZIOConfig = Seq(
@@ -75,7 +76,7 @@ object Dependencies {
   )
 
   val Logging = Seq(
-    "org.apache.logging.log4j" % "log4j-slf4j-impl" % Log4j2Version
+    "org.apache.logging.log4j" % "log4j-slf4j2-impl" % Log4j2Version
   )
 
   val AaltoXml = Seq(
@@ -126,15 +127,17 @@ object Dependencies {
     "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
   )
 
-  val ZCache = Seq(
-    "dev.zio" %% "zio-cache" % "0.1.5"
-  )
-
   val JTS = Seq(
     "org.locationtech.jts" % "jts-core" % JTSVersion
   )
 
   val JTSJackson = Seq(
     "com.graphhopper.external" % "jackson-datatype-jts" % "2.14"
+  )
+
+  val JotawtZIO = Seq(
+    "one.estrondo" %% "jotawt-scala-jwt-zio" % JotawtVersion,
+    "one.estrondo" %% "jotawt-zio-json"  % JotawtVersion,
+    "one.estrondo" %% "jotawt-zio" % JotawtVersion
   )
 }

@@ -1,9 +1,8 @@
 package toph.model.data
 
+import java.time.ZonedDateTime
 import org.locationtech.jts.geom.Point
 import toph.model.Uncertainty2D
-
-import java.time.ZonedDateTime
 
 case class HypocentreData(
     key: String,

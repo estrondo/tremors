@@ -8,16 +8,15 @@ import farango.query.ForQuery
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
+import java.time.ZonedDateTime
 import org.locationtech.jts.geom.Point
 import toph.model.Event
 import toph.model.data.CreationInfoData
 import toph.query.EventQuery
 import toph.query.toQueriableGeometry
 import zio.Task
-import zio.stream.ZStream
-
-import java.time.ZonedDateTime
 import zio.ZIO
+import zio.stream.ZStream
 
 trait EventRepository:
 

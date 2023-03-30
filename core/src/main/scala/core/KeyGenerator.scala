@@ -1,9 +1,9 @@
 package core
 
-import java.lang.Integer
-import scala.util.Random
-import java.util.concurrent.ThreadLocalRandom
 import core.KeyGenerator.KeyLength
+import java.lang.Integer
+import java.util.concurrent.ThreadLocalRandom
+import scala.util.Random
 
 trait KeyGenerator:
 

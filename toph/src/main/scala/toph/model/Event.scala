@@ -1,9 +1,8 @@
 package toph.model
 
+import java.time.ZonedDateTime
 import org.locationtech.jts.geom.Point
 import toph.model.data.CreationInfoData
-
-import java.time.ZonedDateTime
 
 case class Event(
     key: String,

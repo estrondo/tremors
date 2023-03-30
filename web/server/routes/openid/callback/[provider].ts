@@ -32,6 +32,7 @@ async function handleProvider(name: string, event: H3Event): Promise<void> {
       }
     }
 
+    console.log(tokenSet.id_token)
     await updateSessionAuthInfo(event, newAuthInfo)
     return sendRedirectHome(event)
 

@@ -1,9 +1,8 @@
 package webapi.fixture
 
-import webapi.model.Alert
-
 import testkit.core.createRandomKey
 import testkit.core.createRandomName
+import webapi.model.Alert
 
 object AlertFixture:
 

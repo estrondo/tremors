@@ -1,17 +1,17 @@
 package graboid
 
-import zio.Scope
-
-import zio.test.TestEnvironment
-import one.estrondo.sweetmockito.zio.{SweetMockitoLayer, given}
-import zio.ZIO
-import graboid.command.RunAllPublishersExecutorImpl
-import zio.ZLayer
 import graboid.command.RunAllPublishersExecutor
-import testkit.graboid.protocol.RunAllPublishersFixture
-import zio.test.assertTrue
+import graboid.command.RunAllPublishersExecutorImpl
 import graboid.protocol.GraboidCommandResult
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
+import testkit.graboid.protocol.RunAllPublishersFixture
+import zio.Scope
+import zio.ZIO
+import zio.ZLayer
 import zio.test.TestAspect
+import zio.test.TestEnvironment
+import zio.test.assertTrue
 
 object RunAllPublishersExecutorSpec extends Spec:
 

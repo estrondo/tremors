@@ -2,18 +2,17 @@ package graboid
 
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
+import java.time.LocalTime
+import java.time.OffsetTime
+import java.time.ZonedDateTime
+import scala.annotation.tailrec
 import testkit.core.createZonedDateTime
-import zio.Scope
 import zio.RIO
+import zio.Scope
 import zio.ZIO
 import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import java.time.ZonedDateTime
-import java.time.LocalTime
-import java.time.OffsetTime
-import scala.annotation.tailrec
 
 object CrawlerSchedulerSpec extends Spec:
 

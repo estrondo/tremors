@@ -1,6 +1,7 @@
 package toph.manager
 
 import core.KeyGenerator
+import javax.xml.crypto.dsig.keyinfo.KeyName
 import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
@@ -12,24 +13,22 @@ import testkit.quakeml.QuakeMLRealQuantityFixture
 import toph.Spec
 import toph.converter.HypocentreDataConverter
 import toph.fixture.EventDataFixture
+import toph.fixture.EventFixture
 import toph.fixture.HypocentreDataFixture
 import toph.fixture.MagnitudeDataFixture
 import toph.geom.CoordinateSequenceFactory
 import toph.geom.create
 import toph.model.Event
 import toph.model.Uncertainty2D
-import toph.repository.HypocentreDataRepository
+import toph.query.EventQuery
 import toph.repository.EventRepository
+import toph.repository.HypocentreDataRepository
 import zio.Chunk
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import javax.xml.crypto.dsig.keyinfo.KeyName
-import toph.fixture.EventFixture
-import toph.query.EventQuery
 
 object SpatialManagerSpec extends Spec:
 

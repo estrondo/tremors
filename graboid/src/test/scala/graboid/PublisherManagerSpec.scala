@@ -1,9 +1,15 @@
 package graboid
 
 import cats.syntax.validated
+import core.KeyGenerator
+import graboid.PublisherRepository
 import graboid.fixture.PublisherFixture
-import org.mockito.ArgumentMatchers.any
+import java.io.IOException
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.{eq => eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.never
@@ -15,13 +21,6 @@ import zio.test.Assertion
 import zio.test.TestEnvironment
 import zio.test.assert
 import zio.test.assertTrue
-import core.KeyGenerator
-import java.io.IOException
-import one.estrondo.sweetmockito.zio.SweetMockitoLayer
-import one.estrondo.sweetmockito.zio.given
-import one.estrondo.sweetmockito.SweetMockito
-
-import graboid.PublisherRepository
 object PublisherManagerSpec extends Spec:
 
   override def spec: zio.test.Spec[TestEnvironment & Scope, Any] =

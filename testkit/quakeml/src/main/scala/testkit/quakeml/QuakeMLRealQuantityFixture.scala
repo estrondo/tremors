@@ -1,7 +1,6 @@
 package testkit.quakeml
 
 import quakeml.*
-
 import scala.util.Random
 
 object QuakeMLRealQuantityFixture:

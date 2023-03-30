@@ -1,11 +1,12 @@
 package toph.converter
 
 import grpc.toph.spatial.{EventQuery => GRPCEventQuery}
+import io.github.arainko.ducktape.Field
+import io.github.arainko.ducktape.into
+import org.locationtech.jts.geom.CoordinateSequence
 import toph.query.EventQuery
 import zio.Task
 import zio.ZIO
-import io.github.arainko.ducktape.{into, Field}
-import org.locationtech.jts.geom.CoordinateSequence
 
 object EventQueryConverter:
 

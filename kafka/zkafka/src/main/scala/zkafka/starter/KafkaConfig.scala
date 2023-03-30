@@ -1,8 +1,7 @@
 package zkafka.starter
 
-import zio.config.magnolia.Descriptor
-
 import java.time.Duration
+import zio.config.magnolia.Descriptor
 
 case class KafkaConfig(
     bootstrap: Seq[String],

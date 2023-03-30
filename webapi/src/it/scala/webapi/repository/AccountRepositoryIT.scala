@@ -1,5 +1,6 @@
 package webapi.repository
 
+import AccountRepository.Document
 import farango.DocumentCollection
 import farango.data.Key
 import farango.zio.given
@@ -14,8 +15,6 @@ import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import AccountRepository.Document
 
 object AccountRepositoryIT extends IT:
 

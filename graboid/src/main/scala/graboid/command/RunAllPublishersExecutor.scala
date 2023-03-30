@@ -1,14 +1,14 @@
 package graboid.command
 
-import graboid.protocol.RunAllPublishers
-import graboid.protocol.GraboidCommandResult.Status
-import zio.Task
-import zio.ZIO
-import zio.UIO
-import graboid.PublisherManager
 import graboid.CrawlerExecutor
-import graboid.protocol.GraboidCommandResult
 import graboid.CrawlingReport
+import graboid.PublisherManager
+import graboid.protocol.GraboidCommandResult
+import graboid.protocol.GraboidCommandResult.Status
+import graboid.protocol.RunAllPublishers
+import zio.Task
+import zio.UIO
+import zio.ZIO
 
 trait RunAllPublishersExecutor extends GraboidCommandExecutor[RunAllPublishers]
 

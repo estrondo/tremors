@@ -2,6 +2,7 @@ package testkit.zio.repository
 
 import farango.DocumentCollection
 import farango.zio.given
+import scala.reflect.ClassTag
 import testkit.core.createRandomKey
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
@@ -13,8 +14,6 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.TestResult
 import zio.test.assertTrue
-
-import scala.reflect.ClassTag
 
 type Ret[R] = ZIO[R & DocumentCollection, Throwable, TestResult]
 
@@ -34,7 +33,7 @@ trait RepositoryIT[R, I]:
 
 object RepositoryIT:
 
-  inline transparent def apply[R, I](using inline r: RepositoryIT[R, I]): RepositoryIT[R, I] = r
+  transparent inline def apply[R, I](using repository: RepositoryIT[R, I]): RepositoryIT[R, I] = repository
 
   def of[R: Tag, I](using RepositoryIT[R, I]): TaskLayer[R & DocumentCollection] =
     val layer = ZLayer {

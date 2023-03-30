@@ -1,9 +1,9 @@
 package graboid
 
+import graboid.CommandExecutor
 import graboid.PublisherManager
 import graboid.command.AddPublisherExecutor
 import graboid.command.AddPublisherExecutorImpl
-import graboid.CommandExecutor
 import graboid.fixture.PublisherFixture
 import graboid.mock.PublisherManagerLayer
 import graboid.protocol.GraboidCommandResult

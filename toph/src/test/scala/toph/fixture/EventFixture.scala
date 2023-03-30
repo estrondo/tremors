@@ -1,9 +1,9 @@
 package toph.fixture
 
-import toph.model.Event
+import scala.util.Random
 import testkit.core.createRandomKey
 import testkit.core.createZonedDateTime
-import scala.util.Random
+import toph.model.Event
 
 object EventFixture:
 

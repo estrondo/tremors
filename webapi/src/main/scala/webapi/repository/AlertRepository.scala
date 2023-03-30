@@ -1,7 +1,12 @@
 package webapi.repository
 
 import com.arangodb.model.GeoIndexOptions
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
 import farango.DocumentCollection
+import farango.UpdateReturn
 import farango.data.Key
 import farango.data.given
 import farango.zio.given
@@ -9,6 +14,7 @@ import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import org.locationtech.jts.geom.MultiPolygon
 import webapi.model.Alert
+import webapi.model.Alert.Update
 import webapi.model.Location
 import webapi.model.Location.City
 import webapi.model.Location.Country
@@ -19,13 +25,7 @@ import webapi.model.MagnitudeFilter.Less
 import webapi.model.MagnitudeFilter.Range
 import zio.Task
 import zio.ZIO
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type
-import webapi.model.Alert.Update
 import zio.stream.ZStream
-import farango.UpdateReturn
 
 trait AlertRepository:
 

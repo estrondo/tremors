@@ -1,10 +1,13 @@
 package graboid
 
 import farango.DocumentCollection
+import farango.zio.ZEffect
 import graboid.fixture.PublisherFixture
 import graboid.mock.FarangoDocumentCollectionMockLayer
-import org.mockito.ArgumentMatchers.any
+import one.estrondo.sweetmockito.SweetMockito
+import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.{eq => eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import zio.Runtime
 import zio.Scope
@@ -12,14 +15,10 @@ import zio.ZIO
 import zio.ZLayer
 import zio.logging.backend.SLF4J
 import zio.test.Assertion
+import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
 import zio.test.assertZIO
-import one.estrondo.sweetmockito.SweetMockito
-import one.estrondo.sweetmockito.zio.given
-import farango.DocumentCollection
-import farango.zio.ZEffect
-import zio.test.TestAspect
 
 object PublisherRepositorySpec extends Spec:
 

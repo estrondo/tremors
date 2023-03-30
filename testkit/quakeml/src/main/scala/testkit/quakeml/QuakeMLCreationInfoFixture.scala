@@ -1,10 +1,9 @@
 package testkit.quakeml
 
-import quakeml.QuakeMLCreationInfo
-import quakeml.*
-import testkit.core.createZonedDateTime
-
 import java.time.ZonedDateTime
+import quakeml.*
+import quakeml.QuakeMLCreationInfo
+import testkit.core.createZonedDateTime
 object QuakeMLCreationInfoFixture:
 
   def createRandom() = QuakeMLCreationInfo(

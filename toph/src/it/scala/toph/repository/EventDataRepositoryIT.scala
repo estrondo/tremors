@@ -2,12 +2,14 @@ package toph.repository
 
 import core.KeyGenerator
 import farango.DocumentCollection
+import farango.data.Key
 import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
 import toph.IT
 import toph.fixture.EventDataFixture
+import toph.model.data.EventData
 import toph.repository.EventDataRepository
 import toph.repository.EventDataRepository.Document
 import zio.Scope
@@ -18,8 +20,6 @@ import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import farango.data.Key
-import toph.model.data.EventData
 
 object EventDataRepositoryIT extends IT:
 

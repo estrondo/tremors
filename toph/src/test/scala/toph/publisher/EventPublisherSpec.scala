@@ -3,6 +3,7 @@ package toph.publisher
 import toph.Spec
 import toph.fixture.EventDataFixture
 import toph.fixture.HypocentreDataFixture
+import toph.fixture.MagnitudeDataFixture
 import toph.kafka.TophEventJournalTopic
 import toph.message.protocol.EventJournalMessage
 import toph.message.protocol.NewEvent
@@ -14,7 +15,6 @@ import zio.test.TestEnvironment
 import zio.test.assertTrue
 import zkafka.KafkaManager
 import zkafka.KafkaMessage
-import toph.fixture.MagnitudeDataFixture
 
 object EventPublisherSpec extends Spec:
 

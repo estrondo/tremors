@@ -2,17 +2,16 @@ package toph.repository
 
 import com.softwaremill.macwire.wire
 import farango.DocumentCollection
+import farango.data.Key
 import farango.data.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
-import zio.Task
-import zio.ZIO
-
 import java.time.ZonedDateTime
-import farango.data.Key
 import toph.model.data.CreationInfoData
 import toph.model.data.EventData
+import zio.Task
+import zio.ZIO
 
 trait EventDataRepository:
 

@@ -1,9 +1,8 @@
 package toph.fixture
 
 import org.locationtech.jts.geom.Coordinate
-import toph.geom.GeometryFactory
-
 import scala.util.Random
+import toph.geom.GeometryFactory
 
 object PointFixture:
 

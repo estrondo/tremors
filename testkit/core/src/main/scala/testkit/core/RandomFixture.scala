@@ -1,9 +1,9 @@
 package testkit.core
 
-import scala.util.Random
-import java.time.ZonedDateTime
 import java.time.Clock
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import scala.util.Random
 
 private val Names = IndexedSeq(
   "olivia",

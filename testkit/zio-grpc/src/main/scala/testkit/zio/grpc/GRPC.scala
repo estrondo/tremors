@@ -2,6 +2,8 @@ package testkit.zio.grpc
 
 import io.grpc.ManagedChannelBuilder
 import io.grpc.ServerBuilder
+import java.util.concurrent.atomic.AtomicInteger
+import scala.util.Random
 import scalapb.zio_grpc.Server
 import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ZBindableService
@@ -12,9 +14,6 @@ import zio.RLayer
 import zio.Scope
 import zio.Tag
 import zio.ZIO
-
-import java.util.concurrent.atomic.AtomicInteger
-import scala.util.Random
 
 object GRPC:
 

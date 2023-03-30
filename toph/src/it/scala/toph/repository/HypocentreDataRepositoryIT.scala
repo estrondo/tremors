@@ -1,5 +1,7 @@
 package toph.repository
 
+import HypocentreDataRepository.Document
+import HypocentreDataRepository.given
 import farango.DocumentCollection
 import farango.data.Key
 import farango.zio.given
@@ -9,6 +11,7 @@ import toph.fixture.HypocentreDataFixture
 import toph.fixture.PointFixture
 import toph.geom.CoordinateSequenceFactory
 import toph.geom.create
+import toph.model.data.HypocentreData
 import zio.RIO
 import zio.Scope
 import zio.Task
@@ -18,10 +21,6 @@ import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.TestResult
 import zio.test.assertTrue
-
-import HypocentreDataRepository.given
-import HypocentreDataRepository.Document
-import toph.model.data.HypocentreData
 
 object HypocentreDataRepositoryIT extends IT:
 

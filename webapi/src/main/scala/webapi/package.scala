@@ -1,11 +1,10 @@
 package webapi
 
-import zio.Clock
-import zio.UIO
-
+import java.time.{Clock => JClock}
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.time.{Clock => JClock}
+import zio.Clock
+import zio.UIO
 
 extension (clock: Clock.type)
   def currentZonedDateTime(): UIO[ZonedDateTime] =

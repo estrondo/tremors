@@ -7,13 +7,12 @@ import farango.data.given
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
-import toph.model.data.CreationInfoData
-import toph.model.data.MagnitudeData
-import zio.Task
-
 import java.lang.{Double => JDouble}
 import java.lang.{Long => JLong}
 import java.time.ZonedDateTime
+import toph.model.data.CreationInfoData
+import toph.model.data.MagnitudeData
+import zio.Task
 
 trait MagnitudeDataRepository:
 

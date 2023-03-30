@@ -47,7 +47,7 @@ private[quakeml] object Node:
 
     def nodeFor(childName: String): Node = Skip(childName)
 
-private[quakeml] sealed abstract class Node(val name: String):
+sealed abstract private[quakeml] class Node(val name: String):
 
   def nodeFor(childName: String): Node
 

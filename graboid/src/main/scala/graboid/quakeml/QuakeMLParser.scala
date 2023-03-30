@@ -8,12 +8,6 @@ import graboid.quakeml.Node.EmptyNodeMap
 import graboid.quakeml.Node.Publishable
 import graboid.quakeml.Node.Root
 import graboid.quakeml.Node.Transparent
-import quakeml.QuakeMLDetectedEvent
-import zio.Chunk
-import zio.Task
-import zio.ZIO
-import zio.stream.ZStream
-
 import java.time.ZonedDateTime
 import javax.xml.stream.XMLStreamConstants.CHARACTERS
 import javax.xml.stream.XMLStreamConstants.COMMENT
@@ -21,7 +15,12 @@ import javax.xml.stream.XMLStreamConstants.DTD
 import javax.xml.stream.XMLStreamConstants.END_ELEMENT
 import javax.xml.stream.XMLStreamConstants.START_DOCUMENT
 import javax.xml.stream.XMLStreamConstants.START_ELEMENT
+import quakeml.QuakeMLDetectedEvent
 import scala.annotation.tailrec
+import zio.Chunk
+import zio.Task
+import zio.ZIO
+import zio.stream.ZStream
 
 trait QuakeMLParser:
 

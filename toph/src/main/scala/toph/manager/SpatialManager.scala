@@ -3,21 +3,20 @@ package toph.manager
 import com.softwaremill.macwire.wire
 import core.KeyGenerator
 import quakeml.QuakeMLOrigin
+import scala.collection.immutable.HashMap
+import scala.collection.immutable.HashSet
 import toph.converter.HypocentreDataConverter
 import toph.model.Event
 import toph.model.data.EventData
 import toph.model.data.HypocentreData
 import toph.model.data.MagnitudeData
 import toph.query.EventQuery
-import toph.repository.HypocentreDataRepository
 import toph.repository.EventRepository
+import toph.repository.HypocentreDataRepository
 import zio.Task
 import zio.UIO
 import zio.ZIO
 import zio.stream.ZStream
-
-import scala.collection.immutable.HashMap
-import scala.collection.immutable.HashSet
 
 trait SpatialManager:
 
@@ -137,11 +136,11 @@ object SpatialManager:
 
       val eventWithHypocentres = hypocentreKeys.view
         .map(hypocentreMap.get)
-        .collect({ case Some(value) => (event, Some(value), None) })
+        .collect { case Some(value) => (event, Some(value), None) }
 
       val eventWithMagnitudes = magnitudeKeys.view
         .map(magnitudeMap.get)
-        .collect({ case Some(value) => (event, None, Some(value)) })
+        .collect { case Some(value) => (event, None, Some(value)) }
 
       Seq((event, preferredHypocentre, preferredMagnitude)) ++ eventWithHypocentres ++ eventWithMagnitudes
     }

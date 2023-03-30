@@ -4,18 +4,18 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import webapi.Spec
 import webapi.WebAPIException
-import webapi.fixture.AlertFixture
 import webapi.fixture.AccountFixture
+import webapi.fixture.AlertFixture
+import webapi.model.Alert
 import webapi.repository.AlertRepository
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
+import zio.stream.ZStream
 import zio.test.Assertion
 import zio.test.TestEnvironment
 import zio.test.assert
 import zio.test.assertTrue
-import webapi.model.Alert
-import zio.stream.ZStream
 
 object AlertManagerSpec extends Spec:
 

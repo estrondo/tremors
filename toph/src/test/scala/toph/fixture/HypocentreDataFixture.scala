@@ -5,12 +5,11 @@ import quakeml.QuakeMLOrigin
 import quakeml.QuakeMLRealQuantity
 import quakeml.QuakeMLResourceReference
 import quakeml.QuakeMLTimeQuantity
+import scala.util.Random
 import testkit.core.createRandomResourceID
 import testkit.core.createZonedDateTime
 import testkit.quakeml.QuakeMLRealQuantityFixture
 import toph.model.data.HypocentreData
-
-import scala.util.Random
 
 object HypocentreDataFixture:
 

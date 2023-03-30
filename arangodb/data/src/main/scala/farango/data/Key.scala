@@ -1,8 +1,8 @@
 package farango.data
 
+import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.net.URLDecoder
 
 object Key:
 

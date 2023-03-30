@@ -1,10 +1,9 @@
 package graboid
 
-import zio.Clock
-import zio.UIO
-
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import zio.Clock
+import zio.UIO
 
 object GClock:
 

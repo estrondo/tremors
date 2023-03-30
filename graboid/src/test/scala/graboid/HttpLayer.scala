@@ -1,13 +1,9 @@
 package graboid
 
 import zio.ULayer
-import zhttp.service.ChannelFactory
-import zhttp.service.EventLoopGroup
+import zio.http.Client
 
 object HttpLayer:
 
-  def httpLayer: ULayer[ChannelFactory & EventLoopGroup] =
-    ChannelFactory.nio ++ EventLoopGroup.nio(nThreads = 2)
-
   def serviceLayer: ULayer[HttpService] =
-    HttpService.auto(httpLayer)
+    HttpService.auto(Client.default.orDie)

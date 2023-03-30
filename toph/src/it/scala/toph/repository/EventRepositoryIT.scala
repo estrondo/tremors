@@ -1,5 +1,6 @@
 package toph.repository
 
+import EventRepository.Document
 import farango.DocumentCollection
 import farango.data.Key
 import farango.zio.given
@@ -19,8 +20,6 @@ import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.TestResult
 import zio.test.assertTrue
-
-import EventRepository.Document
 
 object EventRepositoryIT extends IT:
 

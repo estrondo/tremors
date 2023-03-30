@@ -6,9 +6,9 @@ import com.softwaremill.tagging.given
 import farango.DocumentCollection
 import farango.zio.starter.FarangoStarter
 import toph.repository.EventDataRepository
+import toph.repository.EventRepository
 import toph.repository.HypocentreDataRepository
 import toph.repository.MagnitudeDataRepository
-import toph.repository.EventRepository
 import zio.Task
 import zio.ZIO
 

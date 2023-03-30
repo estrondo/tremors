@@ -1,14 +1,17 @@
 package webapi.service
 
 import core.KeyGenerator
+import grpc.webapi.account.{Account => GRPCAccount}
 import grpc.webapi.account.AccountKey
 import grpc.webapi.account.AccountReponse
 import grpc.webapi.account.AccountUpdate
 import grpc.webapi.account.ZioAccount.AccountServiceClient
 import grpc.webapi.account.ZioAccount.ZAccountService
-import grpc.webapi.account.{Account => GRPCAccount}
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
+import scala.annotation.newMain
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
 import testkit.zio.grpc.GRPC
@@ -16,6 +19,8 @@ import webapi.IT
 import webapi.fixture.AccountFixture
 import webapi.manager.AccountManager
 import webapi.model.Account
+import webapi.model.UserClaims
+import zio.RIO
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -25,9 +30,6 @@ import zio.test.TestAspect
 import zio.test.TestClock
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-
-import scala.annotation.newMain
-import org.mockito.Mockito
 
 object AccountServiceIT extends IT:
 
@@ -43,6 +45,8 @@ object AccountServiceIT extends IT:
           name = account.name
         )
 
+        val claims = UserClaims(email = Some(request.email))
+
         for
           _       <- SweetMockitoLayer[AccountManager]
                        .whenF2(_.add(account))
@@ -51,6 +55,7 @@ object AccountServiceIT extends IT:
           channel <- GRPC.createChannel
           _       <- TestClock.setTime(account.createdAt.toInstant())
           client  <- AccountServiceClient.scoped(channel)
+          _       <- useClaims(claims)
           result  <- client.create(request)
         yield assertTrue(
           result == AccountReponse(account.email)
@@ -60,6 +65,7 @@ object AccountServiceIT extends IT:
         val account = AccountFixture.createRandom()
 
         val request = AccountUpdate(email = account.email, newName = Some(account.name + "@"))
+        val claims  = UserClaims(email = Some(request.email))
 
         for
           channel <- GRPC.createChannel
@@ -67,6 +73,7 @@ object AccountServiceIT extends IT:
           _       <- SweetMockitoLayer[AccountManager]
                        .whenF2(_.update(account.email, Account.Update(name = account.name + "@")))
                        .thenReturn(Some(account))
+          _       <- useClaims(claims)
           result  <- client.update(request)
         yield assertTrue(
           result == AccountReponse(account.email)
@@ -75,6 +82,7 @@ object AccountServiceIT extends IT:
       test("It should remove an account.") {
         val account = AccountFixture.createRandom()
         val request = AccountKey(email = account.email)
+        val claims  = UserClaims(email = Some(request.email))
 
         for
           channel <- GRPC.createChannel
@@ -82,6 +90,7 @@ object AccountServiceIT extends IT:
           _       <- SweetMockitoLayer[AccountManager]
                        .whenF2(_.remove(account.email))
                        .thenReturn(Some(account))
+          _       <- useClaims(claims)
           result  <- client.remove(request)
         yield assertTrue(
           result == AccountReponse(account.email)
@@ -90,6 +99,13 @@ object AccountServiceIT extends IT:
     ).provideSome[Scope](
       SweetMockitoLayer.newMockLayer[AccountManager],
       SweetMockitoLayer.newMockLayer[KeyGenerator],
+      SweetMockitoLayer.newMockLayer[Any => UserClaims],
       GRPC.serverLayerFor[ZAccountService[RequestContext]],
-      ZLayer(AccountService())
+      ZLayer(ZIO.serviceWithZIO[Any => UserClaims](fn => AccountService().map(_.transformContext(fn))))
     ) @@ TestAspect.sequential
+
+  private def useClaims(claims: UserClaims): RIO[Any => UserClaims, UserClaims] =
+    ZIO.serviceWith[Any => UserClaims] { fn =>
+      Mockito.when(fn.apply(any())).thenReturn(claims)
+      claims
+    }

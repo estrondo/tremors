@@ -1,7 +1,7 @@
 package testkit.quakeml
 
-import quakeml.QuakeMLEvent
 import quakeml.*
+import quakeml.QuakeMLEvent
 object QuakeMLEventFixture:
 
   def createRandom() = QuakeMLEvent(

@@ -1,17 +1,17 @@
 package toph.repository
 
-import toph.Spec
-import zio.Scope
-import zio.test.TestEnvironment
-import testkit.zio.repository.RepositoryIT
+import MagnitudeDataRepository.Document
 import farango.DocumentCollection
+import farango.data.Key
+import farango.zio.given
+import testkit.zio.repository.RepositoryIT
+import toph.Spec
+import toph.fixture.MagnitudeDataFixture
+import toph.model.data.MagnitudeData
+import zio.Scope
 import zio.Task
 import zio.ZIO
-import MagnitudeDataRepository.Document
-import farango.zio.given
-import toph.fixture.MagnitudeDataFixture
-import farango.data.Key
-import toph.model.data.MagnitudeData
+import zio.test.TestEnvironment
 
 object MagnitudeDataRepositoryIT extends Spec:
 
