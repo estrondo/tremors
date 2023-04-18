@@ -95,6 +95,23 @@ object AccountServiceIT extends IT:
         yield assertTrue(
           result == AccountReponse(account.email)
         )
+      },
+      test("It should get an account.") {
+        val account = AccountFixture.createRandom()
+        val request = AccountKey(email = account.email)
+        val claims  = UserClaims(email = Some(request.email))
+
+        for
+          channel <- GRPC.createChannel
+          client  <- AccountServiceClient.scoped(channel)
+          _       <- SweetMockitoLayer[AccountManager]
+                       .whenF2(_.get(account.email))
+                       .thenReturn(Some(account))
+          _       <- useClaims(claims)
+          result  <- client.get(request)
+        yield assertTrue(
+          result == GRPCAccount(name = account.name, email = account.email)
+        )
       }
     ).provideSome[Scope](
       SweetMockitoLayer.newMockLayer[AccountManager],

@@ -8,7 +8,7 @@ export function createCache<T>(name: string, factory: () => Promise<T>, ttl: num
 
   function clearCache() {
     cached = UNRESOLVED
-    console.log(`cleaned: ${name}.`)
+    console.debug(`cache-cleaned: ${name}.`)
     timeoutId = null
   }
 
@@ -17,23 +17,24 @@ export function createCache<T>(name: string, factory: () => Promise<T>, ttl: num
       cached = await factory()
       promise = null
       scheduleCleaning()
-      console.log(`resolved: ${name}.`)
+      console.log(`cache-resolved: ${name}.`)
       return cached
     } catch (reason) {
       if (count < attempts) {
-        console.error(`It was impossible to cache a value for ${name}. Trying one more time ${count + 1} of ${attempts}.`, reason)
+        console.error(`cache-missed: ${name}.`, reason)
         return tryResolve(count + 1)
       } else {
         promise = null
-        console.log(`failed: ${name}.`)
+        console.error(`cache-failed: ${name}.`, reason)
         throw reason
       }
     }
   }
 
   function scheduleCleaning() {
-    if (timeoutId !== null)
+    if (timeoutId !== null) {
       clearTimeout(timeoutId)
+    }
 
     timeoutId = setTimeout(clearCache, ttl)
   }

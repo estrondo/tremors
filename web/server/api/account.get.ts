@@ -1,14 +1,11 @@
-import { accountServiceClient } from '../utils/grpc/account'
-import { Account__Output } from '../utils/@types/grpc/webapi/Account'
-
 export default defineEventHandler(async (event) => {
-  const authInfo = await getSessionAuthInfo(event)
+  const session = await sessionManager.get(event, current => openIdService.refresh(current))
 
-  if (authInfo.token?.access && authInfo.provider) {
-    console.log('Loading account data.')
-    return await grpcPromiseOf<Account__Output>(callback => accountServiceClient.get({ email: authInfo.user?.email }, callback))
+  if (session) {
+    console.debug('Getting account for email %s.', session.user?.email)
+    return await accountService.check(session, true)
   } else {
-    console.log('There is no access token and provider information.')
+    console.warn('There is no auth information!')
     return {}
   }
 })

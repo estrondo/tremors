@@ -11,6 +11,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext
 import webapi.converter.AccountConverter
+import webapi.converter.GRPCAccountConverter
 import webapi.manager.AccountManager
 import webapi.model.Account
 import webapi.model.UserClaims
@@ -33,18 +34,33 @@ object AccountService:
         claims: UserClaims
     ): IO[StatusException, AccountReponse] =
       for
-        _ <- checkUserClaims(claims, request.email)
+        _ <- checkClaims(claims, request.email)
         _ <- manager
                .activate(request.email, request.code)
                .tapErrorCause(ZIO.logErrorCause(s"It was impossible to activate account ${request.email}!", _))
                .mapError(_ => Status.INTERNAL.asException)
       yield AccountReponse(email = request.email)
 
-    override def get(request: AccountKey, claims: UserClaims): IO[StatusException, GRPCAccount] = ???
+    override def get(request: AccountKey, claims: UserClaims): IO[StatusException, GRPCAccount] =
+      for
+        _        <- checkClaims(claims, request.email)
+        account  <-
+          manager
+            .get(request.email)
+            .mapError(
+              Status.INTERNAL.withDescription("It was impossible to read the account data!").withCause(_).asException()
+            )
+            .someOrFail(Status.NOT_FOUND.asException())
+            .tapErrorCause(ZIO.logWarningCause("Error ocurred while getting account data!", _))
+        response <- GRPCAccountConverter
+                      .from(account)
+                      .tapErrorCause(ZIO.logErrorCause("An error ocurred while converting Account -> GRPCAccount!", _))
+                      .mapError(Status.INTERNAL.withCause(_).asException())
+      yield response
 
     override def create(request: GRPCAccount, claims: UserClaims): IO[StatusException, AccountReponse] =
       for
-        _       <- checkUserClaims(claims, request.email)
+        _       <- checkClaims(claims, request.email)
         account <- AccountConverter
                      .from(request, keyGenerator)
                      .tapErrorCause(ZIO.logErrorCause("It was impossible to read the request!", _))
@@ -57,7 +73,7 @@ object AccountService:
 
     override def remove(request: AccountKey, claims: UserClaims): IO[StatusException, AccountReponse] =
       for
-        _       <- checkUserClaims(claims, request.email)
+        _       <- checkClaims(claims, request.email)
         opt     <- manager
                      .remove(request.email)
                      .tapErrorCause(ZIO.logErrorCause("It was impossible to remove account.", _))
@@ -71,7 +87,7 @@ object AccountService:
       request.newName match
         case Some(newName) =>
           for
-            _      <- checkUserClaims(claims, request.email)
+            _      <- checkClaims(claims, request.email)
             opt    <- manager
                         .update(request.email, Account.Update(newName))
                         .tapErrorCause(ZIO.logErrorCause(s"It was impossible to update account ${request.email}!", _))
@@ -82,7 +98,7 @@ object AccountService:
           yield result
         case _             => ZIO.fail(Status.INVALID_ARGUMENT.asException)
 
-    private def checkUserClaims(claims: UserClaims, email: String): IO[StatusException, UserClaims] =
+    private def checkClaims(claims: UserClaims, email: String): IO[StatusException, UserClaims] =
       claims.email match
         case Some(value) if value == email => ZIO.succeed(claims)
         case _                             => ZIO.fail(StatusException(Status.PERMISSION_DENIED))
