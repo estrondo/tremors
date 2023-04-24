@@ -4,7 +4,7 @@ const properties = defineProps(['name'])
 const globeViewElement = shallowRef<HTMLDivElement>()
 const globeViewRef = shallowRef<GlobeView>()
 const globeViewControlsRef = shallowRef<GlobeControls>()
-const initialCameraTarget = loadInitialCameraTarget(properties.name)
+const initialCameraTarget = loadConfiguredCameraTarget(properties.name)
 
 provide(ITOWNS_GLOBEVIEW, globeViewRef)
 provide(ITOWNS_GLOBEVIEW_CONTROLS, globeViewControlsRef)

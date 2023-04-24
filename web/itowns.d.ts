@@ -1,7 +1,7 @@
 declare const itowns: any
 
 declare type CameraPlacement = {
-
+  [name: string]: any
 }
 
 declare interface EventDispatcher {

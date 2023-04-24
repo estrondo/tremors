@@ -11,5 +11,5 @@ export function useRedirectToLogout() {
 }
 
 export function useIsLogged() {
-  return Cookies.get(cookieIsLoggedName) == 'true'
+  return Cookies.get(cookieIsLoggedName) === 'true'
 }

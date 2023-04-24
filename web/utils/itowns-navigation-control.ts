@@ -1,7 +1,5 @@
 import { CameraTarget } from './itowns-base'
 
-const pickedPosition = new itowns.THREE.Vector3()
-
 export class NavigationControl {
 
   private undoStack: Stack<CameraTarget>
@@ -63,7 +61,7 @@ export class NavigationControl {
     this.undoStack.add(this.popCameraTarget())
     const controls = this.controls
     const cameraPlacement = itowns.CameraUtils.getTransformCameraLookingAtTarget(controls.view, controls.camera)
-    this.cameraTarget = eventToCameraTarget(cameraPlacement)
+    this.cameraTarget = toCameraTarget.fromCameraPlacement(cameraPlacement)
     this.redoStack.clean()
     this.view.dispatchEvent({
       type: 'camera-placement-changed',

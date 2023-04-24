@@ -1,5 +1,5 @@
 export default defineAppConfig({
-  map: {
+  'globe-view': {
     main: {
       initialTarget: {
         crs: "EPSG:4978",

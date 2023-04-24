@@ -6,7 +6,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "prepare": "nuxt prepare",
-    "clean": "nuxt clean"
+    "clean": "nuxt clean",
+    "typecheck": "nuxt typecheck"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.3",

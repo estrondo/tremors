@@ -1,24 +1,17 @@
-import { CameraTarget } from './itowns-base'
-import { NavigationControl } from './itowns-navigation-control'
-
-export function useGlobeViewControl(ref: Ref<GlobeControls>, initialTarget?: CameraTarget) {
-  return new GlobeViewControl(ref, {
-    stackSize: 32,
-    initialTarget: initialTarget
-  })
-}
+import { CameraTarget } from '~~/utils/itowns-base'
+import { NavigationControl } from "./itowns-navigation-control"
 
 interface GlobeViewControlOptions {
   stackSize: number,
   initialTarget?: CameraTarget
 }
 
-class GlobeViewControl {
+export class GlobeViewControl {
 
   private ref: Ref<any>
   private navigationControl?: NavigationControl
 
-  constructor(ref: Ref<any>, options: GlobeViewControlOptions) {
+  constructor(ref: Ref<GlobeControls>, options: GlobeViewControlOptions) {
     this.ref = ref
 
     watchEffect(() => {
