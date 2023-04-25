@@ -5,7 +5,7 @@ const dialog = shallowRef<HTMLDivElement>()
 const dialogTitle = shallowRef<HTMLDivElement>()
 
 onMounted(() => {
-  useDraggable(dialogTitle.value as HTMLDivElement, dialog.value as HTMLDivElement, properties.storedName)
+  useDraggable(dialogTitle.value as HTMLDivElement, dialog.value as HTMLDivElement, properties.storedName, document.body)
 })
 
 function show() {
