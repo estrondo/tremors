@@ -16,34 +16,34 @@ function showDialog(dialogComponent: any) {
 <template lang="pug">
 .view-toolbox
   button.account(@click='showDialog(accountDialog)')
-    span.tooltip Tooltip Text
+    span.tooltip Account Management
 
   button.undo(@click='globeViewControl.undo()')
-    span.tooltip Tooltip Text
+    span.tooltip Go to previous
 
   button.redo(@click='globeViewControl.redo()')
-    span.tooltip Tooltip Text
+    span.tooltip Go to next
 
   button.zoom-in(@click='globeViewControl.zoomIn()')
-    span.tooltip Tooltip Text
+    span.tooltip Zoom in
 
   button.zoom-out(@click='globeViewControl.zoomOut()')
-    span.tooltip Tooltip Text
+    span.tooltip Zoom out
 
   button.zoom-reset(@click='globeViewControl.reset()')
-    span.tooltip Tooltip Text
+    span.tooltip Reset zoom
 
   button.layer
-    span.tooltip Tooltip Text
+    span.tooltip Layers Management
 
   button.alert
-    span.tooltip Tooltip Text
+    span.tooltip Alerts Management
 
   button.search
-    span.tooltip Tooltip Text
+    span.tooltip Events searching
 
   button.about
-    span.tooltip Tooltip Text
+    span.tooltip About Tremors
 
 Dialog(title='Account Manager', ref='accountDialog', stored-name='account')
   AccountManager
