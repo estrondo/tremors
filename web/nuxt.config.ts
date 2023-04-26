@@ -3,6 +3,27 @@
 // https://developers.google.com/identity/openid-connect/openid-connect#discovery
 
 export default defineNuxtConfig({
+  modules: [
+    '@nuxtjs/i18n'
+  ],
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      {
+        code: 'en',
+        name: 'English'
+      },
+      {
+        code: 'pt',
+        name: 'Português'
+      }
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n',
+      redirectOn: 'root'
+    }
+  },
   ssr: false,
   css: [
     "@/assets/style/main.less"

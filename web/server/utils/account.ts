@@ -24,6 +24,7 @@ class AccountService {
       if (create && error.code === grpc.status.NOT_FOUND) {
         console.warn('Trying to create an account for %s.', session.user?.email)
         await this.create(session)
+        console.debug('Account for %s was created.', session.user?.email)
         return this.get(session)
       } else {
         throw error

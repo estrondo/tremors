@@ -16,36 +16,36 @@ function showDialog(dialogComponent: any) {
 <template lang="pug">
 .view-toolbox
   button.account(@click='showDialog(accountDialog)')
-    span.tooltip Account Management
+    span.tooltip {{ $t('toolbox.tip.account') }}
 
   button.undo(@click='globeViewControl.undo()')
-    span.tooltip Go to previous
+    span.tooltip {{ $t('toolbox.tip.undo') }}
 
   button.redo(@click='globeViewControl.redo()')
-    span.tooltip Go to next
+    span.tooltip {{ $t('toolbox.tip.redo') }}
 
   button.zoom-in(@click='globeViewControl.zoomIn()')
-    span.tooltip Zoom in
+    span.tooltip {{ $t('toolbox.tip.zoomIn') }}
 
   button.zoom-out(@click='globeViewControl.zoomOut()')
-    span.tooltip Zoom out
+    span.tooltip {{ $t('toolbox.tip.zoomOut') }}
 
   button.zoom-reset(@click='globeViewControl.reset()')
-    span.tooltip Reset zoom
+    span.tooltip {{ $t('toolbox.tip.zoomReset') }}
 
   button.layer
-    span.tooltip Layers Management
+    span.tooltip {{ $t('toolbox.tip.layer') }}
 
   button.alert
-    span.tooltip Alerts Management
+    span.tooltip {{ $t('toolbox.tip.search') }}
 
   button.search
-    span.tooltip Events searching
+    span.tooltip {{ $t('toolbox.tip.alert') }}
 
   button.about
-    span.tooltip About Tremors
+    span.tooltip {{ $t('toolbox.tip.about') }}
 
-Dialog(title='Account Manager', ref='accountDialog', stored-name='account')
+Dialog(:title='$t("account.dialog.title")', ref='accountDialog', stored-name='account')
   AccountManager
 
 </template>

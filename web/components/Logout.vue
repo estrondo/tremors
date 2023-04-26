@@ -3,5 +3,5 @@
   button(@click="useRedirectToLogout()")
     .icon
     .
-      Logout
+      {{ $t('account.logout') }}
 </template>
