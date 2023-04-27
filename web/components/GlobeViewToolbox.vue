@@ -36,10 +36,10 @@ function showDialog(dialogComponent: any) {
   button.layer
     span.tooltip {{ $t('toolbox.tip.layer') }}
 
-  button.alert
+  button.search
     span.tooltip {{ $t('toolbox.tip.search') }}
 
-  button.search
+  button.alert
     span.tooltip {{ $t('toolbox.tip.alert') }}
 
   button.about

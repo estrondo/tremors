@@ -67,6 +67,10 @@ export default defineI18nConfig((nuxt) => ({
         pt: 'Desconectar'
       },
       editor: {
+        loading: {
+          en: 'Loading account data.',
+          pt: 'Carregando dados da conta.'
+        },
         name: {
           en: 'Name',
           pt: 'Nome'

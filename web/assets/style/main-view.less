@@ -1,0 +1,76 @@
+div.main-view {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+
+  .globe-view {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+img.logo {
+  background-color: #fff;
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 100;
+}
+
+select.lang-switcher {
+  position: fixed;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  z-index: 100;
+}
+
+div.view-toolbox {
+  box-shadow: 0.1rem 0.1rem 0.3rem @toolbox-box-shadow-color;
+  border: 1px solid @toolbox-border-color;
+  position: fixed;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  min-width: 600px;
+  z-index: 10;
+
+  button {
+    background-color: @toolbox-button-background-color;
+    background-image: url("images/map-toolbox.png");
+    display: block;
+    float: left;
+    width: 60px;
+    height: 60px;
+    position: relative;
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+    cursor: pointer;
+
+    span.tooltip {
+      background-color: @tooltip-background-color;
+      color: @tooltip-color;
+      display: none;
+      position: absolute;
+      white-space: nowrap;
+      padding: 0.6rem;
+      top: -3rem;
+      left: 0px
+    }
+
+    &:hover {
+      background-color: @toolbox-button-background-color-hover;
+
+      span.tooltip {
+        display: block;
+      }
+    }
+
+    @buttons: account, undo, redo, zoom-in, zoom-out, zoom-reset, layer, search, alert, about;
+    each(@buttons, {
+      &.@{value} {
+        background-position-x: (@index - 1) * -60px;
+        background-position-y: 0px;
+      }
+    });
+  }
+}

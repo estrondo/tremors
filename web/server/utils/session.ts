@@ -134,7 +134,9 @@ class SessionManager {
 
     await Promise.all([
       updateUser(wrap(session.user)),
-      updateGeneral(wrap(session.provider)),
+      updateGeneral(wrap({
+        provider: session.provider
+      })),
       updateId(wrap(session.token.id)),
       updateRefresh(wrap(session.token.refresh)),
       updateExpireAt(wrap(session.token.expireAt))

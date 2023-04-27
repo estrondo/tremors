@@ -3,7 +3,11 @@
 
 <template lang="pug">
 .login-method
-  button.google(@click="useRedirectToLogin('google')") {{ $t('login.with-google') }}
-  button.microsoft(@click="useRedirectToLogin('microsoft')") {{ $t('login.with-microsoft') }}
+  button.google(@click="useRedirectToLogin('google')")
+    .icon
+    span {{ $t('login.with-google') }}
+  button.microsoft(@click="useRedirectToLogin('microsoft')")
+    .icon
+    span {{ $t('login.with-microsoft') }}
 
 </template>

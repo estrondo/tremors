@@ -35,7 +35,7 @@ defineExpose({
 .dialog(ref="dialog" style="display: none;")
 
   .dialog-title(ref="dialogTitle")
-    span {{ title }}
+    div {{ title }}
     button.close(@click="close()")
 
   .dialog-content

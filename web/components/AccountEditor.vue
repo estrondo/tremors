@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 const { data: account, pending } = useFetch('/api/account')
 
 async function save() {
@@ -14,17 +15,20 @@ async function save() {
 <template lang="pug">
 div  
   form(v-if="pending")
-    span Loading
-  div(v-else)
+    span {{ $t('account.editor.loading') }}
+  div.form.account-editor(v-else)
     .avatar
-      img
+      img(:src="account.avatar")
     .fields
       .field
-        label {{ $t('account.editor.name') }}:
-          input(type="text" v-model="account.name")
+        label 
+          span {{ $t('account.editor.name') }}:
+          input.name(type="text" v-model="account.name")
       .field
-        label {{ $t('account.editor.email') }}:
-          input(type="email" v-model="account.email", disabled)
+        label
+          span {{ $t('account.editor.email') }}:
+          input.email(type="email" v-model="account.email", disabled)
       .controls
+        button.logout(@click.prevent="useRedirectToLogout()") {{ $t('account.logout') }}
         button.save(@click.prevent="save") {{ $t('account.editor.save') }}
 </template>

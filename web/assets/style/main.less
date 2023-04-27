@@ -1,33 +1,28 @@
-@import "variables.less";
-@import "fonts.css";
+@import url("font.css");
+@import url('variables.less');
+@import url('main-view.less');
+@import url('dialog.less');
+@import url('form.less');
+@import url('account.less');
+@import url('ui.less');
+@import url('login.less');
 
 html,
 body,
 div#__nuxt,
 div#__nuxt>div {
   height: 100%;
+  width: 100%;
   margin: 0px;
   padding: 0px;
   overflow: hidden;
 }
 
-html {
+* {
+  font-family: 'Roboto Mono';
   font-size: small;
 }
 
-img.logo {
-  position: fixed;
-  display: block;
-
-  background-color: #ffffff;
-  height: 32px;
-  right: 12px;
-  top: 12px;
-  width: 110px;
-  z-index: 100;
+button {
+  cursor: pointer;
 }
-
-@import "view.less";
-@import "lang.less";
-@import "dialog.less";
-@import "login.less";

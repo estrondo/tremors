@@ -1,50 +1,42 @@
 div.dialog {
-  z-index: @z-index-dialog;
+  // background-color: @dialog-background-color;
+  background: linear-gradient(to right, @dialog-background-color-border, @dialog-background-color-center, @dialog-background-color-border);
+  box-shadow: 0.2rem 0.2rem  0.4rem @dialog-box-shadow;
   position: absolute;
+  bottom: 66px;
+  left: 60px;
+  padding: 0.5rem;
 
-  background-color: @dialog-background-color;
-  padding: 3px;
-  bottom: 84px;
-  left: 12px;
+  z-index: 5;
 
-  border: @dialog-border;
-  overflow: hidden;
-  box-shadow: @box-shadow;
-
-  font-family: 'Roboto Mono', monospace;
-
-  div.dialog-title {
+  .dialog-title {
+    border-bottom: 2px solid @dialog-title-border-color;
     cursor: grab;
     user-select: none;
-    border-bottom: @dialog-title-border-bottom;
+    white-space: nowrap;
     position: relative;
 
-    >span {
-      box-sizing: border-box;
+    div {
+      margin: 0.5rem calc(14px + 0.5rem) 0.5rem 0.5rem;
       display: inline-block;
-      padding: 0.5em;
-      width: 100%;
-      text-align: center;
     }
 
     .close {
-      display: block;
+      background-image: url("images/close.png");
+      background-color: transparent;
       cursor: pointer;
-
+      position: absolute;
       width: 14px;
       height: 14px;
-      background-image: url('images/close.png');
-      background-color: transparent;
+      margin: 0px;
+      padding: 0px;
       border: none;
-
-      position: absolute;
-      margin-top: -7px;
-      right: 3px;
-      top: 50%;
+      top: calc(50% - 7px);
+      right: 0px;
     }
   }
 
-  div.dialog-content {
-    padding: 12px;
+  .dialog-content {
+    margin: 0.5rem;
   }
 }

@@ -40,7 +40,7 @@ onMounted(async () => {
 </script>
 
 <template lang="pug">
-.tremors-main-map
+.main-view
   .globe-view(ref="globeViewElement")
   GlobeViewToolbox(:initial-camera-target="initialCameraTarget")
 </template>
