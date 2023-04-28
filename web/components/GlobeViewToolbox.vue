@@ -15,7 +15,7 @@ function showDialog(dialogComponent: any) {
 
 <template lang="pug">
 .view-toolbox
-  button.account(@click='showDialog(accountDialog)')
+  button.account.has-dialog(@click='showDialog(accountDialog)')
     span.tooltip {{ $t('toolbox.tip.account') }}
 
   button.undo(@click='globeViewControl.undo()')
@@ -33,13 +33,13 @@ function showDialog(dialogComponent: any) {
   button.zoom-reset(@click='globeViewControl.reset()')
     span.tooltip {{ $t('toolbox.tip.zoomReset') }}
 
-  button.layer
+  button.layer.has-dialog
     span.tooltip {{ $t('toolbox.tip.layer') }}
 
-  button.search
+  button.search.has-dialog
     span.tooltip {{ $t('toolbox.tip.search') }}
 
-  button.alert
+  button.alert.has-dialog
     span.tooltip {{ $t('toolbox.tip.alert') }}
 
   button.about

@@ -65,12 +65,24 @@ div.view-toolbox {
       }
     }
 
+    &.has-dialog::after {
+      content: ' ';
+      background-color: @toolbox-button-has-dialog-background-color;
+      display: block;
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      top: 5px;
+      right: 5px;
+    }
+
     @buttons: account, undo, redo, zoom-in, zoom-out, zoom-reset, layer, search, alert, about;
+
     each(@buttons, {
       &.@{value} {
         background-position-x: (@index - 1) * -60px;
         background-position-y: 0px;
       }
     });
-  }
+}
 }
