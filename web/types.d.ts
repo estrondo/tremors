@@ -1,0 +1,1 @@
+type LocaleMessage = Record<string, string>

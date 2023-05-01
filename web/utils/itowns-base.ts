@@ -6,6 +6,29 @@ export interface CameraTarget {
   tilt: number
 }
 
+export interface LayerManager {
+  refresh: () => void,
+  groups: LayerManagerGroup[]
+}
+
+export type LayerManagerGroup = {
+  name: LocaleMessage,
+  id: string,
+  uiType: UIType,
+  layers: {
+    name: LocaleMessage,
+    description: LocaleMessage,
+    icon: string,
+    code: string,
+    uiType: UIType,
+    control: {
+      active: Ref<boolean>,
+      activate: () => Promise<void>
+    }
+  }[]
+}
+
+
 export function loadConfiguredCameraTarget(viewName: string): CameraTarget {
   return (useAppConfig()['globe-view'] as any)[viewName].initialTarget
 }

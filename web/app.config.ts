@@ -7,7 +7,12 @@ export default defineAppConfig({
         range: 8000000,
         tilt: 75,
         heading: 5
-      }
+      },
+      levels: [
+        ["basemap", true],
+        ["shockwave", false],
+        ["hypocentre", false]
+      ]
     }
   }
 })

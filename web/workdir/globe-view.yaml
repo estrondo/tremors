@@ -1,0 +1,62 @@
+main:
+  layerGroups:
+  - id: base
+    uiType: 0
+    name:
+      en: Background map
+      pt: Mapa de fundo
+    layers:
+    - id: satellite
+      icon: images/generic-layer-icon.png
+      code: color
+      name:
+        en: Satellite
+        pt: Satélie
+      description:
+        en: It shows the planet as seen from the space
+        pt: Mostra o planeta como visto do espaço.
+      level: basemap
+      parameters:
+        source:
+          type: tms
+          url: https://tile.openstreetmap.org/${z}/${x}/${y}.png
+          crs: EPSG:3857
+  - id: elevation
+    uiType: 0
+    name:
+      en: Elevation Map
+      pt: Mapa de Elevação
+    layers:
+    - id: default-elevation
+      icon: images/generic-layer-icon.png
+      code: elevation
+      name:
+        en: Default Elevation Map
+        pt: Mapa de eleveção padrão
+      description:
+        en: Opensource elevation map from XYZ.
+        pt: Mapa de elevação opensource fornecido por XYZ.
+  - id: event
+    uiType: 1
+    name:
+      en: Events
+      pt: Eventos
+    layers:
+    - id: hypocentre
+      icon: images/generic-layer-icon.png
+      code: feature-geometry
+      name:
+        en: Hypocentre
+        pt: Epicentro
+      description:
+        en: Detected events in the world.
+        pt: Events detected no mundo.
+    - id: shockwave
+      icon: images/generic-layer-icon.png
+      code: feature-geometry
+      name:
+        en: Shockwave
+        pt: Onda de choque
+      description:
+        en: This layer shows the extension of events.
+        pt: Esta camada mostra as extensão dos eventos.

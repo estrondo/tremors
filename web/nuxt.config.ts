@@ -6,6 +6,14 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/i18n'
   ],
+  nitro: {
+    storage: {
+      configuration: {
+        driver: 'fs',
+        base: './fs'
+      }
+    }
+  },
   i18n: {
     defaultLocale: 'en',
     locales: [
@@ -26,7 +34,15 @@ export default defineNuxtConfig({
   },
   ssr: false,
   css: [
-    "@/assets/style/main.less"
+    "@/assets/style/main.less",
+    "@/assets/style/font.css",
+    "@/assets/style/main-view.less",
+    "@/assets/style/dialog.less",
+    "@/assets/style/form.less",
+    "@/assets/style/account.less",
+    "@/assets/style/ui.less",
+    "@/assets/style/login.less",
+    "@/assets/style/layer.less"
   ],
   app: {
     head: {

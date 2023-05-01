@@ -4,10 +4,17 @@ const properties = defineProps(['name'])
 const globeViewElement = shallowRef<HTMLDivElement>()
 const globeViewRef = shallowRef<GlobeView>()
 const globeViewControlsRef = shallowRef<GlobeControls>()
-const initialCameraTarget = loadConfiguredCameraTarget(properties.name)
+const layerManagerRef = useLayerManager(globeViewRef, properties.name!, [
+  ["basemap", true],
+  ["elevation", true],
+  ["events", false]
+])
+
+// const initialCameraTarget = loadConfiguredCameraTarget(properties.name)
 
 provide(ITOWNS_GLOBEVIEW, globeViewRef)
 provide(ITOWNS_GLOBEVIEW_CONTROLS, globeViewControlsRef)
+provide(ITOWNS_LAYER_MANAGER, layerManagerRef)
 
 
 onMounted(async () => {
@@ -18,20 +25,6 @@ onMounted(async () => {
   })
 
   const controls = new itowns.GlobeControls(view, placement)
-
-  // const orthoSource = new itowns.WMTSSource({
-  //   url: 'http://wxs.ign.fr/3ht7xcw6f7nciopo16etuqp2/geoportail/wmts',
-  //   crs: 'EPSG:3857',
-  //   name: 'ORTHOIMAGERY.ORTHOPHOTOS',
-  //   tileMatrixSet: 'PM',
-  //   format: 'image/jpeg',
-  // });
-
-  // var orthoLayer = new itowns.ColorLayer('Ortho', {
-  //   source: orthoSource,
-  // });
-
-  // view.addLayer(orthoLayer);
 
   globeViewRef.value = view
   globeViewControlsRef.value = controls

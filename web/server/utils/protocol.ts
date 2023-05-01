@@ -1,0 +1,4 @@
+enum UIType {
+  Choice,
+  Activation
+}

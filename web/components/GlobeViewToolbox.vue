@@ -2,10 +2,11 @@
 
 const props = defineProps(['initialCameraTarget'])
 
-const globeViewControlsRef = inject<GlobeControls>(ITOWNS_GLOBEVIEW_CONTROLS) as unknown as Ref<GlobeControls>
-const globeViewControl = useGlobeViewControl(globeViewControlsRef, props.initialCameraTarget)
+const globeViewControlsRef = inject<Ref<GlobeControls>>(ITOWNS_GLOBEVIEW_CONTROLS)
+const globeViewControl = useGlobeViewControl(globeViewControlsRef!, props.initialCameraTarget)
 
 const accountDialog = shallowRef()
+const layerDialog = shallowRef()
 
 function showDialog(dialogComponent: any) {
   dialogComponent.show()
@@ -33,7 +34,7 @@ function showDialog(dialogComponent: any) {
   button.zoom-reset(@click='globeViewControl.reset()')
     span.tooltip {{ $t('toolbox.tip.zoomReset') }}
 
-  button.layer.has-dialog
+  button.layer.has-dialog(@click='showDialog(layerDialog)')
     span.tooltip {{ $t('toolbox.tip.layer') }}
 
   button.search.has-dialog
@@ -47,5 +48,8 @@ function showDialog(dialogComponent: any) {
 
 Dialog(:title='$t("account.dialog.title")', ref='accountDialog', stored-name='account')
   AccountManager
+
+Dialog(:title='$t("layer.dialog.title")', ref='layerDialog', stored-name='layer')
+  LayerSwitcher
 
 </template>

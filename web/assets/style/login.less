@@ -1,23 +1,24 @@
+@import url("variables.less");
+
 .login-method {
 
   button {
-    display: block;
     width: 25rem;
+    display: flex;
+
     &:nth-child(n+1) {
       margin-top: 1rem;
     }
 
     .icon {
       background-image: url("images/login-method-logos.png");
-      float: left;
       width: 32px;
       height: 32px;
     }
 
     span {
-      float: left;
       margin-left: 1rem;
-      line-height: 32px;
+      align-self: center;
     }
 
     @methods: twitter microsoft facebook google;

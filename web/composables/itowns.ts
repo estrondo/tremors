@@ -1,8 +1,8 @@
 import { CameraTarget } from "~~/utils/itowns-base"
-import { GlobeViewControl } from "~~/utils/itowns-globeview-control"
 
 export const ITOWNS_GLOBEVIEW = "itowns.globeView"
 export const ITOWNS_GLOBEVIEW_CONTROLS = "itowns.globeViewControls"
+export const ITOWNS_LAYER_MANAGER = "itowns.layerManager"
 
 export interface GlobeViewOptions {
   name: string,
@@ -51,3 +51,4 @@ function loadStoredCameraPlacement(name: string): Ref<CameraPlacement> {
 
   return placement
 }
+

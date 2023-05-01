@@ -84,6 +84,30 @@ export default defineI18nConfig((nuxt) => ({
           pt: 'Salvar'
         }
       }
+    },
+    layer: {
+      dialog: {
+        title: {
+          en: 'Layers Manager',
+          pt: 'Gerenciador de Layers'
+        }
+      },
+      header: {
+        title: {
+          en: 'Select the layer type',
+          pt: 'Selecione o tipo de camada'
+        }
+      },
+      control: {
+        choice: {
+          en: 'Select/Unselect',
+          pt: 'Usar / Não usar'
+        },
+        activation: {
+          en: 'Activate/Deactivate',
+          pt: 'Ativar/Desativar'
+        }
+      }
     }
   })
 }))
