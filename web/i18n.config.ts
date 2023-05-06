@@ -112,47 +112,74 @@ export default defineI18nConfig((nuxt) => ({
   })
 }))
 
-import { List } from 'immutable'
+// import { List } from 'immutable'
+
+function push(array: string[], element: string): string[] {
+  const copy = Array.from(array)
+  copy.push(element)
+  return copy
+}
+
+function last(array: string[]): string {
+  return array[array.length - 1]
+}
+
+function first(array: string[]): string {
+  return array[0]
+}
+
+function pop(array: string[]): string[] {
+  const copy = Array.from(array)
+  copy.pop()
+  return copy
+}
+
+function shift(array: string[]): string[] {
+  const copy = Array.from(array)
+  copy.shift()
+  return copy
+}
 
 function reverse(messages: { [n: string]: any }) {
-  const root: { [n: string]: any } = {}
+  const root: Record<string, any> = {}
 
   for (const key in messages) {
-    visit(List([key]), messages[key])
+    visit([key], messages[key])
   }
 
-  function visit(path: List<string>, value: any) {
+  function visit(path: string[], value: any) {
     if (typeof value === 'object') {
       for (const key in value) {
-        visit(path.push(key), value[key])
+        visit(push(path, key), value[key])
       }
     } else {
-      add(path.last(), path.pop(), value)
+      add(last(path), pop(path), value)
     }
   }
 
-  function add(locale: string, path: List<string>, value: any) {
+  function add(locale: string, path: string[], value: any) {
     if (!root[locale]) {
       root[locale] = {}
     }
 
     let target = root[locale]
-    let current = path.first()
-    path = path.shift()
+    let current = first(path)
+    path = shift(path)
 
-    while (current && !path.isEmpty()) {
+    while (current && path.length) {
       if (target[current] === undefined) [
         target[current] = {}
       ]
 
       target = target[current]
-      current = path.first()
-      path = path.shift()
+      current = first(path)
+      path = shift(path)
     }
 
     if (current) {
       target[current] = value
     }
   }
+
   return root
 }

@@ -10,3 +10,4 @@ dist
 
 # generated TypeScript declarations.
 server/utils/@types/
+yarn.lock
