@@ -11,7 +11,7 @@ main:
       code: color
       name:
         en: Satellite
-        pt: Satélie
+        pt: Satélite
       description:
         en: It shows the planet as seen from the space
         pt: Mostra o planeta como visto do espaço.

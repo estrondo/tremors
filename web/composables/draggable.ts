@@ -21,7 +21,7 @@ export function useDraggable(handler: HTMLElement, target: HTMLElement, storedNa
   }
 
   handler.addEventListener('pointerdown', (evt) => {
-    evt.stopPropagation()
+    evt.preventDefault()
     origin = { x: evt.pageX, y: evt.pageY }
     const parent = getParent()
 
@@ -77,7 +77,6 @@ export function useDraggable(handler: HTMLElement, target: HTMLElement, storedNa
 
   function getYUpdater(_parent: HTMLElement, range?: [number, number]) {
     const y = getY(_parent)
-    console.log('yRange = ', range)
 
     if (!range) {
       return (dy: number) => {
