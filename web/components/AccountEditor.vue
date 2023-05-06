@@ -14,9 +14,10 @@ async function save() {
 
 <template lang="pug">
 div  
-  form(v-if="pending")
-    span {{ $t('account.editor.loading') }}
-  div.form.account-editor(v-else)
+  .account-loading(v-if="pending")
+    p {{ $t('account.editor.loading') }}
+    button.logout(@click.prevent="useRedirectToLogout()") {{ $t('account.logout') }}
+  .form.account-editor(v-else)
     .avatar
       img(:src="account.avatar")
     .fields
@@ -29,6 +30,6 @@ div
           span {{ $t('account.editor.email') }}:
           input.email(type="email" v-model="account.email", disabled)
       .controls
-        button.logout(@click.prevent="useRedirectToLogout()") {{ $t('account.logout') }}
         button.save(@click.prevent="save") {{ $t('account.editor.save') }}
+        button.logout(@click.prevent="useRedirectToLogout()") {{ $t('account.logout') }}
 </template>

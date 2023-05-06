@@ -2,11 +2,6 @@ export function useAutoFocus(element: HTMLElement, ignore?: HTMLElement) {
 
   let timeoutId: any = undefined
 
-  function removeMark() {
-    delete (element as any)._DONT
-    timeoutId = undefined
-  }
-
   element.addEventListener('pointerdown', (evt) => {
 
     if (evt.target !== ignore && (element as any)._DONT === undefined) {
@@ -19,7 +14,10 @@ export function useAutoFocus(element: HTMLElement, ignore?: HTMLElement) {
             clearTimeout(timeoutId)
           }
           (element as any)._DONT = true
-          timeoutId = globalThis.setTimeout(removeMark, 1000)
+          timeoutId = globalThis.setTimeout(() => {
+            delete (element as any)._DONT
+            timeoutId = undefined
+          }, 1000)
         }
       }
     }
