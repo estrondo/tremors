@@ -38,13 +38,15 @@ export class LayerControl {
         this.#updateOrdering()
       } else {
         if (!previousLayer) {
-          await this.#view.addedLayer(layer)
+          await this.#view.addLayer(layer)
           levelObj.floors = insertLayer(layer, position, levelObj.floors, onForcedRemove)
           this.#updateOrdering()
         } else {
           console.warn(`There is already a layer with id: ${layer.id}.`)
         }
       }
+
+      this.#callOnAdd(layer)
     } else {
       console.warn(`There is no level: ${level}.`)
     }
@@ -52,17 +54,17 @@ export class LayerControl {
 
   remove(layer: Layer, level: string): void {
     this.#view.removeLayer(layer.id)
+    this.#callOnRemove(layer)
     const [levelObj] = this.#search(layer.id, level)
     if (levelObj) {
       if (levelObj.single) {
         levelObj.floors = []
       } else {
-        const index = levelObj.floors.findIndex(local => local === layer)
+        const index = levelObj.floors.findIndex(floor => floor.layer === layer)
         if (index !== -1) {
           levelObj.floors.splice(index, 1)
         }
       }
-      this.#updateOrdering()
     }
   }
 
@@ -79,6 +81,22 @@ export class LayerControl {
     }
 
     return removed
+  }
+
+  #callOnAdd(layer: Layer) {
+    executeSafely(() => {
+      if (typeof layer.onAdd === 'function') {
+        layer.onAdd(this.#view)
+      }
+    })
+  }
+
+  #callOnRemove(layer: Layer) {
+    executeSafely(() => {
+      if (typeof layer.onRemove === 'function') {
+        layer.onRemove(this.#view)
+      }
+    })
   }
 
   #search(layerId: string, levelName: string): [Level?, Layer?] {

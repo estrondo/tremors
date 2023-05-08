@@ -119,11 +119,13 @@ function createActivateAction(active: Ref<boolean>, instance: LayerInstance, lay
         } catch (error) {
           state = 0
           console.error('It was impossible to add the layer %s', layerDescription.id)
+          console.error(error)
           instance.dispose()
         }
       } catch (error) {
         state = 0
-        console.error('It was impossible to get the layer %s', layerDescription.id, error)
+        console.error('It was impossible to get the layer %s', layerDescription.id)
+        console.error(error)
       }
 
       active.value = state === 2
@@ -142,7 +144,8 @@ function createActivateAction(active: Ref<boolean>, instance: LayerInstance, lay
           console.error('It was impossible to remove the layer %s', layerDescription.id, error)
         }
       } catch (error) {
-        console.error('It was impossible to get the layer %s', layerDescription.id, error)
+        console.error('It was impossible to get the layer %s', layerDescription.id)
+        console.error(error)
         state = 2
       }
 

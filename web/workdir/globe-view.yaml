@@ -42,21 +42,17 @@ main:
       en: Events
       pt: Eventos
     layers:
-    - id: hypocentre
+    - id: earthquake
       icon: images/generic-layer-icon.png
-      code: feature-geometry
+      code: earthquake
+      level: events
+      position: 0
       name:
-        en: Hypocentre
-        pt: Epicentro
+        en: Earthquakes
+        pt: Terremotos
       description:
-        en: Detected events in the world.
-        pt: Events detected no mundo.
-    - id: shockwave
-      icon: images/generic-layer-icon.png
-      code: feature-geometry
-      name:
-        en: Shockwave
-        pt: Onda de choque
-      description:
-        en: This layer shows the extension of events.
-        pt: Esta camada mostra as extensão dos eventos.
+        en: All earthquake was detected.
+        pt: Todos os terremotos detectados.
+      parameters:
+        source:
+          url: /api/earthquake/events

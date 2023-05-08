@@ -1,6 +1,7 @@
-import { createColorLayer } from "./itowns-layer-factory/color"
-import { createElevationLayer } from "./itowns-layer-factory/elevation"
-import { createFeatureGeometry } from "./itowns-layer-factory/feature-geometry"
+import { createColorLayer } from "./itowns/factory/color"
+import { createElevationLayer } from "./itowns/factory/elevation"
+import { createFeatureGeometry } from "./itowns/factory/feature-geometry"
+import { createEarthquakeLayer } from "./itowns/factory/earthquake"
 
 export const LayerFactory = {
 
@@ -17,5 +18,6 @@ export const LayerFactory = {
 const SUPPORTED_CODES: Record<string, ((layerDescription: LayerDescription) => Promise<Layer>) | undefined> = {
   'elevation': createElevationLayer,
   'color': createColorLayer,
-  'feature-geometry': createFeatureGeometry
+  'feature-geometry': createFeatureGeometry,
+  'earthquake': createEarthquakeLayer
 }

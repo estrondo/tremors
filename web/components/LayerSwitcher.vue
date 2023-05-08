@@ -53,11 +53,12 @@ function refresh() {
       .info
         h1.name {{ localTemplate(layer.name) }}
         p.description {{  localTemplate(layer.description) }}
+        p {{ layer.control.active }}
       .control
         .choice(v-if='layer.uiType === UIType.Choice')
           input(type='radio', :title='$t("layer.control.choice")', @click='layer.control.activate', :checked='layer.control.active.value')
         .activation(v-else-if='layer.uiType === UIType.Activation')
-          input(type='checkbox', :title="$t('layer.control.activation')", v-model='layer.control.activate', @click='layer.control.active.value')
+          input(type='checkbox', :title="$t('layer.control.activation')", @click='layer.control.activate', :checked='layer.control.active.value')
   .controls
     span Controls
 
