@@ -1,7 +1,0 @@
-#/bin/sh
-
-# Execute only inside nuxt's directory.
-
-rm -rf server/utils/@types
-
-./node_modules/.bin/proto-loader-gen-types --enums=String --grpcLib=@grpc/grpc-js --outDir=server/utils/@types ../grpc/webapi/webapi/*.proto
