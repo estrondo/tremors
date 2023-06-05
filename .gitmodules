@@ -1,0 +1,3 @@
+[submodule "grpc"]
+	path = grpc
+	url = git@github.com:estrondo/tremors-grpc.git
