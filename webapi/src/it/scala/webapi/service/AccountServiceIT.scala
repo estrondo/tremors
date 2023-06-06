@@ -11,7 +11,6 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import scala.annotation.newMain
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
 import testkit.zio.grpc.GRPC
@@ -24,7 +23,6 @@ import zio.RIO
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
-import zio.config.derivation.name
 import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestClock

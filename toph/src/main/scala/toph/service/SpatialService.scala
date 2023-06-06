@@ -3,7 +3,6 @@ package toph.service
 import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext
-import scalapb.zio_grpc.ServerMain
 import toph.converter.EventQueryConverter
 import toph.converter.GRPCEventConverter
 import toph.grpc.{Event => GRPCEvent}

@@ -5,7 +5,6 @@ import com.softwaremill.tagging.@@
 import com.softwaremill.tagging.given
 import farango.DocumentCollection
 import zio.Task
-import zio.ZIO
 
 trait RepositoryModule:
 

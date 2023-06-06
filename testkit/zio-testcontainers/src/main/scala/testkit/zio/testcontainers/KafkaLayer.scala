@@ -1,14 +1,12 @@
 package testkit.zio.testcontainers
 
 import com.dimafeng.testcontainers.KafkaContainer
-import com.github.dockerjava.api.model.Task
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.testcontainers.utility.DockerImageName
 import zio.RIO
 import zio.RLayer
 import zio.Scope
-import zio.TaskLayer
 import zio.UIO
 import zio.ZIO
 import zio.ZLayer

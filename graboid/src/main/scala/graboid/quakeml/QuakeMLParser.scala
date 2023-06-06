@@ -1,7 +1,6 @@
 package graboid.quakeml
 
 import com.fasterxml.aalto.AsyncXMLStreamReader.EVENT_INCOMPLETE
-import graboid.Crawler
 import graboid.GClock
 import graboid.quakeml.Node.Child
 import graboid.quakeml.Node.EmptyNodeMap

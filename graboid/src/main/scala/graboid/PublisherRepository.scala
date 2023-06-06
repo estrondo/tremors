@@ -2,13 +2,10 @@ package graboid
 
 import farango.DocumentCollection
 import farango.UpdateReturn
-import farango.data.given
 import farango.zio.given
-import graboid.Publisher
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
 import io.github.arainko.ducktape.into
-import java.lang.{Long => JLong}
 import java.net.URL
 import java.time.ZonedDateTime
 import zio.Cause

@@ -1,22 +1,14 @@
 package graboid
 
 import _root_.quakeml.QuakeMLDetectedEvent
-import _root_.quakeml.QuakeMLEvent
-import _root_.quakeml.QuakeMLMagnitude
-import _root_.quakeml.QuakeMLOrigin
 import com.softwaremill.macwire.wire
-import graboid.GraboidException.CrawlerException
-import java.awt.Taskbar
-import java.net.URI
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import scala.language.experimental
 import zio.Cause
 import zio.Clock
-import zio.RIO
 import zio.Task
 import zio.UIO
 import zio.ZIO

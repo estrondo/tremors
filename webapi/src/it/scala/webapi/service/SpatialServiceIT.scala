@@ -8,16 +8,13 @@ import webapi.grpc.{Event => GRPCEvent}
 import webapi.grpc.{EventQuery => GRPCEventQuery}
 import webapi.grpc.ZioGrpc.SpatialServiceClient
 import webapi.grpc.ZioGrpc.ZSpatialService
-import io.bullet.borer.derivation.key
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import scalapb.zio_grpc.RequestContext
 import testkit.core.createZonedDateTime
 import testkit.zio.grpc.GRPC
 import webapi.IT
-import webapi.converter.TophEventQueryConverter
 import zio.Scope
-import zio.ZIO
 import zio.ZLayer
 import zio.test.Spec
 import zio.test.TestEnvironment

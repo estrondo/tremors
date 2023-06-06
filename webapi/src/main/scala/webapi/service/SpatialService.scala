@@ -3,8 +3,6 @@ package webapi.service
 import toph.grpc.ZioGrpc.{SpatialServiceClient => TophSpatialServiceClient}
 import webapi.grpc.{Event => GRPCEvent}
 import webapi.grpc.{EventQuery => GRPCEventQuery}
-import webapi.grpc.Event
-import webapi.grpc.EventQuery
 import webapi.grpc.ZioGrpc.ZSpatialService
 import io.grpc.Status
 import io.grpc.StatusException

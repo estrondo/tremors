@@ -2,7 +2,6 @@ package graboid.fixture
 
 import core.KeyGenerator
 import graboid.CrawlerExecution
-import graboid.CrawlerExecutor
 
 object CrawlerExecutionFixture:
 

@@ -2,7 +2,6 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import com.softwaremill.macwire.wireWith
-import graboid.CoreModule
 import graboid.command.AddPublisherExecutorImpl
 import graboid.command.RemovePublisherExecutor
 import graboid.command.RemovePublisherExecutorImpl
@@ -11,7 +10,6 @@ import graboid.command.RunPublisherExecutorImpl
 import graboid.command.UpdatePublisherExecutorImpl
 import graboid.kafka.GraboidCommandTopic
 import zio.Fiber
-import zio.FiberRef
 import zio.Task
 import zio.UIO
 import zio.ZIO

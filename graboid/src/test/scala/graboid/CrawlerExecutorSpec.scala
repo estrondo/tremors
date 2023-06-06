@@ -4,9 +4,6 @@ import _root_.quakeml.QuakeMLDetectedEvent
 import com.softwaremill.macwire.wireWith
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
-import java.time.Clock
-import java.time.Instant
-import java.time.ZonedDateTime
 import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
@@ -19,10 +16,7 @@ import zio.Scope
 import zio.ZIO
 import zio.ZLayer
 import zio.stream.ZStream
-import zio.test.Annotations
-import zio.test.Live
 import zio.test.TestClock
-import zio.test.TestClock.Data
 import zio.test.TestEnvironment
 import zio.test.assertTrue
 

@@ -8,7 +8,6 @@ import farango.zio.starter.ArangoConfig
 import farango.zio.starter.FarangoStarter
 import toph.geom.GeometryFactory
 import zio.Task
-import zio.ZIO
 import zio.ZLayer
 
 trait FarangoModule:

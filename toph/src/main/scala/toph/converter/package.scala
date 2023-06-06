@@ -16,7 +16,6 @@ import scalapb.UnknownFieldSet
 import toph.geom.CoordinateSequenceFactory
 import toph.grpc.{CreationInfo => GRPCCreationInfo}
 import toph.model.data.CreationInfoData
-import toph.service.SpatialService
 
 val ZoneId = Clock.systemUTC().getZone()
 

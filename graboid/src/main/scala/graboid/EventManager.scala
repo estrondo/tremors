@@ -3,7 +3,6 @@ package graboid
 import _root_.quakeml.QuakeMLDetectedEvent
 import cbor.quakeml.given
 import com.softwaremill.macwire.wire
-import graboid.Crawler.given
 import graboid.kafka.GraboidDetectedEvent
 import io.bullet.borer.Cbor
 import org.apache.kafka.clients.producer.RecordMetadata

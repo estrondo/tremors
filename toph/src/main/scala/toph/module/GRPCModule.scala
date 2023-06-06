@@ -1,14 +1,12 @@
 package toph.module
 
 import com.softwaremill.macwire.wire
-import io.grpc.Server
 import io.grpc.ServerBuilder
 import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
 import zio.Task
 import zio.ZIO
-import zio.ZLayer
 
 trait GRPCModule:
 

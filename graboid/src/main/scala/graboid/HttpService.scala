@@ -1,6 +1,5 @@
 package graboid
 
-import java.net.URL
 import zio.*
 import zio.http.Client
 import zio.http.Response

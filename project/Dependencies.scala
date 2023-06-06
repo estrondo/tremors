@@ -3,9 +3,9 @@ import sbt._
 object Dependencies {
 
   val ZHttpVersion            = "0.0.5"
-  val ZIOKafkaVersion         = "2.2"
-  val ZIOVersion              = "2.0.12"
-  val ZIOLoggingVersion       = "2.1.12"
+  val ZIOKafkaVersion         = "2.3.1"
+  val ZIOVersion              = "2.0.15"
+  val ZIOLoggingVersion       = "2.1.13"
   val ZIOConfigVersion        = "3.0.7"
   val ZIOMockVersion          = "1.0.0-RC8"
   val MUnitVersion            = "1.0.0-M6"
@@ -14,18 +14,18 @@ object Dependencies {
   val Log4j2Version           = "2.20.0"
   val SLF4jVersion            = "2.0.3"
   val AaltoXmlVersion         = "1.3.2"
-  val MockitoVersion          = "5.3.0"
-  val ArangoDBVersion         = "6.21.0"
-  val ArangoVelocypackVersion = "4.0.1"
-  val BorerVersion            = "1.10.2"
-  val TestcontainersVersion   = "0.40.14"
+  val MockitoVersion          = "5.3.1"
+  val ArangoDBVersion         = "6.25.0"
+  val ArangoVelocypackVersion = "4.1.0"
+  val BorerVersion            = "1.10.3"
+  val TestcontainersVersion   = "0.40.16"
   val MacwireVersion          = "2.5.8"
   val ZIOJsonVersion          = "0.5.0"
-  val DucktapeVersion         = "0.1.4"
+  val DucktapeVersion         = "0.1.8"
   val SweetMockitoVersion     = "1.0.0+3-88ef51e9"
   val ScalaCommonVersion      = "2.3.4"
   val FarangoVersion          = "0.0.1-SNAPSHOT"
-  val JacksonVersion          = "2.14.2"
+  val JacksonVersion          = "2.15.2"
   val JTSVersion              = "1.19.0"
   val JotawtVersion           = "0.0.1-SNAPSHOT"
 
@@ -123,7 +123,7 @@ object Dependencies {
   )
 
   val GRPC = Seq(
-    "io.grpc"               % "grpc-netty"           % "1.41.0",
+    "io.grpc"               % "grpc-netty"           % "1.55.1",
     "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
   )
 

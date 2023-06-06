@@ -1,16 +1,12 @@
 package graboid
 
-import cats.syntax.validated
 import core.KeyGenerator
-import graboid.PublisherRepository
 import graboid.fixture.PublisherFixture
 import java.io.IOException
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.{eq => eqTo}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify

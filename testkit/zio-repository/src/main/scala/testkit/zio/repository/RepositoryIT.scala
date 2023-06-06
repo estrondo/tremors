@@ -1,8 +1,6 @@
 package testkit.zio.repository
 
 import farango.DocumentCollection
-import farango.zio.given
-import scala.reflect.ClassTag
 import testkit.core.createRandomKey
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer

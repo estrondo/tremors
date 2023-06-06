@@ -2,15 +2,12 @@ package graboid
 
 import _root_.quakeml.QuakeMLDetectedEvent
 import cbor.quakeml.given
-import graboid.Crawler.given
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
 import graboid.kafka.GraboidDetectedEvent
 import io.bullet.borer.Cbor
 import testkit.core.createZonedDateTime
 import testkit.quakeml.QuakeMLEventFixture
-import testkit.quakeml.QuakeMLMagnitudeFixture
-import testkit.quakeml.QuakeMLOriginFixture
 import testkit.zio.testcontainers.KafkaLayer
 import zio.Scope
 import zio.ZIO

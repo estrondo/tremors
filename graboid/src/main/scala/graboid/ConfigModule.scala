@@ -4,7 +4,6 @@ import farango.zio.starter.ArangoConfig
 import farango.zio.starter.ArangoHost
 import graboid.config.GraboidConfig
 import zio.RIO
-import zio.Task
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.config.magnolia.*

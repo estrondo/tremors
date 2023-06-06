@@ -8,19 +8,12 @@ import farango.zio.given
 import testkit.zio.repository.RepositoryIT
 import toph.IT
 import toph.fixture.HypocentreDataFixture
-import toph.fixture.PointFixture
-import toph.geom.CoordinateSequenceFactory
-import toph.geom.create
 import toph.model.data.HypocentreData
-import zio.RIO
 import zio.Scope
 import zio.Task
-import zio.ZIO
 import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.TestEnvironment
-import zio.test.TestResult
-import zio.test.assertTrue
 
 object HypocentreDataRepositoryIT extends IT:
 

@@ -1,10 +1,7 @@
 package graboid.protocol
 
-import graboid.protocol.PublisherDescriptor
 import io.bullet.borer.Codec
 import io.bullet.borer.derivation.MapBasedCodecs.deriveAllCodecs
-import java.time.Duration
-import java.time.ZonedDateTime
 object GraboidCommand:
 
   given Codec[GraboidCommand] = deriveAllCodecs

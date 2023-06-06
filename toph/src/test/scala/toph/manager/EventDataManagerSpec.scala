@@ -1,9 +1,7 @@
 package toph.manager
 
-import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
-import org.mockito.ArgumentMatchers.any
 import quakeml.QuakeMLDetectedEvent
 import testkit.core.createZonedDateTime
 import testkit.quakeml.QuakeMLEventFixture as QEventFixture

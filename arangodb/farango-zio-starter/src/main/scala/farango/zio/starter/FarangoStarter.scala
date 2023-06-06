@@ -10,7 +10,6 @@ import farango.data.FarangoModule
 import farango.zio.given
 import zio.RIO
 import zio.Schedule
-import zio.Scheduler
 import zio.Task
 import zio.TaskLayer
 import zio.ZIO

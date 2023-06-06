@@ -13,7 +13,6 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import zio.test.laws.ZLaws
 
 object UpdatePublisherExecutorSpec extends Spec:
 

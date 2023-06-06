@@ -2,7 +2,6 @@ package graboid.quakeml
 
 import graboid.Spec
 import java.nio.file.Paths
-import quakeml.QuakeMLEvent
 import zio.stream.ZStream
 import zio.test.assertTrue
 

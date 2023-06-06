@@ -7,16 +7,13 @@ import graboid.CrawlerExecutionRepository.given
 import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
 import java.time.ZonedDateTime
-import scala.annotation.newMain
 import scala.annotation.tailrec
 import testkit.core.createZonedDateTime
 import testkit.zio.testcontainers.ArangoDBLayer
 import testkit.zio.testcontainers.FarangoLayer
 import zio.Scope
-import zio.Task
 import zio.ZIO
 import zio.ZLayer
-import zio.stream.ZStream
 import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
@@ -29,8 +26,6 @@ object CrawlerExecutionRepositoryIT extends IT:
     suite("A CrawlerExecutionRepository")(
       suite("It with Arango's container")(
         test("It should add a execution into a collection.") {
-          val publisherKey = KeyGenerator.next64()
-
           val expected = CrawlerExecutionFixture.createRandom()
 
           for
@@ -68,8 +63,6 @@ object CrawlerExecutionRepositoryIT extends IT:
           val toRemove             = generateToInsert(100, createZonedDateTime().withHour(13))
             .map(_.copy(publisherKey = publisherKeyToRemove))
 
-          val expected = toInsert.last
-
           for
             repository     <- ZIO.service[CrawlerExecutionRepository]
             collection     <- ZIO.service[DocumentCollection]
@@ -84,7 +77,6 @@ object CrawlerExecutionRepositoryIT extends IT:
           )
         },
         test("It should update an execution in collection.") {
-          val publisherKey = KeyGenerator.next64()
 
           val toInsertStarted = createZonedDateTime()
           val toInsertStop    = toInsertStarted.plusMinutes(5)

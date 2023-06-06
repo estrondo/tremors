@@ -1,6 +1,5 @@
 package toph.module
 
-import com.softwaremill.macwire.wire
 import toph.BuildInfo
 import toph.config.TophConfig
 import zio.RIO

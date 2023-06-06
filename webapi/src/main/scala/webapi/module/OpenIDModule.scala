@@ -21,7 +21,6 @@ import one.estrondo.jotawt.zio_json.ZIOJsonReader
 import pdi.jwt.JwtClaim
 import scala.concurrent.duration.FiniteDuration
 import scalapb.zio_grpc.RequestContext
-import webapi.WebAPI
 import webapi.WebAPIException
 import webapi.config.OpenIDConfig
 import webapi.config.OpenIDProviderConfig

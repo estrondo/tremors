@@ -7,10 +7,8 @@ import toph.message.protocol.EventJournalMessage
 import toph.model.data.EventData
 import toph.model.data.HypocentreData
 import toph.model.data.MagnitudeData
-import zio.Queue
 import zio.Task
 import zio.ZIO
-import zio.stream.ZStream
 import zkafka.KafkaMessage
 import zkafka.KafkaProducer
 

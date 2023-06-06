@@ -1,7 +1,6 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import graboid.PublisherManager
 import graboid.command.AddPublisherExecutor
 import graboid.command.RemovePublisherExecutor
 import graboid.command.RunAllPublishersExecutor
@@ -10,12 +9,10 @@ import graboid.command.UpdatePublisherExecutor
 import graboid.protocol.AddPublisher
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
-import graboid.protocol.PublisherDescriptor
 import graboid.protocol.RemovePublisher
 import graboid.protocol.RunAllPublishers
 import graboid.protocol.RunPublisher
 import graboid.protocol.UpdatePublisher
-import zio.Task
 import zio.UIO
 
 trait CommandExecutor:

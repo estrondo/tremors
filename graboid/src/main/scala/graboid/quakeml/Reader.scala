@@ -3,9 +3,7 @@ package graboid.quakeml
 import com.fasterxml.aalto.AsyncByteArrayFeeder
 import com.fasterxml.aalto.AsyncXMLStreamReader
 import com.fasterxml.aalto.stax.InputFactoryImpl
-import graboid.Crawler
 import scala.collection.immutable.HashMap
-import scala.collection.immutable.HashSet
 
 private[quakeml] object Reader:
   type XmlReader = AsyncXMLStreamReader[AsyncByteArrayFeeder]

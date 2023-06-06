@@ -3,7 +3,6 @@ package graboid.command
 import GraboidCommandExecutor.CommandAnnotation
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
-import scala.annotation.tailrec
 import zio.Cause
 import zio.Task
 import zio.UIO

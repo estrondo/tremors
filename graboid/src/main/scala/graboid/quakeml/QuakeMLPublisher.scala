@@ -1,6 +1,5 @@
 package graboid.quakeml
 
-import graboid.Crawler
 import java.time.ZonedDateTime
 import quakeml.QuakeMLDetectedEvent
 import quakeml.QuakeMLEvent

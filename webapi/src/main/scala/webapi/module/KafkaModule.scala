@@ -1,6 +1,5 @@
 package webapi.module
 
-import com.softwaremill.macwire.wire
 import zio.Task
 import zkafka.KafkaManager
 import zkafka.starter.KafkaConfig

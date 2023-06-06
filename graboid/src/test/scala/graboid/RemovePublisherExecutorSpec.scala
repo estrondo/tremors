@@ -11,7 +11,6 @@ import testkit.graboid.protocol.RemovePublisherFixture
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
-import zio.test.TestAspect
 import zio.test.TestEnvironment
 import zio.test.assertTrue
 

@@ -5,17 +5,14 @@ import com.softwaremill.macwire.wire
 import farango.DocumentCollection
 import farango.data.Key
 import farango.data.given
-import farango.query.ForQuery
 import farango.zio.given
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import java.time.ZonedDateTime
 import org.locationtech.jts.geom.Point
 import toph.model.data.HypocentreData
-import toph.query.toQueriableGeometry
 import zio.Task
 import zio.ZIO
-import zio.stream.ZStream
 
 trait HypocentreDataRepository:
 
@@ -52,8 +49,6 @@ object HypocentreDataRepository:
       .transform(Field.const(_.key, document._key: String))
 
   private class Impl(collection: DocumentCollection) extends HypocentreDataRepository:
-
-    private def database = collection.database
 
     override def add(hypocentre: HypocentreData): Task[HypocentreData] =
       collection

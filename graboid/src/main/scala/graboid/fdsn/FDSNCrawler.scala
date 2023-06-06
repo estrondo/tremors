@@ -11,7 +11,6 @@ import graboid.quakeml.QuakeMLParser
 import io.lemonlabs.uri.Url
 import io.lemonlabs.uri.config.ExcludeNones
 import io.lemonlabs.uri.config.UriConfig
-import java.net.URI
 import java.net.URL
 import quakeml.QuakeMLDetectedEvent
 import zio.Task

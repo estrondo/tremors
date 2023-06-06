@@ -52,9 +52,9 @@ object AlertRepository:
   )
   @JsonSubTypes(
     Array(
-      Type(value = classOf[LocationCityDocument], name = "city"),
-      Type(value = classOf[LocationCountryDocument], name = "country"),
-      Type(value = classOf[LocationRegionDocument], name = "region")
+      new Type(value = classOf[LocationCityDocument], name = "city"),
+      new Type(value = classOf[LocationCountryDocument], name = "country"),
+      new Type(value = classOf[LocationRegionDocument], name = "region")
     )
   )
   sealed trait LocationDocument
@@ -81,9 +81,9 @@ object AlertRepository:
   )
   @JsonSubTypes(
     Array(
-      Type(value = classOf[MagnitudeFilterDocumentLess], name = "less"),
-      Type(value = classOf[MagnitudeFilterDocumentGreater], name = "greater"),
-      Type(value = classOf[MagnitudeFilterDocumentRange], name = "range")
+      new Type(value = classOf[MagnitudeFilterDocumentLess], name = "less"),
+      new Type(value = classOf[MagnitudeFilterDocumentGreater], name = "greater"),
+      new Type(value = classOf[MagnitudeFilterDocumentRange], name = "range")
     )
   )
   sealed trait MagnitudeFilterDocument

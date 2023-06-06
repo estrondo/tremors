@@ -8,8 +8,6 @@ import farango.Database
 import farango.DocumentCollection
 import farango.data.FarangoModule
 import farango.zio.given
-import java.time.Clock
-import java.util.TimeZone
 import scala.reflect.ClassTag
 import testkit.core.createRandomKey
 import zio.RIO

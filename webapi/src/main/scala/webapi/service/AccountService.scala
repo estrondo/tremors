@@ -3,7 +3,6 @@ package webapi.service
 import core.KeyGenerator
 import io.grpc.Status
 import io.grpc.StatusException
-import scalapb.zio_grpc.RequestContext
 import webapi.converter.AccountConverter
 import webapi.converter.GRPCAccountConverter
 import webapi.grpc.{Account => GRPCAccount}

@@ -1,19 +1,13 @@
 package graboid
 
-import graboid.CoreModule
 import graboid.config.GraboidConfig
 import zio.ExitCode
 import zio.Scope
 import zio.Task
-import zio.UIO
 import zio.ZIO
 import zio.ZIOAppArgs
 import zio.ZIOAppDefault
-import zio.config.ConfigSource
-import zio.stream.ZSink
 object Graboid extends ZIOAppDefault:
-
-  final private lazy val v = 0
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for

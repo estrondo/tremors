@@ -1,7 +1,5 @@
 package testkit.quakeml
 
-import java.time.ZonedDateTime
-import quakeml.*
 import quakeml.QuakeMLCreationInfo
 import testkit.core.createZonedDateTime
 object QuakeMLCreationInfoFixture:

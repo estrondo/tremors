@@ -1,7 +1,5 @@
 package graboid
 
-import graboid.CommandExecutor
-import graboid.PublisherManager
 import graboid.command.AddPublisherExecutor
 import graboid.command.AddPublisherExecutorImpl
 import graboid.fixture.PublisherFixture
@@ -11,13 +9,10 @@ import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers
 import testkit.graboid.protocol.AddPublisherFixture
-import testkit.graboid.protocol.GraboidCommandResultFixture
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
-import zio.test.Assertion
 import zio.test.TestEnvironment
-import zio.test.assert
 import zio.test.assertTrue
 
 object AddPublisherExecutorSpec extends Spec:

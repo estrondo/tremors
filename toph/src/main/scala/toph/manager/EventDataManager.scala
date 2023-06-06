@@ -6,7 +6,6 @@ import toph.converter.EventDataConverter
 import toph.model.data.EventData
 import toph.model.data.HypocentreData
 import toph.model.data.MagnitudeData
-import toph.publisher.EventPublisher
 import toph.repository.EventDataRepository
 import zio.Task
 import zio.ZIO

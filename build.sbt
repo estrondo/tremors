@@ -1,5 +1,5 @@
 ThisBuild / organization := "com.github.estrondo.tremors"
-ThisBuild / scalaVersion := "3.2.2"
+ThisBuild / scalaVersion := "3.3.0"
 ThisBuild / isSnapshot   := true
 ThisBuild / Test / fork  := true
 ThisBuild / version ~= (_.replace('+', '-'))

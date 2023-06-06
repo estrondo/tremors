@@ -1,9 +1,7 @@
 package graboid
 
-import graboid.fixture.CrawlerExecutionFixture
 import graboid.fixture.PublisherFixture
 import java.time.LocalTime
-import java.time.OffsetTime
 import java.time.ZonedDateTime
 import scala.annotation.tailrec
 import testkit.core.createZonedDateTime
@@ -200,9 +198,6 @@ object CrawlerSchedulerSpec extends Spec:
       .createRandom()
       .copy(beginning = now, ending = None)
 
-    val execution = CrawlerExecutionFixture
-      .createRandom()
-      .copy(publisherKey = publisher.key, ending = reference)
     for
       scheduler <- ZIO.service[CrawlerScheduler]
       iterator  <- scheduler.computeSchedule(publisher, reference)

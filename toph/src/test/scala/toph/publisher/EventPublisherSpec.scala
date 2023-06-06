@@ -5,15 +5,12 @@ import toph.fixture.EventDataFixture
 import toph.fixture.HypocentreDataFixture
 import toph.fixture.MagnitudeDataFixture
 import toph.kafka.TophEventJournalTopic
-import toph.message.protocol.EventJournalMessage
 import toph.message.protocol.NewEvent
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
-import zio.stream.ZStream
 import zio.test.TestEnvironment
 import zio.test.assertTrue
-import zkafka.KafkaManager
 import zkafka.KafkaMessage
 
 object EventPublisherSpec extends Spec:

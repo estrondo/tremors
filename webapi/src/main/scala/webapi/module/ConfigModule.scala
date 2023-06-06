@@ -1,6 +1,5 @@
 package webapi.module
 
-import com.softwaremill.macwire.wire
 import webapi.config.WebAPIConfig
 import zio.RIO
 import zio.ZIO

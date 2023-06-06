@@ -5,7 +5,6 @@ import one.estrondo.sweetmockito.zio.given
 import testkit.quakeml.{QuakeMLMagnitudeFixture => QMagnitudeFixture}
 import toph.Spec
 import toph.converter.MagnitudeDataConverter
-import toph.fixture.MagnitudeDataFixture
 import toph.repository.MagnitudeDataRepository
 import zio.Scope
 import zio.ZIO

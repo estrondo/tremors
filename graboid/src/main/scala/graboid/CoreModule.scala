@@ -2,9 +2,6 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import com.softwaremill.macwire.wireWith
-import com.softwaremill.tagging.@@
-import com.softwaremill.tagging.given
-import farango.DocumentCollection
 import graboid.config.GraboidConfig
 import zio.Task
 import zio.ZIO

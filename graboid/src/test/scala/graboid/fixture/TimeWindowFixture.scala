@@ -1,9 +1,7 @@
 package graboid.fixture
 
-import core.KeyGenerator
 import graboid.TimeWindow
 import java.time.temporal.ChronoUnit
-import scala.util.Random
 
 object TimeWindowFixture:
 

@@ -4,7 +4,6 @@ import graboid.Publisher
 import graboid.PublisherManager
 import graboid.protocol.GraboidCommandResult
 import graboid.protocol.GraboidCommandResult.Status
-import graboid.protocol.RemovePublisher
 import graboid.protocol.UpdatePublisher
 import zio.Task
 

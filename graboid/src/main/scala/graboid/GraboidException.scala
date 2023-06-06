@@ -1,6 +1,5 @@
 package graboid
 
-import scala.util.control.NoStackTrace
 
 object GraboidException:
 

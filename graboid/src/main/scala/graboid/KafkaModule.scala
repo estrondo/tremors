@@ -1,17 +1,12 @@
 package graboid
 
 import com.softwaremill.macwire.wire
-import com.softwaremill.macwire.wireWith
-import graboid.kafka.GraboidGroup
 import io.bullet.borer.Decoder
 import io.bullet.borer.Encoder
 import zio.Task
 import zio.TaskLayer
-import zio.ZIO
 import zio.kafka.consumer.Consumer
-import zio.kafka.consumer.ConsumerSettings
 import zio.kafka.producer.Producer
-import zio.kafka.producer.ProducerSettings
 import zio.stream.ZStream
 import zkafka.KafkaManager
 import zkafka.KafkaProducer

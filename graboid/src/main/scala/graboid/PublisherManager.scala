@@ -2,7 +2,6 @@ package graboid
 
 import com.softwaremill.macwire.wire
 import graboid.PublisherManager.Validator
-import graboid.PublisherRepository
 import zio.IO
 import zio.Task
 import zio.ZIO

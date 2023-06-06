@@ -5,9 +5,7 @@ import toph.grpc.ZioGrpc.ZSpatialService
 import scalapb.zio_grpc.RequestContext
 import toph.service.SpatialService
 import zio.Task
-import zio.TaskLayer
 import zio.ZIO
-import zio.ZLayer
 
 trait ServiceModule:
 

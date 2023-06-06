@@ -5,7 +5,6 @@ import farango.DocumentCollection
 import farango.data.Key
 import farango.zio.given
 import testkit.zio.repository.RepositoryIT
-import testkit.zio.testcontainers.FarangoLayer
 import toph.IT
 import toph.fixture.EventFixture
 import toph.geom.CoordinateSequenceFactory

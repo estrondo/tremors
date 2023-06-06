@@ -5,10 +5,8 @@ import graboid.Crawler
 import graboid.Publisher
 import graboid.protocol.PublisherDescriptor
 import java.net.URL
-import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import scala.util.Random
-import zio.config.derivation.name
 
 object PublisherFixture:
 
