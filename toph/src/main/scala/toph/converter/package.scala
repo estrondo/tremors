@@ -1,6 +1,5 @@
 package toph.converter
 
-import grpc.toph.spatial.{CreationInfo => GRPCCreationInfo}
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
 import io.github.arainko.ducktape.into
@@ -15,7 +14,9 @@ import quakeml.QuakeMLResourceReference
 import quakeml.QuakeMLTimeQuantity
 import scalapb.UnknownFieldSet
 import toph.geom.CoordinateSequenceFactory
+import toph.grpc.{CreationInfo => GRPCCreationInfo}
 import toph.model.data.CreationInfoData
+import toph.service.SpatialService
 
 val ZoneId = Clock.systemUTC().getZone()
 

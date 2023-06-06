@@ -1,10 +1,5 @@
 package toph.service
 
-import grpc.toph.spatial.CreationInfo
-import grpc.toph.spatial.Event
-import grpc.toph.spatial.EventQuery
-import grpc.toph.spatial.ZioSpatial.SpatialServiceClient
-import grpc.toph.spatial.ZioSpatial.ZSpatialService
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any
@@ -12,6 +7,11 @@ import scalapb.zio_grpc.RequestContext
 import testkit.zio.grpc.GRPC
 import toph.IT
 import toph.fixture.EventFixture
+import toph.grpc.CreationInfo
+import toph.grpc.Event
+import toph.grpc.EventQuery
+import toph.grpc.ZioGrpc.SpatialServiceClient
+import toph.grpc.ZioGrpc.ZSpatialService
 import toph.manager.SpatialManager
 import zio.Scope
 import zio.ZIO

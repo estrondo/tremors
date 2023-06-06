@@ -1,9 +1,9 @@
 package webapi.module
 
 import core.KeyGenerator
-import grpc.toph.spatial.ZioSpatial.{SpatialServiceClient => TophSpatialServiceClient}
-import grpc.webapi.account.ZioAccount.ZAccountService
-import grpc.webapi.spatial.ZioSpatial.ZSpatialService
+import toph.grpc.ZioGrpc.{SpatialServiceClient => TophSpatialServiceClient}
+import webapi.grpc.ZioGrpc.ZAccountService
+import webapi.grpc.ZioGrpc.ZSpatialService
 import io.grpc.ManagedChannelBuilder
 import io.grpc.ServerBuilder
 import scalapb.zio_grpc.RequestContext

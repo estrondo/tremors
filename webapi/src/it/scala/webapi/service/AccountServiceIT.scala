@@ -1,12 +1,12 @@
 package webapi.service
 
 import core.KeyGenerator
-import grpc.webapi.account.{Account => GRPCAccount}
-import grpc.webapi.account.AccountKey
-import grpc.webapi.account.AccountReponse
-import grpc.webapi.account.AccountUpdate
-import grpc.webapi.account.ZioAccount.AccountServiceClient
-import grpc.webapi.account.ZioAccount.ZAccountService
+import webapi.grpc.{Account => GRPCAccount}
+import webapi.grpc.AccountKey
+import webapi.grpc.AccountReponse
+import webapi.grpc.AccountUpdate
+import webapi.grpc.ZioGrpc.AccountServiceClient
+import webapi.grpc.ZioGrpc.ZAccountService
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.ArgumentMatchers.any

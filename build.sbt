@@ -1,17 +1,18 @@
 ThisBuild / organization := "com.github.estrondo.tremors"
-ThisBuild / scalaVersion := "3.2.1"
+ThisBuild / scalaVersion := "3.2.2"
 ThisBuild / isSnapshot   := true
 ThisBuild / Test / fork  := true
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 Test / run / javaOptions += "-Dtremors.profile=test"
 
 ThisBuild / scalacOptions ++= Seq(
   "--explain",
   "-feature",
-  "-language:implicitConversions"
+  "-language:implicitConversions",
+  "-Wunused:all"
 )
 
 lazy val root = (project in file("."))
@@ -95,9 +96,7 @@ lazy val `farango-zio-starter` = (project in file("arangodb/farango-zio-starter"
 
 lazy val `quakeml` = (project in file("quakeml"))
   .settings(
-    name := "quakeml",
-    libraryDependencies ++= Seq(
-    ).flatten
+    name := "quakeml"
   )
 
 lazy val `testkit-quakeml` = (project in file("testkit/quakeml"))
@@ -148,7 +147,7 @@ lazy val `toph-message-protocol` = (project in file("toph-message-protocol"))
 
 lazy val `toph` = (project in file("toph"))
   .settings(
-    name                      := "toph",
+    name                 := "toph",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
@@ -165,11 +164,10 @@ lazy val `toph` = (project in file("toph"))
       Dependencies.SweetMockito
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Compile / PB.targets      := Seq(
-      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
-      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
-    ),
-    Compile / PB.protoSources := Seq(file("grpc/toph"))
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value
+    )
   )
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)
@@ -289,14 +287,14 @@ lazy val `testkit-zio-grpc` = (project in file("testkit/zio-grpc"))
       Dependencies.ZIO
     ).flatten,
     Compile / PB.targets := Seq(
-      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
-      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "protobuf",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "protobuf"
     )
   )
 
 lazy val `webapi` = (project in file("webapi"))
   .settings(
-    name                      := "webapi",
+    name                 := "webapi",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZHttp,
@@ -311,11 +309,10 @@ lazy val `webapi` = (project in file("webapi"))
       Dependencies.JotawtZIO
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Compile / PB.targets      := Seq(
-      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
-      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
-    ),
-    Compile / PB.protoSources := Seq(file("grpc/toph"), file("grpc/webapi"))
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value
+    )
   )
   .enablePlugins(ITPlugin)
   .enablePlugins(BuildInfoPlugin)

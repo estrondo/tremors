@@ -1,7 +1,7 @@
 package webapi.converter
 
-import grpc.toph.spatial.{CreationInfo => TophGRPCCreationInfo}
-import grpc.webapi.spatial.{CreationInfo => GRPCCreationInfo}
+import toph.grpc.{CreationInfo => TophGRPCCreationInfo}
+import webapi.grpc.{CreationInfo => GRPCCreationInfo}
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer
 import io.github.arainko.ducktape.into

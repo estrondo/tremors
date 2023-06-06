@@ -1,11 +1,11 @@
 package webapi.service
 
-import grpc.toph.spatial.ZioSpatial.{SpatialServiceClient => TophSpatialServiceClient}
-import grpc.webapi.spatial.{Event => GRPCEvent}
-import grpc.webapi.spatial.{EventQuery => GRPCEventQuery}
-import grpc.webapi.spatial.Event
-import grpc.webapi.spatial.EventQuery
-import grpc.webapi.spatial.ZioSpatial.ZSpatialService
+import toph.grpc.ZioGrpc.{SpatialServiceClient => TophSpatialServiceClient}
+import webapi.grpc.{Event => GRPCEvent}
+import webapi.grpc.{EventQuery => GRPCEventQuery}
+import webapi.grpc.Event
+import webapi.grpc.EventQuery
+import webapi.grpc.ZioGrpc.ZSpatialService
 import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext

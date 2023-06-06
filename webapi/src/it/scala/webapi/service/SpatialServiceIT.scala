@@ -1,13 +1,13 @@
 package webapi.service
 
 import core.KeyGenerator
-import grpc.toph.spatial.{Event => TophGRPCEvent}
-import grpc.toph.spatial.{EventQuery => TophGRPCEventQuery}
-import grpc.toph.spatial.ZioSpatial.{SpatialServiceClient => TophSpatialServiceClient}
-import grpc.webapi.spatial.{Event => GRPCEvent}
-import grpc.webapi.spatial.{EventQuery => GRPCEventQuery}
-import grpc.webapi.spatial.ZioSpatial.SpatialServiceClient
-import grpc.webapi.spatial.ZioSpatial.ZSpatialService
+import toph.grpc.{Event => TophGRPCEvent}
+import toph.grpc.{EventQuery => TophGRPCEventQuery}
+import toph.grpc.ZioGrpc.{SpatialServiceClient => TophSpatialServiceClient}
+import webapi.grpc.{Event => GRPCEvent}
+import webapi.grpc.{EventQuery => GRPCEventQuery}
+import webapi.grpc.ZioGrpc.SpatialServiceClient
+import webapi.grpc.ZioGrpc.ZSpatialService
 import io.bullet.borer.derivation.key
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
@@ -55,7 +55,7 @@ object SpatialServiceIT extends IT:
           magnitudeType = Seq("EBC")
         )
 
-        val tophEvent     = TophGRPCEvent(
+        val tophEvent = TophGRPCEvent(
           key = KeyGenerator.next8(),
           eventKey = KeyGenerator.next8(),
           hypocentreKey = Some(KeyGenerator.next8()),
@@ -70,10 +70,10 @@ object SpatialServiceIT extends IT:
 
         for
           channel <- GRPC.createChannel
-          client  <- SpatialServiceClient.scoped(channel)
-          _       <- SweetMockitoLayer[TophSpatialServiceClient]
-                       .whenF2(_.searchEvent(expectedTophEventQuery))
-                       .thenReturn(tophEvent)
+          client <- SpatialServiceClient.scoped(channel)
+          _ <- SweetMockitoLayer[TophSpatialServiceClient]
+            .whenF2(_.searchEvent(expectedTophEventQuery))
+            .thenReturn(tophEvent)
 
           result <- client.searchEvent(expectedQuery).runCollect
         yield assertTrue(

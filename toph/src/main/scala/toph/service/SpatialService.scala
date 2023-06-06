@@ -1,14 +1,14 @@
 package toph.service
 
-import grpc.toph.spatial.{Event => GRPCEvent}
-import grpc.toph.spatial.{EventQuery => GRPCEventQuery}
-import grpc.toph.spatial.ZioSpatial.ZSpatialService
 import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.ServerMain
 import toph.converter.EventQueryConverter
 import toph.converter.GRPCEventConverter
+import toph.grpc.{Event => GRPCEvent}
+import toph.grpc.{EventQuery => GRPCEventQuery}
+import toph.grpc.ZioGrpc.ZSpatialService
 import toph.manager.SpatialManager
 import zio.IO
 import zio.ZIO

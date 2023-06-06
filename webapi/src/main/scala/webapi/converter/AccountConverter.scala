@@ -1,16 +1,15 @@
 package webapi.converter
 
 import core.KeyGenerator
-import grpc.webapi.account.{Account => GRPCAccount}
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
+import java.time.ZonedDateTime
 import webapi.currentZonedDateTime
+import webapi.grpc.{Account => GRPCAccount}
 import webapi.model.Account
 import zio.Clock
 import zio.Task
 import zio.ZIO
-
-import java.time.ZonedDateTime
 
 object AccountConverter:
 

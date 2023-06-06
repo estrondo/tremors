@@ -1,6 +1,6 @@
 package webapi.converter
 
-import grpc.webapi.account.{Account => GRPCAccount}
+import webapi.grpc.{Account => GRPCAccount}
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import scalapb.UnknownFieldSet

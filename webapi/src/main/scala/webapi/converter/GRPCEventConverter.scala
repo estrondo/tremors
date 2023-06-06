@@ -1,7 +1,7 @@
 package webapi.converter
 
-import grpc.toph.spatial.{Event => TophGRPCEvent}
-import grpc.webapi.spatial.{Event => GRPCEvent}
+import toph.grpc.{Event => TophGRPCEvent}
+import webapi.grpc.{Event => GRPCEvent}
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import zio.Task
