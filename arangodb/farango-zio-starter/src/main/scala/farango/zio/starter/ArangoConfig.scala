@@ -11,13 +11,13 @@ case class ArangoConfig(
 
 object ArangoHost:
 
-  def toArangoHost(value: String): Seq[ArangoHost] =
+  private def toArangoHost(value: String): Seq[ArangoHost] =
     for part <- value.split("\\s*,\\s*")
     yield part.split(":") match
       case Array(hostname, port) => ArangoHost(hostname, port.toInt)
       case _                     => throw IllegalArgumentException(value)
 
-  def fromArangoHost(values: Seq[ArangoHost]): String =
+  private def fromArangoHost(values: Seq[ArangoHost]): String =
     throw IllegalStateException("fromArangoHost")
 
   given seqArangoHost: Descriptor[Seq[ArangoHost]] =

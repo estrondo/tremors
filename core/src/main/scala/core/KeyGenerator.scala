@@ -24,19 +24,9 @@ object KeyGenerator extends KeyGenerator:
   enum KeyLength(val value: Int):
     case L4  extends KeyLength(1)
     case L8  extends KeyLength(2)
-    case L12 extends KeyLength(3)
     case L16 extends KeyLength(4)
-    case L20 extends KeyLength(5)
     case L24 extends KeyLength(6)
-    case L28 extends KeyLength(7)
     case L32 extends KeyLength(8)
-    case L36 extends KeyLength(9)
-    case L40 extends KeyLength(10)
-    case L44 extends KeyLength(11)
-    case L48 extends KeyLength(12)
-    case L52 extends KeyLength(13)
-    case L56 extends KeyLength(14)
-    case L60 extends KeyLength(15)
     case L64 extends KeyLength(16)
 
   private val Radix = 32
