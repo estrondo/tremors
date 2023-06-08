@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- From USP: Events in February 2023. -->
+<q:quakeml
+        xmlns="http://quakeml.org/xmlns/bed/1.2"
+        xmlns:q="http://quakeml.org/xmlns/quakeml/1.2">
+    <eventParameters publicID="smi:org.gfz-potsdam.de/geofon/EventParameters">
+        <event>
+            <description>
+                <text>Turkey</text>
+                <type>region name</type>
+            </description>
+            <creationInfo>
+                <agencyID>USP</agencyID>
+                <author>scevent@seisMaster</author>
+                <creationTime>2023-02-06T10:35:48.435792Z</creationTime>
+            </creationInfo>
+            <magnitude publicID="smi:org.gfz-potsdam.de/geofon/Magnitude/20230206115320.373743.262669">
+                <stationCount>14</stationCount>
+                <creationInfo>
+                    <agencyID>USP</agencyID>
+                    <author>jroberto</author>
+                    <creationTime>2023-02-06T11:53:20.373779Z</creationTime>
+                </creationInfo>
+                <mag>
+                    <value>7.500440426</value>
+                    <uncertainty>0.08662283642</uncertainty>
+                </mag>
+                <type>mB</type>
+                <originID>smi:org.gfz-potsdam.de/geofon/Origin/20230206115302.825148.262559</originID>
+                <methodID>smi:org.gfz-potsdam.de/geofon/trimmed_mean</methodID>
+                <evaluationStatus>confirmed</evaluationStatus>
+            </magnitude>
+            <origin publicID="smi:org.gfz-potsdam.de/geofon/Origin/20230206115302.825148.262559">
+                <time>
+                    <value>2023-02-06T10:24:49.141081Z</value>
+                    <uncertainty>0.1746616513</uncertainty>
+                </time>
+                <longitude>
+                    <value>37.19106674</value>
+                    <uncertainty>3.555669069</uncertainty>
+                </longitude>
+                <latitude>
+                    <value>37.96024323</value>
+                    <uncertainty>5.055521488</uncertainty>
+                </latitude>
+                <depthType>operator assigned</depthType>
+                <quality>
+                    <associatedPhaseCount>35</associatedPhaseCount>
+                    <usedPhaseCount>35</usedPhaseCount>
+                    <associatedStationCount>35</associatedStationCount>
+                    <usedStationCount>35</usedStationCount>
+                    <depthPhaseCount>0</depthPhaseCount>
+                    <standardError>0.4554391151</standardError>
+                    <azimuthalGap>89.08201599</azimuthalGap>
+                    <maximumDistance>128.2778168</maximumDistance>
+                    <minimumDistance>3.923534632</minimumDistance>
+                    <medianDistance>83.76132202</medianDistance>
+                </quality>
+                <evaluationMode>manual</evaluationMode>
+                <creationInfo>
+                    <agencyID>USP</agencyID>
+                    <author>jroberto</author>
+                    <creationTime>2023-02-06T11:53:02.826141Z</creationTime>
+                </creationInfo>
+                <depth>
+                    <value>10000</value>
+                    <uncertainty>0</uncertainty>
+                </depth>
+                <originUncertainty>
+                    <minHorizontalUncertainty>7456.386089</minHorizontalUncertainty>
+                    <maxHorizontalUncertainty>10940.66238</maxHorizontalUncertainty>
+                    <azimuthMaxHorizontalUncertainty>168.8029175</azimuthMaxHorizontalUncertainty>
+                    <preferredDescription>horizontal uncertainty</preferredDescription>
+                </originUncertainty>
+                <methodID>smi:org.gfz-potsdam.de/geofon/LOCSAT</methodID>
+                <earthModelID>smi:org.gfz-potsdam.de/geofon/iasp91</earthModelID>
+                <evaluationStatus>confirmed</evaluationStatus>
+            </origin>
+            <preferredOriginID>smi:org.gfz-potsdam.de/geofon/Origin/20230206115302.825148.262559</preferredOriginID>
+            <preferredMagnitudeID>smi:org.gfz-potsdam.de/geofon/Magnitude/20230206115320.373743.262669</preferredMagnitudeID>
+            <type>earthquake</type>
+            <typeCertainty>known</typeCertainty>
+        </event>
+    </eventParameters>
+</q:quakeml>

@@ -3,9 +3,14 @@ import sbt.*
 //noinspection TypeAnnotation
 object Dependencies {
 
+  val AaltoXML = Seq(
+    "com.fasterxml" % "aalto-xml" % Version.AaltoXML
+  )
+
   val ZIO = Seq(
-    "dev.zio" %% "zio-streams" % Version.ZIO,
-    "dev.zio" %% "zio"         % Version.ZIO
+    "dev.zio" %% "zio" % Version.ZIO,
+    "dev.zio" %% "zio-test" % Version.ZIO % Test,
+    "dev.zio" %% "zio-test-sbt" % Version.ZIO % Test,
   )
 
   val ZIOConfig = Seq(
@@ -25,7 +30,12 @@ object Dependencies {
     "dev.zio" %% "zio-kafka-testkit" % Version.ZIOKafka % Test
   )
 
+  val ZIOStream = Seq(
+    "dev.zio" %% "zio-streams" % Version.ZIO
+  )
+
   object Version {
+    val AaltoXML   = "1.3.2"
     val ZIO        = "2.0.15"
     val ZIOConfig  = "4.0.0-RC16"
     val ZIOLogging = "2.1.13"

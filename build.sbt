@@ -26,8 +26,11 @@ lazy val graboid = (project in file("graboid"))
   .settings(
     name := "tremors-graboid",
     libraryDependencies ++= Seq(
-      Dependencies.ZIO
-    ).flatten
+      Dependencies.ZIO,
+      Dependencies.ZIOStream,
+      Dependencies.AaltoXML
+    ).flatten,
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .dependsOn(
     zioStarter,
