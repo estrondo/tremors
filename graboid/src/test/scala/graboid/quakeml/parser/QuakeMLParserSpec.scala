@@ -21,7 +21,7 @@ object QuakeMLParserSpec extends GraboidSpec:
   def spec = suite("QuakeMLParserSpec")(
     suite("When it's reading a valid QuakeML stream...")(
       test("It should read all events on it.") {
-        for events <- QuakeMLParser()(readFile("test-data/graboid/usp-quakeml.xml")).runCollect
+        for events <- QuakeMLParser(readFile("test-data/graboid/usp-quakeml.xml")).runCollect
         yield assertTrue(
           events == List(
             Event(
@@ -276,7 +276,7 @@ object QuakeMLParserSpec extends GraboidSpec:
     ),
     suite("When it's reading a invalid QuakeML stream...")(
       test("It should fail.") {
-        for exit <- QuakeMLParser()(readFile("test-data/graboid/event-without-id-usp-quakeml.xml")).runCollect.exit
+        for exit <- QuakeMLParser(readFile("test-data/graboid/event-without-id-usp-quakeml.xml")).runCollect.exit
         yield assert(exit)(Assertion.failsWithA[GraboidException.QuakeMLException])
       }
     )
