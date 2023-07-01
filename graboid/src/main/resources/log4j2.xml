@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="console"/>
+        </Root>
+
+        <Logger name="io.netty" level="OFF"/>
+        <Logger name="io.vertx" level="OFF" />
+        <Logger name="com.arangodb" level="ERROR"/>
+
+    </Loggers>
+</Configuration>

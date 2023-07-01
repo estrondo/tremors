@@ -1,0 +1,10 @@
+version: "3.0"
+
+services:
+
+  arango:
+    image: docker.io/library/arangodb:3.11.0
+    environment:
+      ARANGO_ROOT_PASSWORD: tremors
+    ports:
+      - "8529:8529"

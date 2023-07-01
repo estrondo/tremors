@@ -28,23 +28,32 @@ lazy val graboid = (project in file("graboid"))
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOStream,
-      Dependencies.AaltoXML
+      Dependencies.AaltoXML,
+      Dependencies.Macwire
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .dependsOn(
     zioStarter,
-    zioKafka
+    zioKafka,
+    zioFarango
   )
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
 
 lazy val toph = (project in file("toph"))
   .settings(
-    name := "tremors-toph"
+    name := "tremors-toph",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZIOStream
+    ).flatten
   )
   .dependsOn(
     zioStarter,
-    zioKafka
+    zioKafka,
+    zioFarango
   )
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
 
 lazy val zioStarter = (project in file("zio/starter"))
   .settings(
@@ -62,5 +71,14 @@ lazy val zioKafka = (project in file("zio/kafka"))
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOKafka
+    ).flatten
+  )
+
+lazy val zioFarango = (project in file("zio/farango"))
+  .settings(
+    name := "tremors-zio-farango",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZIOFarango
     ).flatten
   )
