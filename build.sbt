@@ -22,6 +22,11 @@ lazy val root = (project in file("."))
     zioStarter
   )
 
+lazy val generator = (project in file("generator"))
+  .settings(
+    name := "tremors-generator"
+  )
+
 lazy val graboid = (project in file("graboid"))
   .settings(
     name := "tremors-graboid",
@@ -36,7 +41,9 @@ lazy val graboid = (project in file("graboid"))
   .dependsOn(
     zioStarter,
     zioKafka,
-    zioFarango
+    zioFarango,
+    generator,
+    generator % "test->test"
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
 
