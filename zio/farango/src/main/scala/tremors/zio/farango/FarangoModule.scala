@@ -73,9 +73,16 @@ object FarangoModule:
         exists <- ZIO.attemptBlocking(collection.arango.exists())
         _      <- if exists then ZIO.unit
                   else
-                    ZIO.logDebug(s"Creating the collection ${name}.") *> collection.create().tapErrorCause { cause =>
-                      ZIO.logWarning(s"It was impossible to create the collection ${name}.") *> ZIO
-                        .logDebugCause(s"An error occurred during attempt to create the collection $name!", cause)
-                    }
+                    for
+                      _ <- ZIO.logDebug(s"Creating the collection ${name}.")
+                      _ <- collection.create().tapErrorCause { cause =>
+                             for
+                               _ <- ZIO.logWarning(s"It was impossible to create the collection ${name}.")
+                               _ <-
+                                 ZIO
+                                   .logDebugCause(s"An error occurred during attempt to create the collection $name!", cause)
+                             yield ()
+                           }
+                    yield ()
       yield collection)
         .retry(Schedule.forever && Schedule.spaced(5.seconds))
