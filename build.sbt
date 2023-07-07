@@ -34,7 +34,8 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.ZIO,
       Dependencies.ZIOStream,
       Dependencies.AaltoXML,
-      Dependencies.Macwire
+      Dependencies.Macwire,
+      Dependencies.SweetMockito
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )

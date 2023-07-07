@@ -3,6 +3,10 @@ import sbt.*
 //noinspection TypeAnnotation
 object Dependencies {
 
+  val SweetMockito = Seq(
+    "one.estrondo" %% "sweet-mockito-zio" % Version.SweetMockito % Test
+  )
+
   val AaltoXML = Seq(
     "com.fasterxml" % "aalto-xml" % Version.AaltoXML
   )
@@ -44,13 +48,14 @@ object Dependencies {
   )
 
   object Version {
-    val AaltoXML   = "1.3.2"
-    val Macwire    = "2.5.8"
-    val Farango    = "0.0.1"
-    val Reload4j   = "2.0.7"
-    val ZIO        = "2.0.15"
-    val ZIOConfig  = "4.0.0-RC16"
-    val ZIOLogging = "2.1.13"
-    val ZIOKafka   = "2.3.1"
+    val AaltoXML     = "1.3.2"
+    val Macwire      = "2.5.8"
+    val Farango      = "0.0.1"
+    val Reload4j     = "2.0.7"
+    val SweetMockito = "1.2.0+1-904f0c3e"
+    val ZIO          = "2.0.15"
+    val ZIOConfig    = "4.0.0-RC16"
+    val ZIOLogging   = "2.1.13"
+    val ZIOKafka     = "2.3.1"
   }
 }
