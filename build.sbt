@@ -19,7 +19,8 @@ lazy val root = (project in file("."))
   .aggregate(
     graboid,
     toph,
-    zioStarter
+    zioStarter,
+    graboidIt
   )
 
 lazy val generator = (project in file("generator"))
@@ -35,7 +36,8 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.ZIOStream,
       Dependencies.AaltoXML,
       Dependencies.Macwire,
-      Dependencies.SweetMockito
+      Dependencies.SweetMockito,
+      Dependencies.FarangoDucktape
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
@@ -47,6 +49,18 @@ lazy val graboid = (project in file("graboid"))
     generator % "test->test"
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
+
+lazy val graboidIt = (project in file("graboid-it"))
+  .settings(
+    name                     := "tremors-graboid-it",
+    skip / publish           := true,
+    parallelExecution / test := false
+  )
+  .dependsOn(
+    graboid,
+    graboid    % "test->test",
+    zioFarango % "test->test"
+  )
 
 lazy val toph = (project in file("toph"))
   .settings(
@@ -87,6 +101,7 @@ lazy val zioFarango = (project in file("zio/farango"))
     name := "tremors-zio-farango",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
-      Dependencies.ZIOFarango
+      Dependencies.ZIOFarango,
+      Dependencies.TestcontainerScala
     ).flatten
   )

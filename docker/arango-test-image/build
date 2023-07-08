@@ -1,0 +1,3 @@
+#!/bin/sh
+
+podman build . -t docker.io/rthoth/estrondo:tremors_arangodb_test_3.11.1
