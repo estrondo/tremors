@@ -34,7 +34,7 @@ object FarangoModule:
 
   private def prepDatabase(database: SyncDatabase): Task[SyncDatabase] =
     (for
-      exists <- ZIO.fromTry(database.root).flatMap(root => ZIO.attemptBlocking(root.exists()))
+      exists <- database.exists
       _      <- if exists then ZIO.unit else ZIO.logDebug(s"Creating the database ${database.name}!") *> database.create()
     yield database)
       .tapErrorCause(cause =>

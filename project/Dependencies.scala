@@ -58,7 +58,7 @@ object Dependencies {
   object Version {
     val AaltoXML            = "1.3.2"
     val Macwire             = "2.5.8"
-    val Farango             = "0.0.2"
+    val Farango             = "0.0.1+1-1bee4e3f"
     val Reload4j            = "2.0.7"
     val SweetMockito        = "1.2.0+1-904f0c3e"
     val TestcontainersScala = "0.40.17"
