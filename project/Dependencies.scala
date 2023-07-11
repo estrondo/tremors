@@ -55,7 +55,7 @@ object Dependencies {
     "dev.zio" %% "zio-streams" % Version.ZIO
   )
 
-  val TestcontainerScala = Seq(
+  val TestcontainersScala = Seq(
     "com.dimafeng" %% "testcontainers-scala-core" % Version.TestcontainersScala
   )
 
@@ -66,7 +66,7 @@ object Dependencies {
   object Version {
     val AaltoXML            = "1.3.2"
     val Macwire             = "2.5.8"
-    val Farango             = "0.0.1+1-1bee4e3f"
+    val Farango             = "0.1.0"
     val Reload4j            = "2.0.7"
     val SweetMockito        = "1.2.0+1-904f0c3e"
     val TestcontainersScala = "0.40.17"
