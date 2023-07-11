@@ -18,9 +18,9 @@ trait KeyGenerator:
 
 object KeyGenerator extends KeyGenerator:
 
-  val E15 = 1 << 15
-  val E10 = 1 << 10
-  val E5  = 1 << 5
+  private val E15 = 1 << 15
+  private val E10 = 1 << 10
+  private val E5  = 1 << 5
 
   override def generate(length: KeyLength): String =
     val random  = ThreadLocalRandom.current()

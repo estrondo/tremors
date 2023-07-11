@@ -11,8 +11,13 @@ object Dependencies {
     "com.fasterxml" % "aalto-xml" % Version.AaltoXML
   )
 
+  val Borer = Seq(
+    "io.bullet" %% "borer-core"       % "1.10.3",
+    "io.bullet" %% "borer-derivation" % "1.10.3"
+  )
+
   val Macwire = Seq(
-    "com.softwaremill.macwire" %% "macros" % Version.Macwire % "provided",
+    "com.softwaremill.macwire" %% "macros" % Version.Macwire % Provided,
     "com.softwaremill.macwire" %% "util"   % Version.Macwire
   )
 
@@ -43,8 +48,7 @@ object Dependencies {
   )
 
   val ZIOKafka = Seq(
-    "dev.zio" %% "zio-kafka"         % Version.ZIOKafka,
-    "dev.zio" %% "zio-kafka-testkit" % Version.ZIOKafka % Test
+    "dev.zio" %% "zio-kafka" % Version.ZIOKafka
   )
 
   val ZIOStream = Seq(
@@ -53,6 +57,10 @@ object Dependencies {
 
   val TestcontainerScala = Seq(
     "com.dimafeng" %% "testcontainers-scala-core" % Version.TestcontainersScala
+  )
+
+  val TestcontainersKafka = Seq(
+    "com.dimafeng" %% "testcontainers-scala-kafka" % Version.TestcontainersScala
   )
 
   object Version {
@@ -65,6 +73,6 @@ object Dependencies {
     val ZIO                 = "2.0.15"
     val ZIOConfig           = "4.0.0-RC16"
     val ZIOLogging          = "2.1.13"
-    val ZIOKafka            = "2.3.1"
+    val ZIOKafka            = "2.4.1"
   }
 }

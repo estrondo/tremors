@@ -1,8 +1,13 @@
 /target/
 /project/target/
 /project/project/
+/project/.bloop/
 /.idea/
 /.bsp/
+/.bloop/
+/.metals/
+/.vscode/
+/project/metals.sbt
 
 
 /graboid/target/

@@ -20,7 +20,9 @@ lazy val root = (project in file("."))
     graboid,
     toph,
     zioStarter,
-    graboidIt
+    graboidIt,
+    zioFarango,
+    zioKafka
   )
 
 lazy val generator = (project in file("generator"))
@@ -92,8 +94,16 @@ lazy val zioKafka = (project in file("zio/kafka"))
     name := "tremors-zio-kafka",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
-      Dependencies.ZIOKafka
+      Dependencies.ZIOKafka,
+      Dependencies.TestcontainersKafka,
+      Dependencies.Macwire,
+      Dependencies.SweetMockito,
+      Dependencies.Borer,
+      Dependencies.ZIOLogging.map(_.withConfigurations(Some("test")))
     ).flatten
+  )
+  .dependsOn(
+    generator
   )
 
 lazy val zioFarango = (project in file("zio/farango"))
