@@ -4,3 +4,5 @@ abstract class GraboidException(message: String, cause: Throwable = null) extend
 object GraboidException:
 
   class QuakeMLException(message: String, cause: Throwable = null) extends GraboidException(message, cause)
+
+  class Command(message: String, cause: Throwable = null) extends GraboidException(message, cause)
