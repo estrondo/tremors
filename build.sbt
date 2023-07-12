@@ -30,6 +30,19 @@ lazy val generator = (project in file("generator"))
     name := "tremors-generator"
   )
 
+lazy val graboidProtocol = (project in file("graboid-protocol"))
+  .settings(
+    name           := "tremors-graboid-protocol",
+    skip / publish := true,
+    libraryDependencies ++= Seq(
+      Dependencies.Borer
+    ).flatten
+  )
+  .dependsOn(
+    generator,
+    generator % "test->test"
+  )
+
 lazy val graboid = (project in file("graboid"))
   .settings(
     name := "tremors-graboid",
@@ -48,7 +61,9 @@ lazy val graboid = (project in file("graboid"))
     zioKafka,
     zioFarango,
     generator,
-    generator % "test->test"
+    generator       % "test->test",
+    graboidProtocol,
+    graboidProtocol % "test->test"
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
 
