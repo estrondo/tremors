@@ -8,6 +8,7 @@ import tremors.zio.farango.FarangoTestContainer
 import zio.ZIO
 import zio.ZLayer
 import zio.test.Spec
+import zio.test.TestAspect
 import zio.test.assertTrue
 
 object FDSNDataCentreRepositoryItSpec extends GraboidItRepositorySpec:
@@ -83,6 +84,6 @@ object FDSNDataCentreRepositoryItSpec extends GraboidItRepositorySpec:
     FarangoTestContainer.farangoDB,
     FarangoTestContainer.farangoDatabase,
     FarangoTestContainer.farangoCollection()
-  )
+  ) @@ TestAspect.sequential
 
   case class Stored(_key: String, url: String)
