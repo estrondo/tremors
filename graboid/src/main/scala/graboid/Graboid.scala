@@ -1,6 +1,10 @@
 package graboid
 
 import graboid.config.GraboidConfig
+import graboid.module.CommandModule
+import graboid.module.KafkaModule
+import graboid.module.ListenerModule
+import graboid.module.ManagerModule
 import graboid.module.RepositoryModule
 import tremors.zio.farango.FarangoModule
 import tremors.zio.starter.ZioStarter
@@ -24,6 +28,11 @@ object Graboid extends ZIOAppDefault:
       _                <- ZIO.logError(s"Starting Graboid in [${profile.map(_.value).getOrElse("default")}] mode.")
       farangoModule    <- FarangoModule(configuration.arango)
       repositoryModule <- RepositoryModule(farangoModule)
+      managerModule    <- graboid.module.ManagerModule(repositoryModule)
+      commandModule    <- CommandModule(managerModule)
+      kafkaModule      <- KafkaModule("graboid", configuration.kafka)
+      listenerModule   <- ListenerModule(commandModule, kafkaModule)
+      _                <- ZLayer.fromZIO(listenerModule.commandResultStream.runDrain).launch
     yield ()
 
   final private case class C(graboid: GraboidConfig)

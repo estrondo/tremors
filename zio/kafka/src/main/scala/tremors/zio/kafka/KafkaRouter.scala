@@ -5,9 +5,11 @@ import com.softwaremill.macwire.wire
 import zio.Cause
 import zio.Exit
 import zio.RIO
+import zio.Schedule
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
+import zio.durationInt
 import zio.kafka.consumer.Consumer
 import zio.kafka.consumer.ConsumerSettings
 import zio.kafka.consumer.Offset
@@ -20,16 +22,22 @@ import zio.stream.ZStream
 trait KafkaRouter:
 
   def subscribe[A: KReader, B, C: KWriter](
-      consumer: KConsumer[A, B],
-      producer: KProducer[B, C]
+      kConsumer: KConsumer[A, B],
+      kProducer: KProducer[B, C]
   ): ZStream[Any, Nothing, C]
 
 object KafkaRouter:
 
   def apply(clientId: String, config: KafkaConfig): RIO[Scope, KafkaRouter] =
     for
-      liveProducer <- Producer.make(producerSettings(clientId, config))
-      liveConsumer <- Consumer.make(consumerSettings(clientId, config))
+      liveProducer <- Producer
+                        .make(producerSettings(clientId, config))
+                        .tapErrorCause(ZIO.logWarningCause("It was impossible to create a producer!", _))
+                        .retry(Schedule.forever && Schedule.spaced(5.seconds))
+      liveConsumer <- Consumer
+                        .make(consumerSettings(clientId, config))
+                        .tapErrorCause(ZIO.logWarningCause("It was impossible to create a consumer!", _))
+                        .retry(Schedule.forever && Schedule.spaced(5.seconds))
     yield wire[Impl]
 
   private def consumerSettings(clientId: String, config: KafkaConfig): ConsumerSettings =
@@ -52,20 +60,27 @@ object KafkaRouter:
     private val producerLayer = ZLayer.succeed(liveProducer)
 
     override def subscribe[A: KReader, B, C: KWriter](
-        consumer: KConsumer[A, B],
-        producer: KProducer[B, C]
+        kConsumer: KConsumer[A, B],
+        kProducer: KProducer[B, C]
     ): ZStream[Any, Nothing, C] =
-      val producerFunction = producer.producerFunction
-      ZStream.logInfo(s"Subscribing to topic: ${consumer.topic}.") *>
+
+      val producerFunction = kProducer.producerFunction
+
+      ZStream.logInfo(s"Subscribing to the ${kConsumer.topic} topic.") *>
         Consumer
-          .plainStream(Subscription.topics(consumer.topic), Serde.string, Serde.byteArray)
-          .tap(record => ZIO.logDebug(s"Topic ${consumer.topic}, offset= ${record.offset.offset}."))
+          .plainStream(Subscription.topics(kConsumer.topic), Serde.string, Serde.byteArray)
+          .tap(record => ZIO.logDebug(s"Topic ${kConsumer.topic}, offset= ${record.offset.offset}."))
           .mapZIO { record =>
-            for value <- summon[KReader[A]](record.value)
-            yield (consumer.consumer(record.key, value), record.offset)
+            for either <-
+                summon[KReader[A]](record.value)
+                  .tapErrorCause(ZIO.logWarningCause(s"Message reading error in the topic ${kConsumer.topic}.", _))
+                  .either
+            yield (record, either)
           }
-          .flatMapPar(parallelism) { (stream, offset) =>
-            stream
+          .collect { case (record, Right(message)) => (record.key, record.offset, message) }
+          .flatMap { (key, offset, message) =>
+            kConsumer
+              .consumer(key, message)
               .flatMap(producerFunction)
               .mapZIO { (topic, key, message) =>
                 for
@@ -74,26 +89,31 @@ object KafkaRouter:
                 yield message
               }
               .ensuringWith {
-                case Exit.Success(_)     => offset.commit.orDie
-                case Exit.Failure(cause) =>
-                  ZIO.logWarningCause(
-                    s"An error occurred during Kafka Router producing: subscribing-topic=${consumer.topic}!",
-                    cause
+                case Exit.Success(_)     =>
+                  offset.commit.ignoreLogged *> ZIO.logDebug(
+                    s"The message $key from topic ${kConsumer.topic} has been processed."
                   )
-
+                case Exit.Failure(cause) =>
+                  ZIO.logWarningCause(s"The message $key of topic ${kConsumer.topic} has failed!", cause)
               }
               .provideLayer(producerLayer)
+              .catchAll { cause =>
+                ZStream.fromZIO(
+                  ZIO.logWarningCause(
+                    s"It was impossible to process message $key of the topic ${kConsumer.topic} has failed!",
+                    Cause.die(cause)
+                  )
+                ) *> ZStream.empty
+              }
           }
           .catchAll { cause =>
             ZStream
               .fromZIO(
                 ZIO.logWarningCause(
-                  s"An error occurred during Kafka Router consuming: subscribing-topic=${consumer.topic}!",
+                  s"It was impossible to consume messages of the topic ${kConsumer.topic}!",
                   Cause.die(cause)
                 )
               )
               *> ZStream.empty
           }
           .provideLayer(consumerLayer)
-
-    private def parallelism = Runtime.getRuntime.availableProcessors()

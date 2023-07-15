@@ -6,7 +6,7 @@ import zio.stream.ZStream
 
 sealed trait KProducer[-A, +B]:
 
-  def producerFunction: (A) => ZStream[Any, Throwable, (String, String, B)]
+  def producerFunction: A => ZStream[Any, Throwable, (String, String, B)]
 
 object KProducer:
 

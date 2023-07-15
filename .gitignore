@@ -18,4 +18,5 @@
 /generator/target/
 /graboid-it/target/
 /graboid-protocol/target/
+/graboid-commands/**/*.cbor
 

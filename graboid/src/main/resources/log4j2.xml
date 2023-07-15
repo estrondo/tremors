@@ -6,13 +6,15 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="DEBUG">
+        <Root level="TRACE">
             <AppenderRef ref="console"/>
         </Root>
 
         <Logger name="io.netty" level="OFF"/>
-        <Logger name="io.vertx" level="OFF" />
+        <Logger name="io.vertx" level="OFF"/>
         <Logger name="com.arangodb" level="ERROR"/>
+        <Logger name="zio" level="WARN"/>
+        <Logger name="org.apache.kafka" level="WARN"/>
 
     </Loggers>
 </Configuration>

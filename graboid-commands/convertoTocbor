@@ -1,0 +1,13 @@
+#! /bin/sh
+
+mkdir -p output
+
+echo "Cleaning all previous cbor files."
+for cbor_file in ./output/*.cbor; do
+  rm -f "$cbor_file"
+done;
+
+echo "Converting all json files to cbor."
+for json_file in ./*.json; do
+  json2cbor -p "$json_file" "./output/${json_file%"json"}cbor"
+done;
