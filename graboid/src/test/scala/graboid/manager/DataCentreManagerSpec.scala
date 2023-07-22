@@ -9,60 +9,60 @@ import zio.ZLayer
 import zio.test.Spec
 import zio.test.assertTrue
 
-object FDSNDataCentreManagerSpec extends GraboidSpec:
+object DataCentreManagerSpec extends GraboidSpec:
 
-  override def spec = suite("FDSNDataCentreManagerSpec")(
+  override def spec = suite("'DataCentreManagerSpec'")(
     test("When a data centre is added it should call the repository.") {
-      val expectedDataCentre = FDSNDataCentreFixture.createRandom()
+      val expectedDataCentre = DataCentreFixture.createRandom()
 
       for
-        _          <- SweetMockitoLayer[FDSNDataCentreManager]
+        _          <- SweetMockitoLayer[DataCentreManager]
                         .whenF2(_.add(expectedDataCentre))
                         .thenReturn(expectedDataCentre)
-        dataCentre <- ZIO.serviceWithZIO[FDSNDataCentreManager](_.add(expectedDataCentre))
+        dataCentre <- ZIO.serviceWithZIO[DataCentreManager](_.add(expectedDataCentre))
       yield assertTrue(dataCentre == expectedDataCentre)
     },
     test("When a data centre is updated it should call the repository.") {
-      val expectedDataCentre = FDSNDataCentreFixture.createRandom()
+      val expectedDataCentre = DataCentreFixture.createRandom()
 
       for
-        _          <- SweetMockitoLayer[FDSNDataCentreManager]
+        _          <- SweetMockitoLayer[DataCentreManager]
                         .whenF2(_.update(expectedDataCentre))
                         .thenReturn(expectedDataCentre)
-        dataCentre <- ZIO.serviceWithZIO[FDSNDataCentreManager](_.update(expectedDataCentre))
+        dataCentre <- ZIO.serviceWithZIO[DataCentreManager](_.update(expectedDataCentre))
       yield assertTrue(dataCentre == expectedDataCentre)
     },
     test("When a data centre is deleted it should call the repository.") {
-      val expectedDataCentre = FDSNDataCentreFixture.createRandom()
+      val expectedDataCentre = DataCentreFixture.createRandom()
 
       for
-        _          <- SweetMockitoLayer[FDSNDataCentreManager]
+        _          <- SweetMockitoLayer[DataCentreManager]
                         .whenF2(_.delete(expectedDataCentre.id))
                         .thenReturn(expectedDataCentre)
-        dataCentre <- ZIO.serviceWithZIO[FDSNDataCentreManager](_.delete(expectedDataCentre.id))
+        dataCentre <- ZIO.serviceWithZIO[DataCentreManager](_.delete(expectedDataCentre.id))
       yield assertTrue(dataCentre == expectedDataCentre)
     },
     test("When a data centre is read it should call the repository.") {
-      val expectedDataCentre = FDSNDataCentreFixture.createRandom()
+      val expectedDataCentre = DataCentreFixture.createRandom()
 
       for
-        _          <- SweetMockitoLayer[FDSNDataCentreManager]
+        _          <- SweetMockitoLayer[DataCentreManager]
                         .whenF2(_.get(expectedDataCentre.id))
                         .thenReturn(Some(expectedDataCentre))
-        dataCentre <- ZIO.serviceWithZIO[FDSNDataCentreManager](_.get(expectedDataCentre.id))
+        dataCentre <- ZIO.serviceWithZIO[DataCentreManager](_.get(expectedDataCentre.id))
       yield assertTrue(dataCentre == Some(expectedDataCentre))
     },
     test("It should return a stream of all data centres.") {
-      val expected = FDSNDataCentreFixture.createRandom()
+      val expected = DataCentreFixture.createRandom()
 
       for
-        _         <- SweetMockitoLayer[FDSNDataCentreManager]
+        _         <- SweetMockitoLayer[DataCentreManager]
                        .whenF2(_.all)
                        .thenReturn(expected)
-        stream    <- ZIO.serviceWith[FDSNDataCentreManager](_.all)
+        stream    <- ZIO.serviceWith[DataCentreManager](_.all)
         collected <- stream.runCollect
       yield assertTrue(collected == List(expected))
     }
   ).provideSome[Scope](
-    SweetMockitoLayer.newMockLayer[FDSNDataCentreManager]
+    SweetMockitoLayer.newMockLayer[DataCentreManager]
   )

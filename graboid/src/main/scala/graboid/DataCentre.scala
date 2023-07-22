@@ -1,6 +1,6 @@
 package graboid
 
-final case class FDSNDataCentre(
+final case class DataCentre(
     id: String,
     url: String
 )

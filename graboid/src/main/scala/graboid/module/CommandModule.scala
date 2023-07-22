@@ -14,7 +14,7 @@ object CommandModule:
 
   def apply(managerModule: ManagerModule): Task[CommandModule] =
     for
-      dataCentreExecutor <- DataCentreExecutor(managerModule.fdsnDataCentreManager)
+      dataCentreExecutor <- DataCentreExecutor(managerModule.dataCentreManager)
       commandExecutor    <- CommandExecutor(dataCentreExecutor)
     yield Impl(commandExecutor)
 

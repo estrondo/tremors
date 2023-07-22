@@ -1,12 +1,12 @@
 package graboid.manager
 
-import graboid.FDSNDataCentre
+import graboid.DataCentre
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 
-object FDSNDataCentreFixture {
+object DataCentreFixture {
 
-  def createRandom(): FDSNDataCentre = FDSNDataCentre(
+  def createRandom(): DataCentre = DataCentre(
     id = KeyGenerator.generate(KeyLength.Short),
     url = s"http://${KeyGenerator.generate(KeyLength.Medium)}/fdsn"
   )

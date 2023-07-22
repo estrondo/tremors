@@ -44,4 +44,6 @@ object CommandListener:
         inline cause: Cause[Throwable],
         inline command: GraboidCommand
     ): UIO[GraboidCommandResult] =
-      ZIO.logWarningCause(message, cause) *> ZIO.succeed(GraboidCommandFailure(command.commandId, cause.squash.getMessage))
+      ZIO.logWarningCause(message, cause) *> ZIO.succeed(
+        GraboidCommandFailure(command.commandId, cause.squash.getMessage)
+      )

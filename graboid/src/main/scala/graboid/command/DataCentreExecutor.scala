@@ -1,9 +1,9 @@
 package graboid.command
 
 import com.softwaremill.macwire.wire
-import graboid.FDSNDataCentre
+import graboid.DataCentre
 import graboid.GraboidException
-import graboid.manager.FDSNDataCentreManager
+import graboid.manager.DataCentreManager
 import graboid.protocol.CreateDataCentre
 import graboid.protocol.DataCentreCommand
 import graboid.protocol.DeleteDataCentre
@@ -11,27 +11,27 @@ import graboid.protocol.UpdateDataCentre
 import zio.Task
 import zio.ZIO
 
-trait DataCentreExecutor: 
+trait DataCentreExecutor:
 
   def apply(command: DataCentreCommand): Task[DataCentreCommand]
 
 object DataCentreExecutor:
 
-  def apply(manager: FDSNDataCentreManager): Task[DataCentreExecutor] =
+  def apply(manager: DataCentreManager): Task[DataCentreExecutor] =
     ZIO.succeed(wire[Impl])
 
-  private class Impl(manager: FDSNDataCentreManager) extends DataCentreExecutor:
+  private class Impl(manager: DataCentreManager) extends DataCentreExecutor:
 
     override def apply(command: DataCentreCommand): Task[DataCentreCommand] =
       command match
         case CreateDataCentre(_, id, url) =>
           for _ <- manager
-                     .add(FDSNDataCentre(id, url))
+                     .add(DataCentre(id, url))
                      .mapError(fancyException(s"It was impossible to create the Data Centre $id!"))
           yield command
         case UpdateDataCentre(_, id, url) =>
           for _ <- manager
-                     .update(FDSNDataCentre(id, url))
+                     .update(DataCentre(id, url))
                      .mapError(fancyException(s"It was impossible to update the Data Centre $id!"))
           yield command
         case DeleteDataCentre(_, id)      =>

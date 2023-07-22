@@ -1,8 +1,8 @@
 package graboid.command
 
-import graboid.FDSNDataCentre
+import graboid.DataCentre
 import graboid.GraboidSpec
-import graboid.manager.FDSNDataCentreManager
+import graboid.manager.DataCentreManager
 import graboid.protocol.DataCentreCommand
 import graboid.protocol.GraboidCommandFixture
 import one.estrondo.sweetmockito.SweetMockito
@@ -21,30 +21,30 @@ object DataCentreExecutorSpec extends GraboidSpec:
   // noinspection TypeAnnotation
   def spec = suite("A DataCentreExecutor")(
     testWellDoneCommand(GraboidCommandFixture.createDataCentre()) { (manager, c) =>
-      val dataCentre = FDSNDataCentre(c.id, c.url)
+      val dataCentre = DataCentre(c.id, c.url)
       SweetMockito.whenF2(manager.add(dataCentre)).thenReturn(dataCentre)
     },
     testWellDoneCommand(GraboidCommandFixture.updateDataCentre()) { (manager, c) =>
-      val dataCentre = FDSNDataCentre(c.id, c.url)
+      val dataCentre = DataCentre(c.id, c.url)
       SweetMockito.whenF2(manager.update(dataCentre)).thenReturn(dataCentre)
     },
     testWellDoneCommand(GraboidCommandFixture.deleteDataCentre()) { (manager, c) =>
-      val dataCentre = FDSNDataCentre(c.id, KeyGenerator.generate(KeyLength.Long))
+      val dataCentre = DataCentre(c.id, KeyGenerator.generate(KeyLength.Long))
       SweetMockito.whenF2(manager.delete(c.id)).thenReturn(dataCentre)
     }
   ).provideSome[Scope](
-    SweetMockitoLayer.newMockLayer[FDSNDataCentreManager],
+    SweetMockitoLayer.newMockLayer[DataCentreManager],
     ZLayer {
-      ZIO.serviceWithZIO[FDSNDataCentreManager](DataCentreExecutor.apply)
+      ZIO.serviceWithZIO[DataCentreManager](DataCentreExecutor.apply)
     }
   )
 
   def testWellDoneCommand[C <: DataCentreCommand](command: C)(
-      fn: (FDSNDataCentreManager, C) => Unit
-  ): Spec[DataCentreExecutor & FDSNDataCentreManager, Throwable] =
+      fn: (DataCentreManager, C) => Unit
+  ): Spec[DataCentreExecutor & DataCentreManager, Throwable] =
     test(s"It should execute a ${command.getClass.getSimpleName} command.") {
       for
-        _      <- ZIO.serviceWith[FDSNDataCentreManager](manager => fn(manager, command))
+        _      <- ZIO.serviceWith[DataCentreManager](manager => fn(manager, command))
         result <- ZIO.serviceWithZIO[DataCentreExecutor](_(command))
       yield assertTrue(result == command)
     }
