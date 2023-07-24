@@ -18,6 +18,7 @@ import zio.kafka.producer.Producer
 import zio.kafka.producer.ProducerSettings
 import zio.kafka.serde.Serde
 import zio.stream.ZStream
+import zio.stream.ZStreamAspect
 
 trait KafkaRouter:
 
@@ -66,14 +67,14 @@ object KafkaRouter:
 
       val producerFunction = kProducer.producerFunction
 
-      ZStream.logInfo(s"Subscribing to the ${kConsumer.topic} topic.") *>
+      (ZStream.logInfo(s"Starting subscription.") *>
         Consumer
           .plainStream(Subscription.topics(kConsumer.topic), Serde.string, Serde.byteArray)
-          .tap(record => ZIO.logDebug(s"Topic ${kConsumer.topic}, offset= ${record.offset.offset}."))
+          .tap(record => ZIO.logDebug(s"New record: offset= ${record.offset.offset}."))
           .mapZIO { record =>
             for either <-
                 summon[KReader[A]](record.value)
-                  .tapErrorCause(ZIO.logWarningCause(s"Message reading error in the topic ${kConsumer.topic}.", _))
+                  .tapErrorCause(ZIO.logWarningCause(s"Message reading error: offset=${record.offset.offset}.", _))
                   .either
             yield (record, either)
           }
@@ -89,31 +90,21 @@ object KafkaRouter:
                 yield message
               }
               .ensuringWith {
-                case Exit.Success(_)     =>
-                  offset.commit.ignoreLogged *> ZIO.logDebug(
-                    s"The message $key from topic ${kConsumer.topic} has been processed."
-                  )
-                case Exit.Failure(cause) =>
-                  ZIO.logWarningCause(s"The message $key of topic ${kConsumer.topic} has failed!", cause)
+                case Exit.Success(_)     => offset.commit.ignoreLogged *> ZIO.logDebug(s"Message has been processed.")
+                case Exit.Failure(cause) => ZIO.logWarningCause(s"Message has failed!", cause)
               }
               .provideLayer(producerLayer)
               .catchAll { cause =>
-                ZStream.fromZIO(
-                  ZIO.logWarningCause(
-                    s"It was impossible to process message $key of the topic ${kConsumer.topic} has failed!",
-                    Cause.die(cause)
-                  )
-                ) *> ZStream.empty
-              }
+                ZStream.fromZIO(ZIO.logWarningCause(s"Unable to process message!", Cause.die(cause))) *> ZStream.empty
+              } @@ ZStreamAspect.annotated(
+              "kafkaRouter.offset" -> offset.offset.toString
+            )
           }
           .catchAll { cause =>
-            ZStream
-              .fromZIO(
-                ZIO.logWarningCause(
-                  s"It was impossible to consume messages of the topic ${kConsumer.topic}!",
-                  Cause.die(cause)
-                )
-              )
-              *> ZStream.empty
+            ZStream.fromZIO(
+              ZIO.logWarningCause(s"It was impossible to consume messages!", Cause.die(cause))
+            ) *> ZStream.empty
           }
-          .provideLayer(consumerLayer)
+          .provideLayer(consumerLayer)) @@ ZStreamAspect.annotated(
+        "kafkaRouter.topic" -> kConsumer.topic
+      )

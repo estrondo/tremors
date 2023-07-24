@@ -10,6 +10,7 @@ import zio.Exit
 import zio.Task
 import zio.UIO
 import zio.ZIO
+import zio.ZIOAspect
 
 trait CommandListener:
 
@@ -23,27 +24,30 @@ object CommandListener:
   private class Impl(executor: CommandExecutor) extends CommandListener:
 
     override def apply(command: GraboidCommand): Task[GraboidCommandResult] =
-      for
-        _        <- ZIO.logDebug(s"A command ${command.commandId} has been received.")
+      (for
+        _        <- ZIO.logDebug(s"Command has been received.")
         exit     <- executor(command).exit
         response <- exit match
-                      case Exit.Success(command)                  =>
-                        ZIO.logDebug(s"Command ${command.commandId} has been proceed.") *> ZIO.succeed(
-                          GraboidCommandSuccess(command.commandId)
-                        )
+                      case Exit.Success(command) =>
+                        for _ <- ZIO.logDebug(s"Command has been proceed.")
+                        yield GraboidCommandSuccess(command.commandId)
+
                       case Exit.Failure(cause @ Cause.Fail(_, _)) =>
-                        reportError(s"Command ${command.commandId} has been failed!", cause, command)
-                      case Exit.Failure(cause @ Cause.Die(_, _))  =>
-                        reportError(s"Command ${command.commandId} has been crashed!", cause, command)
-                      case Exit.Failure(cause)                    =>
-                        reportError(s"Command ${command.commandId} has gone wrong!", cause, command)
-      yield response
+                        reportError(s"Command has been failed!", cause, command)
+
+                      case Exit.Failure(cause @ Cause.Die(_, _)) =>
+                        reportError(s"Command has been crashed!", cause, command)
+
+                      case Exit.Failure(cause) =>
+                        reportError(s"Command has gone wrong!", cause, command)
+      yield response) @@ ZIOAspect.annotated(
+        "commandListener.commandId" -> command.commandId
+      )
 
     private inline def reportError(
         inline message: String,
         inline cause: Cause[Throwable],
         inline command: GraboidCommand
     ): UIO[GraboidCommandResult] =
-      ZIO.logWarningCause(message, cause) *> ZIO.succeed(
-        GraboidCommandFailure(command.commandId, cause.squash.getMessage)
-      )
+      for _ <- ZIO.logWarningCause(message, cause)
+      yield GraboidCommandFailure(command.commandId, cause.squash.getMessage)

@@ -2,7 +2,7 @@
 <Configuration status="off">
     <Appenders>
         <File name="appender" fileName="target/zio-kafka-test.log">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger - %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger - %X - %msg%n"/>
         </File>
     </Appenders>
     <Loggers>

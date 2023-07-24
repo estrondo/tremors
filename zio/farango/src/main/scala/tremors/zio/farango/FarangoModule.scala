@@ -11,6 +11,7 @@ import one.estrondo.farango.zio.given
 import zio.Schedule
 import zio.Task
 import zio.ZIO
+import zio.ZIOAspect
 import zio.durationInt
 
 trait FarangoModule:
@@ -23,27 +24,29 @@ trait FarangoModule:
 
 object FarangoModule:
 
-  val DefaultPort = 8529
+  private val DefaultPort = 8529
 
   def apply(arangoConfig: ArangoConfig): Task[FarangoModule] =
     for
       farangoConfig <- createFarangoConfig(arangoConfig)
       db            <- ZIO.fromTry(SyncDB(farangoConfig))
-      database      <- prepDatabase(db.database(arangoConfig.database))
+      database      <- prepDatabase(db.database(arangoConfig.database), arangoConfig)
     yield Default(db, database)
 
-  private def prepDatabase(database: SyncDatabase): Task[SyncDatabase] =
+  private def prepDatabase(database: SyncDatabase, config: ArangoConfig): Task[SyncDatabase] =
     (for
       exists <- database.exists
-      _      <- if exists then ZIO.unit else ZIO.logDebug(s"Creating the database ${database.name}!") *> database.create()
+      _      <- if exists then ZIO.unit else ZIO.logDebug(s"Creating database!") *> database.create()
     yield database)
       .tapErrorCause(cause =>
-        ZIO.logWarning(s"It was impossible to create the database ${database.name}!") *> ZIO.logDebugCause(
-          s"An error occurred during attempt to create the database ${database.name}!",
-          cause
-        )
+        ZIO.logWarning(s"It was impossible to create database.") *>
+          ZIO.logDebugCause(s"An error occurred during attempt to create a database!", cause)
       )
-      .retry(Schedule.forever && Schedule.spaced(5.seconds))
+      .retry(Schedule.forever && Schedule.spaced(5.seconds)) @@ ZIOAspect.annotated(
+      "farangoModule.database" -> database.name,
+      "farangoModule.hosts"    -> config.hosts,
+      "farangoModule.username" -> config.username
+    )
 
   private def createFarangoConfig(config: ArangoConfig): Task[Config] = ZIO.attempt {
     val regex = """([^:]+)(:(\d+))?""".r

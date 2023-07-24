@@ -110,6 +110,7 @@ lazy val zioKafka = (project in file("zio/kafka"))
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOKafka,
+      Dependencies.ZIOLogging,
       Dependencies.TestcontainersKafka,
       Dependencies.Macwire,
       Dependencies.SweetMockito,
