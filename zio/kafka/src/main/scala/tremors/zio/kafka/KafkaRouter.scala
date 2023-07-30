@@ -27,6 +27,8 @@ trait KafkaRouter:
       kProducer: KProducer[B, C]
   ): ZStream[Any, Nothing, C]
 
+  def subscribe[A: KReader, B: KWriter](kConPro: KConPro[A, B]): ZStream[Any, Nothing, B]
+
 object KafkaRouter:
 
   def apply(clientId: String, config: KafkaConfig): RIO[Scope, KafkaRouter] =
@@ -59,6 +61,12 @@ object KafkaRouter:
     private val consumerLayer = ZLayer.succeed(liveConsumer)
 
     private val producerLayer = ZLayer.succeed(liveProducer)
+
+    override def subscribe[A: KReader, B: KWriter](kConPro: KConPro[A, B]): ZStream[Any, Nothing, B] =
+      val mapper    = kConPro.mapperFunction
+      val kConsumer = KConsumer[A, (String, A)](topic = kConPro.topic, consumer = (k, v) => ZStream.from(k -> v))
+      val kProducer = KProducer.Custom[(String, A), B]((k, v) => mapper(k, v))
+      subscribe(kConsumer, kProducer)
 
     override def subscribe[A: KReader, B, C: KWriter](
         kConsumer: KConsumer[A, B],
@@ -96,15 +104,11 @@ object KafkaRouter:
               .provideLayer(producerLayer)
               .catchAll { cause =>
                 ZStream.fromZIO(ZIO.logWarningCause(s"Unable to process message!", Cause.die(cause))) *> ZStream.empty
-              } @@ ZStreamAspect.annotated(
-              "kafkaRouter.offset" -> offset.offset.toString
-            )
+              } @@ ZStreamAspect.annotated("kafkaRouter.offset" -> offset.offset.toString)
           }
           .catchAll { cause =>
             ZStream.fromZIO(
               ZIO.logWarningCause(s"It was impossible to consume messages!", Cause.die(cause))
             ) *> ZStream.empty
           }
-          .provideLayer(consumerLayer)) @@ ZStreamAspect.annotated(
-        "kafkaRouter.topic" -> kConsumer.topic
-      )
+          .provideLayer(consumerLayer)) @@ ZStreamAspect.annotated("kafkaRouter.topic" -> kConsumer.topic)
