@@ -1,10 +1,12 @@
 package graboid.repository
 import graboid.manager.DataCentreFixture
 import one.estrondo.farango.Collection
+import one.estrondo.farango.Database
 import one.estrondo.farango.sync.SyncCollection
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.zio.farango.FarangoTestContainer
+import tremors.zio.farango.CollectionManager
 import zio.ZIO
 import zio.ZLayer
 import zio.test.Spec
@@ -82,8 +84,14 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
     ZLayer.fromFunction(DataCentreRepository.apply),
     FarangoTestContainer.arangoContainer,
     FarangoTestContainer.farangoDB,
-    FarangoTestContainer.farangoDatabase,
-    FarangoTestContainer.farangoCollection()
+    FarangoTestContainer.farangoDatabase(),
+    FarangoTestContainer.farangoCollection(),
+    ZLayer {
+      for
+        database   <- ZIO.service[Database]
+        collection <- ZIO.service[Collection]
+      yield CollectionManager(collection, database)
+    }
   ) @@ TestAspect.sequential
 
   case class Stored(_key: String, url: String)

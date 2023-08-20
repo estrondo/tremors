@@ -6,12 +6,14 @@ import com.arangodb.model.DocumentUpdateOptions
 import com.softwaremill.macwire.wire
 import graboid.DataCentre
 import io.github.arainko.ducktape.Field
-import one.estrondo.farango.Collection
 import one.estrondo.farango.FarangoTransformer
 import one.estrondo.farango.ducktape.DucktapeTransformer
 import one.estrondo.farango.ducktape.given
 import one.estrondo.farango.zio.given
+import tremors.zio.farango.CollectionManager
+import zio.Schedule
 import zio.Task
+import zio.durationInt
 import zio.stream.ZStream
 
 trait DataCentreRepository:
@@ -30,7 +32,7 @@ object DataCentreRepository:
 
   private val QueryAll = "FOR d IN @@collection SORT d._key ASC RETURN d"
 
-  def apply(collection: Collection): DataCentreRepository =
+  def apply(collectionManager: CollectionManager): DataCentreRepository =
     wire[Impl]
 
   private given FarangoTransformer[DataCentre, Stored] = DucktapeTransformer(
@@ -45,13 +47,19 @@ object DataCentreRepository:
 
   private case class Update(url: String)
 
-  private class Impl(collection: Collection) extends DataCentreRepository:
+  private class Impl(collectionManager: CollectionManager) extends DataCentreRepository:
+
+    private val collection = collectionManager.collection
+
+    private val sakePolicy = Schedule.spaced(5.seconds) && collectionManager.sakePolicy
 
     override def insert(dataCentre: DataCentre): Task[DataCentre] =
-      for entry <- collection.insertDocument[Stored, DataCentre](
-                     dataCentre,
-                     DocumentCreateOptions().returnNew(true)
-                   )
+      for entry <- collection
+                     .insertDocument[Stored, DataCentre](
+                       dataCentre,
+                       DocumentCreateOptions().returnNew(true)
+                     )
+                     .retry(sakePolicy)
       yield entry.getNew
 
     override def update(dataCentre: DataCentre): Task[DataCentre] =

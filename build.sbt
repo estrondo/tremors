@@ -128,6 +128,8 @@ lazy val zioFarango = (project in file("zio/farango"))
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOFarango,
-      Dependencies.TestcontainersScala
+      Dependencies.ZIOLogging,
+      Dependencies.TestcontainersScala,
+      Dependencies.FarangoDucktape
     ).flatten
   )

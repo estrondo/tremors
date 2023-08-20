@@ -1,13 +1,13 @@
 package graboid.repository
 
 import com.softwaremill.macwire.wire
-import one.estrondo.farango.Collection
+import tremors.zio.farango.CollectionManager
 
 trait HypocentreRepository
 
 object HypocentreRepository:
 
-  def apply(collection: Collection): HypocentreRepository =
+  def apply(collectionManager: CollectionManager): HypocentreRepository =
     wire[Impl]
 
-  private class Impl(collection: Collection) extends HypocentreRepository
+  private class Impl(collectionManager: CollectionManager) extends HypocentreRepository

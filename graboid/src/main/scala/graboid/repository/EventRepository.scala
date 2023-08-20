@@ -1,13 +1,13 @@
 package graboid.repository
 
 import com.softwaremill.macwire.wire
-import one.estrondo.farango.Collection
+import tremors.zio.farango.CollectionManager
 
 trait EventRepository
 
 object EventRepository:
 
-  def apply(collection: Collection): EventRepository =
+  def apply(collectionManager: CollectionManager): EventRepository =
     wire[Impl]
 
-private class Impl(collection: Collection) extends EventRepository
+private class Impl(collectionManager: CollectionManager) extends EventRepository
