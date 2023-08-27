@@ -1,7 +1,7 @@
 package graboid.quakeml.reader
 
-import graboid.quakeml.Event
 import graboid.quakeml.parser.Element
+import tremors.quakeml.Event
 import zio.Task
 import zio.ZIO
 

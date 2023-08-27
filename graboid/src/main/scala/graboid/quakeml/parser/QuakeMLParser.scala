@@ -3,8 +3,8 @@ package graboid.quakeml.parser
 import com.fasterxml.aalto.AsyncXMLStreamReader
 import com.fasterxml.aalto.stax.InputFactoryImpl
 import graboid.GraboidException
-import graboid.quakeml.Event
 import graboid.quakeml.reader.QuakeMLReader
+import tremors.quakeml.Event
 import javax.xml.stream.XMLStreamConstants
 import scala.annotation.tailrec
 import scala.collection.immutable.HashMap
@@ -16,9 +16,13 @@ object QuakeMLParser:
   private val MaxLevel = 32
 
   def apply[R](stream: ZStream[R, Throwable, Byte], buffer: Int = 8 * 1024): ZStream[R, Throwable, Event] =
-    stream
-      .grouped(buffer)
-      .flatMap(Default().parse)
+    ZStream
+      .succeed(Parser())
+      .flatMap { parser =>
+        stream
+          .grouped(buffer)
+          .flatMap(parser.parse)
+      }
 
   private def children(nodes: Node*): Map[String, Node] =
     HashMap((for node <- nodes yield node.name -> node)*)
@@ -40,7 +44,7 @@ object QuakeMLParser:
 
   abstract private class EditableNode(children: Map[String, Node]) extends ParentNode(children)
 
-  private class Default:
+  private class Parser:
 
     private val parser = InputFactoryImpl().createAsyncForByteArray()
     private val root   =

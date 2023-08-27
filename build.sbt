@@ -7,7 +7,7 @@ ThisBuild / Test / fork  := true
 
 ThisBuild / scalacOptions ++= Seq(
   "-Wunused:all",
-  "-explain",
+//  "-explain",
   "-deprecation",
   "-unchecked"
 )
@@ -17,17 +17,33 @@ lazy val root = (project in file("."))
     name := "tremors"
   )
   .aggregate(
+    core,
+    quakeML,
     graboid,
     toph,
     zioStarter,
     graboidIt,
     zioFarango,
-    zioKafka
+    zioKafka,
+    zioHttp
+  )
+
+lazy val core = (project in file("core"))
+  .settings(
+    name := "tremors-core"
   )
 
 lazy val generator = (project in file("generator"))
   .settings(
     name := "tremors-generator"
+  )
+
+lazy val quakeML = (project in file("quakeml"))
+  .settings(
+    name := "tremors-quakeml",
+    libraryDependencies ++= Seq(
+      Dependencies.Borer
+    ).flatten
   )
 
 lazy val graboidProtocol = (project in file("graboid-protocol"))
@@ -57,13 +73,17 @@ lazy val graboid = (project in file("graboid"))
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .dependsOn(
+    core,
+    core            % "test->test",
+    quakeML,
     zioStarter,
     zioKafka,
     zioFarango,
     generator,
     generator       % "test->test",
     graboidProtocol,
-    graboidProtocol % "test->test"
+    graboidProtocol % "test->test",
+    zioHttp
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
 
@@ -111,6 +131,7 @@ lazy val zioKafka = (project in file("zio/kafka"))
       Dependencies.ZIO,
       Dependencies.ZIOKafka,
       Dependencies.ZIOLogging,
+      Dependencies.ZIOHttp,
       Dependencies.TestcontainersKafka,
       Dependencies.Macwire,
       Dependencies.SweetMockito,
@@ -132,4 +153,16 @@ lazy val zioFarango = (project in file("zio/farango"))
       Dependencies.TestcontainersScala,
       Dependencies.FarangoDucktape
     ).flatten
+  )
+
+lazy val zioHttp = (project in file("zio/http"))
+  .settings(
+    name := "tremors-zio-http",
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.ZIOHttp
+    ).flatten
+  )
+  .dependsOn(
+    core
   )

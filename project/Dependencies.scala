@@ -47,6 +47,10 @@ object Dependencies {
     "org.apache.logging.log4j" % "log4j-slf4j-impl"  % "2.20.0"
   )
 
+  val ZIOHttp = Seq(
+    "dev.zio" %% "zio-http" % Version.ZIOHttp
+  )
+
   val ZIOKafka = Seq(
     "dev.zio" %% "zio-kafka" % Version.ZIOKafka
   )
@@ -74,5 +78,6 @@ object Dependencies {
     val ZIOConfig           = "4.0.0-RC16"
     val ZIOLogging          = "2.1.13"
     val ZIOKafka            = "2.4.1"
+    val ZIOHttp             = "3.0.0-RC2"
   }
 }

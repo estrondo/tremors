@@ -15,6 +15,6 @@ case class UpdateDataCentre(commandId: String, id: String, url: String) extends 
 
 case class DeleteDataCentre(commandId: String, id: String) extends DataCentreCommand
 
-
 object GraboidCommand:
+
   given Codec[GraboidCommand] = deriveAllCodecs

@@ -1,6 +1,6 @@
 package graboid.quakeml.reader
 
-import graboid.quakeml.ResourceReference
+import tremors.quakeml.ResourceReference
 
 trait TextReader[+T]:
   def apply(text: String): T

@@ -19,4 +19,7 @@
 /graboid-it/target/
 /graboid-protocol/target/
 /graboid-commands/**/*.cbor
+/core/target/
+/quakeml/target/
+/zio/http/target/
 

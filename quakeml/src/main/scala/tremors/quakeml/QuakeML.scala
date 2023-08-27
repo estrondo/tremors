@@ -1,6 +1,19 @@
-package graboid.quakeml
+package tremors.quakeml
 
+import io.bullet.borer.Codec
+import io.bullet.borer.Decoder
+import io.bullet.borer.Encoder
+import io.bullet.borer.derivation.ArrayBasedCodecs.deriveCodec
+import io.bullet.borer.derivation.ArrayBasedCodecs.deriveEncoder
+import java.time.Clock
+import java.time.Instant
 import java.time.ZonedDateTime
+
+given Codec[ZonedDateTime] =
+  val zoneId  = Clock.systemUTC().getZone
+  val encoder = Encoder[Long].contramap[ZonedDateTime](_.toEpochSecond)
+  val decoder = Decoder[Long].map(epochSecond => ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), zoneId))
+  Codec(encoder, decoder)
 
 case class Comment(
     text: String,
@@ -111,3 +124,39 @@ case class TimeQuantity(
     value: ZonedDateTime,
     uncertainty: Option[Double]
 )
+
+object CreationInfo:
+  given Codec[CreationInfo] = deriveCodec
+
+object Comment:
+  given Codec[Comment] = deriveCodec
+
+object ResourceReference:
+  given Codec[ResourceReference] = deriveCodec
+
+object EventDescription:
+  given Codec[EventDescription] = deriveCodec
+
+object TimeQuantity:
+  given Codec[TimeQuantity] = deriveCodec
+
+object RealQuantity:
+  given Codec[RealQuantity] = deriveCodec
+
+object IntegerQuantity:
+  given Codec[IntegerQuantity] = deriveCodec
+
+object OriginQuality:
+  given Codec[OriginQuality] = deriveCodec
+
+object CompositeTime:
+  given Codec[CompositeTime] = deriveCodec
+
+object Origin:
+  given Codec[Origin] = deriveCodec
+
+object Magnitude:
+  given Codec[Magnitude] = deriveCodec
+
+object Event:
+  given Codec[Event] = deriveCodec

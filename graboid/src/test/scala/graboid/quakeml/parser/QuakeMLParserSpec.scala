@@ -2,15 +2,15 @@ package graboid.quakeml.parser
 
 import graboid.GraboidException
 import graboid.GraboidSpec
-import graboid.quakeml.CreationInfo
-import graboid.quakeml.Event
-import graboid.quakeml.EventDescription
-import graboid.quakeml.Magnitude
-import graboid.quakeml.Origin
-import graboid.quakeml.OriginQuality
-import graboid.quakeml.RealQuantity
-import graboid.quakeml.ResourceReference
-import graboid.quakeml.TimeQuantity
+import tremors.quakeml.CreationInfo
+import tremors.quakeml.Event
+import tremors.quakeml.EventDescription
+import tremors.quakeml.Magnitude
+import tremors.quakeml.Origin
+import tremors.quakeml.OriginQuality
+import tremors.quakeml.RealQuantity
+import tremors.quakeml.ResourceReference
+import tremors.quakeml.TimeQuantity
 import java.time.ZonedDateTime
 import zio.test.Assertion
 import zio.test.assert
