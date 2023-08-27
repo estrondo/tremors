@@ -2,6 +2,7 @@ package graboid.quakeml.parser
 
 import graboid.GraboidException
 import graboid.GraboidSpec
+import java.time.ZonedDateTime
 import tremors.quakeml.CreationInfo
 import tremors.quakeml.Event
 import tremors.quakeml.EventDescription
@@ -11,7 +12,6 @@ import tremors.quakeml.OriginQuality
 import tremors.quakeml.RealQuantity
 import tremors.quakeml.ResourceReference
 import tremors.quakeml.TimeQuantity
-import java.time.ZonedDateTime
 import zio.test.Assertion
 import zio.test.assert
 import zio.test.assertTrue

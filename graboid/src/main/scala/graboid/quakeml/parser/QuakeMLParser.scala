@@ -4,10 +4,10 @@ import com.fasterxml.aalto.AsyncXMLStreamReader
 import com.fasterxml.aalto.stax.InputFactoryImpl
 import graboid.GraboidException
 import graboid.quakeml.reader.QuakeMLReader
-import tremors.quakeml.Event
 import javax.xml.stream.XMLStreamConstants
 import scala.annotation.tailrec
 import scala.collection.immutable.HashMap
+import tremors.quakeml.Event
 import zio.Chunk
 import zio.stream.ZStream
 

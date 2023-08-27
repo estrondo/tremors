@@ -45,6 +45,11 @@ lazy val quakeML = (project in file("quakeml"))
       Dependencies.Borer
     ).flatten
   )
+  .dependsOn(
+    generator % Test,
+    core      % Test,
+    core      % "test->test"
+  )
 
 lazy val graboidProtocol = (project in file("graboid-protocol"))
   .settings(
@@ -76,6 +81,7 @@ lazy val graboid = (project in file("graboid"))
     core,
     core            % "test->test",
     quakeML,
+    quakeML         % "test->test",
     zioStarter,
     zioKafka,
     zioFarango,

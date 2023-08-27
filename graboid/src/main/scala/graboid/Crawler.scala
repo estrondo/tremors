@@ -21,7 +21,7 @@ import zio.stream.ZStreamAspect
 
 trait Crawler:
 
-  def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Event]
+  def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Crawler.Result]
 
 object Crawler:
 
@@ -30,9 +30,18 @@ object Crawler:
   def apply(dataCentre: DataCentre): RIO[Client, Crawler] =
     ZIO.succeed(wire[Impl])
 
+  sealed trait Result
+
+  trait Factory:
+    def apply(dataCentre: DataCentre): RIO[Client, Crawler]
+
+  case class Success(event: Event) extends Result
+
+  case class Failed(event: Event, cause: Throwable) extends Result
+
   private class Impl(dataCentre: DataCentre) extends Crawler:
 
-    override def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Event] =
+    override def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Result] =
       val source = for
         url            <- ZIO.fromEither(URL.decode(dataCentre.url))
         newQueryParams <- ZIO.fromTry(summon[UpdateQueryParam[Q]](query, url.queryParams))
@@ -51,14 +60,10 @@ object Crawler:
           "crawler.dataCentre.id" -> dataCentre.id
         )
 
-    private def publish(event: Event): RIO[Producer, Event] =
-      for
+    private def publish(event: Event): RIO[Producer, Result] =
+      (for
         bytes <- ZIO.attempt(Cbor.encode(event).toByteArray)
-        _     <-
-          Producer
-            .produce(ProducerRecord(GraboidEventTopic, bytes), Serde.string, Serde.byteArray)
-            .mapError(
-              GraboidException.CrawlingException(s"It was impossible to publish event ${event.publicId.resourceId}!", _)
-            )
+        _     <- Producer.produce(ProducerRecord(GraboidEventTopic, bytes), Serde.string, Serde.byteArray)
         _     <- ZIO.logDebug(s"Event ${event.publicId.resourceId} was published.")
-      yield event
+      yield Success(event))
+        .catchAll(cause => ZIO.succeed(Failed(event, cause)))

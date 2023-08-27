@@ -5,8 +5,8 @@ import one.estrondo.farango.Database
 import one.estrondo.farango.sync.SyncCollection
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
-import tremors.zio.farango.FarangoTestContainer
 import tremors.zio.farango.CollectionManager
+import tremors.zio.farango.FarangoTestContainer
 import zio.ZIO
 import zio.ZLayer
 import zio.test.Spec

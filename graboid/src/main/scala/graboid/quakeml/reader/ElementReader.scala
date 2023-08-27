@@ -2,6 +2,7 @@ package graboid.quakeml.reader
 
 import graboid.GraboidException
 import graboid.quakeml.parser.Element
+import java.time.ZonedDateTime
 import tremors.quakeml.Comment
 import tremors.quakeml.CompositeTime
 import tremors.quakeml.CreationInfo
@@ -14,7 +15,6 @@ import tremors.quakeml.OriginQuality
 import tremors.quakeml.RealQuantity
 import tremors.quakeml.ResourceReference
 import tremors.quakeml.TimeQuantity
-import java.time.ZonedDateTime
 
 trait ElementReader[+T]:
 
