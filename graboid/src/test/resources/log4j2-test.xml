@@ -6,7 +6,9 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="trace">
+        <Logger name="graboid" level="trace" />
+        <Logger name="tremors" level="trace" />
+        <Root level="off">
             <AppenderRef ref="appender"/>
         </Root>
     </Loggers>

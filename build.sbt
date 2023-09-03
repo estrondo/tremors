@@ -97,7 +97,10 @@ lazy val graboidIt = (project in file("graboid-it"))
   .settings(
     name                     := "tremors-graboid-it",
     skip / publish           := true,
-    parallelExecution / test := false
+    parallelExecution / test := false,
+    libraryDependencies ++= Seq(
+      Dependencies.ZIOLogging
+    ).flatten
   )
   .dependsOn(
     graboid,

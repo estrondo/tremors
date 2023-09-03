@@ -6,6 +6,7 @@ import one.estrondo.farango.Database
 import one.estrondo.farango.zio.given
 import scala.annotation.tailrec
 import zio.Schedule
+import zio.Schedule.WithState
 import zio.Task
 import zio.URIO
 import zio.ZIO
@@ -24,16 +25,19 @@ trait CollectionManager:
 
 object CollectionManager:
 
-  def apply(
+  def apply[S](
       collection: Collection,
       database: Database
   ): CollectionManager =
     new Impl(collection, database)
 
-  private class Impl(val collection: Collection, database: Database) extends CollectionManager:
+  private class Impl(
+      val collection: Collection,
+      database: Database
+  ) extends CollectionManager:
 
-    override val sakePolicy: Schedule[Any, Throwable, Throwable] =
-      Schedule.recurWhileZIO(recreate(_) @@ annotations)
+    override val sakePolicy: WithState[Unit, Any, Throwable, Throwable] =
+      Schedule.recurWhileZIO[Any, Throwable](recreate(_) @@ annotations)
 
     override def create(): Task[Collection] =
       (for
