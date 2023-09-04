@@ -4,6 +4,7 @@ ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 ThisBuild / Test / fork  := true
+ThisBuild / Test / parallelExecution := false
 
 ThisBuild / scalacOptions ++= Seq(
   "-Wunused:all",

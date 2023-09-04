@@ -11,9 +11,7 @@ import one.estrondo.farango.ducktape.DucktapeTransformer
 import one.estrondo.farango.ducktape.given
 import one.estrondo.farango.zio.given
 import tremors.zio.farango.CollectionManager
-import zio.Schedule
 import zio.Task
-import zio.durationInt
 import zio.stream.ZStream
 
 trait DataCentreRepository:
@@ -51,15 +49,13 @@ object DataCentreRepository:
 
     private val collection = collectionManager.collection
 
-    private val sakePolicy = Schedule.spaced(5.seconds) && collectionManager.sakePolicy
-
     override def insert(dataCentre: DataCentre): Task[DataCentre] =
       for entry <- collection
                      .insertDocument[Stored, DataCentre](
                        dataCentre,
                        DocumentCreateOptions().returnNew(true)
                      )
-                     .retry(sakePolicy)
+                     .retry(collectionManager.sakePolicy)
       yield entry.getNew
 
     override def update(dataCentre: DataCentre): Task[DataCentre] =

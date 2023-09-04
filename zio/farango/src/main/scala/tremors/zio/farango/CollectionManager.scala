@@ -11,6 +11,7 @@ import zio.Task
 import zio.URIO
 import zio.ZIO
 import zio.ZIOAspect
+import zio.Zippable
 
 trait CollectionManager:
 
@@ -21,23 +22,22 @@ trait CollectionManager:
 
   def create(): Task[Collection]
 
-  def sakePolicy: Schedule[Any, Throwable, Throwable]
+  def sakePolicy: Schedule.WithState[(Long, Unit), Any, Throwable, Zippable[Long, Throwable]#Out]
 
 object CollectionManager:
 
-  def apply[S](
+  def apply(
       collection: Collection,
-      database: Database
+      database: Database,
+      policy: Schedule.WithState[Long, Any, Any, Long]
   ): CollectionManager =
-    new Impl(collection, database)
+    new Impl(collection, database, policy)
 
-  private class Impl(
-      val collection: Collection,
-      database: Database
-  ) extends CollectionManager:
+  private class Impl(val collection: Collection, database: Database, policy: Schedule.WithState[Long, Any, Any, Long])
+      extends CollectionManager:
 
-    override val sakePolicy: WithState[Unit, Any, Throwable, Throwable] =
-      Schedule.recurWhileZIO[Any, Throwable](recreate(_) @@ annotations)
+    override val sakePolicy: WithState[(Long, Unit), Any, Throwable, Zippable[Long, Throwable]#Out] =
+      policy && Schedule.recurWhileZIO[Any, Throwable](recreate(_) @@ annotations)
 
     override def create(): Task[Collection] =
       (for

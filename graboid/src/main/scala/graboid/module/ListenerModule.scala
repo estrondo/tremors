@@ -6,8 +6,6 @@ import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
 import tremors.generator.KeyLength
 import tremors.zio.kafka.KConPro
-import tremors.zio.kafka.KConsumer
-import tremors.zio.kafka.KProducer
 import tremors.zio.kafka.KReader
 import tremors.zio.kafka.KWriter
 import tremors.zio.kafka.cbor.Borer

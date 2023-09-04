@@ -8,10 +8,10 @@ import org.mockito.Mockito
 import scala.util.Random
 import tremors.zio.farango.CollectionManager
 import tremors.zio.farango.FarangoTestContainer
-import zio.Runtime
+import zio.Schedule
 import zio.ZIO
 import zio.ZLayer
-import zio.logging.backend.SLF4J
+import zio.durationInt
 import zio.test.assertTrue
 
 object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
@@ -64,5 +64,5 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
     FarangoTestContainer.farangoCollection(),
     ZLayer.fromFunction(CrawlingExecutionRepository.apply),
     ZLayer.fromFunction(CollectionManager.apply),
-    Runtime.removeDefaultLoggers >>> SLF4J.slf4j
+    ZLayer.succeed(Schedule.spaced(5.seconds))
   )

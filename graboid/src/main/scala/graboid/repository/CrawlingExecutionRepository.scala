@@ -12,9 +12,7 @@ import one.estrondo.farango.FarangoTransformer
 import one.estrondo.farango.ducktape.DucktapeTransformer
 import one.estrondo.farango.zio.given
 import tremors.zio.farango.CollectionManager
-import zio.Schedule
 import zio.Task
-import zio.durationInt
 
 trait CrawlingExecutionRepository:
 
@@ -59,12 +57,10 @@ object CrawlingExecutionRepository:
   private class Impl(collectionManager: CollectionManager, zonedDateTimeService: ZonedDateTimeService)
       extends CrawlingExecutionRepository:
 
-    private val sakePolicy = Schedule.spaced(5.seconds) && collectionManager.sakePolicy
-
     override def insert(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <-
           collection.insertDocument[Stored, CrawlingExecution](execution, DocumentCreateOptions().returnNew(true))
-      yield entity.getNew()).retry(sakePolicy)
+      yield entity.getNew()).retry(collectionManager.sakePolicy)
 
     private def collection = collectionManager.collection
 
@@ -74,7 +70,7 @@ object CrawlingExecutionRepository:
                        execution,
                        DocumentUpdateOptions().returnNew(true)
                      )
-      yield entity.getNew()).retry(sakePolicy)
+      yield entity.getNew()).retry(collectionManager.sakePolicy)
 
     override def updateState(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateState, CrawlingExecution](
@@ -82,7 +78,7 @@ object CrawlingExecutionRepository:
                        execution,
                        DocumentUpdateOptions().returnNew(true)
                      )
-      yield entity.getNew()).retry(sakePolicy)
+      yield entity.getNew()).retry(collectionManager.sakePolicy)
 
     private given FarangoTransformer[CrawlingExecution, UpdateCounting] with
       override def transform(execution: CrawlingExecution): UpdateCounting = UpdateCounting(

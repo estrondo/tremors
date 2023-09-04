@@ -31,30 +31,28 @@ object CollectionManagerSpec extends ZIOSpecDefault:
         val domain = Domain("123", "Ronaldo")
 
         for
-          manager   <- ZIO.service[CollectionManager]
-          sakePolicy = Schedule.spaced(5.seconds) && manager.sakePolicy
-          fiberRef  <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
-                         .insertDocument[Stored, Stored](domain)
-                         .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
-                         .retry(sakePolicy)
-                         .fork
-          _         <- TestClock.adjust(10.seconds)
-          _         <- fiberRef.join
+          manager  <- ZIO.service[CollectionManager]
+          fiberRef <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
+                        .insertDocument[Stored, Stored](domain)
+                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
+                        .retry(manager.sakePolicy)
+                        .fork
+          _        <- TestClock.adjust(10.seconds)
+          _        <- fiberRef.join
         yield assertTrue(true)
       }.provideSome[SyncDB](collectionManagerLayer(createDatabase = false, createCollection = false)),
       test("It should recreate only the collection.") {
         val domain = Domain("123", "Ronaldo")
 
         for
-          manager   <- ZIO.service[CollectionManager]
-          sakePolicy = Schedule.spaced(5.seconds) && manager.sakePolicy
-          fiberRef  <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
-                         .insertDocument[Stored, Stored](domain)
-                         .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
-                         .retry(sakePolicy)
-                         .fork
-          _         <- TestClock.adjust(10.seconds)
-          _         <- fiberRef.join
+          manager  <- ZIO.service[CollectionManager]
+          fiberRef <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
+                        .insertDocument[Stored, Stored](domain)
+                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
+                        .retry(manager.sakePolicy)
+                        .fork
+          _        <- TestClock.adjust(10.seconds)
+          _        <- fiberRef.join
         yield assertTrue(true)
       }.provideSome[SyncDB](collectionManagerLayer(createDatabase = true, createCollection = false))
     ).provideSome[Scope](
@@ -69,7 +67,7 @@ object CollectionManagerSpec extends ZIOSpecDefault:
         for
           database   <- ZIO.service[Database]
           collection <- ZIO.service[Collection]
-        yield CollectionManager(collection, database)
+        yield CollectionManager(collection, database, Schedule.recurs(10))
       }
 
   case class Stored(_key: String, name: String)

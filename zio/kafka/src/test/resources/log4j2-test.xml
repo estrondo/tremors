@@ -6,7 +6,8 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="debug">
+        <Logger name="tremors" level="trace" />
+        <Root level="off">
             <AppenderRef ref="appender"/>
         </Root>
     </Loggers>

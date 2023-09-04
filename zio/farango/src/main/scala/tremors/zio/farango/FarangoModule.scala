@@ -6,8 +6,10 @@ import one.estrondo.farango.Config
 import one.estrondo.farango.IndexDescription
 import one.estrondo.farango.sync.SyncDatabase
 import one.estrondo.farango.sync.SyncDB
+import zio.Schedule
 import zio.Task
 import zio.ZIO
+import zio.durationInt
 
 trait FarangoModule:
 
@@ -50,5 +52,5 @@ object FarangoModule:
         indexes: Seq[IndexDescription] = Nil,
         options: CollectionCreateOptions = CollectionCreateOptions().waitForSync(true)
     ): Task[CollectionManager] = ZIO.succeed {
-      CollectionManager(database.collection(name, indexes, options), database)
+      CollectionManager(database.collection(name, indexes, options), database, Schedule.spaced(5.seconds))
     }

@@ -7,8 +7,10 @@ import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.zio.farango.CollectionManager
 import tremors.zio.farango.FarangoTestContainer
+import zio.Schedule
 import zio.ZIO
 import zio.ZLayer
+import zio.durationInt
 import zio.test.Spec
 import zio.test.TestAspect
 import zio.test.assertTrue
@@ -90,7 +92,7 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
       for
         database   <- ZIO.service[Database]
         collection <- ZIO.service[Collection]
-      yield CollectionManager(collection, database)
+      yield CollectionManager(collection, database, Schedule.spaced(1.second))
     }
   ) @@ TestAspect.sequential
 

@@ -1,6 +1,5 @@
 package tremors.zio.farango
 
-import com.arangodb.model.CollectionCreateOptions
 import com.dimafeng.testcontainers.GenericContainer
 import one.estrondo.farango.Config
 import one.estrondo.farango.sync.SyncCollection
