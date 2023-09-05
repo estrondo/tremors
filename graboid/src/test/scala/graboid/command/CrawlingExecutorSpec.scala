@@ -1,6 +1,6 @@
 package graboid.command
 
-import graboid.Crawler
+import graboid.EventCrawler
 import graboid.CrawlingExecution
 import graboid.DataCentre
 import graboid.GraboidSpec
@@ -42,7 +42,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
     },
     test("It should successfully execute some events.") {
       for
-        result        <- test(ZStream.fromIterable(Seq(Crawler.Success(EventFixture.createRandom()))))
+        result        <- test(ZStream.fromIterable(Seq(EventCrawler.Success(EventFixture.createRandom()))))
         (execution, _) = result
       yield assertTrue(
         execution.succeed == 1,
@@ -54,8 +54,8 @@ object CrawlingExecutorSpec extends GraboidSpec:
         result        <- test(
                            ZStream.fromIterable(
                              Seq(
-                               Crawler.Success(EventFixture.createRandom()),
-                               Crawler.Failed(EventFixture.createRandom(), new RuntimeException())
+                               EventCrawler.Success(EventFixture.createRandom()),
+                               EventCrawler.Failed(EventFixture.createRandom(), new RuntimeException())
                              )
                            )
                          )
@@ -80,18 +80,18 @@ object CrawlingExecutorSpec extends GraboidSpec:
     SweetMockitoLayer.newMockLayer[Producer],
     SweetMockitoLayer.newMockLayer[Client],
     SweetMockitoLayer.newMockLayer[KeyGenerator],
-    SweetMockitoLayer.newMockLayer[Crawler.Factory],
-    SweetMockitoLayer.newMockLayer[Crawler],
+    SweetMockitoLayer.newMockLayer[EventCrawler.Factory],
+    SweetMockitoLayer.newMockLayer[EventCrawler],
     ZLayer {
       for
         repository   <- ZIO.service[CrawlingExecutionRepository]
-        factory      <- ZIO.service[Crawler.Factory]
+        factory      <- ZIO.service[EventCrawler.Factory]
         keyGenerator <- ZIO.service[KeyGenerator]
       yield CrawlingExecutor(repository, factory, keyGenerator)
     }
   )
 
-  private def test(stream: ZStream[Any, Throwable, Crawler.Result]) =
+  private def test(stream: ZStream[Any, Throwable, EventCrawler.Result]) =
     val context = Context()
     import context.*
 
@@ -102,8 +102,8 @@ object CrawlingExecutorSpec extends GraboidSpec:
       _             = Mockito.when(timeService.now()).thenReturn(zonedDateTime)
       _             = Mockito.when(keyGenerator.generate(KeyLength.Medium)).thenReturn(id)
 
-      crawler <- ZIO.service[Crawler]
-      factory <- ZIO.service[Crawler.Factory]
+      crawler <- ZIO.service[EventCrawler]
+      factory <- ZIO.service[EventCrawler.Factory]
 
       _ = Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
       _ = Mockito.when(crawler(eqTo(query))(using any())).thenReturn(stream)

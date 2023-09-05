@@ -12,6 +12,7 @@ import zio.Schedule
 import zio.ZIO
 import zio.ZLayer
 import zio.durationInt
+import zio.test.TestAspect
 import zio.test.assertTrue
 
 object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
@@ -65,4 +66,4 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
     ZLayer.fromFunction(CrawlingExecutionRepository.apply),
     ZLayer.fromFunction(CollectionManager.apply),
     ZLayer.succeed(Schedule.spaced(5.seconds))
-  )
+  ) @@ TestAspect.sequential

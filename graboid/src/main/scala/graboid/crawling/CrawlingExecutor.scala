@@ -1,7 +1,7 @@
 package graboid.crawling
 
 import com.softwaremill.macwire.wire
-import graboid.Crawler
+import graboid.EventCrawler
 import graboid.CrawlingExecution
 import graboid.DataCentre
 import graboid.repository.CrawlingExecutionRepository
@@ -26,16 +26,16 @@ trait CrawlingExecutor:
 object CrawlingExecutor:
 
   def apply(
-      repository: CrawlingExecutionRepository,
-      crawlerFactory: Crawler.Factory,
-      keyGenerator: KeyGenerator
+             repository: CrawlingExecutionRepository,
+             crawlerFactory: EventCrawler.Factory,
+             keyGenerator: KeyGenerator
   ): CrawlingExecutor =
     wire[Impl]
 
   private class Impl(
-      repository: CrawlingExecutionRepository,
-      crawlerFactory: Crawler.Factory,
-      keyGenerator: KeyGenerator
+                      repository: CrawlingExecutionRepository,
+                      crawlerFactory: EventCrawler.Factory,
+                      keyGenerator: KeyGenerator
   ) extends CrawlingExecutor:
 
     override def execute(
@@ -75,8 +75,8 @@ object CrawlingExecutor:
                          .mapAccumZIO(execution.copy(state = CrawlingExecution.State.Running)) { (execution, chunk) =>
                            val newExecution = chunk
                              .foldLeft(execution) {
-                               case (execution, _: Crawler.Success) => execution.copy(succeed = execution.succeed + 1)
-                               case (execution, _: Crawler.Failed)  => execution.copy(failed = execution.failed + 1)
+                               case (execution, _: EventCrawler.Success) => execution.copy(succeed = execution.succeed + 1)
+                               case (execution, _: EventCrawler.Failed)  => execution.copy(failed = execution.failed + 1)
                              }
                              .copy(updatedAt = Some(timeService.now()))
 

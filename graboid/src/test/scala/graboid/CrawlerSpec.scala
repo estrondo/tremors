@@ -24,10 +24,10 @@ object CrawlerSpec extends GraboidSpec:
         val query = CrawlingQueryFixture.createRandom()
 
         for
-          crawler    <- ZIO.service[Crawler]
+          crawler    <- ZIO.service[EventCrawler]
           dataCentre <- ZIO.service[DataCentre]
 
-          url           <- ZIO.fromEither(URL.decode(dataCentre.url))
+          url           <- ZIO.fromEither(URL.decode(dataCentre.event.get))
           newQueryParams = url.queryParams
                              .add("starttime", query.starting.toString)
                              .add("endtime", query.ending.toString)
@@ -50,10 +50,10 @@ object CrawlerSpec extends GraboidSpec:
         val query = CrawlingQueryFixture.createRandom()
 
         for
-          crawler    <- ZIO.service[Crawler]
+          crawler    <- ZIO.service[EventCrawler]
           dataCentre <- ZIO.service[DataCentre]
 
-          url           <- ZIO.fromEither(URL.decode(dataCentre.url))
+          url           <- ZIO.fromEither(URL.decode(dataCentre.event.get))
           newQueryParams = url.queryParams
                              .add("starttime", query.starting.toString)
                              .add("endtime", query.ending.toString)
@@ -78,6 +78,6 @@ object CrawlerSpec extends GraboidSpec:
       SweetMockitoLayer.newMockLayer[Client],
       SweetMockitoLayer.newMockLayer[Producer],
       ZLayer {
-        ZIO.serviceWithZIO[DataCentre](Crawler.apply)
+        ZIO.serviceWithZIO[DataCentre](EventCrawler.apply)
       }
     )

@@ -41,9 +41,9 @@ object DataCentreRepository:
     Field.renamed(_.id, _._key)
   )
 
-  private case class Stored(_key: String, url: String)
+  private case class Stored(_key: String, event: Option[String], dataselect: Option[String])
 
-  private case class Update(url: String)
+  private case class Update(event: Option[String], dataselect: Option[String])
 
   private class Impl(collectionManager: CollectionManager) extends DataCentreRepository:
 

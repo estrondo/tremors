@@ -1,5 +1,6 @@
 package graboid.crawling
 
+import graboid.CrawlingScheduling
 import graboid.CrawlingSchedulingFixture
 import graboid.GraboidSpec
 import graboid.manager.DataCentreFixture
@@ -18,7 +19,7 @@ object CrawlingSchedulerSpec extends GraboidSpec:
   def spec = suite("CrawlingSchedulerSpec")(
     test("It should add a scheduling.") {
       val dataCentre = DataCentreFixture.createRandom()
-      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre)
+      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
       for
         _     <- SweetMockitoLayer[CrawlingSchedulingRepository].whenF2(_.insert(expected)).thenReturn(expected)
         added <- ZIO.serviceWithZIO[CrawlingScheduler](_.add(expected))
@@ -26,7 +27,7 @@ object CrawlingSchedulerSpec extends GraboidSpec:
     },
     test("It should update a scheduling.") {
       val dataCentre = DataCentreFixture.createRandom()
-      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre)
+      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
       for
         _     <- SweetMockitoLayer[CrawlingSchedulingRepository].whenF2(_.update(expected)).thenReturn(expected)
         added <- ZIO.serviceWithZIO[CrawlingScheduler](_.update(expected))
@@ -34,7 +35,7 @@ object CrawlingSchedulerSpec extends GraboidSpec:
     },
     test("It should remove a scheduling") {
       val dataCentre = DataCentreFixture.createRandom()
-      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre)
+      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
       for
         _     <- SweetMockitoLayer[CrawlingSchedulingRepository].whenF2(_.delete(expected.id)).thenReturn(expected)
         added <- ZIO.serviceWithZIO[CrawlingScheduler](_.remove(expected.id))
@@ -42,7 +43,8 @@ object CrawlingSchedulerSpec extends GraboidSpec:
     },
     test("It should search for scheduling at a specific moment.") {
       val dataCentre   = DataCentreFixture.createRandom()
-      val expectedOnes = for (_ <- 0 until 10) yield CrawlingSchedulingFixture.createRandom(dataCentre)
+      val expectedOnes =
+        for (_ <- 0 until 10) yield CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
       val moment       = ZonedDateTimeFixture.createRandom()
       for
         _      <- ZIO.serviceWith[CrawlingSchedulingRepository](mock =>

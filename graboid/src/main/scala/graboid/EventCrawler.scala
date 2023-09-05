@@ -1,6 +1,5 @@
 package graboid
 
-import com.softwaremill.macwire.wire
 import graboid.http.UpdateQueryParam
 import graboid.quakeml.parser.QuakeMLParser
 import io.bullet.borer.Cbor
@@ -19,31 +18,33 @@ import zio.kafka.serde.Serde
 import zio.stream.ZStream
 import zio.stream.ZStreamAspect
 
-trait Crawler:
+trait EventCrawler:
 
-  def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Crawler.Result]
+  def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, EventCrawler.Result]
 
-object Crawler:
+object EventCrawler:
 
   val GraboidEventTopic = "graboid.event"
 
-  def apply(dataCentre: DataCentre): RIO[Client, Crawler] =
-    ZIO.succeed(wire[Impl])
+  def apply(dataCentre: DataCentre): RIO[Client, EventCrawler] =
+    dataCentre.event match
+      case Some(event) => ZIO.succeed(Impl(dataCentre, event))
+      case None        => ZIO.fail(GraboidException.CrawlingException(s"DataCentre ${dataCentre.id} has no event URL!"))
 
   sealed trait Result
 
   trait Factory:
-    def apply(dataCentre: DataCentre): RIO[Client, Crawler]
+    def apply(dataCentre: DataCentre): RIO[Client, EventCrawler]
 
   case class Success(event: Event) extends Result
 
   case class Failed(event: Event, cause: Throwable) extends Result
 
-  private class Impl(dataCentre: DataCentre) extends Crawler:
+  private class Impl(dataCentre: DataCentre, event: String) extends EventCrawler:
 
     override def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Result] =
       val source = for
-        url            <- ZIO.fromEither(URL.decode(dataCentre.url))
+        url            <- ZIO.fromEither(URL.decode(event))
         newQueryParams <- ZIO.fromTry(summon[UpdateQueryParam[Q]](query, url.queryParams))
         response       <- HttpChecker[ExternalServiceException](
                             "An external error occurred!",

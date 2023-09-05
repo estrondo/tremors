@@ -15,6 +15,7 @@ import zio.kafka.producer.Producer
 import zio.kafka.serde.Serde
 import zio.stream.ZSink
 import zio.stream.ZStream
+import zio.test.TestAspect
 import zio.test.TestClock
 import zio.test.assertTrue
 
@@ -81,7 +82,7 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
         )
       )
     }
-  )
+  ) @@ TestAspect.sequential
 
   case class Input(id: String = UUID.randomUUID().toString, key: String = UUID.randomUUID().toString)
 

@@ -29,7 +29,7 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
                     }
                   )
       yield assertTrue(
-        stored.url == expected.url,
+        stored.event == expected.event,
         stored._key == expected.id
       )
     },
@@ -39,14 +39,14 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
 
       for
         _      <- ZIO.serviceWithZIO[DataCentreRepository](_.insert(expected))
-        _      <- ZIO.serviceWithZIO[DataCentreRepository](_.update(expected.copy(url = expectedUrl)))
+        _      <- ZIO.serviceWithZIO[DataCentreRepository](_.update(expected.copy(event = Some(expectedUrl))))
         stored <- ZIO.serviceWithZIO[SyncCollection](x =>
                     ZIO.attemptBlocking {
                       x.arango.getDocument(expected.id, classOf[Stored])
                     }
                   )
       yield assertTrue(
-        stored.url == expectedUrl,
+        stored.event.contains(expectedUrl),
         stored._key == expected.id
       )
     },
@@ -96,4 +96,4 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
     }
   ) @@ TestAspect.sequential
 
-  case class Stored(_key: String, url: String)
+  case class Stored(_key: String, event: Option[String], dataselect: Option[String])

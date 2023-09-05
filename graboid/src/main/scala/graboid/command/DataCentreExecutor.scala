@@ -24,14 +24,14 @@ object DataCentreExecutor:
 
     override def apply(command: DataCentreCommand): Task[DataCentreCommand] =
       command match
-        case CreateDataCentre(_, id, url) =>
+        case CreateDataCentre(_, id, event, dataselect) =>
           for _ <- manager
-                     .add(DataCentre(id, url))
+                     .add(DataCentre(id, event, dataselect))
                      .mapError(fancyException(s"It was impossible to create the Data Centre $id!"))
           yield command
-        case UpdateDataCentre(_, id, url) =>
+        case UpdateDataCentre(_, id, event, dataselect) =>
           for _ <- manager
-                     .update(DataCentre(id, url))
+                     .update(DataCentre(id, event, dataselect))
                      .mapError(fancyException(s"It was impossible to update the Data Centre $id!"))
           yield command
         case DeleteDataCentre(_, id)      =>
