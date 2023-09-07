@@ -1,18 +1,19 @@
 package graboid.http
 
-import scala.util.Try
+import zio.Task
 import zio.http.QueryParams
 
 trait UpdateQueryParam[-T]:
 
-  def apply(value: T, queryParams: QueryParams): Try[QueryParams] =
-    for params <- getParams(value) yield params.foldLeft(queryParams) { case (newQueryParams, (key, value)) =>
-      newQueryParams.add(key, value)
+  def apply(value: T, queryParams: QueryParams): Task[Seq[QueryParams]] =
+    for allParams <- getParams(value) yield for params <- allParams yield params.foldLeft(queryParams) {
+      case (queryParams, (key, value)) =>
+        queryParams.add(key, value)
     }
 
-  def getParams(value: T): Try[Iterable[(String, String)]]
+  def getParams(value: T): Task[Seq[Iterable[(String, String)]]]
 
 object UpdateQueryParam:
 
-  def apply[Q: UpdateQueryParam](query: Q, queryParams: QueryParams): Try[QueryParams] =
+  def apply[Q: UpdateQueryParam](query: Q, queryParams: QueryParams): Task[Seq[QueryParams]] =
     summon[UpdateQueryParam[Q]](query, queryParams)

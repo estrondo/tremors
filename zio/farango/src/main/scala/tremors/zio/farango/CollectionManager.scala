@@ -20,6 +20,8 @@ trait CollectionManager:
 
   def collection: Collection
 
+  def database: Database
+
   def create(): Task[Collection]
 
   def sakePolicy: Schedule.WithState[(Long, Unit), Any, Throwable, Zippable[Long, Throwable]#Out]
@@ -33,7 +35,7 @@ object CollectionManager:
   ): CollectionManager =
     new Impl(collection, database, policy)
 
-  private class Impl(val collection: Collection, database: Database, policy: Schedule.WithState[Long, Any, Any, Long])
+  private class Impl(val collection: Collection, val database: Database, policy: Schedule.WithState[Long, Any, Any, Long])
       extends CollectionManager:
 
     override val sakePolicy: WithState[(Long, Unit), Any, Throwable, Zippable[Long, Throwable]#Out] =

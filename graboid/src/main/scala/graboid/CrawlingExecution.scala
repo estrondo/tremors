@@ -4,8 +4,7 @@ import java.time.ZonedDateTime
 
 case class CrawlingExecution(
     id: String,
-    schedulingId: String,
-    createdAt: ZonedDateTime,
+    startedAt: ZonedDateTime,
     updatedAt: Option[ZonedDateTime],
     succeed: Long,
     failed: Long,

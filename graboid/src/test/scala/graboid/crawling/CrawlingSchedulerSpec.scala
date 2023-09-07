@@ -1,61 +1,73 @@
 package graboid.crawling
 
-import graboid.CrawlingScheduling
-import graboid.CrawlingSchedulingFixture
 import graboid.GraboidSpec
 import graboid.manager.DataCentreFixture
-import graboid.repository.CrawlingSchedulingRepository
+import graboid.time.ZonedDateTimeService
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito
 import tremors.ZonedDateTimeFixture
+import tremors.quakeml.EventFixture
+import tremors.zio.farango.DataStore
 import zio.ZIO
 import zio.ZLayer
+import zio.http.Client
+import zio.kafka.producer.Producer
 import zio.stream.ZStream
 import zio.test.assertTrue
 
 object CrawlingSchedulerSpec extends GraboidSpec:
 
   def spec = suite("CrawlingSchedulerSpec")(
-    test("It should add a scheduling.") {
-      val dataCentre = DataCentreFixture.createRandom()
-      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
-      for
-        _     <- SweetMockitoLayer[CrawlingSchedulingRepository].whenF2(_.insert(expected)).thenReturn(expected)
-        added <- ZIO.serviceWithZIO[CrawlingScheduler](_.add(expected))
-      yield assertTrue(added == expected)
-    },
-    test("It should update a scheduling.") {
-      val dataCentre = DataCentreFixture.createRandom()
-      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
-      for
-        _     <- SweetMockitoLayer[CrawlingSchedulingRepository].whenF2(_.update(expected)).thenReturn(expected)
-        added <- ZIO.serviceWithZIO[CrawlingScheduler](_.update(expected))
-      yield assertTrue(added == expected)
-    },
-    test("It should remove a scheduling") {
-      val dataCentre = DataCentreFixture.createRandom()
-      val expected   = CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
-      for
-        _     <- SweetMockitoLayer[CrawlingSchedulingRepository].whenF2(_.delete(expected.id)).thenReturn(expected)
-        added <- ZIO.serviceWithZIO[CrawlingScheduler](_.remove(expected.id))
-      yield assertTrue(added == expected)
-    },
-    test("It should search for scheduling at a specific moment.") {
-      val dataCentre   = DataCentreFixture.createRandom()
-      val expectedOnes =
-        for (_ <- 0 until 10) yield CrawlingSchedulingFixture.createRandom(dataCentre, CrawlingScheduling.Service.Event)
-      val moment       = ZonedDateTimeFixture.createRandom()
-      for
-        _      <- ZIO.serviceWith[CrawlingSchedulingRepository](mock =>
-                    Mockito.when(mock.search(moment)).thenReturn(ZStream.fromIterable(expectedOnes))
-                  )
-        result <- ZIO.serviceWithZIO[CrawlingScheduler](_.search(moment).runCollect)
-      yield assertTrue(expectedOnes == result)
-    }
-  ).provideSome(
-    SweetMockitoLayer.newMockLayer[CrawlingSchedulingRepository],
-    ZLayer {
-      ZIO.serviceWithZIO(CrawlingScheduler.apply)
-    }
+    suite("It should to schedule FDSN Event Specification.")(
+      test("It should send a EventCrawling to the CrawlingExecutor.") {
+        val config   = CrawlingSchedulerFixture.EventConfig.createRandom()
+        val previous = ZonedDateTimeFixture.createRandom()
+        val now      = previous.plusHours(4)
+
+        val expectedQuery = EventCrawlingQuery(
+          starting = previous,
+          ending = now,
+          timeWindow = config.queryWindow,
+          queries =
+            for query <- config.queries
+            yield EventCrawlingQuery.Query(
+              magnitudeType = query.magnitudeType,
+              eventType = query.eventType,
+              min = query.minMagnitude,
+              max = query.maxMagnitude
+            )
+        )
+
+        val event       = EventFixture.createRandom()
+        val foundEvents = Seq(EventCrawler.FoundEvent(DataCentreFixture.createRandom(), event))
+
+        for
+          _        <- SweetMockitoLayer[DataStore]
+                        .whenF2(_.get(eqTo(CrawlingScheduler.EventTimeMark))(any()))
+                        .thenReturn(Some(previous))
+          _        <- SweetMockitoLayer[DataStore]
+                        .whenF2(_.put(eqTo(CrawlingScheduler.EventTimeMark), eqTo(now))(any(), any()))
+                        .thenReturn(Some(now))
+          _        <- ZIO.serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(now))
+          executor <- ZIO.service[CrawlingExecutor]
+          _         = Mockito.when(executor.execute(expectedQuery)).thenReturn(ZStream.fromIterable(foundEvents))
+
+          result <- ZIO.serviceWithZIO[CrawlingScheduler](_.start(config).runCollect)
+        yield assertTrue(result == Seq(event))
+      }
+    ).provideSome(
+      SweetMockitoLayer.newMockLayer[Client],
+      SweetMockitoLayer.newMockLayer[Producer],
+      SweetMockitoLayer.newMockLayer[DataStore],
+      SweetMockitoLayer.newMockLayer[ZonedDateTimeService],
+      SweetMockitoLayer.newMockLayer[CrawlingExecutor],
+      ZLayer {
+        for
+          dataStore        <- ZIO.service[DataStore]
+          crawlingExecutor <- ZIO.service[CrawlingExecutor]
+          scheduler        <- CrawlingScheduler(dataStore, crawlingExecutor)
+        yield scheduler
+      }
+    )
   )

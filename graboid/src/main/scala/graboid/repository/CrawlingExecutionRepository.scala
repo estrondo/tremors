@@ -42,8 +42,7 @@ object CrawlingExecutionRepository:
 
   case class Stored(
       _key: String,
-      schedulingId: String,
-      createdAt: ZonedDateTime,
+      startedAt: ZonedDateTime,
       updatedAt: Option[ZonedDateTime],
       succeed: Long,
       failed: Long,
@@ -62,8 +61,6 @@ object CrawlingExecutionRepository:
           collection.insertDocument[Stored, CrawlingExecution](execution, DocumentCreateOptions().returnNew(true))
       yield entity.getNew()).retry(collectionManager.sakePolicy)
 
-    private def collection = collectionManager.collection
-
     override def updateCounting(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateCounting, CrawlingExecution](
                        execution.id,
@@ -71,6 +68,8 @@ object CrawlingExecutionRepository:
                        DocumentUpdateOptions().returnNew(true)
                      )
       yield entity.getNew()).retry(collectionManager.sakePolicy)
+
+    private def collection = collectionManager.collection
 
     override def updateState(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateState, CrawlingExecution](

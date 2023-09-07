@@ -1,62 +1,99 @@
 package graboid.crawling
 
 import com.softwaremill.macwire.wire
-import graboid.CrawlingScheduling
-import graboid.repository.CrawlingSchedulingRepository
+import graboid.crawling.CrawlingScheduler.EventConfig
+import graboid.time.ZonedDateTimeService
+import java.time.Duration
 import java.time.ZonedDateTime
+import tremors.quakeml.Event
+import tremors.zio.farango.DataStore
+import zio.Cause
 import zio.Task
 import zio.ZIO
-import zio.ZIOAspect
+import zio.http.Client
+import zio.kafka.producer.Producer
 import zio.stream.ZStream
 
 trait CrawlingScheduler:
 
-  def add(scheduling: CrawlingScheduling): Task[CrawlingScheduling]
-
-  def remove(id: String): Task[CrawlingScheduling]
-
-  def update(scheduling: CrawlingScheduling): Task[CrawlingScheduling]
-
-  def search(moment: ZonedDateTime): ZStream[Any, Throwable, CrawlingScheduling]
+  def start(config: EventConfig): ZStream[ZonedDateTimeService & Client & Producer, Nothing, Event]
 
 object CrawlingScheduler:
 
-  def apply(repository: CrawlingSchedulingRepository): Task[CrawlingScheduler] =
-    ZIO.succeed(wire[Impl])
+  val EventTimeMark = "crawling.scheduler.eventTimeMark"
 
-  private class Impl(repository: CrawlingSchedulingRepository) extends CrawlingScheduler:
+  def apply(dataStore: DataStore, crawlingExecutor: CrawlingExecutor): Task[CrawlingScheduler] = ZIO.succeed(wire[Impl])
 
-    override def add(scheduling: CrawlingScheduling): Task[CrawlingScheduling] =
-      (for
-        added <- repository
-                   .insert(scheduling)
-                   .tapErrorCause(ZIO.logErrorCause("It was impossible to add a new scheduling!", _))
-        _     <- ZIO.logInfo("New scheduling has been added.")
-      yield added) @@ annotateWith(scheduling)
+  case class EventConfig(
+      interval: Duration,
+      queryWindow: Duration,
+      queries: Seq[EventQuery]
+  )
 
-    override def remove(id: String): Task[CrawlingScheduling] =
-      for
-        removed <- repository
-                     .delete(id)
-                     .tapErrorCause(ZIO.logErrorCause(s"It was impossible to remove $id!", _))
-        _       <- ZIO.logInfo(s"Scheduling $id has benn removed.")
-      yield removed
+  case class EventQuery(
+      magnitudeType: Option[String],
+      minMagnitude: Option[Double],
+      maxMagnitude: Option[Double],
+      eventType: Option[String]
+  )
 
-    override def update(scheduling: CrawlingScheduling): Task[CrawlingScheduling] =
-      (for
-        updated <- repository
-                     .update(scheduling)
-                     .tapErrorCause(ZIO.logErrorCause(s"It was impossible to update Scheduling.", _))
-        _       <- ZIO.logInfo("Scheduling has been updated.")
-      yield updated) @@ annotateWith(scheduling)
+  private class Impl(dataStore: DataStore, crawlingExecutor: CrawlingExecutor) extends CrawlingScheduler:
 
-    private def annotateWith(scheduling: CrawlingScheduling) =
-      ZIOAspect.annotated(
-        "crawlingScheduling.id"           -> scheduling.id,
-        "crawlingScheduling.dataCentreId" -> scheduling.dataCentreId
-      )
+    override def start(config: EventConfig): ZStream[ZonedDateTimeService & Client & Producer, Nothing, Event] =
 
-    override def search(moment: ZonedDateTime): ZStream[Any, Throwable, CrawlingScheduling] =
+      def handleTimeRangeError(cause: Throwable) =
+        ZStream.fromZIO(
+          ZIO.logErrorCause(
+            "An unexpected error has occurred while the previous time reference had been searched!",
+            Cause.die(cause)
+          )
+        ) *> ZStream.empty
+
+      def handleTimeRange(starting: ZonedDateTime, ending: ZonedDateTime) =
+        val eventQuery = EventCrawlingQuery(
+          starting = starting,
+          ending = ending,
+          timeWindow = config.queryWindow,
+          queries =
+            for query <- config.queries
+            yield EventCrawlingQuery.Query(
+              magnitudeType = query.magnitudeType,
+              eventType = query.eventType,
+              min = query.minMagnitude,
+              max = query.maxMagnitude
+            )
+        )
+
+        crawlingExecutor
+          .execute(eventQuery)
+          .map(_.event)
+          .catchAll { cause =>
+            ZStream.fromZIO(
+              ZIO.logErrorCause("It was impossible to execute a crawling!", Cause.die(cause))
+            ) *> ZStream.empty
+          }
+          .ensuring(updateDataStore(ending, EventTimeMark))
+
       ZStream
-        .logInfo(s"Searching for scheduling which should run at $moment.")
-        .flatMap(_ => repository.search(moment))
+        .fromZIO(defineNextTimeRange(config))
+        .catchAll(handleTimeRangeError)
+        .flatMap {
+          case Some((starting, ending)) =>
+            ZStream.logInfo(s"Event will be searched between ($starting,$ending).") *> handleTimeRange(starting, ending)
+          case None                     =>
+            ZStream.logInfo("No Events will be searched!") *> ZStream.empty
+        }
+
+    private def updateDataStore(zonedDateTime: ZonedDateTime, key: String) =
+      ZIO.logInfo(s"Updating dataStore[$key] to $zonedDateTime.") <* dataStore.put(key, zonedDateTime).catchAll {
+        cause => ZIO.logErrorCause(s"It was impossible to update DataStore[$key]!", Cause.die(cause))
+      }
+
+    private def defineNextTimeRange(config: EventConfig) =
+      for
+        now      <- ZIO.serviceWith[ZonedDateTimeService](_.now())
+        previous <- dataStore.get[ZonedDateTime](EventTimeMark)
+      yield previous match
+        case Some(previous) if previous.compareTo(now) < 0 => Some(previous -> now)
+        case None                                          => Some(now.minusSeconds(config.interval.toSeconds) -> now)
+        case _                                             => None

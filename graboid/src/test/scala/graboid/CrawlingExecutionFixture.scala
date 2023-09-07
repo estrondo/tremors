@@ -12,8 +12,7 @@ object CrawlingExecutionFixture:
     val createdAt = ZonedDateTimeFixture.createRandom()
     CrawlingExecution(
       id = KeyGenerator.generate(KeyLength.Medium),
-      schedulingId = KeyGenerator.generate(KeyLength.Medium),
-      createdAt = createdAt,
+      startedAt = createdAt,
       updatedAt = Some(createdAt.plus(Random.nextInt(5), ChronoUnit.MINUTES)),
       succeed = Random.nextLong(500),
       failed = Random.nextLong(50),

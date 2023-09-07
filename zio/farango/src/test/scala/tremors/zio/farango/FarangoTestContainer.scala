@@ -47,14 +47,14 @@ object FarangoTestContainer {
 
   def farangoDatabase(create: Boolean = true): ZLayer[SyncDB, Throwable, SyncDatabase] = ZLayer {
     for database <- ZIO.serviceWithZIO[SyncDB](db => {
-                      val database = db.database("test-database")
+                      val database = db.database("testDatabase")
                       if create then database.create() else ZIO.succeed(database)
                     })
     yield database
   }
 
   def farangoCollection(
-      name: String = s"test-collection-${Random.nextInt(10)}",
+      name: String = s"testCollection${Random.nextInt(10)}",
       create: Boolean = true
   ): ZLayer[SyncDatabase, Throwable, SyncCollection] = ZLayer {
     for collection <- ZIO.serviceWithZIO[SyncDatabase](database => {

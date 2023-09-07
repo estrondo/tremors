@@ -1,34 +1,46 @@
 package graboid.crawling
 
+import graboid.crawling.EventCrawlingQuery.Query
 import graboid.http.UpdateQueryParam
+import java.time.Duration
 import java.time.ZonedDateTime
 import scala.collection.immutable.HashMap
-import scala.util.Try
+import zio.Task
+import zio.ZIO
 
 case class EventCrawlingQuery(
-    schedulingId: String,
     starting: ZonedDateTime,
     ending: ZonedDateTime,
-    maxMagnitude: Option[Double],
-    minMagnitude: Option[Double]
+    timeWindow: Duration,
+    queries: Seq[Query]
 )
 
 object EventCrawlingQuery:
 
+  case class Query(
+      magnitudeType: Option[String],
+      eventType: Option[String],
+      min: Option[Double],
+      max: Option[Double]
+  )
+
   given UpdateQueryParam[EventCrawlingQuery] with
 
-    override def getParams(value: EventCrawlingQuery): Try[Map[String, String]] =
-      Try {
-        var result = HashMap(
-          "starttime" -> value.starting.toString,
-          "endtime"   -> value.ending.toString
+    override def getParams(query: EventCrawlingQuery): Task[Seq[Iterable[(String, String)]]] =
+      ZIO.attempt {
+        val template = HashMap(
+          "starttime" -> query.starting.toString,
+          "endtime"   -> query.ending.toString
         )
 
-        def addDouble(opt: Option[Double], name: String): Unit =
-          result = opt.foldLeft(result) { (map, value) => map + (name -> value.toString) }
+        inline def add(map: HashMap[String, String], opt: Option[Any], key: String): HashMap[String, String] =
+          opt match
+            case Some(value) => map + (key -> value.toString)
+            case _           => map
 
-        addDouble(value.maxMagnitude, "maxmagnitude")
-        addDouble(value.minMagnitude, "minmagnitude")
-
-        result
+        for magnitude <- query.queries yield
+          var result = add(template, magnitude.magnitudeType, "magnitudetype")
+          result = add(result, magnitude.min, "minmagnitude")
+          result = add(result, magnitude.max, "maxmagnitude")
+          add(result, magnitude.eventType, "eventtype")
       }
