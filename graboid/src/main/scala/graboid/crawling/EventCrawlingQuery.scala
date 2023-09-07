@@ -5,18 +5,19 @@ import java.time.ZonedDateTime
 import scala.collection.immutable.HashMap
 import scala.util.Try
 
-case class CrawlingQuery(
+case class EventCrawlingQuery(
+    schedulingId: String,
     starting: ZonedDateTime,
     ending: ZonedDateTime,
     maxMagnitude: Option[Double],
     minMagnitude: Option[Double]
 )
 
-object CrawlingQuery:
+object EventCrawlingQuery:
 
-  given UpdateQueryParam[CrawlingQuery] with
+  given UpdateQueryParam[EventCrawlingQuery] with
 
-    override def getParams(value: CrawlingQuery): Try[Map[String, String]] =
+    override def getParams(value: EventCrawlingQuery): Try[Map[String, String]] =
       Try {
         var result = HashMap(
           "starttime" -> value.starting.toString,

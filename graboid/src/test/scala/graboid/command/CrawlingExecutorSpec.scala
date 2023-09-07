@@ -1,12 +1,14 @@
 package graboid.command
 
-import graboid.EventCrawler
 import graboid.CrawlingExecution
+import graboid.CrawlingScheduling
+import graboid.CrawlingSchedulingFixture
 import graboid.DataCentre
 import graboid.GraboidSpec
 import graboid.crawling.CrawlingExecutor
-import graboid.crawling.CrawlingQuery
 import graboid.crawling.CrawlingQueryFixture
+import graboid.crawling.EventCrawler
+import graboid.crawling.EventCrawlingQuery
 import graboid.manager.DataCentreFixture
 import graboid.repository.CrawlingExecutionRepository
 import graboid.time.ZonedDateTimeService
@@ -32,7 +34,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
   override def spec = suite("CrawlingExecutorSpec")(
     test("It should store an empty execution") {
       for
-        result        <- test(ZStream.empty)
+        result        <- testEvent(ZStream.empty)
         (execution, _) = result
       yield assertTrue(
         execution.succeed == 0L,
@@ -42,7 +44,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
     },
     test("It should successfully execute some events.") {
       for
-        result        <- test(ZStream.fromIterable(Seq(EventCrawler.Success(EventFixture.createRandom()))))
+        result        <- testEvent(ZStream.fromIterable(Seq(EventCrawler.Success(EventFixture.createRandom()))))
         (execution, _) = result
       yield assertTrue(
         execution.succeed == 1,
@@ -51,7 +53,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
     },
     test("It should execute with some failures.") {
       for
-        result        <- test(
+        result        <- testEvent(
                            ZStream.fromIterable(
                              Seq(
                                EventCrawler.Success(EventFixture.createRandom()),
@@ -68,7 +70,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
     },
     test("It should mark the the execution as failed.") {
       for
-        result        <- test(ZStream.fail(new IllegalStateException("@@@")))
+        result        <- testEvent(ZStream.fail(new IllegalStateException("@@@")))
         (execution, _) = result
       yield assertTrue(
         execution.state == CrawlingExecution.State.Failed
@@ -91,8 +93,11 @@ object CrawlingExecutorSpec extends GraboidSpec:
     }
   )
 
-  private def test(stream: ZStream[Any, Throwable, EventCrawler.Result]) =
-    val context = Context()
+  private def testEvent(stream: ZStream[Any, Throwable, EventCrawler.Result]) =
+    test(CrawlingScheduling.Service.Event, stream)
+
+  private def test(service: CrawlingScheduling.Service, stream: ZStream[Any, Throwable, EventCrawler.Result]) =
+    val context = Context(service)
     import context.*
 
     for
@@ -106,7 +111,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
       factory <- ZIO.service[EventCrawler.Factory]
 
       _ = Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
-      _ = Mockito.when(crawler(eqTo(query))(using any())).thenReturn(stream)
+      _ = Mockito.when(crawler(eqTo(query))).thenReturn(stream)
 
       _ <- SweetMockitoLayer[CrawlingExecutionRepository]
              .whenF2(_.updateState(any()))
@@ -123,15 +128,16 @@ object CrawlingExecutorSpec extends GraboidSpec:
       result <- executor.execute(context.dataCentre, context.query)
     yield (result, context)
 
-  private class Context {
-    val dataCentre: DataCentre       = DataCentreFixture.createRandom()
-    val query: CrawlingQuery         = CrawlingQueryFixture.createRandom()
-    val zonedDateTime: ZonedDateTime = ZonedDateTimeFixture.createRandom()
-    val id: String                   = KeyGenerator.generate(KeyLength.Medium)
+  private class Context(val service: CrawlingScheduling.Service) {
+    val dataCentre: DataCentre         = DataCentreFixture.createRandom()
+    val query: EventCrawlingQuery      = CrawlingQueryFixture.createRandom()
+    val zonedDateTime: ZonedDateTime   = ZonedDateTimeFixture.createRandom()
+    val id: String                     = KeyGenerator.generate(KeyLength.Medium)
+    val scheduling: CrawlingScheduling = CrawlingSchedulingFixture.createRandom(dataCentre, service)
 
     val execution: CrawlingExecution = CrawlingExecution(
       id = id,
-      dataCentreId = dataCentre.id,
+      schedulingId = scheduling.id,
       createdAt = zonedDateTime,
       updatedAt = None,
       succeed = 0L,

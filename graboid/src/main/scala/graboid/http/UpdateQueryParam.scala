@@ -11,3 +11,8 @@ trait UpdateQueryParam[-T]:
     }
 
   def getParams(value: T): Try[Iterable[(String, String)]]
+
+object UpdateQueryParam:
+
+  def apply[Q: UpdateQueryParam](query: Q, queryParams: QueryParams): Try[QueryParams] =
+    summon[UpdateQueryParam[Q]](query, queryParams)

@@ -1,7 +1,6 @@
 package graboid.crawling
 
 import com.softwaremill.macwire.wire
-import graboid.EventCrawler
 import graboid.CrawlingExecution
 import graboid.DataCentre
 import graboid.repository.CrawlingExecutionRepository
@@ -20,34 +19,34 @@ trait CrawlingExecutor:
 
   def execute(
       dataCentre: DataCentre,
-      query: CrawlingQuery
+      query: EventCrawlingQuery
   ): RIO[ZonedDateTimeService & Client & Producer, CrawlingExecution]
 
 object CrawlingExecutor:
 
   def apply(
-             repository: CrawlingExecutionRepository,
-             crawlerFactory: EventCrawler.Factory,
-             keyGenerator: KeyGenerator
+      repository: CrawlingExecutionRepository,
+      eventCrawlerFactory: EventCrawler.Factory,
+      keyGenerator: KeyGenerator
   ): CrawlingExecutor =
     wire[Impl]
 
   private class Impl(
-                      repository: CrawlingExecutionRepository,
-                      crawlerFactory: EventCrawler.Factory,
-                      keyGenerator: KeyGenerator
+      repository: CrawlingExecutionRepository,
+      eventCrawlerFactory: EventCrawler.Factory,
+      keyGenerator: KeyGenerator
   ) extends CrawlingExecutor:
 
     override def execute(
         dataCentre: DataCentre,
-        query: CrawlingQuery
+        query: EventCrawlingQuery
     ): RIO[ZonedDateTimeService & Client & Producer, CrawlingExecution] =
       for
         id        <- ZIO.fromTry(Try(keyGenerator.generate(KeyLength.Medium)))
         createdAt <- ZonedDateTimeService.now()
         execution  = CrawlingExecution(
                        id = id,
-                       dataCentreId = dataCentre.id,
+                       schedulingId = query.schedulingId,
                        createdAt = createdAt,
                        updatedAt = None,
                        succeed = 0L,
@@ -65,10 +64,10 @@ object CrawlingExecutor:
     private def execute(
         execution: CrawlingExecution,
         dataCentre: DataCentre,
-        query: CrawlingQuery
+        query: EventCrawlingQuery
     ): RIO[Client & ZonedDateTimeService & Producer, CrawlingExecution] =
       for
-        crawler     <- crawlerFactory(dataCentre)
+        crawler     <- eventCrawlerFactory(dataCentre)
         timeService <- ZIO.service[ZonedDateTimeService]
         exit        <- crawler(query)
                          .grouped(64)

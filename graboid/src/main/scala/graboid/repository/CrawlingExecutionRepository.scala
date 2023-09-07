@@ -42,7 +42,7 @@ object CrawlingExecutionRepository:
 
   case class Stored(
       _key: String,
-      dataCentreId: String,
+      schedulingId: String,
       createdAt: ZonedDateTime,
       updatedAt: Option[ZonedDateTime],
       succeed: Long,

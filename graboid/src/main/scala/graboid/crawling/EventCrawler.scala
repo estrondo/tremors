@@ -1,5 +1,7 @@
-package graboid
+package graboid.crawling
 
+import graboid.DataCentre
+import graboid.GraboidException
 import graboid.http.UpdateQueryParam
 import graboid.quakeml.parser.QuakeMLParser
 import io.bullet.borer.Cbor
@@ -20,7 +22,7 @@ import zio.stream.ZStreamAspect
 
 trait EventCrawler:
 
-  def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, EventCrawler.Result]
+  def apply(query: EventCrawlingQuery): ZStream[Client & Producer, Throwable, EventCrawler.Result]
 
 object EventCrawler:
 
@@ -42,10 +44,10 @@ object EventCrawler:
 
   private class Impl(dataCentre: DataCentre, event: String) extends EventCrawler:
 
-    override def apply[Q](query: Q)(using UpdateQueryParam[Q]): ZStream[Client & Producer, Throwable, Result] =
+    override def apply(query: EventCrawlingQuery): ZStream[Client & Producer, Throwable, Result] =
       val source = for
         url            <- ZIO.fromEither(URL.decode(event))
-        newQueryParams <- ZIO.fromTry(summon[UpdateQueryParam[Q]](query, url.queryParams))
+        newQueryParams <- ZIO.fromTry(UpdateQueryParam(query, url.queryParams))
         response       <- HttpChecker[ExternalServiceException](
                             "An external error occurred!",
                             Client.request(Request.get(url.withQueryParams(newQueryParams)))
@@ -58,7 +60,7 @@ object EventCrawler:
         .tapErrorCause(ZIO.logErrorCause("An error occurred during crawling.", _))
         .mapError(GraboidException.CrawlingException("It was impossible to collect the events!", _)) @@ ZStreamAspect
         .annotated(
-          "crawler.dataCentre.id" -> dataCentre.id
+          "eventCrawler.dataCentreId" -> dataCentre.id
         )
 
     private def publish(event: Event): RIO[Producer, Result] =
