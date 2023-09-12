@@ -18,6 +18,12 @@ trait CrawlingExecutionRepository:
 
   def insert(execution: CrawlingExecution): Task[CrawlingExecution]
 
+  def searchIntersection(
+      dataCentreId: String,
+      starting: ZonedDateTime,
+      ending: ZonedDateTime
+  ): Task[Seq[CrawlingExecution]]
+
   def updateCounting(execution: CrawlingExecution): Task[CrawlingExecution]
 
   def updateState(execution: CrawlingExecution): Task[CrawlingExecution]
@@ -42,14 +48,16 @@ object CrawlingExecutionRepository:
 
   case class Stored(
       _key: String,
-      startedAt: ZonedDateTime,
+      dataCentreId: String,
+      createdAt: ZonedDateTime,
       updatedAt: Option[ZonedDateTime],
-      succeed: Long,
-      failed: Long,
+      starting: ZonedDateTime,
+      ending: ZonedDateTime,
+      detected: Long,
       state: Int
   )
 
-  case class UpdateCounting(updatedAt: ZonedDateTime, succeed: Long, failed: Long)
+  case class UpdateCounting(updatedAt: ZonedDateTime, detected: Long)
 
   case class UpdateState(updatedAt: ZonedDateTime, state: Int)
 
@@ -61,6 +69,14 @@ object CrawlingExecutionRepository:
           collection.insertDocument[Stored, CrawlingExecution](execution, DocumentCreateOptions().returnNew(true))
       yield entity.getNew()).retry(collectionManager.sakePolicy)
 
+    private def collection = collectionManager.collection
+
+    override def searchIntersection(
+        dataCentreId: String,
+        starting: ZonedDateTime,
+        ending: ZonedDateTime
+    ): Task[Seq[CrawlingExecution]] = ???
+
     override def updateCounting(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateCounting, CrawlingExecution](
                        execution.id,
@@ -68,8 +84,6 @@ object CrawlingExecutionRepository:
                        DocumentUpdateOptions().returnNew(true)
                      )
       yield entity.getNew()).retry(collectionManager.sakePolicy)
-
-    private def collection = collectionManager.collection
 
     override def updateState(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateState, CrawlingExecution](
@@ -82,8 +96,7 @@ object CrawlingExecutionRepository:
     private given FarangoTransformer[CrawlingExecution, UpdateCounting] with
       override def transform(execution: CrawlingExecution): UpdateCounting = UpdateCounting(
         updatedAt = zonedDateTimeService.now(),
-        succeed = execution.succeed,
-        failed = execution.failed
+        detected = execution.detected
       )
 
     private given FarangoTransformer[CrawlingExecution, UpdateState] with

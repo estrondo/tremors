@@ -4,10 +4,12 @@ import java.time.ZonedDateTime
 
 case class CrawlingExecution(
     id: String,
-    startedAt: ZonedDateTime,
+    dataCentreId: String,
+    createdAt: ZonedDateTime,
     updatedAt: Option[ZonedDateTime],
-    succeed: Long,
-    failed: Long,
+    starting: ZonedDateTime,
+    ending: ZonedDateTime,
+    detected: Long,
     state: CrawlingExecution.State
 )
 

@@ -52,7 +52,9 @@ object Dependencies {
   )
 
   val ZIOKafka = Seq(
-    "dev.zio" %% "zio-kafka" % Version.ZIOKafka
+    "dev.zio"  %% "zio-kafka"         % Version.ZIOKafka,
+    ("dev.zio" %% "zio-kafka-testkit" % Version.ZIOKafka)
+      .exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.13")
   )
 
   val ZIOStream = Seq(

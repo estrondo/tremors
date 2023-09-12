@@ -1,6 +1,5 @@
 package graboid
 
-import java.time.temporal.ChronoUnit
 import scala.util.Random
 import tremors.ZonedDateTimeFixture
 import tremors.generator.KeyGenerator
@@ -10,11 +9,17 @@ object CrawlingExecutionFixture:
 
   def createNew(): CrawlingExecution =
     val createdAt = ZonedDateTimeFixture.createRandom()
+
+    val starting = ZonedDateTimeFixture.createRandom()
+    val ending   = starting.plusMinutes(10)
+
     CrawlingExecution(
       id = KeyGenerator.generate(KeyLength.Medium),
-      startedAt = createdAt,
-      updatedAt = Some(createdAt.plus(Random.nextInt(5), ChronoUnit.MINUTES)),
-      succeed = Random.nextLong(500),
-      failed = Random.nextLong(50),
+      dataCentreId = KeyGenerator.generate(KeyLength.Medium),
+      createdAt = createdAt,
+      updatedAt = Some(createdAt.plusMinutes(Random.nextInt(5))),
+      starting = starting,
+      ending = ending,
+      detected = Random.nextLong(500),
       state = CrawlingExecution.State.Completed
     )

@@ -28,8 +28,7 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
       val execution = CrawlingExecutionFixture.createNew()
       val updatedAt = execution.updatedAt.get.plusMinutes(3)
       val expected  = execution.copy(
-        succeed = Random.nextLong(100),
-        failed = Random.nextLong(200),
+        detected = Random.nextLong(100),
         updatedAt = Some(updatedAt)
       )
       for
@@ -37,7 +36,7 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
                      .serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(updatedAt))
         _       <- ZIO.serviceWithZIO[CrawlingExecutionRepository](_.insert(execution))
         updated <- ZIO.serviceWithZIO[CrawlingExecutionRepository](
-                     _.updateCounting(execution.copy(succeed = expected.succeed, failed = expected.failed))
+                     _.updateCounting(execution.copy(detected = expected.detected))
                    )
       yield assertTrue(updated == expected)
     },
@@ -49,8 +48,7 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
         state = CrawlingExecution.State.Failed
       )
       for
-        _       <- ZIO
-                     .serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(updatedAt))
+        _       <- ZIO.serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(updatedAt))
         _       <- ZIO.serviceWithZIO[CrawlingExecutionRepository](_.insert(execution))
         updated <- ZIO.serviceWithZIO[CrawlingExecutionRepository](
                      _.updateState(execution.copy(state = expected.state))

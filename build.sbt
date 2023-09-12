@@ -1,9 +1,9 @@
-ThisBuild / organization := "one.estrondo"
-ThisBuild / scalaVersion := "3.3.0"
+ThisBuild / organization             := "one.estrondo"
+ThisBuild / scalaVersion             := "3.3.0"
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
-ThisBuild / Test / fork  := true
+ThisBuild / Test / fork              := true
 ThisBuild / Test / parallelExecution := false
 
 ThisBuild / scalacOptions ++= Seq(
@@ -85,6 +85,7 @@ lazy val graboid = (project in file("graboid"))
     quakeML         % "test->test",
     zioStarter,
     zioKafka,
+    zioKafka        % "test->test",
     zioFarango,
     generator,
     generator       % "test->test",
