@@ -21,3 +21,4 @@ object CommandExecutor:
     override def apply(command: GraboidCommand): Task[GraboidCommand] =
       command match
         case command: DataCentreCommand => dataCentreExecutor(command)
+        case _                          => ZIO.fail(GraboidException.Command(s"Invalid command: $command."))
