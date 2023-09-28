@@ -2,8 +2,12 @@ package graboid.module
 
 import com.softwaremill.macwire.Module
 import graboid.CommandExecutor
-import graboid.command.DataCentreExecutor
+import graboid.command.CrawlingCommandExecutor
+import graboid.command.DataCentreCommandExecutor
 import zio.Task
+import zio.TaskLayer
+import zio.http.Client
+import zio.kafka.producer.Producer
 
 @Module
 trait CommandModule:
@@ -12,10 +16,16 @@ trait CommandModule:
 
 object CommandModule:
 
-  def apply(managerModule: ManagerModule): Task[CommandModule] =
+  def apply(
+      managerModule: ManagerModule,
+      crawlingModule: CrawlingModule,
+      layer: TaskLayer[Client & Producer]
+  ): Task[CommandModule] =
     for
-      dataCentreExecutor <- DataCentreExecutor(managerModule.dataCentreManager)
-      commandExecutor    <- CommandExecutor(dataCentreExecutor)
+      dataCentreCommandExecutor <- DataCentreCommandExecutor(managerModule.dataCentreManager)
+      crawlingCommandExecutor   <- CrawlingCommandExecutor
+                                     .apply(crawlingModule.crawlingExecutor, managerModule.dataCentreManager, layer)
+      commandExecutor           <- CommandExecutor(dataCentreCommandExecutor, crawlingCommandExecutor)
     yield Impl(commandExecutor)
 
   private class Impl(

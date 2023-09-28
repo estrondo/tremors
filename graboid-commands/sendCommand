@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# Use: sendCommand topic file
+
+json2cbor -i $2 | kcat -P -t $1 -b localhost:9093

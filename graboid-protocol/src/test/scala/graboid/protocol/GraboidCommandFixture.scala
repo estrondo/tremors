@@ -1,5 +1,8 @@
 package graboid.protocol
 
+import java.time.Duration
+import scala.util.Random
+import tremors.ZonedDateTimeFixture
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 
@@ -23,3 +26,30 @@ object GraboidCommandFixture:
     commandId = KeyGenerator.generate(KeyLength.Short),
     id = KeyGenerator.generate(KeyLength.Long)
   )
+
+  def runEventCrawling(): RunEventCrawling =
+    val now = ZonedDateTimeFixture.createRandom()
+    RunEventCrawling(
+      commandId = KeyGenerator.generate(KeyLength.Medium),
+      starting = now,
+      ending = now.plusMinutes(Random.nextInt(10)),
+      timeWindow = Duration.ofMinutes(Random.nextInt(5)),
+      minMagnitude = Some(Random.nextDouble() * 3),
+      maxMagnitude = Some(Random.nextDouble() * 8),
+      magnitudeType = Some("magType"),
+      eventType = Some("earthquake")
+    )
+
+  def runDataCentreEventCrawling(): RunDataCentreEventCrawling =
+    val now = ZonedDateTimeFixture.createRandom()
+    RunDataCentreEventCrawling(
+      commandId = KeyGenerator.generate(KeyLength.Medium),
+      dataCentre = KeyGenerator.generate(KeyLength.Short),
+      starting = now,
+      ending = now.plusMinutes(Random.nextInt(10)),
+      timeWindow = Duration.ofMinutes(Random.nextInt(5)),
+      minMagnitude = Some(Random.nextDouble() * 3),
+      maxMagnitude = Some(Random.nextDouble() * 8),
+      magnitudeType = Some("magType"),
+      eventType = Some("earthquake")
+    )

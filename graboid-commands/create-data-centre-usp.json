@@ -1,1 +1,9 @@
-["CreateDataCentre", ["create-data-centre-usp","usp", "https://usp.br"]]
+[
+  "CreateDataCentre",
+  [
+    "create-data-centre-usp",
+    "usp",
+    ["http://www.moho.iag.usp.br/fdsnws/event/1/query"],
+    []
+  ]
+]

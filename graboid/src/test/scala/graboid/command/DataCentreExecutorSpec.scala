@@ -36,16 +36,16 @@ object DataCentreExecutorSpec extends GraboidSpec:
   ).provideSome[Scope](
     SweetMockitoLayer.newMockLayer[DataCentreManager],
     ZLayer {
-      ZIO.serviceWithZIO[DataCentreManager](DataCentreExecutor.apply)
+      ZIO.serviceWithZIO[DataCentreManager](DataCentreCommandExecutor.apply)
     }
   )
 
   def testWellDoneCommand[C <: DataCentreCommand](command: C)(
       fn: (DataCentreManager, C) => Unit
-  ): Spec[DataCentreExecutor & DataCentreManager, Throwable] =
+  ): Spec[DataCentreCommandExecutor & DataCentreManager, Throwable] =
     test(s"It should execute a ${command.getClass.getSimpleName} command.") {
       for
         _      <- ZIO.serviceWith[DataCentreManager](manager => fn(manager, command))
-        result <- ZIO.serviceWithZIO[DataCentreExecutor](_(command))
+        result <- ZIO.serviceWithZIO[DataCentreCommandExecutor](_(command))
       yield assertTrue(result == command)
     }

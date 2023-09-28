@@ -32,10 +32,10 @@ object Graboid extends ZIOAppDefault:
       farangoModule    <- FarangoModule(configuration.arango)
       repositoryModule <- RepositoryModule(farangoModule)
       managerModule    <- graboid.module.ManagerModule(repositoryModule)
-      commandModule    <- CommandModule(managerModule)
       kafkaModule      <- KafkaModule("graboid", configuration.kafka)
-      listenerModule   <- ListenerModule(commandModule, kafkaModule)
       crawlingModule   <- CrawlingModule(configuration.crawling, httpModule, kafkaModule, managerModule, repositoryModule)
+      commandModule    <- CommandModule(managerModule, crawlingModule, kafkaModule.producerLayer ++ httpModule.client)
+      listenerModule   <- ListenerModule(commandModule, kafkaModule)
       crawlingFiber    <- crawlingModule.start().fork
       _                <- ZLayer.fromZIO(listenerModule.commandResultStream.runDrain).launch
     yield ()

@@ -11,16 +11,16 @@ import graboid.protocol.UpdateDataCentre
 import zio.Task
 import zio.ZIO
 
-trait DataCentreExecutor:
+trait DataCentreCommandExecutor:
 
   def apply(command: DataCentreCommand): Task[DataCentreCommand]
 
-object DataCentreExecutor:
+object DataCentreCommandExecutor:
 
-  def apply(manager: DataCentreManager): Task[DataCentreExecutor] =
+  def apply(manager: DataCentreManager): Task[DataCentreCommandExecutor] =
     ZIO.succeed(wire[Impl])
 
-  private class Impl(manager: DataCentreManager) extends DataCentreExecutor:
+  private class Impl(manager: DataCentreManager) extends DataCentreCommandExecutor:
 
     override def apply(command: DataCentreCommand): Task[DataCentreCommand] =
       command match
@@ -34,7 +34,7 @@ object DataCentreExecutor:
                      .update(DataCentre(id, event, dataselect))
                      .mapError(fancyException(s"It was impossible to update the Data Centre $id!"))
           yield command
-        case DeleteDataCentre(_, id)      =>
+        case DeleteDataCentre(_, id)                    =>
           for _ <- manager
                      .delete(id)
                      .mapError(fancyException(s"It was impossible to delete the Data Centre $id!"))

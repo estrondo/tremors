@@ -8,7 +8,7 @@ import graboid.protocol.CrawlingCommand
 import graboid.protocol.RunDataCentreEventCrawling
 import graboid.protocol.RunEventCrawling
 import zio.Task
-import zio.ULayer
+import zio.TaskLayer
 import zio.ZIO
 import zio.http.Client
 import zio.kafka.producer.Producer
@@ -22,12 +22,15 @@ object CrawlingCommandExecutor:
   def apply(
       executor: CrawlingExecutor,
       dataCentreManager: DataCentreManager,
-      layer: ULayer[Client & Producer]
+      layer: TaskLayer[Client & Producer]
   ): Task[CrawlingCommandExecutor] =
     ZIO.succeed(wire[Impl])
 
-  private class Impl(executor: CrawlingExecutor, dataCentreManager: DataCentreManager, layer: ULayer[Client & Producer])
-      extends CrawlingCommandExecutor:
+  private class Impl(
+      executor: CrawlingExecutor,
+      dataCentreManager: DataCentreManager,
+      layer: TaskLayer[Client & Producer]
+  ) extends CrawlingCommandExecutor:
 
     override def apply(command: CrawlingCommand): Task[CrawlingCommand] =
       command match

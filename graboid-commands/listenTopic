@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# Use: listenTopic topic group
+
+kcat -b localhost:9093 -G $2 $1

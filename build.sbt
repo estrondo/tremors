@@ -62,7 +62,8 @@ lazy val graboidProtocol = (project in file("graboid-protocol"))
   )
   .dependsOn(
     generator,
-    generator % "test->test"
+    generator % "test->test",
+    core      % "test->test"
   )
 
 lazy val graboid = (project in file("graboid"))
