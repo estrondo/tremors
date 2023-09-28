@@ -7,6 +7,7 @@ import zio.Exit
 import zio.RIO
 import zio.Schedule
 import zio.Scope
+import zio.ULayer
 import zio.ZIO
 import zio.ZLayer
 import zio.durationInt
@@ -28,6 +29,10 @@ trait KafkaRouter:
   ): ZStream[Any, Nothing, C]
 
   def subscribe[A: KReader, B: KWriter](kConPro: KConPro[A, B]): ZStream[Any, Nothing, B]
+
+  def producerLayer: ULayer[Producer]
+
+  def consumerLayer: ULayer[Consumer]
 
 object KafkaRouter:
 
@@ -58,9 +63,9 @@ object KafkaRouter:
       liveConsumer: Consumer
   ) extends KafkaRouter:
 
-    private val consumerLayer = ZLayer.succeed(liveConsumer)
+    val consumerLayer = ZLayer.succeed(liveConsumer)
 
-    private val producerLayer = ZLayer.succeed(liveProducer)
+    val producerLayer = ZLayer.succeed(liveProducer)
 
     override def subscribe[A: KReader, B: KWriter](kConPro: KConPro[A, B]): ZStream[Any, Nothing, B] =
       val mapper    = kConPro.mapperFunction

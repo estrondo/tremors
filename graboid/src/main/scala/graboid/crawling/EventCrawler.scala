@@ -75,3 +75,8 @@ object EventCrawler:
                       s"An event id=${foundEvent.event.publicId.resourceId} has been published: offset=${metadata.offset()}"
                     )
       yield foundEvent
+
+  object Factory extends Factory:
+
+    override def apply(dataCentre: DataCentre): RIO[Client, EventCrawler] =
+      EventCrawler(dataCentre, KeyGenerator)

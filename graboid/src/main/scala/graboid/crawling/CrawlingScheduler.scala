@@ -5,9 +5,11 @@ import graboid.crawling.CrawlingScheduler.EventConfig
 import graboid.time.ZonedDateTimeService
 import java.time.Duration
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import tremors.quakeml.Event
 import tremors.zio.farango.DataStore
 import zio.Cause
+import zio.Schedule
 import zio.Task
 import zio.ZIO
 import zio.http.Client
@@ -41,7 +43,7 @@ object CrawlingScheduler:
 
     override def start(config: EventConfig): ZStream[ZonedDateTimeService & Client & Producer, Nothing, Event] =
 
-      def handleTimeRangeError(cause: Throwable) =
+      def handleTimeIntervalError(cause: Throwable) =
         ZStream.fromZIO(
           ZIO.logErrorCause(
             "An unexpected error has occurred while the previous time reference had been searched!",
@@ -49,7 +51,12 @@ object CrawlingScheduler:
           )
         ) *> ZStream.empty
 
-      def handleTimeRange(starting: ZonedDateTime, ending: ZonedDateTime) =
+      def handleCrawlingError(cause: Throwable) =
+        ZStream.fromZIO(
+          ZIO.logErrorCause("It was impossible to execute a crawling!", Cause.die(cause))
+        ) *> ZStream.empty
+
+      def handleTimeInterval(starting: ZonedDateTime, ending: ZonedDateTime) =
         val eventQuery = EventCrawlingQuery(
           starting = starting,
           ending = ending,
@@ -67,21 +74,19 @@ object CrawlingScheduler:
         crawlingExecutor
           .execute(eventQuery)
           .map(_.event)
-          .catchAll { cause =>
-            ZStream.fromZIO(
-              ZIO.logErrorCause("It was impossible to execute a crawling!", Cause.die(cause))
-            ) *> ZStream.empty
-          }
+          .catchAll(handleCrawlingError)
           .ensuring(updateDataStore(ending, EventTimeMark))
 
       ZStream
-        .fromZIO(defineNextTimeRange(config))
-        .catchAll(handleTimeRangeError)
+        .fromZIO(searchNextTimeInterval(config, EventTimeMark))
+        .catchAll(handleTimeIntervalError)
         .flatMap {
           case Some((starting, ending)) =>
-            ZStream.logInfo(s"Event will be searched between ($starting,$ending).") *> handleTimeRange(starting, ending)
+            ZStream
+              .logInfo(s"Events will be searched between ($starting, $ending).") *> handleTimeInterval(starting, ending)
           case None                     =>
-            ZStream.logInfo("No Events will be searched!") *> ZStream.empty
+            ZStream
+              .logInfo("No Events will be searched!") *> ZStream.empty
         }
 
     private def updateDataStore(zonedDateTime: ZonedDateTime, key: String) =
@@ -89,11 +94,11 @@ object CrawlingScheduler:
         cause => ZIO.logErrorCause(s"It was impossible to update DataStore[$key]!", Cause.die(cause))
       }
 
-    private def defineNextTimeRange(config: EventConfig) =
+    private def searchNextTimeInterval(config: EventConfig, mark: String) =
       for
-        now      <- ZIO.serviceWith[ZonedDateTimeService](_.now())
-        previous <- dataStore.get[ZonedDateTime](EventTimeMark)
+        now      <- ZIO.serviceWith[ZonedDateTimeService](_.now().truncatedTo(ChronoUnit.MINUTES))
+        previous <- dataStore.get[ZonedDateTime](mark)
       yield previous match
         case Some(previous) if previous.compareTo(now) < 0 => Some(previous -> now)
-        case None                                          => Some(now.minusSeconds(config.interval.toSeconds) -> now)
+        case None                                          => Some(now.minusMinutes(config.interval.toMinutes) -> now)
         case _                                             => None

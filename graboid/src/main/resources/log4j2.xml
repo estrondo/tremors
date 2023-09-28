@@ -12,7 +12,7 @@
 
         <Logger name="io.netty" level="OFF"/>
         <Logger name="io.vertx" level="OFF"/>
-        <Logger name="com.arangodb" level="ERROR"/>
+        <Logger name="com.arangodb" level="OFF"/>
         <Logger name="zio" level="WARN"/>
         <Logger name="org.apache.kafka" level="WARN"/>
 

@@ -41,7 +41,10 @@ object DataStore:
     override def put[T: ToStore: FromStore](key: String, value: T): Task[Option[T]] =
       for
         data   <- summon[ToStore[T]](value)
-        old    <- database.query[Stored, Stored](makePutQuery(key), Map("data" -> data)).runHead
+        old    <- database
+                    .query[Stored, Stored](makePutQuery(key), Map("data" -> data))
+                    .retry(collectionManager.sakePolicy)
+                    .runHead
         result <- old match
                     case Some(old) if old != null => summon[FromStore[T]](old.data).asSome
                     case _                        => ZIO.succeed(None)
@@ -50,25 +53,29 @@ object DataStore:
     private def database = collectionManager.database
 
     private def makePutQuery(key: String) =
-      s"""
-        |UPSERT {_key: '$key.$suffix'}
-        |INSERT {_key: '$key.$suffix', data: @data}
-        |UPDATE {data: @data} IN ${collection.name}
-        |RETURN OLD""".stripMargin
+      s"""|UPSERT {_key: '$key.$suffix'}
+          |INSERT {_key: '$key.$suffix', data: @data}
+          |UPDATE {data: @data} IN ${collection.name}
+          |RETURN OLD""".stripMargin
 
     override def get[T: FromStore](key: String): Task[Option[T]] =
       for
-        stored <- collection.getDocument[Stored, Stored](s"$key.$suffix")
+        stored <- collection.getDocument[Stored, Stored](s"$key.$suffix").retry(collectionManager.sakePolicy)
         result <- stored match
                     case Some(stored) => summon[FromStore[T]](stored.data).asSome
                     case _            => ZIO.succeed(None)
       yield result
 
-    private def collection = collectionManager.collection
-
     override def remove[T: FromStore](key: String): Task[Option[T]] =
       for
-        entity <- collection.deleteDocument[Stored, Stored](s"$key.$suffix", DocumentDeleteOptions().returnOld(true))
+        entity <- collection
+                    .deleteDocument[Stored, Stored](
+                      s"$key.$suffix",
+                      DocumentDeleteOptions().returnOld(true)
+                    )
+                    .retry(collectionManager.sakePolicy)
         result <- if entity.getOld() != null then summon[FromStore[T]](entity.getOld().data).asSome
                   else ZIO.succeed(None)
       yield result
+
+    private def collection = collectionManager.collection

@@ -59,19 +59,25 @@ object DataCentreRepository:
       yield entry.getNew
 
     override def update(dataCentre: DataCentre): Task[DataCentre] =
-      for entry <- collection.updateDocument[Stored, Update, DataCentre](
-                     dataCentre.id,
-                     dataCentre,
-                     DocumentUpdateOptions().returnNew(true)
-                   )
+      for entry <- collection
+                     .updateDocument[Stored, Update, DataCentre](
+                       dataCentre.id,
+                       dataCentre,
+                       DocumentUpdateOptions().returnNew(true)
+                     )
+                     .retry(collectionManager.sakePolicy)
       yield entry.getNew
 
     override def delete(id: String): Task[DataCentre] =
-      for entry <- collection.deleteDocument[Stored, DataCentre](id, DocumentDeleteOptions().returnOld(true))
+      for entry <- collection
+                     .deleteDocument[Stored, DataCentre](id, DocumentDeleteOptions().returnOld(true))
+                     .retry(collectionManager.sakePolicy)
       yield entry.getOld
 
     override def get(id: String): Task[Option[DataCentre]] =
-      collection.getDocument[Stored, DataCentre](id)
+      collection.getDocument[Stored, DataCentre](id).retry(collectionManager.sakePolicy)
 
     override def all: ZStream[Any, Throwable, DataCentre] =
-      collection.database.query[Stored, DataCentre](QueryAll, Map("@collection" -> collection.name))
+      collection.database
+        .query[Stored, DataCentre](QueryAll, Map("@collection" -> collection.name))
+        .retry(collectionManager.sakePolicy)

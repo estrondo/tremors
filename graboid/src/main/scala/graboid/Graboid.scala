@@ -2,6 +2,8 @@ package graboid
 
 import graboid.config.GraboidConfig
 import graboid.module.CommandModule
+import graboid.module.CrawlingModule
+import graboid.module.HttpModule
 import graboid.module.KafkaModule
 import graboid.module.ListenerModule
 import graboid.module.ManagerModule
@@ -26,12 +28,15 @@ object Graboid extends ZIOAppDefault:
       (C(configuration), profile) = tuple
 
       _                <- ZIO.logError(s"Starting Graboid in [${profile.map(_.value).getOrElse("default")}] mode.")
+      httpModule       <- HttpModule()
       farangoModule    <- FarangoModule(configuration.arango)
       repositoryModule <- RepositoryModule(farangoModule)
       managerModule    <- graboid.module.ManagerModule(repositoryModule)
       commandModule    <- CommandModule(managerModule)
       kafkaModule      <- KafkaModule("graboid", configuration.kafka)
       listenerModule   <- ListenerModule(commandModule, kafkaModule)
+      crawlingModule   <- CrawlingModule(configuration.crawling, httpModule, kafkaModule, managerModule, repositoryModule)
+      crawlingFiber    <- crawlingModule.start().fork
       _                <- ZLayer.fromZIO(listenerModule.commandResultStream.runDrain).launch
     yield ()
 

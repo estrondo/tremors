@@ -1,10 +1,13 @@
 package graboid.time
 
+import zio.ULayer
+import zio.URIO
+import zio.ZIO
+import zio.ZLayer
+
+import java.time.Clock
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import zio.URIO
-import zio.ZEnvironment
-import zio.ZIO
 
 trait ZonedDateTimeService:
 
@@ -12,10 +15,13 @@ trait ZonedDateTimeService:
 
 object ZonedDateTimeService:
 
-  val live: ZEnvironment[ZonedDateTimeService] = ZEnvironment(new Impl)
+  val live: ULayer[ZonedDateTimeService] = ZLayer.succeed(Impl)
 
   def now(): URIO[ZonedDateTimeService, ZonedDateTime] =
     ZIO.serviceWith[ZonedDateTimeService](_.now())
 
-  private class Impl extends ZonedDateTimeService:
-    override def now(): ZonedDateTime = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+  object Impl extends ZonedDateTimeService:
+
+    private val zoneId = Clock.systemUTC().getZone
+
+    override def now(): ZonedDateTime = ZonedDateTime.now(zoneId).truncatedTo(ChronoUnit.SECONDS)

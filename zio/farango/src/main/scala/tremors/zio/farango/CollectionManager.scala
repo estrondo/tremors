@@ -35,8 +35,11 @@ object CollectionManager:
   ): CollectionManager =
     new Impl(collection, database, policy)
 
-  private class Impl(val collection: Collection, val database: Database, policy: Schedule.WithState[Long, Any, Any, Long])
-      extends CollectionManager:
+  private class Impl(
+      val collection: Collection,
+      val database: Database,
+      policy: Schedule.WithState[Long, Any, Any, Long]
+  ) extends CollectionManager:
 
     override val sakePolicy: WithState[(Long, Unit), Any, Throwable, Zippable[Long, Throwable]#Out] =
       policy && Schedule.recurWhileZIO[Any, Throwable](recreate(_) @@ annotations)
@@ -52,31 +55,50 @@ object CollectionManager:
       "farango.database"   -> database.name
     )
 
-    private def shouldCreateCollection(): Task[Boolean] =
+    private def shouldCreateCollection(): Task[Unit] =
+      val checkCreated = for
+        exists <- database.exists
+        _      <- if exists then ZIO.logDebug("Collection was created.") else ZIO.unit
+      yield exists
+
       for
         exists <- collection.exists
         _      <- if exists then ZIO.unit
                   else collection.create().tapErrorCause(ZIO.logErrorCause("It was impossible to create collection!", _))
-        _      <- ZIO.logDebug("Collection was created.")
-      yield true
+        _      <- checkCreated.repeat(policy && Schedule.recurUntil[Boolean](identity))
+      yield ()
 
-    private def shouldCreateDatabase(): Task[Boolean] =
+    private def shouldCreateDatabase(): Task[Unit] =
+      val checkCreated = for
+        exists <- database.exists
+        _      <- if exists then ZIO.logDebug("Database was created.") else ZIO.unit
+      yield exists
+
       for
         exists <- database.exists
         _      <- if exists then ZIO.unit
                   else database.create().tapErrorCause(ZIO.logErrorCause("It was impossible to create database!", _))
-        _      <- ZIO.logDebug("Database was created.")
-      yield true
+        _      <- checkCreated.repeat(policy && Schedule.recurUntil[Boolean](identity))
+      yield ()
 
     @tailrec
     private def recreate(cause: Throwable): URIO[Any, Boolean] =
       cause match
-        case null => ZIO.succeed(true)
+        case null =>
+          ZIO.succeed(false)
 
         case exception: ArangoDBException =>
           exception.getErrorNum match
-            case CollectionNotFound => shouldCreateCollection().orElseSucceed(true)
-            case Forbidden          => (shouldCreateDatabase() *> shouldCreateCollection()).orElseSucceed(true)
-            case _                  => ZIO.succeed(false)
+            case CollectionNotFound                                             =>
+              shouldCreateCollection().fold(_ => true, _ => true)
+            case Forbidden                                                      =>
+              (shouldCreateDatabase() *> shouldCreateCollection()).fold(_ => true, _ => true)
+            case _ if exception.getMessage.contains("Cannot contact any host!") =>
+              ZIO.logDebug("It is waiting for ArangoDB.").as(true)
+            case _ if exception.getResponseCode == 503                          =>
+              ZIO.logDebug("ArangoDB is not available, waiting for it.").as(true)
+            case _                                                              =>
+              ZIO.succeed(false)
 
-        case other: Throwable => recreate(other.getCause)
+        case other: Throwable =>
+          recreate(other.getCause)

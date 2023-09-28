@@ -34,10 +34,9 @@ object CollectionManagerSpec extends ZIOSpecDefault:
           manager  <- ZIO.service[CollectionManager]
           fiberRef <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
                         .insertDocument[Stored, Stored](domain)
-                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
                         .retry(manager.sakePolicy)
-                        .fork
-          _        <- TestClock.adjust(10.seconds)
+                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _))).fork
+          _        <- TestClock.adjust(1.minute)
           _        <- fiberRef.join
         yield assertTrue(true)
       }.provideSome[SyncDB](collectionManagerLayer(createDatabase = false, createCollection = false)),
@@ -48,10 +47,10 @@ object CollectionManagerSpec extends ZIOSpecDefault:
           manager  <- ZIO.service[CollectionManager]
           fiberRef <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
                         .insertDocument[Stored, Stored](domain)
-                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
                         .retry(manager.sakePolicy)
+                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
                         .fork
-          _        <- TestClock.adjust(10.seconds)
+          _        <- TestClock.adjust(1.minute)
           _        <- fiberRef.join
         yield assertTrue(true)
       }.provideSome[SyncDB](collectionManagerLayer(createDatabase = true, createCollection = false))
@@ -67,7 +66,7 @@ object CollectionManagerSpec extends ZIOSpecDefault:
         for
           database   <- ZIO.service[Database]
           collection <- ZIO.service[Collection]
-        yield CollectionManager(collection, database, Schedule.recurs(10))
+        yield CollectionManager(collection, database, Schedule.spaced(5.seconds))
       }
 
   case class Stored(_key: String, name: String)
