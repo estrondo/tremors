@@ -30,6 +30,13 @@ trait CrawlingExecutionRepository:
 
 object CrawlingExecutionRepository:
 
+  private val IntersectionQuery =
+    """FOR e IN @@collection
+      | FILTER e.dataCentreId == @dataCentreId
+      | FILTER (e.starting <= @starting && e.ending >= @ending) || (e.starting >= @starting && e.starting < @ending) || (e.ending < @ending && e.ending >= @starting)
+      | RETURN e
+      |""".stripMargin
+
   def apply(
       collectionManager: CollectionManager,
       zonedDateTimeService: ZonedDateTimeService
@@ -75,7 +82,19 @@ object CrawlingExecutionRepository:
         dataCentreId: String,
         starting: ZonedDateTime,
         ending: ZonedDateTime
-    ): Task[Seq[CrawlingExecution]] = ???
+    ): Task[Seq[CrawlingExecution]] =
+      collection.database
+        .query[Stored, CrawlingExecution](
+          IntersectionQuery,
+          Map(
+            "@collection"  -> collection.name,
+            "dataCentreId" -> dataCentreId,
+            "starting"     -> starting,
+            "ending"       -> ending
+          )
+        )
+        .runCollect
+        .retry(collectionManager.sakePolicy)
 
     override def updateCounting(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateCounting, CrawlingExecution](

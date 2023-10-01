@@ -30,4 +30,4 @@ object CommandExecutor:
       command match
         case command: DataCentreCommand => dataCentreCommandExecutor(command)
         case command: CrawlingCommand   => crawlingCommandExecutor(command)
-        case _                          => ZIO.fail(GraboidException.Command(s"Invalid command: $command."))
+        case null                       => ZIO.fail(GraboidException.Command(s"Invalid command: $command."))

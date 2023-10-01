@@ -1,4 +1,4 @@
 [
   "UpdateDataCentre",
-  ["update-data-centre-usp", "usp", ["http://........./"], []]
+  ["update-data-centre-usp", "usp", ["https://www.moho.iag.usp.br/fdsnws/event/1/query"], []]
 ]

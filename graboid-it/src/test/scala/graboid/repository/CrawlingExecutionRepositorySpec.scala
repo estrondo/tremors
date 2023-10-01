@@ -6,6 +6,7 @@ import graboid.time.ZonedDateTimeService
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import org.mockito.Mockito
 import scala.util.Random
+import tremors.ZonedDateTimeFixture
 import tremors.zio.farango.CollectionManager
 import tremors.zio.farango.FarangoTestContainer
 import zio.Schedule
@@ -54,6 +55,24 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
                      _.updateState(execution.copy(state = expected.state))
                    )
       yield assertTrue(updated == expected)
+    },
+    test("It should search for intersections.") {
+      val starting = ZonedDateTimeFixture.createRandom()
+      val ending   = starting.plusHours(Random.nextInt(10) + 1)
+
+      val first = CrawlingExecutionFixture
+        .createNew()
+        .copy(
+          starting = starting.minusMinutes(30),
+          ending = ending.plusMinutes(15)
+        )
+
+      for
+        _      <- ZIO.serviceWithZIO[CrawlingExecutionRepository](_.insert(first))
+        result <- ZIO.serviceWithZIO[CrawlingExecutionRepository](
+                    _.searchIntersection(first.dataCentreId, starting, ending)
+                  )
+      yield assertTrue(result == Seq(first))
     }
   ).provideSome(
     SweetMockitoLayer.newMockLayer[ZonedDateTimeService],

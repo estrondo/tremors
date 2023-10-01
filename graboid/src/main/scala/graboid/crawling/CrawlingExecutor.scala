@@ -99,7 +99,8 @@ object CrawlingExecutor:
         execution: CrawlingExecution
     ): ZStream[Client & Producer, Nothing, EventCrawler.FoundEvent] =
       ZStream
-        .fromZIO(eventCrawlerFactory(dataCentre).zip(Ref.make(execution)))
+        .fromZIO(repository.insert(execution))
+        .mapZIO(stored => eventCrawlerFactory(dataCentre).zip(Ref.make(stored)))
         .catchAll { cause =>
           ZStream.fromZIO(
             ZIO.logErrorCause("It was impossible to create an EventCrawler!", Cause.die(cause))
