@@ -1,9 +1,12 @@
 package graboid.module
 
+import com.arangodb.entity.InvertedIndexField
+import com.arangodb.model.InvertedIndexOptions
 import com.softwaremill.macwire.Module
 import graboid.repository.CrawlingExecutionRepository
 import graboid.repository.DataCentreRepository
 import graboid.time.ZonedDateTimeService
+import one.estrondo.farango.IndexDescription
 import tremors.zio.farango.DataStore
 import tremors.zio.farango.FarangoModule
 import zio.Task
@@ -25,7 +28,17 @@ object RepositoryModule:
                                        .collection("dataCentre")
                                        .map(DataCentreRepository.apply)
       crawlingExecutionRepository <- farangoModule
-                                       .collection("crawlingExecution")
+                                       .collection(
+                                         "crawlingExecution",
+                                         Seq(
+                                           IndexDescription.Inverted(
+                                             InvertedIndexOptions().fields(
+                                               InvertedIndexField().name("dataCentreId")
+                                             )
+                                           ),
+                                           IndexDescription.Persistent(Seq("starting", "ending"))
+                                         )
+                                       )
                                        .map(CrawlingExecutionRepository(_, ZonedDateTimeService.Impl))
       dataStoreCollectionManager  <- farangoModule.collection("dataStore")
       dataStore                    = DataStore("graboid", dataStoreCollectionManager)
