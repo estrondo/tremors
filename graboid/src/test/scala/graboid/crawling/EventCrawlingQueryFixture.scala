@@ -6,12 +6,13 @@ import tremors.ZonedDateTimeFixture
 
 object EventCrawlingQueryFixture:
 
-  def createRandom(): EventCrawlingQuery =
+  def createRandom(owner: EventCrawlingQuery.Owner): EventCrawlingQuery =
     val startTime = ZonedDateTimeFixture.createRandom()
     EventCrawlingQuery(
       starting = startTime,
       ending = startTime.plusDays(3),
       timeWindow = Duration.ofMinutes(Random.nextInt(60)),
+      owner = owner,
       queries = Seq(
         EventCrawlingQuery.Query(
           magnitudeType = Some("abc"),

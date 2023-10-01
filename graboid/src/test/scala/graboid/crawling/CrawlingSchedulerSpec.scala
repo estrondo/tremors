@@ -16,19 +16,22 @@ import zio.kafka.producer.Producer
 import zio.stream.ZStream
 import zio.test.assertTrue
 
+import java.time.temporal.ChronoUnit
+
 object CrawlingSchedulerSpec extends GraboidSpec:
 
   def spec = suite("CrawlingSchedulerSpec")(
     suite("It should to schedule FDSN Event Specification.")(
       test("It should send a EventCrawling to the CrawlingExecutor.") {
         val config   = CrawlingSchedulerFixture.EventConfig.createRandom()
-        val previous = ZonedDateTimeFixture.createRandom()
+        val previous = ZonedDateTimeFixture.createRandom().truncatedTo(ChronoUnit.MINUTES)
         val now      = previous.plusHours(4)
 
         val expectedQuery = EventCrawlingQuery(
           starting = previous,
           ending = now,
           timeWindow = config.queryWindow,
+          owner = EventCrawlingQuery.Owner.Scheduler,
           queries =
             for query <- config.queries
             yield EventCrawlingQuery.Query(

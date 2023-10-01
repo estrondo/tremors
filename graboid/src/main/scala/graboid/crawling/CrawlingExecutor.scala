@@ -63,7 +63,11 @@ object CrawlingExecutor:
         query: EventCrawlingQuery
     ): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
       ZStream
-        .fromZIO(repository.searchIntersection(dataCentre.id, query.starting, query.ending))
+        .fromZIO {
+          if query.owner == EventCrawlingQuery.Owner.Scheduler then
+            repository.searchIntersection(dataCentre.id, query.starting, query.ending)
+          else ZIO.logDebug("It is a command crawling, it will be executed.") as Nil
+        }
         .flatMap { executions =>
           if executions.isEmpty then
             execute(

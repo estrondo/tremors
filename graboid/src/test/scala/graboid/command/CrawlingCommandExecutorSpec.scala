@@ -33,6 +33,7 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         starting = command.starting,
         ending = command.ending,
         timeWindow = command.timeWindow,
+        owner = EventCrawlingQuery.Owner.Command,
         queries = Seq(
           EventCrawlingQuery.Query(
             magnitudeType = command.magnitudeType,
@@ -59,6 +60,7 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         starting = command.starting,
         ending = command.ending,
         timeWindow = command.timeWindow,
+        owner = EventCrawlingQuery.Owner.Command,
         queries = Seq(
           EventCrawlingQuery.Query(
             magnitudeType = command.magnitudeType,

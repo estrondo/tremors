@@ -27,7 +27,7 @@ object EventCrawlerSpec extends GraboidSpec:
   def spec = suite("EventCrawlerSpec")(
     test("It should find one event.") {
 
-      val query = EventCrawlingQueryFixture.createRandom()
+      val query = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Scheduler)
 
       for
         requests <- makeRequests(query)
@@ -37,7 +37,7 @@ object EventCrawlerSpec extends GraboidSpec:
     },
     test("It should produce one record on Kafka.") {
 
-      val query = EventCrawlingQueryFixture.createRandom()
+      val query = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Scheduler)
 
       for
         requests <- makeRequests(query)

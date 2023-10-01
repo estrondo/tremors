@@ -55,6 +55,7 @@ object CrawlingCommandExecutor:
           starting = command.starting,
           ending = command.ending,
           timeWindow = command.timeWindow,
+          owner = EventCrawlingQuery.Owner.Command,
           queries = Seq(
             EventCrawlingQuery.Query(
               magnitudeType = command.magnitudeType,
@@ -72,6 +73,7 @@ object CrawlingCommandExecutor:
           starting = command.starting,
           ending = command.ending,
           timeWindow = command.timeWindow,
+          owner = EventCrawlingQuery.Owner.Command,
           queries = Seq(
             EventCrawlingQuery.Query(
               magnitudeType = command.magnitudeType,

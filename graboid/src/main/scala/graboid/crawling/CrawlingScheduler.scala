@@ -9,7 +9,6 @@ import java.time.temporal.ChronoUnit
 import tremors.quakeml.Event
 import tremors.zio.farango.DataStore
 import zio.Cause
-import zio.Schedule
 import zio.Task
 import zio.ZIO
 import zio.http.Client
@@ -61,6 +60,7 @@ object CrawlingScheduler:
           starting = starting,
           ending = ending,
           timeWindow = config.queryWindow,
+          owner = EventCrawlingQuery.Owner.Scheduler,
           queries =
             for query <- config.queries
             yield EventCrawlingQuery.Query(

@@ -63,9 +63,9 @@ object KafkaRouter:
       liveConsumer: Consumer
   ) extends KafkaRouter:
 
-    val consumerLayer = ZLayer.succeed(liveConsumer)
+    val consumerLayer: ULayer[Consumer] = ZLayer.succeed(liveConsumer)
 
-    val producerLayer = ZLayer.succeed(liveProducer)
+    val producerLayer: ULayer[Producer] = ZLayer.succeed(liveProducer)
 
     override def subscribe[A: KReader, B: KWriter](kConPro: KConPro[A, B]): ZStream[Any, Nothing, B] =
       val mapper    = kConPro.mapperFunction
