@@ -27,11 +27,12 @@ object EventCrawlerSpec extends GraboidSpec:
   def spec = suite("EventCrawlerSpec")(
     test("It should find one event.") {
 
+
       val query = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Scheduler)
 
       for
         requests <- makeRequests(query)
-        _        <- updateHttpClientMock(requests)
+        _        <- updateHttpClientMock(requests.toSeq)
         result   <- ZIO.serviceWithZIO[EventCrawler](_.apply(query).runCollect)
       yield assertTrue(result.size == 1)
     },
@@ -41,7 +42,7 @@ object EventCrawlerSpec extends GraboidSpec:
 
       for
         requests <- makeRequests(query)
-        _        <- updateHttpClientMock(requests)
+        _        <- updateHttpClientMock(requests.toSeq)
         _        <- ZIO.serviceWithZIO[EventCrawler](_.apply(query).runCollect)
         records  <- Consumer
                       .plainStream(Subscription.topics(EventCrawler.GraboidEventTopic), Serde.string, Serde.byteArray)

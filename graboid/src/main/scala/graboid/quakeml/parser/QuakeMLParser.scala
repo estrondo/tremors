@@ -175,7 +175,7 @@ object QuakeMLParser:
         case AsyncXMLStreamReader.EVENT_INCOMPLETE =>
           result
 
-        case XMLStreamConstants.START_DOCUMENT | XMLStreamConstants.COMMENT =>
+        case XMLStreamConstants.START_DOCUMENT | XMLStreamConstants.COMMENT | XMLStreamConstants.DTD =>
           next(result)
 
     private def pushNewElement(elementName: String): ElementBuilder =

@@ -1,8 +1,8 @@
 [
   "RunDataCentreEventCrawling",
   [
-    "run-data-centre-event-crawling-usp",
-    "usp",
+    "run-data-centre-event-crawling-usgs",
+    "usgs",
     1672531200,
     1688169599,
     86400,

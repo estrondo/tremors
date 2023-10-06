@@ -92,7 +92,7 @@ object KafkaRouter:
             yield (record, either)
           }
           .collect { case (record, Right(message)) => (record.key, record.offset, message) }
-          .flatMap { (key, offset, message) =>
+          .flatMapPar(parallel) { (key, offset, message) =>
             kConsumer
               .consumer(key, message)
               .flatMap(producerFunction)
@@ -117,3 +117,5 @@ object KafkaRouter:
             ) *> ZStream.empty
           }
           .provideLayer(consumerLayer)) @@ ZStreamAspect.annotated("kafkaRouter.topic" -> kConsumer.topic)
+
+    private def parallel = math.max(Runtime.getRuntime.availableProcessors(), 1)

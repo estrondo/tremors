@@ -5,6 +5,7 @@ import graboid.GraboidException
 import graboid.http.UpdateQueryParam
 import graboid.quakeml.parser.QuakeMLParser
 import io.bullet.borer.Cbor
+import java.time.Duration
 import org.apache.kafka.clients.producer.ProducerRecord
 import tremors.ExternalServiceException
 import tremors.generator.KeyGenerator
@@ -12,6 +13,7 @@ import tremors.generator.KeyLength
 import tremors.quakeml.Event
 import tremors.zio.http.HttpChecker
 import zio.RIO
+import zio.Schedule
 import zio.ZIO
 import zio.http.Client
 import zio.http.QueryParams
@@ -53,28 +55,35 @@ object EventCrawler:
 
       def performQuery(query: QueryParams) =
         ZStream
-          .fromZIO(
-            HttpChecker[ExternalServiceException](
+          .fromZIO {
+            val request = Request.get(event.withQueryParams(query))
+
+            (ZIO.logDebug(s"Trying to crawl at ${request.url.toJavaURI}.") *> HttpChecker[ExternalServiceException](
               "Unexpected FDSN Event Service Response!",
-              Client.request(Request.get(event.withQueryParams(query)))
-            )
+              Client.request(request)
+            ))
+              .tapErrorCause(ZIO.logWarningCause("An error happened during the crawling.", _))
+              .retry(Schedule.recurs(10) && Schedule.spaced(Duration.ofSeconds(3)))
+          }
+          .flatMap(response =>
+            QuakeMLParser(response.body.asStream)
+              .mapZIO(publishIt)
+              .ensuring(ZIO.logDebug("Crawling has been finished."))
           )
-          .flatMap(response => QuakeMLParser(response.body.asStream).map(FoundEvent(dataCentre, _)))
-          .mapZIO(publishIt)
 
       ZStream
         .fromIterableZIO(UpdateQueryParam(query, event.queryParams))
         .flatMap(performQuery)
 
-    private def publishIt(foundEvent: FoundEvent): RIO[Producer & Client, FoundEvent] =
+    private def publishIt(event: Event): RIO[Producer, FoundEvent] =
       for
-        content  <- ZIO.attempt(Cbor.encode(foundEvent.event).toByteArray)
+        content  <- ZIO.attempt(Cbor.encode(event).toByteArray)
         record    = ProducerRecord(GraboidEventTopic, keyGenerator.generate(KeyLength.Medium), content)
         metadata <- Producer.produce(record, Serde.string, Serde.byteArray)
         _        <- ZIO.logDebug(
-                      s"An event id=${foundEvent.event.publicId.resourceId} has been published: offset=${metadata.offset()}"
+                      s"An event id=${event.publicId.resourceId} has been published: offset=${metadata.offset()}"
                     )
-      yield foundEvent
+      yield FoundEvent(dataCentre, event)
 
   object Factory extends Factory:
 

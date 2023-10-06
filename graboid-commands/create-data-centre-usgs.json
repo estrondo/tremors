@@ -1,0 +1,9 @@
+[
+  "CreateDataCentre",
+  [
+    "create-data-centre-usgs",
+    "usgs",
+    ["https://earthquake.usgs.gov/fdsnws/event/1/query"],
+    []
+  ]
+]

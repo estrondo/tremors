@@ -31,21 +31,41 @@ object EventCrawlingQuery:
 
   given UpdateQueryParam[EventCrawlingQuery] with
 
-    override def getParams(query: EventCrawlingQuery): Task[Seq[Iterable[(String, String)]]] =
+    override def getParams(query: EventCrawlingQuery): Task[Iterable[Iterable[(String, String)]]] =
       ZIO.attempt {
-        val template = HashMap(
-          "starttime" -> query.starting.toString,
-          "endtime"   -> query.ending.toString
-        )
 
-        inline def add(map: HashMap[String, String], opt: Option[Any], key: String): HashMap[String, String] =
-          opt match
-            case Some(value) => map + (key -> value.toString)
-            case _           => map
+        Iterable
+          .unfold(
+            query.starting -> query.starting.plus(query.timeWindow)
+          ) { (starting, ending) =>
+            for (currentStarting, currentEnding) <- filterTimeWindow(starting, ending, query.ending)
+            yield
+              val template = HashMap(
+                "starttime" -> currentStarting.toString,
+                "endtime"   -> currentEnding.toString
+              )
 
-        for magnitude <- query.queries yield
-          var result = add(template, magnitude.magnitudeType, "magnitudetype")
-          result = add(result, magnitude.min, "minmagnitude")
-          result = add(result, magnitude.max, "maxmagnitude")
-          add(result, magnitude.eventType, "eventtype")
+              val params = for query <- query.queries yield
+                var current = add(template, query.magnitudeType, "magnitudetype")
+                current = add(current, query.min, "minmagnitude")
+                current = add(current, query.max, "maxmagnitude")
+                add(current, query.eventType, "eventtype")
+
+              params -> (currentEnding -> currentEnding.plus(query.timeWindow))
+          }
+          .flatten
       }
+
+    private inline def add(map: HashMap[String, String], opt: Option[Any], key: String): HashMap[String, String] =
+      opt match
+        case Some(value) => map + (key -> value.toString)
+        case _           => map
+
+    private def filterTimeWindow(
+        starting: ZonedDateTime,
+        ending: ZonedDateTime,
+        limit: ZonedDateTime
+    ): Option[(ZonedDateTime, ZonedDateTime)] =
+      if starting.compareTo(limit) < 0 then
+        if ending.compareTo(limit) <= 0 then Some(starting -> ending) else Some(starting -> limit)
+      else None
