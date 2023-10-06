@@ -1,6 +1,7 @@
 package graboid.crawling
 
 import com.softwaremill.macwire.wire
+import graboid.context.ExecutionContext
 import graboid.crawling.CrawlingScheduler.EventConfig
 import graboid.time.ZonedDateTimeService
 import java.time.Duration
@@ -60,7 +61,6 @@ object CrawlingScheduler:
           starting = starting,
           ending = ending,
           timeWindow = config.queryWindow,
-          owner = EventCrawlingQuery.Owner.Scheduler,
           queries =
             for query <- config.queries
             yield EventCrawlingQuery.Query(
@@ -72,7 +72,7 @@ object CrawlingScheduler:
         )
 
         crawlingExecutor
-          .execute(eventQuery)
+          .execute(eventQuery)(using ExecutionContext.scheduler())
           .map(_.event)
           .catchAll(handleCrawlingError)
           .ensuring(updateDataStore(ending, EventTimeMark))

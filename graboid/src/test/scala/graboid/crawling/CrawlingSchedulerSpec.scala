@@ -1,8 +1,10 @@
 package graboid.crawling
 
 import graboid.GraboidSpec
+import graboid.context.ExecutionContext
 import graboid.manager.DataCentreFixture
 import graboid.time.ZonedDateTimeService
+import java.time.temporal.ChronoUnit
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito
@@ -15,8 +17,6 @@ import zio.http.Client
 import zio.kafka.producer.Producer
 import zio.stream.ZStream
 import zio.test.assertTrue
-
-import java.time.temporal.ChronoUnit
 
 object CrawlingSchedulerSpec extends GraboidSpec:
 
@@ -31,7 +31,6 @@ object CrawlingSchedulerSpec extends GraboidSpec:
           starting = previous,
           ending = now,
           timeWindow = config.queryWindow,
-          owner = EventCrawlingQuery.Owner.Scheduler,
           queries =
             for query <- config.queries
             yield EventCrawlingQuery.Query(
@@ -54,7 +53,9 @@ object CrawlingSchedulerSpec extends GraboidSpec:
                         .thenReturn(Some(now))
           _        <- ZIO.serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(now))
           executor <- ZIO.service[CrawlingExecutor]
-          _         = Mockito.when(executor.execute(expectedQuery)).thenReturn(ZStream.fromIterable(foundEvents))
+          _         = Mockito
+                        .when(executor.execute(expectedQuery)(using ExecutionContext.scheduler()))
+                        .thenReturn(ZStream.fromIterable(foundEvents))
 
           result <- ZIO.serviceWithZIO[CrawlingScheduler](_.start(config).runCollect)
         yield assertTrue(result == Seq(event))

@@ -1,6 +1,7 @@
 package graboid.command
 
 import com.softwaremill.macwire.wire
+import graboid.context.ExecutionContext
 import graboid.crawling.CrawlingExecutor
 import graboid.crawling.EventCrawlingQuery
 import graboid.manager.DataCentreManager
@@ -37,7 +38,7 @@ object CrawlingCommandExecutor:
         case command: RunEventCrawling =>
           for
             query  <- convertToQuery(command)
-            result <- executor.execute(query).runDrain.provideLayer(layer)
+            result <- executor.execute(query)(using ExecutionContext.command()).runDrain.provideLayer(layer)
           yield command
 
         case command: RunDataCentreEventCrawling =>
@@ -45,7 +46,8 @@ object CrawlingCommandExecutor:
             query <- convertToQuery(command)
             opt   <- dataCentreManager.get(command.dataCentre)
             _     <- opt match
-                       case Some(dataCentre) => executor.execute(dataCentre, query).runDrain.provideLayer(layer)
+                       case Some(dataCentre) =>
+                         executor.execute(dataCentre, query)(using ExecutionContext.command()).runDrain.provideLayer(layer)
                        case _                => ZIO.unit
           yield command
 
@@ -55,7 +57,6 @@ object CrawlingCommandExecutor:
           starting = command.starting,
           ending = command.ending,
           timeWindow = command.timeWindow,
-          owner = EventCrawlingQuery.Owner.Command,
           queries = Seq(
             EventCrawlingQuery.Query(
               magnitudeType = command.magnitudeType,
@@ -73,7 +74,6 @@ object CrawlingCommandExecutor:
           starting = command.starting,
           ending = command.ending,
           timeWindow = command.timeWindow,
-          owner = EventCrawlingQuery.Owner.Command,
           queries = Seq(
             EventCrawlingQuery.Query(
               magnitudeType = command.magnitudeType,

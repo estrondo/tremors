@@ -1,6 +1,7 @@
 package graboid.command
 
 import graboid.GraboidSpec
+import graboid.context.ExecutionContext
 import graboid.crawling.CrawlingExecutor
 import graboid.crawling.EventCrawlingQuery
 import graboid.manager.DataCentreFixture
@@ -33,7 +34,6 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         starting = command.starting,
         ending = command.ending,
         timeWindow = command.timeWindow,
-        owner = EventCrawlingQuery.Owner.Command,
         queries = Seq(
           EventCrawlingQuery.Query(
             magnitudeType = command.magnitudeType,
@@ -43,6 +43,8 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
           )
         )
       )
+
+      given ExecutionContext = ExecutionContext.command()
 
       for
         executor <- ZIO.service[CrawlingExecutor]
@@ -60,7 +62,6 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         starting = command.starting,
         ending = command.ending,
         timeWindow = command.timeWindow,
-        owner = EventCrawlingQuery.Owner.Command,
         queries = Seq(
           EventCrawlingQuery.Query(
             magnitudeType = command.magnitudeType,
@@ -70,6 +71,8 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
           )
         )
       )
+
+      given ExecutionContext = ExecutionContext.command()
 
       for
         executor <- ZIO.service[CrawlingExecutor]

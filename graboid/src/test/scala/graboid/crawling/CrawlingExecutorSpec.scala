@@ -4,6 +4,7 @@ import graboid.CrawlingExecution
 import graboid.CrawlingExecutionFixture
 import graboid.GraboidException
 import graboid.GraboidSpec
+import graboid.context.ExecutionContext
 import graboid.manager.DataCentreFixture
 import graboid.manager.DataCentreManager
 import graboid.repository.CrawlingExecutionRepository
@@ -50,7 +51,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
   def spec = suite("CrawlingExecutorSpec")(
     test("It should execute a EventCrawling for all DataCentres.") {
       val dataCentre         = DataCentreFixture.createRandom()
-      val query              = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Scheduler)
+      val query              = EventCrawlingQueryFixture.createRandom()
       val expectedEvent      = EventFixture.createRandom()
       val expectedFoundEvent = EventCrawler.FoundEvent(dataCentre, expectedEvent)
 
@@ -68,13 +69,13 @@ object CrawlingExecutorSpec extends GraboidSpec:
                      Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
                    )
         _       <- crawlingExecutionRepository
-        result  <- ZIO.serviceWithZIO[CrawlingExecutor](_.execute(query).runCollect)
+        result  <- ZIO.serviceWithZIO[CrawlingExecutor](_.execute(query)(using ExecutionContext.scheduler()).runCollect)
       yield assertTrue(result == Seq(expectedFoundEvent))
     },
     test("It should execute a EventCrawling for a DataCentre.") {
 
       val dataCentre         = DataCentreFixture.createRandom()
-      val query              = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Scheduler)
+      val query              = EventCrawlingQueryFixture.createRandom()
       val expectedEvent      = EventFixture.createRandom()
       val expectedFoundEvent = EventCrawler.FoundEvent(dataCentre, expectedEvent)
 
@@ -90,12 +91,14 @@ object CrawlingExecutorSpec extends GraboidSpec:
                      Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
                    )
         _       <- crawlingExecutionRepository
-        result  <- ZIO.serviceWithZIO[CrawlingExecutor](_.execute(dataCentre, query).runCollect)
+        result  <- ZIO.serviceWithZIO[CrawlingExecutor](
+                     _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect
+                   )
       yield assertTrue(result == Seq(expectedFoundEvent))
     },
     test("It should fail when there are any intersection with others executions.") {
       val dataCentre             = DataCentreFixture.createRandom()
-      val query                  = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Scheduler)
+      val query                  = EventCrawlingQueryFixture.createRandom()
       val expectedEvent          = EventFixture.createRandom()
       val expectedFoundEvent     = EventCrawler.FoundEvent(dataCentre, expectedEvent)
       val otherCrawlingExecution = CrawlingExecutionFixture.createNew()
@@ -112,12 +115,16 @@ object CrawlingExecutorSpec extends GraboidSpec:
                      Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
                    )
         _       <- crawlingExecutionRepository
-        exit    <- ZIO.serviceWithZIO[CrawlingExecutor](_.execute(dataCentre, query).runCollect).exit
+        exit    <- ZIO
+                     .serviceWithZIO[CrawlingExecutor](
+                       _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect
+                     )
+                     .exit
       yield assert(exit)(Assertion.failsWithA[GraboidException.CrawlingException])
     },
     test("It should crawl when it is a command-crawling.") {
       val dataCentre         = DataCentreFixture.createRandom()
-      val query              = EventCrawlingQueryFixture.createRandom(EventCrawlingQuery.Owner.Command)
+      val query              = EventCrawlingQueryFixture.createRandom()
       val expectedEvent      = EventFixture.createRandom()
       val expectedFoundEvent = EventCrawler.FoundEvent(dataCentre, expectedEvent)
 
@@ -130,7 +137,9 @@ object CrawlingExecutorSpec extends GraboidSpec:
                        Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
                      )
         _         <- crawlingExecutionRepository
-        collected <- ZIO.serviceWithZIO[CrawlingExecutor](_.execute(dataCentre, query).runCollect)
+        collected <- ZIO.serviceWithZIO[CrawlingExecutor](
+                       _.execute(dataCentre, query)(using ExecutionContext.command()).runCollect
+                     )
       yield assertTrue(
         collected == Seq(expectedFoundEvent)
       )

@@ -5,6 +5,8 @@ import graboid.CrawlingExecution
 import graboid.DataCentre
 import graboid.GraboidException
 import graboid.GraboidException.CrawlingException
+import graboid.context.ExecutionContext
+import graboid.context.Owner
 import graboid.manager.DataCentreManager
 import graboid.repository.CrawlingExecutionRepository
 import graboid.time.ZonedDateTimeService
@@ -22,12 +24,14 @@ import zio.stream.ZStreamAspect
 
 trait CrawlingExecutor:
 
-  def execute(query: EventCrawlingQuery): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent]
+  def execute(query: EventCrawlingQuery)(using
+      ExecutionContext
+  ): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent]
 
   def execute(
       dataCentre: DataCentre,
       query: EventCrawlingQuery
-  ): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent]
+  )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent]
 
 object CrawlingExecutor:
 
@@ -48,7 +52,9 @@ object CrawlingExecutor:
       zonedDateTimeService: ZonedDateTimeService
   ) extends CrawlingExecutor:
 
-    override def execute(query: EventCrawlingQuery): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
+    override def execute(
+        query: EventCrawlingQuery
+    )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
       ZStream.logInfo("Executing Event Crawling for all DataCentres.") *>
         dataCentreManager.all
           .flatMapPar(parallelism)(dataCentre =>
@@ -61,12 +67,14 @@ object CrawlingExecutor:
     override def execute(
         dataCentre: DataCentre,
         query: EventCrawlingQuery
-    ): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
+    )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
       ZStream
         .fromZIO {
-          if query.owner == EventCrawlingQuery.Owner.Scheduler then
-            repository.searchIntersection(dataCentre.id, query.starting, query.ending)
-          else ZIO.logDebug("It is a command crawling, it will be executed.") as Nil
+          summon[ExecutionContext].owner match
+            case Owner.Scheduler =>
+              repository.searchIntersection(dataCentre.id, query.starting, query.ending)
+            case _               =>
+              ZIO.logDebug("It is a non scheduled crawling and will be executed.") as Nil
         }
         .flatMap { executions =>
           if executions.isEmpty then

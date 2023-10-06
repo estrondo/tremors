@@ -1,6 +1,5 @@
 package graboid.crawling
 
-import graboid.crawling.EventCrawlingQuery.Owner
 import graboid.crawling.EventCrawlingQuery.Query
 import graboid.http.UpdateQueryParam
 import java.time.Duration
@@ -13,8 +12,7 @@ case class EventCrawlingQuery(
     starting: ZonedDateTime,
     ending: ZonedDateTime,
     timeWindow: Duration,
-    queries: Seq[Query],
-    owner: Owner
+    queries: Seq[Query]
 )
 
 object EventCrawlingQuery:
@@ -25,9 +23,6 @@ object EventCrawlingQuery:
       min: Option[Double],
       max: Option[Double]
   )
-
-  enum Owner:
-    case Scheduler, Command
 
   given UpdateQueryParam[EventCrawlingQuery] with
 
