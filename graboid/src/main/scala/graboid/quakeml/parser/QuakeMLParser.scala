@@ -16,12 +16,13 @@ object QuakeMLParser:
   private val MaxLevel = 32
 
   def apply[R](stream: ZStream[R, Throwable, Byte], buffer: Int = 8 * 1024): ZStream[R, Throwable, Event] =
+    parse(stream.grouped(buffer))
+
+  def parse[R](stream: ZStream[R, Throwable, Chunk[Byte]]): ZStream[R, Throwable, Event] =
     ZStream
       .succeed(Parser())
       .flatMap { parser =>
-        stream
-          .grouped(buffer)
-          .flatMap(parser.parse)
+        stream.flatMap(parser.parse)
       }
 
   private def children(nodes: Node*): Map[String, Node] =

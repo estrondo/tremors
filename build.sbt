@@ -1,5 +1,5 @@
 ThisBuild / organization             := "one.estrondo"
-ThisBuild / scalaVersion             := "3.3.0"
+ThisBuild / scalaVersion             := "3.3.1"
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
@@ -95,6 +95,10 @@ lazy val graboid = (project in file("graboid"))
     zioHttp
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoPackage := "graboid"
+  )
 
 lazy val graboidIt = (project in file("graboid-it"))
   .settings(
@@ -170,8 +174,10 @@ lazy val zioFarango = (project in file("zio/farango"))
 lazy val zioHttp = (project in file("zio/http"))
   .settings(
     name := "tremors-zio-http",
+    resolvers += Resolver.defaultLocal,
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
+      Dependencies.ZIOStream,
       Dependencies.ZIOHttp
     ).flatten
   )

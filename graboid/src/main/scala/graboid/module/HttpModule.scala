@@ -8,6 +8,7 @@ import zio.ZLayer
 import zio.http.Client
 import zio.http.DnsResolver
 import zio.http.ZClient
+import zio.http.netty.ChannelType
 import zio.http.netty.NettyConfig
 import zio.http.netty.client.NettyClientDriver
 
@@ -23,11 +24,20 @@ object HttpModule:
   private class Impl() extends HttpModule:
 
     override val client: TaskLayer[Client] =
-      val configLayer = ZLayer.succeed {
+      val config = ZLayer.succeed {
         ZClient.Config.default
+          .addUserAgentHeader(false)
           .connectionTimeout(Duration.ofSeconds(10))
+          .idleTimeout(Duration.ofSeconds(10))
       }
 
-      val nettyLayer = ZLayer.succeed(NettyConfig.default) >>> NettyClientDriver.live
+      val netty = ZLayer.succeed(
+        NettyConfig.default
+          .channelType(ChannelType.NIO)
+      ) >>> NettyClientDriver.live
 
-      (configLayer ++ DnsResolver.default ++ nettyLayer) >>> Client.customized
+      val dns = ZLayer.succeed {
+        DnsResolver.Config.default
+      } >>> DnsResolver.configured()
+
+      (config ++ dns ++ netty) >>> Client.customized

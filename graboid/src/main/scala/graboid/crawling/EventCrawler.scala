@@ -2,6 +2,7 @@ package graboid.crawling
 
 import graboid.DataCentre
 import graboid.GraboidException
+import graboid.http.HttpClient
 import graboid.http.UpdateQueryParam
 import graboid.quakeml.parser.QuakeMLParser
 import io.bullet.borer.Cbor
@@ -14,6 +15,7 @@ import tremors.quakeml.Event
 import tremors.zio.http.HttpChecker
 import zio.RIO
 import zio.Schedule
+import zio.Scope
 import zio.ZIO
 import zio.http.Client
 import zio.http.QueryParams
@@ -54,26 +56,38 @@ object EventCrawler:
     override def apply(query: EventCrawlingQuery): ZStream[Client & Producer, Throwable, FoundEvent] =
 
       def performQuery(query: QueryParams) =
+        val request = Request.get(event.addQueryParams(query))
         ZStream
           .fromZIO {
-            val request = Request.get(event.withQueryParams(query))
+            val params           = query.map.view.map((k, v) => s"$k=${v.head}").mkString(", ")
+            val logFailedAttempt =
+              ZIO.logWarning(s"Crawling has failed, it will be attempt soon.") as true
 
-            (ZIO.logDebug(s"Trying to crawl at ${request.url.toJavaURI}.") *> HttpChecker[ExternalServiceException](
+            (ZIO.logDebug(s"Crawling: $params.") *> HttpChecker[ExternalServiceException](
               "Unexpected FDSN Event Service Response!",
-              Client.request(request)
+              HttpClient
+                .request(request)
+                .timeoutFail(GraboidException.CrawlingException("Timeout reached."))(Duration.ofSeconds(8))
             ))
-              .tapErrorCause(ZIO.logWarningCause("An error happened during the crawling.", _))
-              .retry(Schedule.recurs(10) && Schedule.spaced(Duration.ofSeconds(3)))
+              .retry(
+                Schedule.recurs(6) &&
+                  Schedule.fibonacci(Duration.ofMillis(1000)) &&
+                  Schedule.recurWhileZIO(_ => logFailedAttempt)
+              )
           }
           .flatMap(response =>
-            QuakeMLParser(response.body.asStream)
+            QuakeMLParser
+              .parse(
+                response.body.asStream
+                  .grouped(8 * 1024)
+              )
               .mapZIO(publishIt)
-              .ensuring(ZIO.logDebug("Crawling has been finished."))
           )
 
       ZStream
         .fromIterableZIO(UpdateQueryParam(query, event.queryParams))
         .flatMap(performQuery)
+        .provideSomeLayer(Scope.default)
 
     private def publishIt(event: Event): RIO[Producer, FoundEvent] =
       for

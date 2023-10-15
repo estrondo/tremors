@@ -12,8 +12,8 @@ object Dependencies {
   )
 
   val Borer = Seq(
-    "io.bullet" %% "borer-core"       % "1.10.3",
-    "io.bullet" %% "borer-derivation" % "1.10.3"
+    "io.bullet" %% "borer-core"       % "1.11.0",
+    "io.bullet" %% "borer-derivation" % "1.11.0"
   )
 
   val Macwire = Seq(
@@ -71,15 +71,15 @@ object Dependencies {
 
   object Version {
     val AaltoXML            = "1.3.2"
-    val Macwire             = "2.5.8"
+    val Macwire             = "2.5.9"
     val Farango             = "0.2.1"
     val Reload4j            = "2.0.7"
     val SweetMockito        = "1.2.0+1-904f0c3e"
-    val TestcontainersScala = "0.40.17"
-    val ZIO                 = "2.0.15"
+    val TestcontainersScala = "0.41.0"
+    val ZIO                 = "2.0.18"
     val ZIOConfig           = "4.0.0-RC16"
-    val ZIOLogging          = "2.1.13"
-    val ZIOKafka            = "2.4.1"
-    val ZIOHttp             = "3.0.0-RC2"
+    val ZIOLogging          = "2.1.14"
+    val ZIOKafka            = "2.5.0"
+    val ZIOHttp             = "3.0.0-RC2+115-3a6525ce-SNAPSHOT"
   }
 }

@@ -4,8 +4,9 @@ import graboid.DataCentre
 import graboid.GraboidSpec
 import graboid.http.UpdateQueryParam
 import graboid.manager.DataCentreFixture
+import izumi.reflect.Tag
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
-import one.estrondo.sweetmockito.zio.given
+import org.mockito.Mockito
 import tremors.generator.KeyGenerator
 import zio.ZIO
 import zio.ZLayer
@@ -26,7 +27,6 @@ object EventCrawlerSpec extends GraboidSpec:
 
   def spec = suite("EventCrawlerSpec")(
     test("It should find one event.") {
-
 
       val query = EventCrawlingQueryFixture.createRandom()
 
@@ -73,12 +73,14 @@ object EventCrawlerSpec extends GraboidSpec:
       dataCentre <- ZIO.service[DataCentre]
       url        <- ZIO.fromEither(URL.decode(dataCentre.event.get))
       params     <- UpdateQueryParam(query, url.queryParams)
-    yield for param <- params yield Request.get(url.withQueryParams(param))
+    yield for param <- params yield Request.get(url.addQueryParams(param))
 
   private def updateHttpClientMock(requests: Seq[Request]) =
     val stream   = readFile("test-data/quakeml-01.xml")
     val response = Response.ok.copy(body = Body.fromStream(stream))
-    for _ <- ZIO.foreach(requests) { request =>
-               SweetMockitoLayer[Client].whenF2(_.request(eqTo(request))(any(), any())).thenReturn(response)
-             }
-    yield response
+
+    ZIO.serviceWith[Client] { client =>
+      Mockito
+        .when(client.request(any())(any(), any()))
+        .thenReturn(ZIO.succeed(response))
+    } as response
