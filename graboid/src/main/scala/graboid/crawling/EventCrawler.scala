@@ -67,7 +67,7 @@ object EventCrawler:
               "Unexpected FDSN Event Service Response!",
               HttpClient
                 .request(request)
-                .timeoutFail(GraboidException.CrawlingException("Timeout reached."))(Duration.ofSeconds(8))
+                .timeoutFail(GraboidException.CrawlingException("Request timeout reached."))(Duration.ofSeconds(8))
             ))
               .retry(
                 Schedule.recurs(6) &&
@@ -80,6 +80,7 @@ object EventCrawler:
               .parse(
                 response.body.asStream
                   .grouped(8 * 1024)
+                  .timeoutFail(GraboidException.CrawlingException("Streaming timeout reached."))(Duration.ofSeconds(8))
               )
               .mapZIO(publishIt)
           )

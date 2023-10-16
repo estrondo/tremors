@@ -33,7 +33,7 @@ object CrawlingExecutionRepository:
   private val IntersectionQuery =
     """FOR e IN @@collection
       | FILTER e.dataCentreId == @dataCentreId
-      | FILTER (e.starting <= @starting && e.ending >= @ending) || (e.starting >= @starting && e.starting < @ending) || (e.ending < @ending && e.ending >= @starting)
+      | FILTER (e.starting <= @starting && e.ending >= @ending) || (e.starting <= @starting && e.ending > @starting) || (e.starting < @ending && e.ending >= @ending)
       | RETURN e
       |""".stripMargin
 
@@ -76,8 +76,6 @@ object CrawlingExecutionRepository:
           collection.insertDocument[Stored, CrawlingExecution](execution, DocumentCreateOptions().returnNew(true))
       yield entity.getNew()).retry(collectionManager.sakePolicy)
 
-    private def collection = collectionManager.collection
-
     override def searchIntersection(
         dataCentreId: String,
         starting: ZonedDateTime,
@@ -95,6 +93,8 @@ object CrawlingExecutionRepository:
         )
         .runCollect
         .retry(collectionManager.sakePolicy)
+
+    private def collection = collectionManager.collection
 
     override def updateCounting(execution: CrawlingExecution): Task[CrawlingExecution] =
       (for entity <- collection.updateDocument[Stored, UpdateCounting, CrawlingExecution](

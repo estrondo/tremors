@@ -81,6 +81,6 @@ object EventCrawlerSpec extends GraboidSpec:
 
     ZIO.serviceWith[Client] { client =>
       Mockito
-        .when(client.request(any())(any(), any()))
+        .when(client(any())(any(), any()))
         .thenReturn(ZIO.succeed(response))
     } as response

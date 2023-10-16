@@ -55,7 +55,7 @@ object CrawlingExecutor:
     override def execute(
         query: EventCrawlingQuery
     )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
-      ZStream.logInfo("Executing Event Crawling for all DataCentres.") *>
+      ZStream.logDebug("Attempt to run an event crawling for all data centres.") *>
         dataCentreManager.all
           .flatMapPar(parallelism)(dataCentre =>
             execute(dataCentre, query)
