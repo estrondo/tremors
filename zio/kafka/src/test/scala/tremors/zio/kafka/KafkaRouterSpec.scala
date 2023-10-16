@@ -61,7 +61,7 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
         routerResult.contains(expectedOutput),
         topicResult == expectedOutput
       )
-    }
+    } @@ TestAspect.timeout(8.seconds)
   ).provideSome[Scope](
     kafkaContainer,
     kafkaProducer,
