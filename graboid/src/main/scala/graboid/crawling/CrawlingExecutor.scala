@@ -1,6 +1,5 @@
 package graboid.crawling
 
-import com.softwaremill.macwire.wire
 import graboid.CrawlingExecution
 import graboid.DataCentre
 import graboid.GraboidException
@@ -42,7 +41,7 @@ object CrawlingExecutor:
       keyGenerator: KeyGenerator,
       zonedDateTimeService: ZonedDateTimeService
   ): CrawlingExecutor =
-    wire[Impl]
+    Impl(repository, dataCentreManager, eventCrawlerFactory, keyGenerator, zonedDateTimeService)
 
   private class Impl(
       repository: CrawlingExecutionRepository,

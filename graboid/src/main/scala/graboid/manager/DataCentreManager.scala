@@ -1,6 +1,5 @@
 package graboid.manager
 
-import com.softwaremill.macwire.wire
 import graboid.DataCentre
 import graboid.repository.DataCentreRepository
 import zio.Task
@@ -22,7 +21,7 @@ trait DataCentreManager:
 object DataCentreManager:
 
   def apply(repository: DataCentreRepository): DataCentreManager =
-    wire[Impl]
+    Impl(repository)
 
   private class Impl(repository: DataCentreRepository) extends DataCentreManager:
     override def add(dataCentre: DataCentre): Task[DataCentre] =

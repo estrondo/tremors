@@ -1,6 +1,5 @@
 package graboid.module
 
-import com.softwaremill.macwire.Module
 import graboid.CommandExecutor
 import graboid.command.CrawlingCommandExecutor
 import graboid.command.DataCentreCommandExecutor
@@ -9,7 +8,6 @@ import zio.TaskLayer
 import zio.http.Client
 import zio.kafka.producer.Producer
 
-@Module
 trait CommandModule:
 
   def commandExecutor: CommandExecutor
@@ -26,7 +24,7 @@ object CommandModule:
       crawlingCommandExecutor   <- CrawlingCommandExecutor
                                      .apply(crawlingModule.crawlingExecutor, managerModule.dataCentreManager, layer)
       commandExecutor           <- CommandExecutor(dataCentreCommandExecutor, crawlingCommandExecutor)
-    yield Impl(commandExecutor)
+    yield new Impl(commandExecutor)
 
   private class Impl(
       val commandExecutor: CommandExecutor

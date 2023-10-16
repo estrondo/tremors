@@ -3,7 +3,6 @@ package graboid.repository
 import com.arangodb.model.DocumentCreateOptions
 import com.arangodb.model.DocumentDeleteOptions
 import com.arangodb.model.DocumentUpdateOptions
-import com.softwaremill.macwire.wire
 import graboid.DataCentre
 import io.github.arainko.ducktape.Field
 import one.estrondo.farango.FarangoTransformer
@@ -31,7 +30,7 @@ object DataCentreRepository:
   private val QueryAll = "FOR d IN @@collection SORT d._key ASC RETURN d"
 
   def apply(collectionManager: CollectionManager): DataCentreRepository =
-    wire[Impl]
+    Impl(collectionManager)
 
   private given FarangoTransformer[DataCentre, Stored] = DucktapeTransformer(
     Field.renamed(_._key, _.id)

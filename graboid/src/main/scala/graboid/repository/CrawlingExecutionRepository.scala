@@ -2,7 +2,6 @@ package graboid.repository
 
 import com.arangodb.model.DocumentCreateOptions
 import com.arangodb.model.DocumentUpdateOptions
-import com.softwaremill.macwire.wire
 import graboid.CrawlingExecution
 import graboid.time.ZonedDateTimeService
 import io.github.arainko.ducktape.Field
@@ -41,7 +40,7 @@ object CrawlingExecutionRepository:
       collectionManager: CollectionManager,
       zonedDateTimeService: ZonedDateTimeService
   ): CrawlingExecutionRepository =
-    wire[Impl]
+    Impl(collectionManager, zonedDateTimeService)
 
   private given FarangoTransformer[CrawlingExecution, Stored] =
     DucktapeTransformer[CrawlingExecution, Stored](Field.renamed(_._key, _.id))

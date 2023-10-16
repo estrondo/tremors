@@ -1,6 +1,5 @@
 package graboid
 
-import com.softwaremill.macwire.wire
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandFailure
 import graboid.protocol.GraboidCommandResult
@@ -19,7 +18,7 @@ trait CommandListener:
 object CommandListener:
 
   def apply(executor: CommandExecutor): UIO[CommandListener] =
-    ZIO.succeed(wire[Impl])
+    ZIO.succeed(Impl(executor))
 
   private class Impl(executor: CommandExecutor) extends CommandListener:
 

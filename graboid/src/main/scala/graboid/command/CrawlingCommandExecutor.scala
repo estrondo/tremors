@@ -1,6 +1,5 @@
 package graboid.command
 
-import com.softwaremill.macwire.wire
 import graboid.context.ExecutionContext
 import graboid.crawling.CrawlingExecutor
 import graboid.crawling.EventCrawlingQuery
@@ -25,7 +24,7 @@ object CrawlingCommandExecutor:
       dataCentreManager: DataCentreManager,
       layer: TaskLayer[Client & Producer]
   ): Task[CrawlingCommandExecutor] =
-    ZIO.succeed(wire[Impl])
+    ZIO.succeed(Impl(executor, dataCentreManager, layer))
 
   private class Impl(
       executor: CrawlingExecutor,

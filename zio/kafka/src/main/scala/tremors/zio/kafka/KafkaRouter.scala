@@ -1,7 +1,5 @@
 package tremors.zio.kafka
 
-import com.softwaremill.macwire
-import com.softwaremill.macwire.wire
 import zio.Cause
 import zio.Exit
 import zio.RIO
@@ -46,7 +44,7 @@ object KafkaRouter:
                         .make(consumerSettings(clientId, config))
                         .tapErrorCause(ZIO.logWarningCause("It was impossible to create a consumer!", _))
                         .retry(Schedule.forever && Schedule.spaced(5.seconds))
-    yield wire[Impl]
+    yield Impl(liveProducer, liveConsumer)
 
   private def consumerSettings(clientId: String, config: KafkaConfig): ConsumerSettings =
     ConsumerSettings(bootstrapServers = config.consumer.bootstrapServers)

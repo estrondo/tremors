@@ -1,6 +1,5 @@
 package graboid
 
-import com.softwaremill.macwire.wire
 import graboid.command.CrawlingCommandExecutor
 import graboid.command.DataCentreCommandExecutor
 import graboid.protocol.CrawlingCommand
@@ -19,7 +18,7 @@ object CommandExecutor:
       dataCentreCommandExecutor: DataCentreCommandExecutor,
       crawlingCommandExecutor: CrawlingCommandExecutor
   ): Task[CommandExecutor] =
-    ZIO.succeed(wire[Impl])
+    ZIO.succeed(Impl(dataCentreCommandExecutor, crawlingCommandExecutor))
 
   private class Impl(
       dataCentreCommandExecutor: DataCentreCommandExecutor,

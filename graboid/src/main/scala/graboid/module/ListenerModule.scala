@@ -1,6 +1,5 @@
 package graboid.module
 
-import com.softwaremill.macwire.Module
 import graboid.CommandListener
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
@@ -12,7 +11,6 @@ import tremors.zio.kafka.cbor.Borer
 import zio.Task
 import zio.stream.ZStream
 
-@Module
 trait ListenerModule:
 
   def commandResultStream: ZStream[Any, Throwable, GraboidCommandResult]

@@ -1,7 +1,5 @@
 package graboid.module
 
-import com.softwaremill.macwire.Module
-import com.softwaremill.macwire.wire
 import tremors.zio.kafka.KafkaConfig
 import tremors.zio.kafka.KafkaRouter
 import zio.RIO
@@ -10,7 +8,6 @@ import zio.ULayer
 import zio.kafka.consumer.Consumer
 import zio.kafka.producer.Producer
 
-@Module
 trait KafkaModule:
 
   def router: KafkaRouter
@@ -22,7 +19,8 @@ trait KafkaModule:
 object KafkaModule:
 
   def apply(clientId: String, config: KafkaConfig): RIO[Scope, KafkaModule] =
-    for router <- KafkaRouter(clientId, config) yield wire[Impl]
+    for router <- KafkaRouter(clientId, config)
+    yield Impl(router)
 
   private class Impl(val router: KafkaRouter) extends KafkaModule:
 

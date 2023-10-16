@@ -1,6 +1,5 @@
 package graboid.module
 
-import com.softwaremill.macwire.Module
 import graboid.config.CrawlingConfig
 import graboid.config.EventCrawlingConfig
 import graboid.crawling.CrawlingExecutor
@@ -15,7 +14,6 @@ import zio.Task
 import zio.ZIO
 import zio.http.Client
 
-@Module
 trait CrawlingModule:
 
   val crawlingExecutor: CrawlingExecutor

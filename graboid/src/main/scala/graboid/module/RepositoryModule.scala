@@ -2,7 +2,6 @@ package graboid.module
 
 import com.arangodb.entity.InvertedIndexField
 import com.arangodb.model.InvertedIndexOptions
-import com.softwaremill.macwire.Module
 import graboid.repository.CrawlingExecutionRepository
 import graboid.repository.DataCentreRepository
 import graboid.time.ZonedDateTimeService
@@ -11,7 +10,6 @@ import tremors.zio.farango.DataStore
 import tremors.zio.farango.FarangoModule
 import zio.Task
 
-@Module
 trait RepositoryModule:
 
   def crawlingExecutionRepository: CrawlingExecutionRepository

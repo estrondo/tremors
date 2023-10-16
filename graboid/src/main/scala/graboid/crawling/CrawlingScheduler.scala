@@ -1,6 +1,5 @@
 package graboid.crawling
 
-import com.softwaremill.macwire.wire
 import graboid.context.ExecutionContext
 import graboid.crawling.CrawlingScheduler.EventConfig
 import graboid.time.ZonedDateTimeService
@@ -24,7 +23,8 @@ object CrawlingScheduler:
 
   val EventTimeMark = "crawling.scheduler.eventTimeMark"
 
-  def apply(dataStore: DataStore, crawlingExecutor: CrawlingExecutor): Task[CrawlingScheduler] = ZIO.succeed(wire[Impl])
+  def apply(dataStore: DataStore, crawlingExecutor: CrawlingExecutor): Task[CrawlingScheduler] =
+    ZIO.succeed(Impl(dataStore, crawlingExecutor))
 
   case class EventConfig(
       interval: Duration,

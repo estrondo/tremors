@@ -16,11 +16,6 @@ object Dependencies {
     "io.bullet" %% "borer-derivation" % "1.11.0"
   )
 
-  val Macwire = Seq(
-    "com.softwaremill.macwire" %% "macros" % Version.Macwire % Provided,
-    "com.softwaremill.macwire" %% "util"   % Version.Macwire
-  )
-
   val FarangoDucktape = Seq(
     "one.estrondo" %% "farango-ducktape" % Version.Farango exclude ("org.slf4j", "slf4j-api")
   )
@@ -71,7 +66,6 @@ object Dependencies {
 
   object Version {
     val AaltoXML            = "1.3.2"
-    val Macwire             = "2.5.9"
     val Farango             = "0.2.1"
     val Reload4j            = "2.0.7"
     val SweetMockito        = "1.2.0+1-904f0c3e"

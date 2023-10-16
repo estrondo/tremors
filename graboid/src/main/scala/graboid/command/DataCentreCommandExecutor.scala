@@ -1,6 +1,5 @@
 package graboid.command
 
-import com.softwaremill.macwire.wire
 import graboid.DataCentre
 import graboid.GraboidException
 import graboid.manager.DataCentreManager
@@ -18,7 +17,7 @@ trait DataCentreCommandExecutor:
 object DataCentreCommandExecutor:
 
   def apply(manager: DataCentreManager): Task[DataCentreCommandExecutor] =
-    ZIO.succeed(wire[Impl])
+    ZIO.succeed(Impl(manager))
 
   private class Impl(manager: DataCentreManager) extends DataCentreCommandExecutor:
 

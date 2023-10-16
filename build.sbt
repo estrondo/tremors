@@ -73,7 +73,6 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.ZIO,
       Dependencies.ZIOStream,
       Dependencies.AaltoXML,
-      Dependencies.Macwire,
       Dependencies.SweetMockito,
       Dependencies.FarangoDucktape
     ).flatten,
@@ -149,7 +148,6 @@ lazy val zioKafka = (project in file("zio/kafka"))
       Dependencies.ZIOLogging,
       Dependencies.ZIOHttp,
       Dependencies.TestcontainersKafka,
-      Dependencies.Macwire,
       Dependencies.SweetMockito,
       Dependencies.Borer,
       Dependencies.ZIOLogging.map(_.withConfigurations(Some("test")))
