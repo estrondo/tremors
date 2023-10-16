@@ -20,4 +20,4 @@ object AttributeReader:
     override def apply(name: String, element: Element): T =
       element.attributes.get(name) match
         case Some(value) => summon[TextReader[T]](value)
-        case None        => throw GraboidException.QuakeMLException(s"Element with no attribute $name!")
+        case None        => throw GraboidException.QuakeML(s"Element with no attribute $name!")

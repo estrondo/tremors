@@ -1,9 +1,8 @@
 package graboid.crawling
 
-import graboid.CrawlingExecution
 import graboid.DataCentre
 import graboid.GraboidException
-import graboid.GraboidException.CrawlingException
+import graboid.GraboidException.Crawling
 import graboid.context.ExecutionContext
 import graboid.context.Owner
 import graboid.manager.DataCentreManager
@@ -94,7 +93,7 @@ object CrawlingExecutor:
           else
             val intersections = (for e <- executions yield s"(${e.starting}, ${e.ending})").mkString(", ")
             ZStream.fail(
-              GraboidException.CrawlingException(
+              GraboidException.Crawling(
                 s"There are some CrawlingExecution which already covered this period: $intersections."
               )
             )

@@ -1,6 +1,5 @@
 package graboid.crawling
 
-import graboid.CrawlingExecution
 import graboid.CrawlingExecutionFixture
 import graboid.GraboidException
 import graboid.GraboidSpec
@@ -120,7 +119,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
                        _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect
                      )
                      .exit
-      yield assert(exit)(Assertion.failsWithA[GraboidException.CrawlingException])
+      yield assert(exit)(Assertion.failsWithA[GraboidException.Crawling])
     },
     test("It should crawl when it is a command-crawling.") {
       val dataCentre         = DataCentreFixture.createRandom()

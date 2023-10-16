@@ -1,4 +1,4 @@
-package graboid
+package graboid.command
 
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandFailure

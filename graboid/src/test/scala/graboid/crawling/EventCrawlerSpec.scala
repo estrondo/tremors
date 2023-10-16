@@ -32,7 +32,7 @@ object EventCrawlerSpec extends GraboidSpec:
 
       for
         requests <- makeRequests(query)
-        _        <- updateHttpClientMock(requests.toSeq)
+        _        <- updateHttpClientMock()
         result   <- ZIO.serviceWithZIO[EventCrawler](_.apply(query).runCollect)
       yield assertTrue(result.size == 1)
     },
@@ -42,7 +42,7 @@ object EventCrawlerSpec extends GraboidSpec:
 
       for
         requests <- makeRequests(query)
-        _        <- updateHttpClientMock(requests.toSeq)
+        _        <- updateHttpClientMock()
         _        <- ZIO.serviceWithZIO[EventCrawler](_.apply(query).runCollect)
         records  <- Consumer
                       .plainStream(Subscription.topics(EventCrawler.GraboidEventTopic), Serde.string, Serde.byteArray)
@@ -75,7 +75,7 @@ object EventCrawlerSpec extends GraboidSpec:
       params     <- UpdateQueryParam(query, url.queryParams)
     yield for param <- params yield Request.get(url.addQueryParams(param))
 
-  private def updateHttpClientMock(requests: Seq[Request]) =
+  private def updateHttpClientMock() =
     val stream   = readFile("test-data/quakeml-01.xml")
     val response = Response.ok.copy(body = Body.fromStream(stream))
 

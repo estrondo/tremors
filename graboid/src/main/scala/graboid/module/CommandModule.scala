@@ -1,6 +1,6 @@
 package graboid.module
 
-import graboid.CommandExecutor
+import graboid.command.CommandExecutor
 import graboid.command.CrawlingCommandExecutor
 import graboid.command.DataCentreCommandExecutor
 import zio.Task

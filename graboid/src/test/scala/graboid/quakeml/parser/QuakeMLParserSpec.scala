@@ -277,7 +277,7 @@ object QuakeMLParserSpec extends GraboidSpec:
     suite("When it's reading a invalid QuakeML stream...")(
       test("It should fail.") {
         for exit <- QuakeMLParser(readFile("test-data/event-without-id-usp-quakeml.xml")).runCollect.exit
-        yield assert(exit)(Assertion.failsWithA[GraboidException.QuakeMLException])
+        yield assert(exit)(Assertion.failsWithA[GraboidException.QuakeML])
       }
     )
   )

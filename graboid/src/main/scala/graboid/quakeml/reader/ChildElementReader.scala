@@ -28,4 +28,4 @@ object ChildElementReader:
     override def apply(name: String, element: Element): T =
       element.children.find(_.name == name) match
         case Some(child) => summon[ElementReader[T]](child)
-        case None        => throw GraboidException.QuakeMLException(s"There is no child element $name!")
+        case None        => throw GraboidException.QuakeML(s"There is no child element $name!")

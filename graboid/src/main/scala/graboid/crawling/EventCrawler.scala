@@ -39,12 +39,12 @@ object EventCrawler:
         for url <- ZIO
                      .fromEither(URL.decode(event))
                      .mapError(
-                       GraboidException.CrawlingException(s"Invalid event URL for DataCentre ${dataCentre.id}!", _)
+                       GraboidException.Crawling(s"Invalid event URL for DataCentre ${dataCentre.id}!", _)
                      )
         yield Impl(dataCentre, url, keyGenerator)
 
       case None =>
-        ZIO.fail(GraboidException.CrawlingException(s"DataCentre ${dataCentre.id} has no event URL!"))
+        ZIO.fail(GraboidException.Crawling(s"DataCentre ${dataCentre.id} has no event URL!"))
 
   trait Factory:
     def apply(dataCentre: DataCentre): RIO[Client, EventCrawler]
@@ -67,7 +67,7 @@ object EventCrawler:
               "Unexpected FDSN Event Service Response!",
               HttpClient
                 .request(request)
-                .timeoutFail(GraboidException.CrawlingException("Request timeout reached."))(Duration.ofSeconds(8))
+                .timeoutFail(GraboidException.Crawling("Request timeout reached."))(Duration.ofSeconds(8))
             ))
               .retry(
                 Schedule.recurs(6) &&
@@ -80,7 +80,7 @@ object EventCrawler:
               .parse(
                 response.body.asStream
                   .grouped(8 * 1024)
-                  .timeoutFail(GraboidException.CrawlingException("Streaming timeout reached."))(Duration.ofSeconds(8))
+                  .timeoutFail(GraboidException.Crawling("Streaming timeout reached."))(Duration.ofSeconds(8))
               )
               .mapZIO(publishIt)
           )

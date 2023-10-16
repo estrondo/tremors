@@ -43,14 +43,14 @@ object ElementReader:
       override def apply(element: Element): ResourceReference =
         element.content match
           case Some(text) => ResourceReference(text)
-          case None       => throw GraboidException.QuakeMLException("ResourceReference: Unexpected empty element!")
+          case None       => throw GraboidException.QuakeML("ResourceReference: Unexpected empty element!")
 
     given [T: TextReader]: ElementReader[T] with
 
       override def apply(element: Element): T =
         element.content match
           case Some(text) => summon[TextReader[T]](text)
-          case None       => throw GraboidException.QuakeMLException("String: Unexpected empty element!")
+          case None       => throw GraboidException.QuakeML("String: Unexpected empty element!")
 
     given ElementReader[EventDescription] with
 
@@ -128,7 +128,7 @@ object ElementReader:
       override def apply(element: Element): ZonedDateTime =
         element.content match
           case Some(text) => ZonedDateTime.parse(text)
-          case None       => throw GraboidException.QuakeMLException("ZonedDateTime: Unexpected empty element!")
+          case None       => throw GraboidException.QuakeML("ZonedDateTime: Unexpected empty element!")
 
     given ElementReader[TimeQuantity] with
 

@@ -2,7 +2,7 @@ package graboid.repository
 
 import com.arangodb.model.DocumentCreateOptions
 import com.arangodb.model.DocumentUpdateOptions
-import graboid.CrawlingExecution
+import graboid.crawling.CrawlingExecution
 import graboid.time.ZonedDateTimeService
 import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.Transformer

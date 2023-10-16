@@ -1,7 +1,7 @@
 package graboid.repository
 
-import graboid.CrawlingExecution
 import graboid.CrawlingExecutionFixture
+import graboid.crawling.CrawlingExecution
 import graboid.time.ZonedDateTimeService
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import org.mockito.Mockito

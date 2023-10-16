@@ -1,6 +1,6 @@
 package graboid.module
 
-import graboid.CommandListener
+import graboid.command.CommandListener
 import graboid.protocol.GraboidCommand
 import graboid.protocol.GraboidCommandResult
 import tremors.generator.KeyLength

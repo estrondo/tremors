@@ -189,7 +189,7 @@ object QuakeMLParser:
         case head :: _ =>
           val newLevel = head.level + 1
           if (newLevel > MaxLevel)
-            throw GraboidException.QuakeMLException(s"Too deep: $newLevel > $MaxLevel!")
+            throw GraboidException.QuakeML(s"Too deep: $newLevel > $MaxLevel!")
 
           head.node
             .getChild(elementName)
@@ -236,7 +236,7 @@ object QuakeMLParser:
               result
 
         case _ =>
-          throw GraboidException.QuakeMLException("Invalid element ending!")
+          throw GraboidException.QuakeML("Invalid element ending!")
 
   private case class ElementBuilder(
       name: String,
