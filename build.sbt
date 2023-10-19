@@ -116,16 +116,28 @@ lazy val graboidIt = (project in file("graboid-it"))
 
 lazy val toph = (project in file("toph"))
   .settings(
-    name := "tremors-toph",
+    name                 := "tremors-toph",
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
-      Dependencies.ZIOStream
-    ).flatten
+      Dependencies.ZIOStream,
+      Dependencies.JWT,
+      Dependencies.SweetMockito
+    ).flatten,
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+    ),
+    libraryDependencies ++= Seq(
+      "io.grpc"               % "grpc-netty"           % "1.53.0",
+      "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+    )
   )
   .dependsOn(
     zioStarter,
     zioKafka,
-    zioFarango
+    zioFarango,
+    zioHttp,
+    quakeML
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
 

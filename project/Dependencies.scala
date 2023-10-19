@@ -64,10 +64,13 @@ object Dependencies {
     "com.dimafeng" %% "testcontainers-scala-kafka" % Version.TestcontainersScala
   )
 
+  val JWT = Seq(
+    "com.github.jwt-scala" %% "jwt-core" % Version.JWT
+  )
+
   object Version {
     val AaltoXML            = "1.3.2"
     val Farango             = "0.2.1"
-    val Reload4j            = "2.0.7"
     val SweetMockito        = "1.2.0+1-904f0c3e"
     val TestcontainersScala = "0.41.0"
     val ZIO                 = "2.0.18"
@@ -75,5 +78,6 @@ object Dependencies {
     val ZIOLogging          = "2.1.14"
     val ZIOKafka            = "2.5.0"
     val ZIOHttp             = "3.0.0-RC2+115-3a6525ce-SNAPSHOT"
+    val JWT                 = "9.4.4"
   }
 }

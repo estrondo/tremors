@@ -27,7 +27,7 @@ object Graboid extends ZIOAppDefault:
                                       .tapErrorCause(ZIO.logErrorCause("It was impossible to configure Graboid!", _))
       (C(configuration), profile) = tuple
 
-      _                <- ZIO.logError(s"Starting Graboid in [${profile.map(_.value).getOrElse("default")}] mode.")
+      _                <- ZIO.logInfo(s"Starting Graboid in [${profile.map(_.value).getOrElse("default")}] mode.")
       httpModule       <- HttpModule()
       farangoModule    <- FarangoModule(configuration.arango)
       repositoryModule <- RepositoryModule(farangoModule)

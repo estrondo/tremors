@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="off">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger - %X - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="console"/>
+        </Root>
+
+        <Logger name="zio" level="off"/>
+        <Logger name="zio.kafka" level="off"/>
+        <Logger name="io.netty" level="off"/>
+        <Logger name="io.vertx" level="off"/>
+        <Logger name="com.arangodb" level="off"/>
+        <Logger name="org.apache.kafka" level="warn"/>
+
+    </Loggers>
+</Configuration>
