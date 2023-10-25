@@ -79,18 +79,13 @@ lazy val graboid = (project in file("graboid"))
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
   .dependsOn(
-    core,
-    core            % "test->test",
-    quakeML,
-    quakeML         % "test->test",
+    core            % "compile->compile;test->test",
+    quakeML         % "compile->compile;test->test",
     zioStarter,
-    zioKafka,
-    zioKafka        % "test->test",
+    zioKafka        % "compile->compile;test->test",
     zioFarango,
-    generator,
-    generator       % "test->test",
-    graboidProtocol,
-    graboidProtocol % "test->test",
+    generator       % "compile->compile;test->test",
+    graboidProtocol % "compile->compile;test->test",
     zioHttp
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
@@ -109,8 +104,7 @@ lazy val graboidIt = (project in file("graboid-it"))
     ).flatten
   )
   .dependsOn(
-    graboid,
-    graboid    % "test->test",
+    graboid    % "compile->compile;test->test",
     zioFarango % "test->test"
   )
 
