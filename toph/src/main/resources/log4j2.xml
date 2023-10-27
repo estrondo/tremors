@@ -13,6 +13,7 @@
         <Logger name="zio" level="off"/>
         <Logger name="zio.kafka" level="off"/>
         <Logger name="io.netty" level="off"/>
+        <Logger name="io.grpc.netty" level="warn" />
         <Logger name="io.vertx" level="off"/>
         <Logger name="com.arangodb" level="off"/>
         <Logger name="org.apache.kafka" level="warn"/>

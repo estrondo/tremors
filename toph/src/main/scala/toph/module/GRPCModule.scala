@@ -43,5 +43,7 @@ object GRPCModule:
           userServiceLayer
         )
         .tap { env =>
-          ZIO.logInfo(s"Toph is listening @ ${env.get.port}.")
+          env.get.port.tap { port =>
+            ZIO.logInfo(s"🌎🌎🌎🌎Toph is l🌎🌎istening @ $port.")
+          }
         }

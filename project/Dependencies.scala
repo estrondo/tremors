@@ -69,7 +69,7 @@ object Dependencies {
   )
 
   val gRPCTesting = Seq(
-    "io.grpc" % "grpc-testing" % "1.59.0" % Test
+    "io.grpc" % "grpc-testing" % "1.53.0" % Test
   )
 
   object Version {

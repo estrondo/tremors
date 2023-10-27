@@ -23,7 +23,7 @@ object TokenServiceSpec extends TophSpec:
   )
 
   val expectedToken =
-    "AAAAAHLKAsA=.AAMxMjMAD0FsYmVydCBFaW5zdGVpbgAGZUBtYy4y.stJ/w/v3suE6k4fU16quu4crFtiZ4LMnwX7iUjDldJ70TNw6QwcmI+JUNxhgKhgLZt24DmMU6icA4fPBUVN9wA=="
+    "AAAAAHLKAsA=.AAMxMjMAD0FsYmVydCBFaW5zdGVpbgAGZUBtYy4y.9SxDgApXFYiSS/PMunoJoSXDQufdxrH7ath86VDWSLhU/fmy38CPL+zPA/NZu9be2O72MloRot+r0b+w+w0kdA=="
 
   val now: ZonedDateTime =
     val localDate = LocalDate.of(2030, 12, 31)
@@ -70,7 +70,7 @@ object TokenServiceSpec extends TophSpec:
     ZLayer {
       for zonedDateTimeService <- ZIO.service[ZonedDateTimeService]
       yield
-        val secretKey = SecretKeySpec("A super long or maybe confused secret key to be used!".getBytes, "HmacSHA512")
+        val secretKey = SecretKeySpec("A password was defined to be used here, but we can change it.".getBytes, "HmacSHA512")
         TokenService(secretKey, zonedDateTimeService, Period.ofDays(10))
     }
   )

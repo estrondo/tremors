@@ -4,6 +4,7 @@ import toph.config.TophConfig
 import toph.module.CentreModule
 import toph.module.GRPCModule
 import toph.module.KafkaModule
+import toph.module.RepositoryModule
 import toph.module.SecurityModule
 import tremors.zio.farango.FarangoModule
 import tremors.zio.starter.ZioStarter
@@ -25,7 +26,8 @@ object Toph extends ZIOAppDefault:
       _                   <- ZIO.logInfo(s"\uD83D\uDDFA Toph is starting in [${profile.map(_.value).getOrElse("default")}].")
       farangoModule       <- FarangoModule(config.arango)
       kafkaModule         <- KafkaModule(config.kafka)
-      centreModule        <- CentreModule()
+      repositoryModule    <- RepositoryModule(farangoModule)
+      centreModule        <- CentreModule(repositoryModule)
       securityModule      <- SecurityModule(centreModule, config.security)
       grpcModule          <- GRPCModule(config.grpc, securityModule, centreModule)
       _                   <- grpcModule.server.launch
