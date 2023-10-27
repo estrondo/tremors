@@ -26,7 +26,7 @@ object Toph extends ZIOAppDefault:
       farangoModule       <- FarangoModule(config.arango)
       kafkaModule         <- KafkaModule(config.kafka)
       centreModule        <- CentreModule()
-      securityModule      <- SecurityModule(centreModule)
+      securityModule      <- SecurityModule(centreModule, config.security)
       grpcModule          <- GRPCModule(config.grpc, securityModule, centreModule)
       _                   <- grpcModule.server.launch
     yield ()

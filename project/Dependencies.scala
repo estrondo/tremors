@@ -68,6 +68,10 @@ object Dependencies {
     "com.github.jwt-scala" %% "jwt-core" % Version.JWT
   )
 
+  val gRPCTesting = Seq(
+    "io.grpc" % "grpc-testing" % "1.59.0" % Test
+  )
+
   object Version {
     val AaltoXML            = "1.3.2"
     val Farango             = "0.2.1"

@@ -1,9 +1,9 @@
 package toph.security
 
 import java.time.Clock
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.Period
 import java.time.ZonedDateTime
 import javax.crypto.spec.SecretKeySpec
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
@@ -23,7 +23,7 @@ object TokenServiceSpec extends TophSpec:
   )
 
   val expectedToken =
-    "AAAAAHK808o=.AAMxMjMAD0FsYmVydCBFaW5zdGVpbgAGZUBtYy4y.loRQ+m3E83HZLd1Uiar2NMk1nvdtnBKtGnWEdTFCGLSN543FInmpgSt6DMNDOYj0ZVFAZUuG6Lf7wdBZRtn/gg=="
+    "AAAAAHLKAsA=.AAMxMjMAD0FsYmVydCBFaW5zdGVpbgAGZUBtYy4y.stJ/w/v3suE6k4fU16quu4crFtiZ4LMnwX7iUjDldJ70TNw6QwcmI+JUNxhgKhgLZt24DmMU6icA4fPBUVN9wA=="
 
   val now: ZonedDateTime =
     val localDate = LocalDate.of(2030, 12, 31)
@@ -61,7 +61,7 @@ object TokenServiceSpec extends TophSpec:
                   }
         result <-
           ZIO.serviceWithZIO[TokenService](
-            _.decode("AAAAAHK808o=.AAMxMjMAD0FsYmVydCBFaW5zdGVpbgAGZUBtYy4y.ZRtn/gg==")
+            _.decode("AAAAAHLKAsA=.AAMxMjMAD0FsYmVydCBFaW5zdGVpbgAGZUBtYy4y.ZRtn/gg==")
           )
       yield assertTrue(result.isEmpty)
     }
@@ -71,6 +71,6 @@ object TokenServiceSpec extends TophSpec:
       for zonedDateTimeService <- ZIO.service[ZonedDateTimeService]
       yield
         val secretKey = SecretKeySpec("A super long or maybe confused secret key to be used!".getBytes, "HmacSHA512")
-        TokenService(secretKey, zonedDateTimeService, Duration.ofSeconds(10))
+        TokenService(secretKey, zonedDateTimeService, Period.ofDays(10))
     }
   )

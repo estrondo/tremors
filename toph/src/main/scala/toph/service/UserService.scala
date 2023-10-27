@@ -20,14 +20,12 @@ object UserService:
 
     override def update(request: UpdateUser, context: AuthenticatedUser): IO[StatusException, User] =
       for
-        storedUser <-
-          userCentre
-            .update(context.claims.id, UserCentre.Update(request.name))
-            .flatMapError(handleUpdateError(context))
-
-        user <- UserTransformer
-                  .from(storedUser)
-                  .flatMapError(handleTransformUserError(storedUser))
+        storedUser <- userCentre
+                        .update(context.claims.id, UserCentre.Update(request.name))
+                        .flatMapError(handleUpdateError(context))
+        user       <- UserTransformer
+                        .from(storedUser)
+                        .flatMapError(handleTransformUserError(storedUser))
       yield user
 
     private def handleUpdateError(context: AuthenticatedUser)(cause: Throwable): UIO[StatusException] =

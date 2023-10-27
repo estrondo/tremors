@@ -27,16 +27,14 @@ object GRPCModule:
     private val userServiceLayer: TaskLayer[ZUserService[RequestContext]] =
       ZLayer {
         for service <- UserService(centreModule.userCentre)
-        yield service.transformContextZIO(securityModule.securityCentre.authenticate)
+        yield service.transformContextZIO(securityModule.authenticator.authenticate)
       }
 
     override def server: TaskLayer[Server] =
-      val serverList = ServiceList
-        .addFromEnvironment[ZUserService[RequestContext]]
-
       val serverLayer = ServerLayer.fromServiceList(
         ServerBuilder.forPort(config.port),
-        serverList
+        ServiceList
+          .addFromEnvironment[ZUserService[RequestContext]]
       )
 
       ZLayer

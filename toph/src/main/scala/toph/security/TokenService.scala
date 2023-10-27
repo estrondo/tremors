@@ -6,7 +6,7 @@ import java.io.DataInput
 import java.io.DataInputStream
 import java.io.DataOutput
 import java.io.DataOutputStream
-import java.time.Duration
+import java.time.Period
 import java.time.ZonedDateTime
 import java.util.Base64
 import javax.crypto.Mac
@@ -27,11 +27,10 @@ trait TokenService:
 
 object TokenService:
 
-  def apply(key: SecretKey, zonedDateTimeService: ZonedDateTimeService, duration: Duration): TokenService =
-    Impl(key, zonedDateTimeService, duration)
+  def apply(key: SecretKey, zonedDateTimeService: ZonedDateTimeService, period: Period): TokenService =
+    Impl(key, zonedDateTimeService, period)
 
-  private class Impl(key: SecretKey, zonedDateTimeService: ZonedDateTimeService, duration: Duration)
-      extends TokenService:
+  private class Impl(key: SecretKey, zonedDateTimeService: ZonedDateTimeService, period: Period) extends TokenService:
 
     override def decode(token: String): Task[Option[Claims]] =
       for
@@ -58,7 +57,7 @@ object TokenService:
 
     override def encode(claims: Claims): Task[String] =
       for
-        expiration <- ZIO.attempt(zonedDateTimeService.now().plus(duration))
+        expiration <- ZIO.attempt(zonedDateTimeService.now().plus(period))
         token      <- encode(expiration, claims)
       yield token
 
@@ -94,7 +93,7 @@ object TokenService:
 
     private def decodeBeforeExpire(now: ZonedDateTime, expiration: String, claims: String): Option[Claims] =
       val expirationValue = readBase64(expiration) { _.readLong() }
-      if (expirationValue < now.toEpochSecond) {
+      if (now.toEpochSecond <= expirationValue) {
         Some(readBase64(claims) { dataInput =>
           val id    = dataInput.readUTF()
           val name  = dataInput.readUTF()
