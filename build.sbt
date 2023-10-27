@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
     quakeML,
     graboid,
     toph,
+    tophIt,
     zioStarter,
     graboidIt,
     zioFarango,
@@ -136,6 +137,17 @@ lazy val toph = (project in file("toph"))
     core % "test->test"
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
+
+lazy val tophIt = (project in file("toph-it"))
+  .settings(
+    name                     := "tremors-toph-it",
+    skip / publish           := true,
+    parallelExecution / test := false
+  )
+  .dependsOn(
+    toph       % "compile->compile;test->test",
+    zioFarango % "test->test"
+  )
 
 lazy val zioStarter = (project in file("zio/starter"))
   .settings(

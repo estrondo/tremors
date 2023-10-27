@@ -12,6 +12,7 @@
 
 /graboid/target/
 /toph/target/
+/toph-it/target/
 /zio/kafka/target/
 /zio/starter/target/
 /zio/farango/target/
