@@ -7,6 +7,8 @@ import zio.ZIO
 
 trait UserCentre:
 
+  def add(user: TophUser): Task[TophUser]
+
   def update(id: String, update: UserCentre.Update): Task[TophUser]
 
 object UserCentre:
@@ -17,6 +19,12 @@ object UserCentre:
   case class Update(name: String)
 
   private class Impl(repository: UserRepository) extends UserCentre:
+
+    override def add(user: TophUser): Task[TophUser] =
+      repository
+        .add(user)
+        .tap(_ => ZIO.logInfo(s"User ${user.id} was added."))
+        .tapErrorCause(ZIO.logWarningCause(s"It was impossible to add user ${user.id}!", _))
 
     override def update(id: String, update: Update): Task[TophUser] =
       repository
