@@ -4,6 +4,7 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito.verify
 import toph.TophSpec
+import toph.context.TophExecutionContext
 import toph.model.TophUserFixture
 import toph.repository.UserRepository
 import zio.ZIO
@@ -11,6 +12,8 @@ import zio.ZLayer
 import zio.test.assertTrue
 
 object UserCentreSpec extends TophSpec:
+
+  given TophExecutionContext = TophExecutionContext.systemUser("Automatic Tester")
 
   override def spec = suite("UserCentreSpec")(
     test(s"An UseCentre should invoke ${classOf[UserRepository]}.update.") {

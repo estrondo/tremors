@@ -4,6 +4,7 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
 import toph.centre.UserCentre
+import toph.context.TophExecutionContext
 import toph.model.AuthenticatedUser
 import toph.model.AuthenticatedUserFixture
 import toph.model.TophUserFixture
@@ -18,9 +19,10 @@ object UserServiceSpec extends TophSpec:
 
   override def spec = suite("UserServiceSpec")(
     test("It should update a user.") {
-      val updateUser        = updateUserFixture()
-      val expectedUser      = TophUserFixture.createRandom()
-      val authenticatedUser = AuthenticatedUserFixture.createRandom()
+      val updateUser             = updateUserFixture()
+      val expectedUser           = TophUserFixture.createRandom()
+      val authenticatedUser      = AuthenticatedUserFixture.createRandom()
+      given TophExecutionContext = TophExecutionContext.identifiedUser(authenticatedUser)
 
       for
         _      <- SweetMockitoLayer[UserCentre]

@@ -3,6 +3,7 @@ package toph.service
 import io.grpc.Status
 import io.grpc.StatusException
 import toph.centre.UserCentre
+import toph.context.TophExecutionContext
 import toph.model.AuthenticatedUser
 import toph.model.TophUser
 import zio.Cause
@@ -21,7 +22,9 @@ object UserService:
     override def update(request: UpdateUser, context: AuthenticatedUser): IO[StatusException, User] =
       for
         storedUser <- userCentre
-                        .update(context.claims.id, UserCentre.Update(request.name))
+                        .update(context.claims.id, UserCentre.Update(request.name))(using
+                          TophExecutionContext.identifiedUser(context)
+                        )
                         .flatMapError(handleUpdateError(context))
         user       <- UserTransformer
                         .from(storedUser)
