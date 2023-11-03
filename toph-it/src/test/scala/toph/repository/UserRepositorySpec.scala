@@ -1,6 +1,5 @@
 package toph.repository
 
-import java.time.Duration
 import one.estrondo.farango.Collection
 import one.estrondo.farango.Database
 import one.estrondo.farango.sync.SyncCollection
@@ -9,7 +8,6 @@ import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.zio.farango.CollectionManager
 import tremors.zio.farango.FarangoTestContainer
-import zio.Schedule
 import zio.ZIO
 import zio.ZLayer
 import zio.test.TestAspect
@@ -60,12 +58,7 @@ object UserRepositorySpec extends TophRepositorySpec:
     FarangoTestContainer.farangoDatabase(),
     FarangoTestContainer.farangoDB,
     FarangoTestContainer.farangoCollection(),
-    ZLayer {
-      for
-        collection <- ZIO.service[Collection]
-        database   <- ZIO.service[Database]
-      yield CollectionManager(collection, database, Schedule.spaced(Duration.ofSeconds(3)))
-    },
+    collectionManagerLayer,
     ZLayer {
       ZIO.serviceWithZIO[CollectionManager] { manager =>
         UserRepository(manager)

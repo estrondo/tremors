@@ -1,5 +1,6 @@
 package toph.context
 
+import scala.reflect.ClassTag
 import toph.model.AuthenticatedUser
 
 case class TophExecutionContext(owner: Owner)
@@ -16,3 +17,6 @@ object TophExecutionContext:
 
   def systemUser(name: String): TophExecutionContext =
     new TophExecutionContext(owner = Owner.SystemUser(name))
+
+  def systemUser[T: ClassTag]: TophExecutionContext =
+    new TophExecutionContext(owner = Owner.SystemUser(summon[ClassTag[T]].runtimeClass.getSimpleName))

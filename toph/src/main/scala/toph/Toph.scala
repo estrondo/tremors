@@ -4,6 +4,7 @@ import toph.config.TophConfig
 import toph.module.CentreModule
 import toph.module.GRPCModule
 import toph.module.KafkaModule
+import toph.module.ListenerModule
 import toph.module.RepositoryModule
 import toph.module.SecurityModule
 import tremors.zio.farango.FarangoModule
@@ -28,8 +29,10 @@ object Toph extends ZIOAppDefault:
       kafkaModule         <- KafkaModule(config.kafka)
       repositoryModule    <- RepositoryModule(farangoModule)
       centreModule        <- CentreModule(repositoryModule)
+      listener            <- ListenerModule(centreModule, kafkaModule)
       securityModule      <- SecurityModule(centreModule, config.security)
       grpcModule          <- GRPCModule(config.grpc, securityModule, centreModule)
+      _                   <- listener.event.runDrain.fork
       _                   <- grpcModule.server.launch
     yield ()
 

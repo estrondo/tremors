@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="off">
+    <Appenders>
+        <File name="appender" fileName="target/toph-test.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger - %X - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="toph" level="trace" />
+        <Logger name="tremors" level="trace" />
+        <Root level="off">
+            <AppenderRef ref="appender"/>
+        </Root>
+    </Loggers>
+</Configuration>

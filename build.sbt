@@ -133,7 +133,7 @@ lazy val toph = (project in file("toph"))
     zioKafka,
     zioFarango,
     zioHttp,
-    quakeML,
+    quakeML % "compile->compile;test->test",
     core % "test->test"
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)

@@ -5,12 +5,9 @@ import tremors.zio.kafka.KafkaRouter
 import zio.RIO
 import zio.Scope
 
-trait KafkaModule
+class KafkaModule(val router: KafkaRouter)
 
 object KafkaModule:
 
   def apply(config: KafkaConfig): RIO[Scope, KafkaModule] =
-    for router <- KafkaRouter("toph", config)
-    yield Impl(router)
-
-  private class Impl(router: KafkaRouter) extends KafkaModule
+    for router <- KafkaRouter("toph", config) yield new KafkaModule(router)
