@@ -21,19 +21,19 @@ object Toph extends ZIOAppDefault:
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
-      tuple               <- ZioStarter[C]()
-                               .tapErrorCause(ZIO.logErrorCause("An error happened during Toph starting up.", _))
-      (C(config), profile) = tuple
-      _                   <- ZIO.logInfo(s"\uD83D\uDDFA Toph is starting in [${profile.map(_.value).getOrElse("default")}].")
-      farangoModule       <- FarangoModule(config.arango)
-      kafkaModule         <- KafkaModule(config.kafka)
-      repositoryModule    <- RepositoryModule(farangoModule)
-      centreModule        <- CentreModule(repositoryModule)
-      listener            <- ListenerModule(centreModule, kafkaModule)
-      securityModule      <- SecurityModule(centreModule, config.security)
-      grpcModule          <- GRPCModule(config.grpc, securityModule, centreModule)
-      _                   <- listener.event.runDrain.fork
-      _                   <- grpcModule.server.launch
+      tuple                       <- ZioStarter[C]()
+                                       .tapErrorCause(ZIO.logErrorCause("An error happened during Toph starting up.", _))
+      (C(config), profile)         = tuple
+      _                           <- ZIO.logInfo(s"Toph is starting in [${profile.map(_.value).getOrElse("default")}].")
+      farangoAndKafka             <- FarangoModule(config.arango) <&> (KafkaModule(config.kafka))
+      (farangoModule, kafkaModule) = farangoAndKafka
+      repositoryModule            <- RepositoryModule(farangoModule)
+      centreModule                <- CentreModule(repositoryModule)
+      listener                    <- ListenerModule(centreModule, kafkaModule)
+      securityModule              <- SecurityModule(centreModule, config.security)
+      grpcModule                  <- GRPCModule(config.grpc, securityModule, centreModule)
+      _                           <- listener.event.runDrain.fork
+      _                           <- grpcModule.server.launch
     yield ()
 
   case class C(toph: TophConfig)

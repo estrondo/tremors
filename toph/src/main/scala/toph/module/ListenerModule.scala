@@ -31,8 +31,8 @@ object ListenerModule:
     }
 
   private def subscribeGraboidEvent(centre: EventCentre, router: KafkaRouter): ZStream[Any, Throwable, Event] =
-    given KReader[Event] = Borer.readerFor
-    given KWriter[Event] = Borer.writerFor
+    given KReader[Event] = Borer.readerFor[Event]
+    given KWriter[Event] = Borer.writerFor[Event]
     val eventListener    = EventListener(centre, KeyGenerator)
 
     router

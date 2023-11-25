@@ -6,6 +6,10 @@ ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 ThisBuild / Test / fork              := true
 ThisBuild / Test / parallelExecution := false
 
+val tremorsBaseImage  = "docker.io/eclipse-temurin:17"
+val tremorsImageName  = "estrondo-tremors"
+val tremorsRepository = Some("docker.io")
+
 ThisBuild / scalacOptions ++= Seq(
   "-Wunused:all",
 //  "-explain",
@@ -62,8 +66,7 @@ lazy val graboidProtocol = (project in file("graboid-protocol"))
     ).flatten
   )
   .dependsOn(
-    generator,
-    generator % "test->test",
+    generator % "compile->compile;test->test",
     core      % "test->test"
   )
 
@@ -90,6 +93,13 @@ lazy val graboid = (project in file("graboid"))
     zioHttp
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
+  .settings(
+    dockerRepository     := tremorsRepository,
+    dockerBaseImage      := tremorsBaseImage,
+    Docker / packageName := tremorsImageName,
+    Docker / version ~= (x => "graboid-" + x.replace("+", "_")),
+    dockerAliases += dockerAlias.value.withTag(Some("graboid-latest"))
+  )
   .enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoPackage := "graboid"
@@ -134,9 +144,16 @@ lazy val toph = (project in file("toph"))
     zioFarango,
     zioHttp,
     quakeML % "compile->compile;test->test",
-    core % "test->test"
+    core    % "test->test"
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
+  .settings(
+    dockerRepository     := tremorsRepository,
+    dockerBaseImage      := tremorsBaseImage,
+    Docker / packageName := tremorsImageName,
+    Docker / version ~= (x => "toph-" + x.replace("+", "_")),
+    dockerAliases += dockerAlias.value.withTag(Some("toph-latest"))
+  )
 
 lazy val tophIt = (project in file("toph-it"))
   .settings(

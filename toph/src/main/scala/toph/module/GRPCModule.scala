@@ -44,6 +44,6 @@ object GRPCModule:
         )
         .tap { env =>
           env.get.port.tap { port =>
-            ZIO.logInfo(s"🌎🌎🌎🌎Toph is l🌎🌎istening @ $port.")
+            ZIO.logInfo(s"🌎 Toph is listening @ $port.")
           }
         }
