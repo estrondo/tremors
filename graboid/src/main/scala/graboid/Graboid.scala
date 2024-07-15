@@ -8,6 +8,8 @@ import graboid.module.KafkaModule
 import graboid.module.ListenerModule
 import graboid.module.ManagerModule
 import graboid.module.RepositoryModule
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.PrecisionModel
 import tremors.zio.farango.FarangoModule
 import tremors.zio.starter.ZioStarter
 import zio.Scope
@@ -27,9 +29,11 @@ object Graboid extends ZIOAppDefault:
                                       .tapErrorCause(ZIO.logErrorCause("It was impossible to configure Graboid!", _))
       (C(configuration), profile) = tuple
 
+      geometryFactory <- ZIO.attempt(GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326))
+
       _                <- ZIO.logInfo(s"Starting Graboid in [${profile.map(_.value).getOrElse("default")}] mode.")
       httpModule       <- HttpModule()
-      farangoModule    <- FarangoModule(configuration.arango)
+      farangoModule    <- FarangoModule(configuration.arango, geometryFactory)
       repositoryModule <- RepositoryModule(farangoModule)
       managerModule    <- graboid.module.ManagerModule(repositoryModule)
       kafkaModule      <- KafkaModule("graboid", configuration.kafka)

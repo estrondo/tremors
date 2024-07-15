@@ -1,7 +1,10 @@
 package toph
 
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.PrecisionModel
 import toph.config.TophConfig
 import toph.module.CentreModule
+import toph.module.GeometryModule
 import toph.module.GRPCModule
 import toph.module.KafkaModule
 import toph.module.ListenerModule
@@ -21,15 +24,18 @@ object Toph extends ZIOAppDefault:
 
   override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
-      tuple                       <- ZioStarter[C]()
-                                       .tapErrorCause(ZIO.logErrorCause("An error happened during Toph starting up.", _))
+      tuple <- ZioStarter[C]()
+                 .tapErrorCause(ZIO.logErrorCause("An error happened during Toph starting up.", _))
+
       (C(config), profile)         = tuple
+      geometryFactory             <- ZIO.attempt(GeometryFactory(PrecisionModel(PrecisionModel.FLOATING), 4326))
       _                           <- ZIO.logInfo(s"Toph is starting in [${profile.map(_.value).getOrElse("default")}].")
-      farangoAndKafka             <- FarangoModule(config.arango) <&> (KafkaModule(config.kafka))
+      farangoAndKafka             <- FarangoModule(config.arango, geometryFactory) <&> (KafkaModule(config.kafka))
       (farangoModule, kafkaModule) = farangoAndKafka
       repositoryModule            <- RepositoryModule(farangoModule)
       centreModule                <- CentreModule(repositoryModule)
-      listener                    <- ListenerModule(centreModule, kafkaModule)
+      geometryModule              <- GeometryModule(4326)
+      listener                    <- ListenerModule(centreModule, kafkaModule, geometryModule)
       securityModule              <- SecurityModule(centreModule, config.security)
       grpcModule                  <- GRPCModule(config.grpc, securityModule, centreModule)
       _                           <- listener.event.runDrain.fork

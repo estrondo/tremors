@@ -19,4 +19,4 @@ object TophExecutionContext:
     new TophExecutionContext(owner = Owner.SystemUser(name))
 
   def systemUser[T: ClassTag]: TophExecutionContext =
-    new TophExecutionContext(owner = Owner.SystemUser(summon[ClassTag[T]].runtimeClass.getSimpleName))
+    new TophExecutionContext(owner = Owner.SystemUser(summon[ClassTag[T]].runtimeClass.getCanonicalName))

@@ -1,5 +1,6 @@
 package toph.event
 
+import org.locationtech.jts.geom.GeometryFactory
 import toph.centre.EventCentre
 import toph.context.TophExecutionContext
 import toph.model.TophEventMapper
@@ -16,21 +17,23 @@ trait EventListener:
 
 object EventListener:
 
-  def apply(eventCentre: EventCentre, keyGenerator: KeyGenerator): EventListener =
-    Impl(eventCentre, keyGenerator)
+  def apply(eventCentre: EventCentre, keyGenerator: KeyGenerator, geometryFactory: GeometryFactory): EventListener =
+    Impl(eventCentre, keyGenerator, geometryFactory)
 
-  private class Impl(eventCentre: EventCentre, keyGenerator: KeyGenerator) extends EventListener:
+  private class Impl(eventCentre: EventCentre, keyGenerator: KeyGenerator, geometryFactory: GeometryFactory)
+      extends EventListener:
 
-    private val keyGeneratorLayer = ZLayer.succeed(keyGenerator)
+    private def supportLayer = ZLayer.succeed(keyGenerator) ++ ZLayer.succeed(geometryFactory)
 
     override def apply(event: Event): Task[Event] =
       for
-        tophEvent <- TophEventMapper(event)
-                       .provideLayer(keyGeneratorLayer)
-        _         <- eventCentre
-                       .add(tophEvent)(using TophExecutionContext.systemUser[EventListener])
-                       .tap(_ => ZIO.logInfo("A new event has been received from Graboid."))
-                       .tapErrorCause(ZIO.logErrorCause("Unable to store the event.", _)) @@ ZIOAspect.annotated(
-                       "quakeml.eventId" -> event.publicId.resourceId
-                     )
+        tophEvents <- TophEventMapper(event).provideLayer(supportLayer)
+        _          <- ZIO.foreach(tophEvents) { tophEvent =>
+                        eventCentre
+                          .add(tophEvent)(using TophExecutionContext.systemUser[EventListener])
+                          .tap(_ => ZIO.logInfo("A new event has been received from Graboid."))
+                          .tapErrorCause(ZIO.logErrorCause("Unable to store the event.", _)) @@ ZIOAspect.annotated(
+                          "quakeml.eventId" -> event.publicId.resourceId
+                        )
+                      }
       yield event

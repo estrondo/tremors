@@ -1,7 +1,9 @@
 package tremors.zio.farango
 
+import com.bedatadriven.jackson.datatype.jts.JtsModule
 import com.dimafeng.testcontainers.GenericContainer
 import one.estrondo.farango.Config
+import one.estrondo.farango.JacksonConsumer
 import one.estrondo.farango.sync.SyncCollection
 import one.estrondo.farango.sync.SyncDatabase
 import one.estrondo.farango.sync.SyncDB
@@ -39,6 +41,9 @@ object FarangoTestContainer {
                           .withUser("tremors")
                           .withPassword("tremors")
                           .withRootPassword("tremors")
+                          .withSerde(JacksonConsumer(mapper => {
+                            mapper.registerModule(JtsModule())
+                          }))
                       )
                     )
       _          <- db.createDefaultUser()

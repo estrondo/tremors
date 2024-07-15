@@ -2,19 +2,24 @@ package tremors.generator
 
 import java.util.concurrent.ThreadLocalRandom
 
-sealed abstract class KeyLength(val length: Int)
+enum KeyLength(val length: Int):
 
-object KeyLength:
+  case Short extends KeyLength(2)
 
-  case object Short extends KeyLength(2)
+  case Medium extends KeyLength(4)
 
-  case object Medium extends KeyLength(4)
+  case Long extends KeyLength(8)
 
-  case object Long extends KeyLength(8)
 
 trait KeyGenerator:
 
   def generate(length: KeyLength): String
+  
+  def short(): String = generate(KeyLength.Short)
+  
+  def medium(): String = generate(KeyLength.Medium)
+  
+  def long(): String = generate(KeyLength.Long)
 
 object KeyGenerator extends KeyGenerator:
 

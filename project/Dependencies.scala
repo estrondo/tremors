@@ -72,6 +72,11 @@ object Dependencies {
     "io.grpc" % "grpc-testing" % "1.53.0" % Test
   )
 
+  val JTS = Seq(
+    "org.locationtech.jts" % "jts-core" % "1.19.0",
+    "com.graphhopper.external" % "jackson-datatype-jts" % "2.14"
+  )
+
   object Version {
     val AaltoXML            = "1.3.2"
     val Farango             = "0.2.1"

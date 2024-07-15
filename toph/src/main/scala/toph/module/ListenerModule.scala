@@ -1,5 +1,6 @@
 package toph.module
 
+import org.locationtech.jts.geom.GeometryFactory
 import toph.centre.EventCentre
 import toph.event.EventListener
 import tremors.generator.KeyGenerator
@@ -23,17 +24,25 @@ object ListenerModule:
   val GraboidEventTopic = "graboid.event"
   val TophEventTopic    = "toph.event"
 
-  def apply(centreModule: CentreModule, kafkaModule: KafkaModule): Task[ListenerModule] =
+  def apply(
+      centreModule: CentreModule,
+      kafkaModule: KafkaModule,
+      geometryModule: GeometryModule
+  ): Task[ListenerModule] =
     ZIO.succeed {
       new ListenerModule(
-        event = subscribeGraboidEvent(centreModule.eventCentre, kafkaModule.router)
+        event = subscribeGraboidEvent(centreModule.eventCentre, kafkaModule.router, geometryModule.geometryFactory)
       )
     }
 
-  private def subscribeGraboidEvent(centre: EventCentre, router: KafkaRouter): ZStream[Any, Throwable, Event] =
+  private def subscribeGraboidEvent(
+      centre: EventCentre,
+      router: KafkaRouter,
+      geometryFactory: GeometryFactory
+  ): ZStream[Any, Throwable, Event] =
     given KReader[Event] = Borer.readerFor[Event]
     given KWriter[Event] = Borer.writerFor[Event]
-    val eventListener    = EventListener(centre, KeyGenerator)
+    val eventListener    = EventListener(centre, KeyGenerator, geometryFactory)
 
     router
       .subscribe(

@@ -127,7 +127,8 @@ lazy val toph = (project in file("toph"))
       Dependencies.ZIOStream,
       Dependencies.JWT,
       Dependencies.SweetMockito,
-      Dependencies.gRPCTesting
+      Dependencies.gRPCTesting,
+      Dependencies.JTS
     ).flatten,
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
@@ -202,7 +203,8 @@ lazy val zioFarango = (project in file("zio/farango"))
       Dependencies.ZIOFarango,
       Dependencies.ZIOLogging,
       Dependencies.TestcontainersScala,
-      Dependencies.FarangoDucktape
+      Dependencies.FarangoDucktape,
+      Dependencies.JTS
     ).flatten
   )
 
