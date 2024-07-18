@@ -70,7 +70,8 @@ object TokenServiceSpec extends TophSpec:
     ZLayer {
       for zonedDateTimeService <- ZIO.service[ZonedDateTimeService]
       yield
-        val secretKey = SecretKeySpec("A password was defined to be used here, but we can change it.".getBytes, "HmacSHA512")
+        val secretKey =
+          SecretKeySpec("A password was defined to be used here, but we can change it.".getBytes, "HmacSHA512")
         TokenService(secretKey, zonedDateTimeService, Period.ofDays(10))
     }
   )

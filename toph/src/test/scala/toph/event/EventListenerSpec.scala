@@ -15,7 +15,7 @@ import tremors.quakeml.EventFixture
 import tremors.quakeml.MagnitudeFixture
 import tremors.quakeml.OriginFixture
 import zio.ZIO
-import zio.ZLayer 
+import zio.ZLayer
 import zio.test.assertTrue
 
 object EventListenerSpec extends TophSpec:

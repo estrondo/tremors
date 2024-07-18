@@ -48,8 +48,7 @@ object CollectionManagerSpec extends ZIOSpecDefault:
           fiberRef <- (ZIO.logInfo("Trying to insert a new document!") *> manager.collection
                         .insertDocument[Stored, Stored](domain)
                         .retry(manager.sakePolicy)
-                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _)))
-                        .fork
+                        .tapErrorCause(ZIO.logErrorCause("It was impossible to add a document!", _))).fork
           _        <- TestClock.adjust(1.minute)
           _        <- fiberRef.join
         yield assertTrue(true)

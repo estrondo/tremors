@@ -1,6 +1,5 @@
 package graboid.crawling
 
-
 import java.time.ZonedDateTime
 
 case class CrawlingExecution(

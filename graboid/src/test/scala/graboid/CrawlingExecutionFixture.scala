@@ -1,7 +1,6 @@
 package graboid
 
 import graboid.crawling.CrawlingExecution
-
 import scala.util.Random
 import tremors.ZonedDateTimeFixture
 import tremors.generator.KeyGenerator

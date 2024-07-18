@@ -1,14 +1,14 @@
 package toph
 
 import org.mockito.ArgumentMatchers
+import org.mockito.Mockito
+import toph.context.TophExecutionContext
 import zio.Runtime
 import zio.ZLayer
 import zio.logging.backend.SLF4J
 import zio.test.TestEnvironment
 import zio.test.ZIOSpecDefault
 import zio.test.testEnvironment
-import org.mockito.Mockito
-import toph.context.TophExecutionContext
 
 trait TophSpec extends ZIOSpecDefault:
 
