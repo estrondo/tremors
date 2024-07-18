@@ -12,8 +12,8 @@ object Dependencies {
   )
 
   val Borer = Seq(
-    "io.bullet" %% "borer-core"       % "1.11.0",
-    "io.bullet" %% "borer-derivation" % "1.11.0"
+    "io.bullet" %% "borer-core"       % "1.14.1",
+    "io.bullet" %% "borer-derivation" % "1.14.1"
   )
 
   val FarangoDucktape = Seq(
@@ -21,7 +21,8 @@ object Dependencies {
   )
 
   val ZIOFarango = Seq(
-    "one.estrondo" %% "farango-zio" % Version.Farango exclude ("org.slf4j", "slf4j-api")
+    "one.estrondo" %% "farango-zio" % Version.Farango exclude ("org.slf4j", "slf4j-api"),
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2"
   )
 
   val ZIO = Seq(
@@ -39,7 +40,7 @@ object Dependencies {
   val ZIOLogging = Seq(
     "dev.zio"                 %% "zio-logging"       % Version.ZIOLogging,
     "dev.zio"                 %% "zio-logging-slf4j" % Version.ZIOLogging,
-    "org.apache.logging.log4j" % "log4j-slf4j-impl"  % "2.20.0"
+    "org.apache.logging.log4j" % "log4j-slf4j-impl"  % "2.23.1"
   )
 
   val ZIOHttp = Seq(
@@ -69,7 +70,7 @@ object Dependencies {
   )
 
   val gRPCTesting = Seq(
-    "io.grpc" % "grpc-testing" % "1.53.0" % Test
+    "io.grpc" % "grpc-testing" % "1.65.1" % Test
   )
 
   val JTS = Seq(
@@ -78,15 +79,15 @@ object Dependencies {
   )
 
   object Version {
-    val AaltoXML            = "1.3.2"
+    val AaltoXML            = "1.3.3"
     val Farango             = "0.2.1"
     val SweetMockito        = "1.2.0+1-904f0c3e"
-    val TestcontainersScala = "0.41.0"
-    val ZIO                 = "2.0.18"
-    val ZIOConfig           = "4.0.0-RC16"
-    val ZIOLogging          = "2.1.14"
-    val ZIOKafka            = "2.5.0"
-    val ZIOHttp             = "3.0.0-RC2+115-3a6525ce-SNAPSHOT"
-    val JWT                 = "9.4.4"
+    val TestcontainersScala = "0.41.4"
+    val ZIO                 = "2.1.6"
+    val ZIOConfig           = "4.0.2"
+    val ZIOLogging          = "2.3.0"
+    val ZIOKafka            = "2.8.0"
+    val ZIOHttp             = "3.0.0-RC9"
+    val JWT                 = "10.0.1"
   }
 }

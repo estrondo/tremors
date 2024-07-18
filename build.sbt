@@ -1,5 +1,5 @@
 ThisBuild / organization             := "one.estrondo"
-ThisBuild / scalaVersion             := "3.3.1"
+ThisBuild / scalaVersion             := "3.4.2"
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
@@ -12,7 +12,7 @@ val tremorsRepository = Some("docker.io")
 
 ThisBuild / scalacOptions ++= Seq(
   "-Wunused:all",
-//  "-explain",
+  "-explain",
   "-deprecation",
   "-unchecked"
 )
@@ -135,7 +135,7 @@ lazy val toph = (project in file("toph"))
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies ++= Seq(
-      "io.grpc"               % "grpc-netty"           % "1.53.0",
+      "io.grpc"               % "grpc-netty"           % "1.65.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     )
   )

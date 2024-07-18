@@ -77,7 +77,7 @@ object EventCrawlerSpec extends GraboidSpec:
 
   private def updateHttpClientMock() =
     val stream   = readFile("test-data/quakeml-01.xml")
-    val response = Response.ok.copy(body = Body.fromStream(stream))
+    val response = Response.ok.copy(body = Body.fromStream(stream, contentLength = 1024 * 1024))
 
     ZIO.serviceWith[Client] { client =>
       Mockito

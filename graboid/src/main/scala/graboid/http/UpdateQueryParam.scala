@@ -9,7 +9,7 @@ trait UpdateQueryParam[-T]:
     for allParams <- getParams(value) yield {
       for params <- allParams yield {
         params.foldLeft(queryParams) { case (queryParams, (key, value)) =>
-          queryParams.add(key, value)
+          queryParams.addQueryParam(key, value)
         }
       }
     }

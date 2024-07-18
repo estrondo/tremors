@@ -5,6 +5,7 @@ import java.util.UUID
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.given
 import tremors.zio.kafka.cbor.Borer
+import zio.Console
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -53,7 +54,7 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
                                .plainStream(Subscription.topics("output-topic"), Serde.string, Serde.byteArray)
                                .runHead
                                .fork
-        _                 <- TestClock.adjust(1.second)
+        _                 <- TestClock.adjust(5.second)
         routerResult      <- routerResultRef.join
         topicResultRecord <- topicResultRef.join
         topicResult       <- summon[KReader[Output]](topicResultRecord.get.value)
@@ -61,7 +62,7 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
         routerResult.contains(expectedOutput),
         topicResult == expectedOutput
       )
-    } @@ TestAspect.timeout(8.seconds)
+    } @@ TestAspect.timeout(10.seconds)
   ).provideSome[Scope](
     kafkaContainer,
     kafkaProducer,
