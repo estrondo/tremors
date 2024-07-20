@@ -5,7 +5,6 @@ import java.util.UUID
 import one.estrondo.sweetmockito.SweetMockito
 import one.estrondo.sweetmockito.zio.given
 import tremors.zio.kafka.cbor.Borer
-import zio.Console
 import zio.Scope
 import zio.ZIO
 import zio.ZLayer
@@ -43,7 +42,7 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
         .whenF2(producerMock(expectedMiddle))
         .thenReturn(("output-topic", "a-key", expectedOutput))
 
-      val consumer = KConsumer("input-topic", consumerMock)
+      val consumer = KConsumer("input-topic"  , consumerMock)
       val producer = KProducer.Custom(producerMock)
 
       for

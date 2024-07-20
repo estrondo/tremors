@@ -5,6 +5,7 @@ ThisBuild / dynver ~= (_.replace('+', '-'))
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 ThisBuild / Test / fork              := true
 ThisBuild / Test / parallelExecution := false
+ThisBuild / semanticdbEnabled        := true
 
 val tremorsBaseImage  = "docker.io/eclipse-temurin:17"
 val tremorsImageName  = "estrondo-tremors"
