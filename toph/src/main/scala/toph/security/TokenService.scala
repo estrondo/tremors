@@ -11,43 +11,37 @@ import java.time.ZonedDateTime
 import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.SecretKey
-import toph.ZonedDateTimeService
+import toph.TimeService
+import toph.model.Account
 import zio.Task
 import zio.ZIO
 
 trait TokenService:
 
-  def decode(token: String): Task[Option[Claims]]
+  def decode(token: String): Task[Option[Token]]
 
-  def decode(now: ZonedDateTime, token: String): Task[Option[Claims]]
-
-  def encode(claims: Claims): Task[String]
-
-  def encode(expiration: ZonedDateTime, claims: Claims): Task[String]
+  def encode(account: Account): Task[Token]
 
 object TokenService:
 
-  def apply(key: SecretKey, zonedDateTimeService: ZonedDateTimeService, period: Period): TokenService =
-    Impl(key, zonedDateTimeService, period)
+  def apply(key: SecretKey, timeService: TimeService, period: Period, b64: B64): TokenService =
+    Impl(key, timeService, period, b64)
 
-  private class Impl(key: SecretKey, zonedDateTimeService: ZonedDateTimeService, period: Period) extends TokenService:
+  private class Impl(key: SecretKey, timeService: TimeService, period: Period, b64: B64) extends TokenService:
 
-    override def decode(token: String): Task[Option[Claims]] =
-      for
-        now     <- ZIO.succeed(zonedDateTimeService.now())
-        decoded <- decode(now, token)
-      yield decoded
+    override def decode(token: String): Task[Option[Token]] =
+      decodeValidSignature(timeService.zonedDateTimeNow(), token)
 
-    override def decode(now: ZonedDateTime, token: String): Task[Option[Claims]] =
+    private def decodeValidSignature(now: ZonedDateTime, token: String): Task[Option[Token]] =
       for mac <- createMac()
       yield token.split('.') match
-        case Array(expiration, claims, signature) =>
+        case Array(expiration, account, signature) =>
           mac.update(expiration.getBytes())
-          mac.update('.'.toByte)
-          val expectedSignature = Base64.getEncoder.encodeToString(mac.doFinal(claims.getBytes()))
+          val expectedSignature = b64.encodeToString(mac.doFinal(account.getBytes()))
 
           if (expectedSignature == signature) {
-            decodeBeforeExpire(now, expiration, claims)
+            for account <- decodeBeforeExpire(now, expiration, account)
+            yield Token(account, token)
           } else {
             None
           }
@@ -55,34 +49,32 @@ object TokenService:
         case _ =>
           None
 
-    override def encode(claims: Claims): Task[String] =
-      for
-        expiration <- ZIO.attempt(zonedDateTimeService.now().plus(period))
-        token      <- encode(expiration, claims)
-      yield token
+    override def encode(account: Account): Task[Token] =
+      encode(timeService.zonedDateTimeNow().plus(period), account)
 
-    override def encode(expiration: ZonedDateTime, claims: Claims): Task[String] =
+    private def encode(expiration: ZonedDateTime, account: Account): Task[Token] =
       for mac <- createMac()
       yield
         val encodedExpiration = writeBase64 { _.writeLong(expiration.toEpochSecond) }
-        val encodedClaims     = writeBase64 { dataOutput =>
-          dataOutput.writeUTF(claims.id)
-          dataOutput.writeUTF(claims.name)
-          dataOutput.writeUTF(claims.email)
+        val encodedAccount    = writeBase64 { dataOutput =>
+          dataOutput.writeUTF(account.key)
+          dataOutput.writeUTF(account.name)
+          dataOutput.writeUTF(account.email)
         }
 
         val builder = StringBuilder()
           .append(new String(encodedExpiration))
           .append('.')
-          .append(new String(encodedClaims))
+          .append(new String(encodedAccount))
 
         mac.update(encodedExpiration)
-        mac.update('.'.toByte)
 
-        builder
+        val generated = builder
           .append('.')
-          .append(Base64.getEncoder.encodeToString(mac.doFinal(encodedClaims)))
+          .append(b64.encodeToString(mac.doFinal(encodedAccount)))
           .result()
+
+        Token(account, generated)
 
     private def createMac(): Task[Mac] =
       ZIO.attempt {
@@ -91,25 +83,23 @@ object TokenService:
         mac
       }
 
-    private def decodeBeforeExpire(now: ZonedDateTime, expiration: String, claims: String): Option[Claims] =
+    private def decodeBeforeExpire(now: ZonedDateTime, expiration: String, claims: String): Option[Account] =
       val expirationValue = readBase64(expiration) { _.readLong() }
-      if (now.toEpochSecond <= expirationValue) {
+      if now.toEpochSecond <= expirationValue then
         Some(readBase64(claims) { dataInput =>
           val id    = dataInput.readUTF()
           val name  = dataInput.readUTF()
           val email = dataInput.readUTF()
-          Claims(id, name, email)
+          Account(key = id, name = name, email = email)
         })
-      } else {
-        None
-      }
+      else None
 
     private def readBase64[T](encoded: String)(block: DataInput => T): T =
-      block(DataInputStream(ByteArrayInputStream(Base64.getDecoder.decode(encoded))))
+      block(DataInputStream(ByteArrayInputStream(b64.decode(encoded))))
 
     private def writeBase64(block: DataOutput => Unit): Array[Byte] =
       val buffer     = ByteArrayOutputStream()
       val dataOutput = DataOutputStream(buffer)
       block(dataOutput)
       dataOutput.flush()
-      Base64.getEncoder.encode(buffer.toByteArray)
+      b64.encodeToBytes(buffer.toByteArray)

@@ -6,7 +6,7 @@ import scalapb.zio_grpc.Server
 import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
-import toph.service.UserService
+import toph.grpc.UserService
 import toph.service.ZioService.ZUserService
 import zio.Task
 import zio.TaskLayer
@@ -27,7 +27,7 @@ object GRPCModule:
     private val userServiceLayer: TaskLayer[ZUserService[RequestContext]] =
       ZLayer {
         for service <- UserService(centreModule.userCentre)
-        yield service.transformContextZIO(securityModule.authenticator.authenticate)
+        yield service.transformContextZIO(???)
       }
 
     override def server: TaskLayer[Server] =

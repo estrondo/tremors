@@ -2,13 +2,13 @@ package toph.module
 
 import one.estrondo.farango.IndexDescription
 import toph.repository.EventRepository
-import toph.repository.UserRepository
+import toph.repository.AccountRepository
 import tremors.zio.farango.FarangoModule
 import zio.Task
 
 class RepositoryModule(
     val eventRepository: EventRepository,
-    val userRepository: UserRepository
+    val userRepository: AccountRepository
 )
 
 object RepositoryModule:
@@ -27,7 +27,7 @@ object RepositoryModule:
                                IndexDescription.Persistent(Seq("email"))
                              )
                            )
-                           .flatMap(UserRepository.apply)
+                           .flatMap(AccountRepository.apply)
     yield new RepositoryModule(
       eventRepository,
       userRepository

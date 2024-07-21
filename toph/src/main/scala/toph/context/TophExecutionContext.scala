@@ -1,7 +1,7 @@
 package toph.context
 
 import scala.reflect.ClassTag
-import toph.model.AuthenticatedUser
+import toph.model.Account
 
 case class TophExecutionContext(owner: Owner)
 
@@ -9,11 +9,11 @@ object TophExecutionContext:
 
   inline def apply()(using inline executionContext: TophExecutionContext): TophExecutionContext = executionContext
 
-  def identifiedUser(id: String): TophExecutionContext =
-    new TophExecutionContext(owner = Owner.IdentifiedUser(id))
+  def identifiedAccount(id: String): TophExecutionContext =
+    new TophExecutionContext(owner = Owner.IdentifiedAccount(id))
 
-  def identifiedUser(authenticatedUser: AuthenticatedUser): TophExecutionContext =
-    new TophExecutionContext(Owner.IdentifiedUser(authenticatedUser.claims.id))
+  def identifiedAccount(account: Account): TophExecutionContext =
+    new TophExecutionContext(Owner.IdentifiedAccount(account.key))
 
   def systemUser(name: String): TophExecutionContext =
     new TophExecutionContext(owner = Owner.SystemUser(name))

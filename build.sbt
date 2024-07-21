@@ -13,14 +13,14 @@ val tremorsRepository = Some("docker.io")
 
 ThisBuild / scalacOptions ++= Seq(
   "-Wunused:all",
-  "-explain",
+//  "-explain",
   "-deprecation",
-  "-unchecked"
+  "-unchecked",
 )
 
 lazy val root = (project in file("."))
   .settings(
-    name := "tremors"
+    name := "tremors",
   )
   .aggregate(
     core,
@@ -32,30 +32,30 @@ lazy val root = (project in file("."))
     graboidIt,
     zioFarango,
     zioKafka,
-    zioHttp
+    zioHttp,
   )
 
 lazy val core = (project in file("core"))
   .settings(
-    name := "tremors-core"
+    name := "tremors-core",
   )
 
 lazy val generator = (project in file("generator"))
   .settings(
-    name := "tremors-generator"
+    name := "tremors-generator",
   )
 
 lazy val quakeML = (project in file("quakeml"))
   .settings(
     name := "tremors-quakeml",
     libraryDependencies ++= Seq(
-      Dependencies.Borer
-    ).flatten
+      Dependencies.Borer,
+    ).flatten,
   )
   .dependsOn(
     generator % Test,
     core      % Test,
-    core      % "test->test"
+    core      % "test->test",
   )
 
 lazy val graboidProtocol = (project in file("graboid-protocol"))
@@ -63,12 +63,12 @@ lazy val graboidProtocol = (project in file("graboid-protocol"))
     name           := "tremors-graboid-protocol",
     skip / publish := true,
     libraryDependencies ++= Seq(
-      Dependencies.Borer
-    ).flatten
+      Dependencies.Borer,
+    ).flatten,
   )
   .dependsOn(
     generator % "compile->compile;test->test",
-    core      % "test->test"
+    core      % "test->test",
   )
 
 lazy val graboid = (project in file("graboid"))
@@ -79,9 +79,9 @@ lazy val graboid = (project in file("graboid"))
       Dependencies.ZIOStream,
       Dependencies.AaltoXML,
       Dependencies.SweetMockito,
-      Dependencies.FarangoDucktape
+      Dependencies.FarangoDucktape,
     ).flatten,
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   )
   .dependsOn(
     core            % "compile->compile;test->test",
@@ -91,7 +91,7 @@ lazy val graboid = (project in file("graboid"))
     zioFarango,
     generator       % "compile->compile;test->test",
     graboidProtocol % "compile->compile;test->test",
-    zioHttp
+    zioHttp,
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
@@ -99,11 +99,11 @@ lazy val graboid = (project in file("graboid"))
     dockerBaseImage      := tremorsBaseImage,
     Docker / packageName := tremorsImageName,
     Docker / version ~= (x => "graboid-" + x.replace("+", "_")),
-    dockerAliases += dockerAlias.value.withTag(Some("graboid-latest"))
+    dockerAliases += dockerAlias.value.withTag(Some("graboid-latest")),
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    buildInfoPackage := "graboid"
+    buildInfoPackage := "graboid",
   )
 
 lazy val graboidIt = (project in file("graboid-it"))
@@ -112,12 +112,12 @@ lazy val graboidIt = (project in file("graboid-it"))
     skip / publish           := true,
     parallelExecution / test := false,
     libraryDependencies ++= Seq(
-      Dependencies.ZIOLogging
-    ).flatten
+      Dependencies.ZIOLogging,
+    ).flatten,
   )
   .dependsOn(
     graboid    % "compile->compile;test->test",
-    zioFarango % "test->test"
+    zioFarango % "test->test",
   )
 
 lazy val toph = (project in file("toph"))
@@ -129,16 +129,17 @@ lazy val toph = (project in file("toph"))
       Dependencies.JWT,
       Dependencies.SweetMockito,
       Dependencies.gRPCTesting,
-      Dependencies.JTS
+      Dependencies.JTS,
+      Dependencies.Moidc4sZIO,
     ).flatten,
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
-      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb",
     ),
     libraryDependencies ++= Seq(
       "io.grpc"               % "grpc-netty"           % "1.65.1",
-      "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
-    )
+      "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+    ),
   )
   .dependsOn(
     zioStarter,
@@ -146,7 +147,7 @@ lazy val toph = (project in file("toph"))
     zioFarango,
     zioHttp,
     quakeML % "compile->compile;test->test",
-    core    % "test->test"
+    core    % "test->test",
   )
   .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
@@ -154,18 +155,18 @@ lazy val toph = (project in file("toph"))
     dockerBaseImage      := tremorsBaseImage,
     Docker / packageName := tremorsImageName,
     Docker / version ~= (x => "toph-" + x.replace("+", "_")),
-    dockerAliases += dockerAlias.value.withTag(Some("toph-latest"))
+    dockerAliases += dockerAlias.value.withTag(Some("toph-latest")),
   )
 
 lazy val tophIt = (project in file("toph-it"))
   .settings(
     name                     := "tremors-toph-it",
     skip / publish           := true,
-    parallelExecution / test := false
+    parallelExecution / test := false,
   )
   .dependsOn(
     toph       % "compile->compile;test->test",
-    zioFarango % "test->test"
+    zioFarango % "test->test",
   )
 
 lazy val zioStarter = (project in file("zio/starter"))
@@ -174,8 +175,8 @@ lazy val zioStarter = (project in file("zio/starter"))
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOConfig,
-      Dependencies.ZIOLogging
-    ).flatten
+      Dependencies.ZIOLogging,
+    ).flatten,
   )
 
 lazy val zioKafka = (project in file("zio/kafka"))
@@ -189,11 +190,11 @@ lazy val zioKafka = (project in file("zio/kafka"))
       Dependencies.TestcontainersKafka,
       Dependencies.SweetMockito,
       Dependencies.Borer,
-      Dependencies.ZIOLogging.map(_.withConfigurations(Some("test")))
-    ).flatten
+      Dependencies.ZIOLogging.map(_.withConfigurations(Some("test"))),
+    ).flatten,
   )
   .dependsOn(
-    generator
+    generator,
   )
 
 lazy val zioFarango = (project in file("zio/farango"))
@@ -205,8 +206,8 @@ lazy val zioFarango = (project in file("zio/farango"))
       Dependencies.ZIOLogging,
       Dependencies.TestcontainersScala,
       Dependencies.FarangoDucktape,
-      Dependencies.JTS
-    ).flatten
+      Dependencies.JTS,
+    ).flatten,
   )
 
 lazy val zioHttp = (project in file("zio/http"))
@@ -216,9 +217,9 @@ lazy val zioHttp = (project in file("zio/http"))
     libraryDependencies ++= Seq(
       Dependencies.ZIO,
       Dependencies.ZIOStream,
-      Dependencies.ZIOHttp
-    ).flatten
+      Dependencies.ZIOHttp,
+    ).flatten,
   )
   .dependsOn(
-    core
+    core,
   )

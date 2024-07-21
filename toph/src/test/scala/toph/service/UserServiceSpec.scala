@@ -3,11 +3,12 @@ package toph.service
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
-import toph.centre.UserCentre
+import toph.centre.AccountService
 import toph.context.TophExecutionContext
-import toph.model.AuthenticatedUser
-import toph.model.AuthenticatedUserFixture
-import toph.model.TophUserFixture
+import toph.grpc.UserService
+import toph.model.AccountFixture
+import toph.security.Token
+import toph.security.TokenFixture
 import toph.service.ZioService.ZUserService
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
@@ -20,29 +21,29 @@ object UserServiceSpec extends TophSpec:
   override def spec = suite("UserServiceSpec")(
     test("It should update a user.") {
       val updateUser             = updateUserFixture()
-      val expectedUser           = TophUserFixture.createRandom()
-      val authenticatedUser      = AuthenticatedUserFixture.createRandom()
-      given TophExecutionContext = TophExecutionContext.identifiedUser(authenticatedUser)
+      val expectedAccount        = AccountFixture.createRandom()
+      val expectedToken          = TokenFixture.createRandom().copy(account = expectedAccount)
+      given TophExecutionContext = TophExecutionContext.identifiedAccount(expectedAccount)
 
       for
-        _      <- SweetMockitoLayer[UserCentre]
-                    .whenF2(_.update(authenticatedUser.claims.id, UserCentre.Update(updateUser.name)))
-                    .thenReturn(expectedUser)
-        result <- ZIO.serviceWithZIO[ZUserService[AuthenticatedUser]](_.update(updateUser, authenticatedUser))
+        _      <- SweetMockitoLayer[AccountService]
+                    .whenF2(_.update(expectedAccount.key, AccountService.Update(updateUser.name)))
+                    .thenReturn(expectedAccount)
+        result <- ZIO.serviceWithZIO[ZUserService[Token]](_.update(updateUser, expectedToken))
       yield assertTrue(
         result == User(
-          name = expectedUser.name,
-          email = expectedUser.email
-        )
+          name = expectedAccount.name,
+          email = expectedAccount.email,
+        ),
       )
-    }
+    },
   ).provideSome(
-    SweetMockitoLayer.newMockLayer[UserCentre],
+    SweetMockitoLayer.newMockLayer[AccountService],
     ZLayer {
-      ZIO.serviceWithZIO[UserCentre](centre => UserService(centre))
-    }
+      ZIO.serviceWithZIO[AccountService](centre => UserService(centre))
+    },
   )
 
   private def updateUserFixture() = UpdateUser(
-    name = KeyGenerator.generate(KeyLength.Medium)
+    name = KeyGenerator.generate(KeyLength.Medium),
   )

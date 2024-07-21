@@ -1,13 +1,13 @@
 package toph.module
 
 import toph.centre.EventCentre
-import toph.centre.UserCentre
+import toph.centre.AccountService
 import zio.Task
 import zio.ZIO
 
 class CentreModule(
     val eventCentre: EventCentre,
-    val userCentre: UserCentre
+    val userCentre: AccountService,
 )
 
 object CentreModule:
@@ -16,6 +16,6 @@ object CentreModule:
     ZIO.attempt(
       new CentreModule(
         eventCentre = EventCentre(repository.eventRepository),
-        userCentre = UserCentre(repository.userRepository)
-      )
+        userCentre = AccountService(repository.userRepository),
+      ),
     )

@@ -7,5 +7,6 @@ case class TophConfig(
     arango: ArangoConfig,
     kafka: KafkaConfig,
     grpc: GRPCConfig,
-    security: SecurityConfig
+    security: SecurityConfig,
+    http: HttpConfig,
 )

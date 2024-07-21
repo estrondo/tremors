@@ -6,6 +6,7 @@ import toph.config.TophConfig
 import toph.module.CentreModule
 import toph.module.GeometryModule
 import toph.module.GRPCModule
+import toph.module.HttpModule
 import toph.module.KafkaModule
 import toph.module.ListenerModule
 import toph.module.RepositoryModule
@@ -30,13 +31,14 @@ object Toph extends ZIOAppDefault:
       (C(config), profile)         = tuple
       geometryFactory             <- ZIO.attempt(GeometryFactory(PrecisionModel(PrecisionModel.FLOATING), 4326))
       _                           <- ZIO.logInfo(s"Toph is starting in [${profile.map(_.value).getOrElse("default")}].")
-      farangoAndKafka             <- FarangoModule(config.arango, geometryFactory) <&> (KafkaModule(config.kafka))
+      farangoAndKafka             <- FarangoModule(config.arango, geometryFactory) <&> KafkaModule(config.kafka)
       (farangoModule, kafkaModule) = farangoAndKafka
       repositoryModule            <- RepositoryModule(farangoModule)
       centreModule                <- CentreModule(repositoryModule)
       geometryModule              <- GeometryModule(4326)
+      httpModule                  <- HttpModule(config.http)
       listener                    <- ListenerModule(centreModule, kafkaModule, geometryModule)
-      securityModule              <- SecurityModule(centreModule, config.security)
+      securityModule              <- SecurityModule(config.security, centreModule, httpModule)
       grpcModule                  <- GRPCModule(config.grpc, securityModule, centreModule)
       _                           <- listener.event.runDrain.fork
       _                           <- grpcModule.server.launch
