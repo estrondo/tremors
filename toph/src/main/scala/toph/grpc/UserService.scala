@@ -6,9 +6,9 @@ import toph.centre.AccountService
 import toph.context.TophExecutionContext
 import toph.model.Account
 import toph.security.Token
-import toph.service.UpdateUser
-import toph.service.User
-import toph.service.ZioService
+import toph.grpc.UpdateUser
+import toph.grpc.User
+import toph.grpc.ZioService
 import zio.Cause
 import zio.IO
 import zio.Task

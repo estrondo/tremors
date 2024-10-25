@@ -1,19 +1,22 @@
-package toph.centre
+package toph.service
 
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito.verify
 import toph.TophSpec
+import toph.centre.AccountService
 import toph.model.AccountFixture
 import toph.repository.AccountRepository
 import zio.ZIO
 import zio.ZLayer
 import zio.test.assertTrue
 
-object UserCentreSpec extends TophSpec:
+object AccountServiceSpec extends TophSpec:
 
-  override def spec = suite("UserCentreSpec")(
-    test(s"An UseCentre should invoke ${classOf[AccountRepository]}.update.") {
+  private val accountRepositoryClassName = classOf[AccountRepository].getCanonicalName
+
+  override def spec = suite("The AccountService")(
+    test(s"It should invoke $accountRepositoryClassName's update.") {
       val expectedUser = AccountFixture.createRandom()
 
       for
@@ -22,10 +25,10 @@ object UserCentreSpec extends TophSpec:
                   .thenReturn(expectedUser)
         user <- ZIO.serviceWithZIO[AccountService](_.update(expectedUser.key, AccountService.Update("Albert")))
       yield assertTrue(
-        user == expectedUser
+        user == expectedUser,
       )
     },
-    test(s"Am UserCentre should invoke ${classOf[AccountRepository]}.add.") {
+    test(s"It should invoke $accountRepositoryClassName's add.") {
       val expectedAccount = AccountFixture.createRandom()
       for
         _          <- SweetMockitoLayer[AccountRepository].whenF2(_.add(expectedAccount)).thenReturn(expectedAccount)
@@ -33,12 +36,12 @@ object UserCentreSpec extends TophSpec:
         repository <- ZIO.service[AccountRepository]
       yield assertTrue(
         result == expectedAccount,
-        verify(repository).add(expectedAccount) == null
+        verify(repository).add(expectedAccount) == null,
       )
-    }
+    },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[AccountRepository],
     ZLayer {
       ZIO.serviceWith[AccountRepository](AccountService.apply)
-    }
+    },
   )

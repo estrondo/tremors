@@ -4,7 +4,7 @@ import io.github.arainko.ducktape.Field
 import io.github.arainko.ducktape.into
 import scalapb.UnknownFieldSet
 import toph.model.Account
-import toph.service.User
+import toph.grpc.User
 import zio.Task
 import zio.ZIO
 

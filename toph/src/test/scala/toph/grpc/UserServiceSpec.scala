@@ -1,4 +1,4 @@
-package toph.service
+package toph.grpc
 
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
@@ -9,7 +9,7 @@ import toph.grpc.UserService
 import toph.model.AccountFixture
 import toph.security.Token
 import toph.security.TokenFixture
-import toph.service.ZioService.ZUserService
+import toph.grpc.ZioService.ZUserService
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import zio.ZIO

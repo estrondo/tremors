@@ -7,7 +7,7 @@ import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
 import toph.grpc.UserService
-import toph.service.ZioService.ZUserService
+import toph.grpc.ZioService.ZUserService
 import zio.Task
 import zio.TaskLayer
 import zio.ZIO
