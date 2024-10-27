@@ -1,15 +1,16 @@
-package toph.grpc
+package toph.grpc.impl
 
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
-import toph.centre.AccountService
 import toph.context.TophExecutionContext
-import toph.grpc.UserService
+import toph.grpc.GRPCAccount
+import toph.grpc.GRPCUpdateAccount
+import toph.grpc.ZioGrpc
 import toph.model.AccountFixture
 import toph.security.Token
 import toph.security.TokenFixture
-import toph.grpc.ZioService.ZUserService
+import toph.service.AccountService
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import zio.ZIO
@@ -29,9 +30,9 @@ object UserServiceSpec extends TophSpec:
         _      <- SweetMockitoLayer[AccountService]
                     .whenF2(_.update(expectedAccount.key, AccountService.Update(updateUser.name)))
                     .thenReturn(expectedAccount)
-        result <- ZIO.serviceWithZIO[ZUserService[Token]](_.update(updateUser, expectedToken))
+        result <- ZIO.serviceWithZIO[ZioGrpc.ZAccountService[Token]](_.update(updateUser, expectedToken))
       yield assertTrue(
-        result == User(
+        result == GRPCAccount(
           name = expectedAccount.name,
           email = expectedAccount.email,
         ),
@@ -40,10 +41,10 @@ object UserServiceSpec extends TophSpec:
   ).provideSome(
     SweetMockitoLayer.newMockLayer[AccountService],
     ZLayer {
-      ZIO.serviceWithZIO[AccountService](centre => UserService(centre))
+      ZIO.serviceWithZIO[AccountService](centre => GRPCAccountServiceImpl(centre))
     },
   )
 
-  private def updateUserFixture() = UpdateUser(
+  private def updateUserFixture() = GRPCUpdateAccount(
     name = KeyGenerator.generate(KeyLength.Medium),
   )

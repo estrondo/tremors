@@ -133,7 +133,10 @@ lazy val toph = (project in file("toph"))
       Dependencies.Moidc4sZIO,
     ).flatten,
     Compile / PB.targets := Seq(
-      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.gen(
+        grpc = true,
+        scala3Sources = true,
+      )                                 -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb",
     ),
     libraryDependencies ++= Seq(

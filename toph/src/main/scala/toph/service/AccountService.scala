@@ -1,4 +1,4 @@
-package toph.centre
+package toph.service
 
 import toph.context.TophExecutionContext
 import toph.model.Account

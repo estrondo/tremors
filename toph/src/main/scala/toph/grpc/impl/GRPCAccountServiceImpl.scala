@@ -1,28 +1,28 @@
-package toph.grpc
+package toph.grpc.impl
 
 import io.grpc.Status
 import io.grpc.StatusException
-import toph.centre.AccountService
 import toph.context.TophExecutionContext
+import toph.grpc.GRPCAccount
+import toph.grpc.GRPCUpdateAccount
+import toph.grpc.ZioGrpc
 import toph.model.Account
 import toph.security.Token
-import toph.grpc.UpdateUser
-import toph.grpc.User
-import toph.grpc.ZioService
+import toph.service.AccountService
 import zio.Cause
 import zio.IO
 import zio.Task
 import zio.UIO
 import zio.ZIO
 
-object UserService:
+object GRPCAccountServiceImpl:
 
-  def apply(accountService: AccountService): Task[ZioService.ZUserService[Token]] =
+  def apply(accountService: AccountService): Task[ZioGrpc.ZAccountService[Token]] =
     ZIO.succeed(Impl(accountService))
 
-  private class Impl(accountService: AccountService) extends ZioService.ZUserService[Token]:
+  private class Impl(accountService: AccountService) extends ZioGrpc.ZAccountService[Token]:
 
-    override def update(request: UpdateUser, token: Token): IO[StatusException, User] =
+    override def update(request: GRPCUpdateAccount, token: Token): IO[StatusException, GRPCAccount] =
       for
         account <- accountService
                      .update(token.account.key, AccountService.Update(request.name))(using

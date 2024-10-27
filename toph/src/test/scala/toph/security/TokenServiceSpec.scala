@@ -11,7 +11,6 @@ import org.mockito.Mockito
 import toph.TimeService
 import toph.TophSpec
 import toph.model.Account
-import toph.model.AccountFixture
 import zio.ZIO
 import zio.ZLayer
 import zio.test.assertTrue

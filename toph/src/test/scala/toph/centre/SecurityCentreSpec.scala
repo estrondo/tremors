@@ -7,6 +7,7 @@ import toph.security.MultiOpenIdProvider
 import toph.security.Token
 import toph.security.TokenFixture
 import toph.security.TokenService
+import toph.service.AccountService
 import zio.ZIO
 import zio.ZLayer
 import zio.test.*

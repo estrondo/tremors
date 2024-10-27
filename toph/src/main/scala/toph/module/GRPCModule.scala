@@ -6,8 +6,9 @@ import scalapb.zio_grpc.Server
 import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
-import toph.grpc.UserService
-import toph.grpc.ZioService.ZUserService
+import toph.grpc.ZioGrpc
+import toph.grpc.impl.GRPCAccountServiceImpl
+import toph.security.Token
 import zio.Task
 import zio.TaskLayer
 import zio.ZIO
@@ -24,9 +25,9 @@ object GRPCModule:
 
   private class Impl(config: GRPCConfig, securityModule: SecurityModule, centreModule: CentreModule) extends GRPCModule:
 
-    private val userServiceLayer: TaskLayer[ZUserService[RequestContext]] =
+    private val userServiceLayer: TaskLayer[ZioGrpc.ZAccountService[RequestContext]] =
       ZLayer {
-        for service <- UserService(centreModule.userCentre)
+        for service <- GRPCAccountServiceImpl(centreModule.accountService)
         yield service.transformContextZIO(???)
       }
 
@@ -34,13 +35,13 @@ object GRPCModule:
       val serverLayer = ServerLayer.fromServiceList(
         ServerBuilder.forPort(config.port),
         ServiceList
-          .addFromEnvironment[ZUserService[RequestContext]]
+          .addFromEnvironment[ZioGrpc.ZAccountService[RequestContext]],
       )
 
       ZLayer
         .make[Server](
           serverLayer,
-          userServiceLayer
+          userServiceLayer,
         )
         .tap { env =>
           env.get.port.tap { port =>

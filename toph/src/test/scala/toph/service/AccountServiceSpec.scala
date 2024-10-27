@@ -4,7 +4,6 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito.verify
 import toph.TophSpec
-import toph.centre.AccountService
 import toph.model.AccountFixture
 import toph.repository.AccountRepository
 import zio.ZIO

@@ -38,7 +38,7 @@ object SecurityModule:
         B64,
       )
 
-      val securityCentre = SecurityCentre(openIdProvider, centreModule.userCentre, tokenService)
+      val securityCentre = SecurityCentre(openIdProvider, centreModule.accountService, tokenService)
       new SecurityModule(securityCentre, openIdProvider, tokenService)
 
   private def createOpenIdProvider(

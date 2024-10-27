@@ -5,6 +5,7 @@ import toph.extractSomeError
 import toph.security.MultiOpenIdProvider
 import toph.security.Token
 import toph.security.TokenService
+import toph.service.AccountService
 import zio.IO
 
 trait SecurityCentre:
@@ -15,17 +16,17 @@ object SecurityCentre:
 
   def apply(
       multiOpenIdProvider: MultiOpenIdProvider,
-      userCentre: AccountService,
+      accountService: AccountService,
       tokenService: TokenService,
   ): SecurityCentre = Impl(
     multiOpenIdProvider,
-    userCentre,
+    accountService,
     tokenService,
   )
 
   private class Impl(
       multiOpenIdProvider: MultiOpenIdProvider,
-      userCentre: AccountService,
+      accountService: AccountService,
       tokenService: TokenService,
   ) extends SecurityCentre:
 
@@ -35,7 +36,7 @@ object SecurityCentre:
                      .validate(token, provider)
                      .mapError(TophException.Security("Unable to validate!", _))
                      .some
-        account <- userCentre
+        account <- accountService
                      .findOrCreate(email)
                      .mapError(TophException.Security("Unable to find or create the account.", _))
       } yield {
