@@ -8,10 +8,11 @@ import toph.model.Account
 import zio.Task
 import zio.ZIO
 
-object UserTransformer:
+//noinspection ScalaFileName
+object GRPCAccountTransformer:
 
-  def from(user: Account): Task[GRPCAccount] = ZIO.attempt {
-    user
+  def from(account: Account): Task[GRPCAccount] = ZIO.attempt {
+    account
       .into[GRPCAccount]
       .transform(Field.const(_.unknownFields, UnknownFieldSet.empty))
   }

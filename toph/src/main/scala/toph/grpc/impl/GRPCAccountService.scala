@@ -15,7 +15,7 @@ import zio.Task
 import zio.UIO
 import zio.ZIO
 
-object GRPCAccountServiceImpl:
+object GRPCAccountService:
 
   def apply(accountService: AccountService): Task[ZioGrpc.ZAccountService[Token]] =
     ZIO.succeed(Impl(accountService))
@@ -24,15 +24,15 @@ object GRPCAccountServiceImpl:
 
     override def update(request: GRPCUpdateAccount, token: Token): IO[StatusException, GRPCAccount] =
       for
-        account <- accountService
-                     .update(token.account.key, AccountService.Update(request.name))(using
-                       TophExecutionContext.identifiedAccount(token.account),
-                     )
-                     .flatMapError(handleUpdateError(token))
-        user    <- UserTransformer
-                     .from(account)
-                     .flatMapError(handleTransformUserError(account))
-      yield user
+        updatedAccount <- accountService
+                            .update(token.account.key, AccountService.Update(request.name))(using
+                              TophExecutionContext.identifiedAccount(token.account),
+                            )
+                            .flatMapError(handleUpdateError(token))
+        transformed    <- GRPCAccountTransformer
+                            .from(updatedAccount)
+                            .flatMapError(handleTransformUserError(updatedAccount))
+      yield transformed
 
     private def handleUpdateError(token: Token)(cause: Throwable): UIO[StatusException] =
       ZIO.logErrorCause(

@@ -7,7 +7,7 @@ import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
 import toph.grpc.ZioGrpc
-import toph.grpc.impl.GRPCAccountServiceImpl
+import toph.grpc.impl.GRPCAccountService
 import toph.security.Token
 import zio.Task
 import zio.TaskLayer
@@ -27,7 +27,7 @@ object GRPCModule:
 
     private val userServiceLayer: TaskLayer[ZioGrpc.ZAccountService[RequestContext]] =
       ZLayer {
-        for service <- GRPCAccountServiceImpl(centreModule.accountService)
+        for service <- GRPCAccountService(centreModule.accountService)
         yield service.transformContextZIO(???)
       }
 

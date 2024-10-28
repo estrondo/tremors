@@ -17,10 +17,10 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.assertTrue
 
-object UserServiceSpec extends TophSpec:
+object GRPCAccountServiceSpec extends TophSpec:
 
-  override def spec = suite("UserServiceSpec")(
-    test("It should update a user.") {
+  override def spec = suite("The GRPCAccountService")(
+    test("it should update a user.") {
       val updateUser             = updateUserFixture()
       val expectedAccount        = AccountFixture.createRandom()
       val expectedToken          = TokenFixture.createRandom().copy(account = expectedAccount)
@@ -41,7 +41,7 @@ object UserServiceSpec extends TophSpec:
   ).provideSome(
     SweetMockitoLayer.newMockLayer[AccountService],
     ZLayer {
-      ZIO.serviceWithZIO[AccountService](centre => GRPCAccountServiceImpl(centre))
+      ZIO.serviceWithZIO[AccountService](accountService => GRPCAccountService(accountService))
     },
   )
 
