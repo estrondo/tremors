@@ -1,8 +1,8 @@
 package toph.module
 
 import org.locationtech.jts.geom.GeometryFactory
-import toph.centre.EventCentre
 import toph.event.EventListener
+import toph.service.EventService
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.quakeml.Event
@@ -36,7 +36,7 @@ object ListenerModule:
     }
 
   private def subscribeGraboidEvent(
-      centre: EventCentre,
+      centre: EventService,
       router: KafkaRouter,
       geometryFactory: GeometryFactory
   ): ZStream[Any, Throwable, Event] =

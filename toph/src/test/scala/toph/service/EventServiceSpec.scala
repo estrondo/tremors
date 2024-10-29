@@ -1,4 +1,4 @@
-package toph.centre
+package toph.service
 
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
@@ -9,24 +9,24 @@ import zio.ZIO
 import zio.ZLayer
 import zio.test.assertTrue
 
-object EventCentreSpec extends TophSpec:
+object EventServiceSpec extends TophSpec:
 
-  def spec = suite("An EventCentre")(
+  def spec = suite("The EventService")(
     test("It should add a new event.") {
       val expectedTophEvent = TophEventFixture.createRandom()
 
       for
         _          <- SweetMockitoLayer[EventRepository].whenF2(_.add(expectedTophEvent)).thenReturn(expectedTophEvent)
         addedEvent <-
-          ZIO.serviceWithZIO[EventCentre](_.add(expectedTophEvent))
+          ZIO.serviceWithZIO[EventService](_.add(expectedTophEvent))
       yield assertTrue(
-        addedEvent == expectedTophEvent
+        addedEvent == expectedTophEvent,
       )
-    }
+    },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[EventRepository],
     ZLayer {
       for repository <- ZIO.service[EventRepository]
-      yield EventCentre(repository)
-    }
+      yield EventService(repository)
+    },
   )

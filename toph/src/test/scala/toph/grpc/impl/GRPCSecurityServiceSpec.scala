@@ -14,7 +14,6 @@ import toph.security.Token
 import zio.ZIO
 import zio.ZLayer
 import zio.test.*
-import zio.test.given
 
 object GRPCSecurityServiceSpec extends TophSpec:
 

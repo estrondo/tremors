@@ -1,4 +1,4 @@
-package toph.centre
+package toph.service
 
 import toph.context.TophExecutionContext
 import toph.model.TophEvent
@@ -7,21 +7,21 @@ import zio.Task
 import zio.ZIO
 import zio.ZIOAspect
 
-trait EventCentre:
+trait EventService:
 
   def add(event: TophEvent)(using TophExecutionContext): Task[TophEvent]
 
-object EventCentre:
+object EventService:
 
-  def apply(repository: EventRepository): EventCentre =
+  def apply(repository: EventRepository): EventService =
     Impl(repository)
 
-  private class Impl(repository: EventRepository) extends EventCentre:
+  private class Impl(repository: EventRepository) extends EventService:
 
     override def add(event: TophEvent)(using TophExecutionContext): Task[TophEvent] =
       repository
         .add(event)
         .tap(_ => ZIO.logInfo("New event has been added."))
         .tapErrorCause(ZIO.logWarningCause("Unable to add event.", _)) @@ ZIOAspect.annotated(
-        "eventCentre.eventId" -> event.id
+        "eventCentre.eventId" -> event.id,
       )

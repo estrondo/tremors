@@ -5,10 +5,10 @@ import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import toph.TophSpec
-import toph.centre.EventCentre
 import toph.context.TophExecutionContext
 import toph.model.TophEventFixture
 import toph.model.geometryFactory
+import toph.service.EventService
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.quakeml.EventFixture
@@ -36,25 +36,25 @@ object EventListenerSpec extends TophSpec:
       val expectedTophEvent = TophEventFixture.createRandom(receivedEvent, origin, magnitude)
 
       for
-        _           <- SweetMockitoLayer[EventCentre]
+        _           <- SweetMockitoLayer[EventService]
                          .whenF2(_.add(eqTo(expectedTophEvent))(using anyOf[TophExecutionContext]()))
                          .thenReturn(expectedTophEvent)
         _           <- ZIO.serviceWith[KeyGenerator] { keyGenerator =>
                          when(keyGenerator.generate(anyOf[KeyLength]())).thenReturn(expectedTophEvent.id)
                        }
         event       <- ZIO.serviceWithZIO[EventListener](_.apply(receivedEvent))
-        eventCentre <- ZIO.service[EventCentre]
+        eventCentre <- ZIO.service[EventService]
       yield assertTrue(
         event == receivedEvent,
         verify(eventCentre).add(eqTo(expectedTophEvent))(using anyOf[TophExecutionContext]()) == null
       )
     }
   ).provideSome(
-    SweetMockitoLayer.newMockLayer[EventCentre],
+    SweetMockitoLayer.newMockLayer[EventService],
     SweetMockitoLayer.newMockLayer[KeyGenerator],
     ZLayer {
       for
-        eventCentre  <- ZIO.service[EventCentre]
+        eventCentre  <- ZIO.service[EventService]
         keyGenerator <- ZIO.service[KeyGenerator]
       yield EventListener(eventCentre, keyGenerator, geometryFactory)
     }

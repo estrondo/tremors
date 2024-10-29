@@ -1,9 +1,9 @@
 package toph.event
 
 import org.locationtech.jts.geom.GeometryFactory
-import toph.centre.EventCentre
 import toph.context.TophExecutionContext
 import toph.model.TophEventMapper
+import toph.service.EventService
 import tremors.generator.KeyGenerator
 import tremors.quakeml.Event
 import zio.Task
@@ -17,10 +17,10 @@ trait EventListener:
 
 object EventListener:
 
-  def apply(eventCentre: EventCentre, keyGenerator: KeyGenerator, geometryFactory: GeometryFactory): EventListener =
+  def apply(eventCentre: EventService, keyGenerator: KeyGenerator, geometryFactory: GeometryFactory): EventListener =
     Impl(eventCentre, keyGenerator, geometryFactory)
 
-  private class Impl(eventCentre: EventCentre, keyGenerator: KeyGenerator, geometryFactory: GeometryFactory)
+  private class Impl(eventCentre: EventService, keyGenerator: KeyGenerator, geometryFactory: GeometryFactory)
       extends EventListener:
 
     private def supportLayer = ZLayer.succeed(keyGenerator) ++ ZLayer.succeed(geometryFactory)
