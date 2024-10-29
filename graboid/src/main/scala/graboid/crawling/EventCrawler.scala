@@ -39,7 +39,7 @@ object EventCrawler:
         for url <- ZIO
                      .fromEither(URL.decode(event))
                      .mapError(
-                       GraboidException.Crawling(s"Invalid event URL for DataCentre ${dataCentre.id}!", _)
+                       GraboidException.Crawling(s"Invalid event URL for DataCentre ${dataCentre.id}!", _),
                      )
         yield Impl(dataCentre, url, keyGenerator)
 
@@ -67,12 +67,12 @@ object EventCrawler:
               "Unexpected FDSN Event Service Response!",
               HttpClient
                 .request(request)
-                .timeoutFail(GraboidException.Crawling("Request timeout reached."))(Duration.ofSeconds(8))
+                .timeoutFail(GraboidException.Crawling("Request timeout reached."))(Duration.ofSeconds(8)),
             ))
               .retry(
                 Schedule.recurs(6) &&
                   Schedule.fibonacci(Duration.ofMillis(1000)) &&
-                  Schedule.recurWhileZIO(_ => logFailedAttempt)
+                  Schedule.recurWhileZIO(_ => logFailedAttempt),
               )
           }
           .flatMap(response =>
@@ -80,9 +80,9 @@ object EventCrawler:
               .parse(
                 response.body.asStream
                   .grouped(8 * 1024)
-                  .timeoutFail(GraboidException.Crawling("Streaming timeout reached."))(Duration.ofSeconds(8))
+                  .timeoutFail(GraboidException.Crawling("Streaming timeout reached."))(Duration.ofSeconds(8)),
               )
-              .mapZIO(publishIt)
+              .mapZIO(publishIt),
           )
 
       ZStream
@@ -96,7 +96,7 @@ object EventCrawler:
         record    = ProducerRecord(GraboidEventTopic, keyGenerator.generate(KeyLength.Medium), content)
         metadata <- Producer.produce(record, Serde.string, Serde.byteArray)
         _        <- ZIO.logDebug(
-                      s"An event id=${event.publicId.resourceId} has been published: offset=${metadata.offset()}"
+                      s"An event id=${event.publicId.resourceId} has been published: offset=${metadata.offset()}",
                     )
       yield FoundEvent(dataCentre, event)
 

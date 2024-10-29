@@ -30,7 +30,7 @@ object EventListenerSpec extends TophSpec:
           origin = Seq(origin),
           magnitude = Seq(magnitude),
           preferredOriginId = Some(origin.publicId),
-          preferredMagnitudeId = Some(magnitude.publicId)
+          preferredMagnitudeId = Some(magnitude.publicId),
         )
 
       val expectedTophEvent = TophEventFixture.createRandom(receivedEvent, origin, magnitude)
@@ -46,9 +46,9 @@ object EventListenerSpec extends TophSpec:
         eventCentre <- ZIO.service[EventService]
       yield assertTrue(
         event == receivedEvent,
-        verify(eventCentre).add(eqTo(expectedTophEvent))(using anyOf[TophExecutionContext]()) == null
+        verify(eventCentre).add(eqTo(expectedTophEvent))(using anyOf[TophExecutionContext]()) == null,
       )
-    }
+    },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[EventService],
     SweetMockitoLayer.newMockLayer[KeyGenerator],
@@ -57,5 +57,5 @@ object EventListenerSpec extends TophSpec:
         eventCentre  <- ZIO.service[EventService]
         keyGenerator <- ZIO.service[KeyGenerator]
       yield EventListener(eventCentre, keyGenerator, geometryFactory)
-    }
+    },
   )

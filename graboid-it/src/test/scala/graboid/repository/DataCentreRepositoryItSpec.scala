@@ -26,11 +26,11 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
         stored <- ZIO.serviceWithZIO[SyncCollection](x =>
                     ZIO.attemptBlocking {
                       x.arango.getDocument(expected.id, classOf[Stored])
-                    }
+                    },
                   )
       yield assertTrue(
         stored.event == expected.event,
-        stored._key == expected.id
+        stored._key == expected.id,
       )
     },
     test("It should update a data centre into the collection.") {
@@ -43,11 +43,11 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
         stored <- ZIO.serviceWithZIO[SyncCollection](x =>
                     ZIO.attemptBlocking {
                       x.arango.getDocument(expected.id, classOf[Stored])
-                    }
+                    },
                   )
       yield assertTrue(
         stored.event.contains(expectedUrl),
-        stored._key == expected.id
+        stored._key == expected.id,
       )
     },
     test("It should delete a data centre from the collection.") {
@@ -59,7 +59,7 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
         stored <- ZIO.serviceWithZIO[SyncCollection](x =>
                     ZIO.attemptBlocking {
                       x.arango.getDocument(expected.id, classOf[Stored])
-                    }
+                    },
                   )
       yield assertTrue(stored == null)
     },
@@ -70,7 +70,7 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
         _   <- ZIO.serviceWithZIO[DataCentreRepository](_.insert(expected))
         got <- ZIO.serviceWithZIO[DataCentreRepository](_.get(expected.id))
       yield assertTrue(
-        got.contains(expected)
+        got.contains(expected),
       )
     },
     test("It should list all data centres from the collection.") {
@@ -79,9 +79,9 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
         _         <- ZIO.foreach(expectedOnes)(expected => ZIO.serviceWithZIO[DataCentreRepository](_.insert(expected)))
         collected <- ZIO.serviceWithZIO[DataCentreRepository](_.all.runCollect).map(_.toSet)
       yield assertTrue(
-        collected == expectedOnes
+        collected == expectedOnes,
       )
-    }
+    },
   ).provideSome(
     ZLayer.fromFunction(DataCentreRepository.apply),
     FarangoTestContainer.arangoContainer,
@@ -93,7 +93,7 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
         database   <- ZIO.service[Database]
         collection <- ZIO.service[Collection]
       yield CollectionManager(collection, database, Schedule.spaced(1.second))
-    }
+    },
   ) @@ TestAspect.sequential
 
   case class Stored(_key: String, event: Option[String], dataselect: Option[String])

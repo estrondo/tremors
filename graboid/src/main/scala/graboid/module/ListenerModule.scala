@@ -31,6 +31,6 @@ object ListenerModule:
           subscriptionTopic = "graboid.command",
           productTopic = "graboid.command-result",
           keyLength = KeyLength.Medium,
-          mapper = (_, command) => ZStream.fromZIO(commandListener(command))
-        )
+          mapper = (_, command) => ZStream.fromZIO(commandListener(command)),
+        ),
       )

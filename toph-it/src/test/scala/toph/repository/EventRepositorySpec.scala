@@ -14,9 +14,9 @@ object EventRepositorySpec extends TophRepositorySpec:
       val expectedTophEvent = TophEventFixture.createRandom()
       for stored <- ZIO.serviceWithZIO[EventRepository](_.add(expectedTophEvent))
       yield assertTrue(
-        stored == expectedTophEvent
+        stored == expectedTophEvent,
       )
-    }
+    },
   ).provideSome(
     FarangoTestContainer.arangoContainer,
     FarangoTestContainer.farangoDB,
@@ -25,5 +25,5 @@ object EventRepositorySpec extends TophRepositorySpec:
     collectionManagerLayer,
     ZLayer {
       ZIO.serviceWithZIO[CollectionManager](EventRepository.apply)
-    }
+    },
   )

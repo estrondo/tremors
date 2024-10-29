@@ -18,5 +18,5 @@ object OriginQualityFixture:
     groundTruthLevel = Some(KeyGenerator.generate(KeyLength.Short)),
     minimumDistance = Some(Random.nextInt(99) + 1),
     maximumDistance = Some(Random.nextInt(99) + 1),
-    medianDistance = Some(Random.nextInt(99) + 1)
+    medianDistance = Some(Random.nextInt(99) + 1),
   )

@@ -20,7 +20,7 @@ trait CrawlingExecutionRepository:
   def searchIntersection(
       dataCentreId: String,
       starting: ZonedDateTime,
-      ending: ZonedDateTime
+      ending: ZonedDateTime,
   ): Task[Seq[CrawlingExecution]]
 
   def updateCounting(execution: CrawlingExecution): Task[CrawlingExecution]
@@ -38,7 +38,7 @@ object CrawlingExecutionRepository:
 
   def apply(
       collectionManager: CollectionManager,
-      zonedDateTimeService: ZonedDateTimeService
+      zonedDateTimeService: ZonedDateTimeService,
   ): CrawlingExecutionRepository =
     Impl(collectionManager, zonedDateTimeService)
 
@@ -60,7 +60,7 @@ object CrawlingExecutionRepository:
       starting: ZonedDateTime,
       ending: ZonedDateTime,
       detected: Long,
-      state: Int
+      state: Int,
   )
 
   case class UpdateCounting(updatedAt: ZonedDateTime, detected: Long)
@@ -78,7 +78,7 @@ object CrawlingExecutionRepository:
     override def searchIntersection(
         dataCentreId: String,
         starting: ZonedDateTime,
-        ending: ZonedDateTime
+        ending: ZonedDateTime,
     ): Task[Seq[CrawlingExecution]] =
       collection.database
         .query[Stored, CrawlingExecution](
@@ -87,8 +87,8 @@ object CrawlingExecutionRepository:
             "@collection"  -> collection.name,
             "dataCentreId" -> dataCentreId,
             "starting"     -> starting,
-            "ending"       -> ending
-          )
+            "ending"       -> ending,
+          ),
         )
         .runCollect
         .retry(collectionManager.sakePolicy)
@@ -99,7 +99,7 @@ object CrawlingExecutionRepository:
       (for entity <- collection.updateDocument[Stored, UpdateCounting, CrawlingExecution](
                        execution.id,
                        execution,
-                       DocumentUpdateOptions().returnNew(true)
+                       DocumentUpdateOptions().returnNew(true),
                      )
       yield entity.getNew()).retry(collectionManager.sakePolicy)
 
@@ -107,18 +107,18 @@ object CrawlingExecutionRepository:
       (for entity <- collection.updateDocument[Stored, UpdateState, CrawlingExecution](
                        execution.id,
                        execution,
-                       DocumentUpdateOptions().returnNew(true)
+                       DocumentUpdateOptions().returnNew(true),
                      )
       yield entity.getNew()).retry(collectionManager.sakePolicy)
 
     private given FarangoTransformer[CrawlingExecution, UpdateCounting] with
       override def transform(execution: CrawlingExecution): UpdateCounting = UpdateCounting(
         updatedAt = zonedDateTimeService.now(),
-        detected = execution.detected
+        detected = execution.detected,
       )
 
     private given FarangoTransformer[CrawlingExecution, UpdateState] with
       override def transform(execution: CrawlingExecution): UpdateState = UpdateState(
         updatedAt = zonedDateTimeService.now(),
-        state = execution.state.ordinal
+        state = execution.state.ordinal,
       )

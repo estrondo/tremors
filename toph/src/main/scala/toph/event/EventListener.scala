@@ -33,7 +33,7 @@ object EventListener:
                           .add(tophEvent)(using TophExecutionContext.systemUser[EventListener])
                           .tap(_ => ZIO.logInfo("A new event has been received from Graboid."))
                           .tapErrorCause(ZIO.logErrorCause("Unable to store the event.", _)) @@ ZIOAspect.annotated(
-                          "quakeml.eventId" -> event.publicId.resourceId
+                          "quakeml.eventId" -> event.publicId.resourceId,
                         )
                       }
       yield event

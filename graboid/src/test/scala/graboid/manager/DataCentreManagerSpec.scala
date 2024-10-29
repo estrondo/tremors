@@ -62,7 +62,7 @@ object DataCentreManagerSpec extends GraboidSpec:
         stream    <- ZIO.serviceWith[DataCentreManager](_.all)
         collected <- stream.runCollect
       yield assertTrue(collected == List(expected))
-    }
+    },
   ).provideSome[Scope](
-    SweetMockitoLayer.newMockLayer[DataCentreManager]
+    SweetMockitoLayer.newMockLayer[DataCentreManager],
   )

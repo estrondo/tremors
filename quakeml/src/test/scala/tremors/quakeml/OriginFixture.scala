@@ -24,5 +24,5 @@ object OriginFixture:
     evaluationMode = Some(KeyGenerator.generate(KeyLength.Short)),
     evaluationStatus = Some(KeyGenerator.generate(KeyLength.Short)),
     comment = Seq(CommentFixture.createRandom()),
-    creationInfo = Some(CreationInfoFixture.createRandom())
+    creationInfo = Some(CreationInfoFixture.createRandom()),
   )

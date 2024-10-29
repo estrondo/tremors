@@ -42,7 +42,7 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
         .whenF2(producerMock(expectedMiddle))
         .thenReturn(("output-topic", "a-key", expectedOutput))
 
-      val consumer = KConsumer("input-topic"  , consumerMock)
+      val consumer = KConsumer("input-topic", consumerMock)
       val producer = KProducer.Custom(producerMock)
 
       for
@@ -59,9 +59,9 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
         topicResult       <- summon[KReader[Output]](topicResultRecord.get.value)
       yield assertTrue(
         routerResult.contains(expectedOutput),
-        topicResult == expectedOutput
+        topicResult == expectedOutput,
       )
-    } @@ TestAspect.timeout(10.seconds)
+    } @@ TestAspect.timeout(10.seconds),
   ).provideSome[Scope](
     kafkaContainer,
     kafkaProducer,
@@ -73,15 +73,15 @@ object KafkaRouterSpec extends ZIOKafkaSpec:
           KafkaConfig(
             consumer = KafkaConsumerConfig(
               groupId = "test-group",
-              bootstrapServers = List(kafka.bootstrapServers)
+              bootstrapServers = List(kafka.bootstrapServers),
             ),
             producer = KafkaProducerConfig(
-              bootstrapServers = List(kafka.bootstrapServers)
-            )
-          )
-        )
+              bootstrapServers = List(kafka.bootstrapServers),
+            ),
+          ),
+        ),
       )
-    }
+    },
   ) @@ TestAspect.sequential
 
   case class Input(id: String = UUID.randomUUID().toString, key: String = UUID.randomUUID().toString)

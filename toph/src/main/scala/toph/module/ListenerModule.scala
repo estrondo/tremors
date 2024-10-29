@@ -16,7 +16,7 @@ import zio.ZIO
 import zio.stream.ZStream
 
 class ListenerModule(
-    val event: ZStream[Any, Throwable, Event]
+    val event: ZStream[Any, Throwable, Event],
 )
 
 object ListenerModule:
@@ -27,18 +27,18 @@ object ListenerModule:
   def apply(
       centreModule: CentreModule,
       kafkaModule: KafkaModule,
-      geometryModule: GeometryModule
+      geometryModule: GeometryModule,
   ): Task[ListenerModule] =
     ZIO.succeed {
       new ListenerModule(
-        event = subscribeGraboidEvent(centreModule.eventCentre, kafkaModule.router, geometryModule.geometryFactory)
+        event = subscribeGraboidEvent(centreModule.eventCentre, kafkaModule.router, geometryModule.geometryFactory),
       )
     }
 
   private def subscribeGraboidEvent(
       centre: EventService,
       router: KafkaRouter,
-      geometryFactory: GeometryFactory
+      geometryFactory: GeometryFactory,
   ): ZStream[Any, Throwable, Event] =
     given KReader[Event] = Borer.readerFor[Event]
     given KWriter[Event] = Borer.writerFor[Event]
@@ -50,6 +50,6 @@ object ListenerModule:
           subscriptionTopic = GraboidEventTopic,
           productTopic = TophEventTopic,
           keyLength = KeyLength.Medium,
-          mapper = (_, event: Event) => ZStream.fromZIO(eventListener(event))
-        )
+          mapper = (_, event: Event) => ZStream.fromZIO(eventListener(event)),
+        ),
       )

@@ -5,5 +5,5 @@ case class ArangoConfig(
     username: String,
     password: String,
     database: String,
-    rootPassword: String
+    rootPassword: String,
 )

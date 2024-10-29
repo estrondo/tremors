@@ -7,5 +7,5 @@ object EventDescriptionFixture:
 
   def createRandom(): EventDescription = EventDescription(
     text = KeyGenerator.generate(KeyLength.Long),
-    `type` = Some(KeyGenerator.generate(KeyLength.Long))
+    `type` = Some(KeyGenerator.generate(KeyLength.Long)),
   )

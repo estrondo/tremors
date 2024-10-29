@@ -30,14 +30,14 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
       val updatedAt = execution.updatedAt.get.plusMinutes(3)
       val expected  = execution.copy(
         detected = Random.nextLong(100),
-        updatedAt = Some(updatedAt)
+        updatedAt = Some(updatedAt),
       )
       for
         _       <- ZIO
                      .serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(updatedAt))
         _       <- ZIO.serviceWithZIO[CrawlingExecutionRepository](_.insert(execution))
         updated <- ZIO.serviceWithZIO[CrawlingExecutionRepository](
-                     _.updateCounting(execution.copy(detected = expected.detected))
+                     _.updateCounting(execution.copy(detected = expected.detected)),
                    )
       yield assertTrue(updated == expected)
     },
@@ -46,13 +46,13 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
       val updatedAt = execution.updatedAt.get.plusMinutes(3)
       val expected  = execution.copy(
         updatedAt = Some(updatedAt),
-        state = CrawlingExecution.State.Failed
+        state = CrawlingExecution.State.Failed,
       )
       for
         _       <- ZIO.serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(updatedAt))
         _       <- ZIO.serviceWithZIO[CrawlingExecutionRepository](_.insert(execution))
         updated <- ZIO.serviceWithZIO[CrawlingExecutionRepository](
-                     _.updateState(execution.copy(state = expected.state))
+                     _.updateState(execution.copy(state = expected.state)),
                    )
       yield assertTrue(updated == expected)
     },
@@ -64,16 +64,16 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
         .createNew()
         .copy(
           starting = starting.minusMinutes(30),
-          ending = ending.plusMinutes(15)
+          ending = ending.plusMinutes(15),
         )
 
       for
         _      <- ZIO.serviceWithZIO[CrawlingExecutionRepository](_.insert(first))
         result <- ZIO.serviceWithZIO[CrawlingExecutionRepository](
-                    _.searchIntersection(first.dataCentreId, starting, ending)
+                    _.searchIntersection(first.dataCentreId, starting, ending),
                   )
       yield assertTrue(result == Seq(first))
-    }
+    },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[ZonedDateTimeService],
     FarangoTestContainer.arangoContainer,
@@ -82,5 +82,5 @@ object CrawlingExecutionRepositorySpec extends GraboidItRepositorySpec:
     FarangoTestContainer.farangoCollection(),
     ZLayer.fromFunction(CrawlingExecutionRepository.apply),
     ZLayer.fromFunction(CollectionManager.apply),
-    ZLayer.succeed(Schedule.spaced(5.seconds))
+    ZLayer.succeed(Schedule.spaced(5.seconds)),
   ) @@ TestAspect.sequential

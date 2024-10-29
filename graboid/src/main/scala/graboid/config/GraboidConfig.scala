@@ -6,5 +6,5 @@ import tremors.zio.kafka.KafkaConfig
 final case class GraboidConfig(
     arango: ArangoConfig,
     kafka: KafkaConfig,
-    crawling: CrawlingConfig
+    crawling: CrawlingConfig,
 )

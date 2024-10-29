@@ -16,5 +16,5 @@ object EventFixture:
     comment = Seq(CommentFixture.createRandom()),
     creationInfo = Some(CreationInfoFixture.createRandom()),
     origin = Seq(OriginFixture.createRandom()),
-    magnitude = Seq(MagnitudeFixture.createRandom())
+    magnitude = Seq(MagnitudeFixture.createRandom()),
   )

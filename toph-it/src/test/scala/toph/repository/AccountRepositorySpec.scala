@@ -31,7 +31,7 @@ object AccountRepositorySpec extends TophRepositorySpec:
     },
     test("It should update a stored account in database.") {
       val expectedAccount = AccountFixture.createRandom()
-      val newName   = s"Albert ${KeyGenerator.generate(KeyLength.Long)}."
+      val newName         = s"Albert ${KeyGenerator.generate(KeyLength.Long)}."
       for
         _       <- ZIO.serviceWithZIO[AccountRepository](_.add(expectedAccount))
         _       <- ZIO.serviceWithZIO[AccountRepository](_.update(expectedAccount.key, AccountRepository.Update(newName)))

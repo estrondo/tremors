@@ -18,7 +18,7 @@ given Codec[ZonedDateTime] =
 case class Comment(
     text: String,
     id: Option[ResourceReference],
-    creationInfo: Option[CreationInfo]
+    creationInfo: Option[CreationInfo],
 )
 
 case class CompositeTime(
@@ -27,7 +27,7 @@ case class CompositeTime(
     day: Option[IntegerQuantity],
     hour: Option[IntegerQuantity],
     minute: Option[IntegerQuantity],
-    second: Option[IntegerQuantity]
+    second: Option[IntegerQuantity],
 )
 case class CreationInfo(
     agencyId: Option[String],
@@ -35,7 +35,7 @@ case class CreationInfo(
     author: Option[String],
     authorUri: Option[ResourceReference],
     creationTime: Option[ZonedDateTime],
-    version: Option[String]
+    version: Option[String],
 )
 case class Event(
     publicId: ResourceReference,
@@ -48,16 +48,16 @@ case class Event(
     comment: Seq[Comment],
     creationInfo: Option[CreationInfo],
     origin: Seq[Origin],
-    magnitude: Seq[Magnitude]
+    magnitude: Seq[Magnitude],
 )
 
 case class EventDescription(
     text: String,
-    `type`: Option[String]
+    `type`: Option[String],
 )
 case class IntegerQuantity(
     value: Int,
-    uncertainty: Option[Int]
+    uncertainty: Option[Int],
 )
 
 case class Magnitude(
@@ -71,7 +71,7 @@ case class Magnitude(
     evaluationMode: Option[String],
     evaluationStatus: Option[String],
     comment: Seq[Comment],
-    creationInfo: Option[CreationInfo]
+    creationInfo: Option[CreationInfo],
 )
 
 case class Origin(
@@ -93,7 +93,7 @@ case class Origin(
     evaluationMode: Option[String],
     evaluationStatus: Option[String],
     comment: Seq[Comment],
-    creationInfo: Option[CreationInfo]
+    creationInfo: Option[CreationInfo],
 )
 
 case class OriginQuality(
@@ -108,21 +108,21 @@ case class OriginQuality(
     groundTruthLevel: Option[String],
     minimumDistance: Option[Double],
     maximumDistance: Option[Double],
-    medianDistance: Option[Double]
+    medianDistance: Option[Double],
 )
 
 case class RealQuantity(
     value: Double,
-    uncertainty: Option[Double]
+    uncertainty: Option[Double],
 )
 
 case class ResourceReference(
-    resourceId: String
+    resourceId: String,
 )
 
 case class TimeQuantity(
     value: ZonedDateTime,
-    uncertainty: Option[Double]
+    uncertainty: Option[Double],
 )
 
 object CreationInfo:

@@ -33,11 +33,11 @@ object DataCentreRepository:
     Impl(collectionManager)
 
   private given FarangoTransformer[DataCentre, Stored] = DucktapeTransformer(
-    Field.renamed(_._key, _.id)
+    Field.renamed(_._key, _.id),
   )
 
   private given FarangoTransformer[Stored, DataCentre] = DucktapeTransformer(
-    Field.renamed(_.id, _._key)
+    Field.renamed(_.id, _._key),
   )
 
   private case class Stored(_key: String, event: Option[String], dataselect: Option[String])
@@ -52,7 +52,7 @@ object DataCentreRepository:
       for entry <- collection
                      .insertDocument[Stored, DataCentre](
                        dataCentre,
-                       DocumentCreateOptions().returnNew(true)
+                       DocumentCreateOptions().returnNew(true),
                      )
                      .retry(collectionManager.sakePolicy)
       yield entry.getNew
@@ -62,7 +62,7 @@ object DataCentreRepository:
                      .updateDocument[Stored, Update, DataCentre](
                        dataCentre.id,
                        dataCentre,
-                       DocumentUpdateOptions().returnNew(true)
+                       DocumentUpdateOptions().returnNew(true),
                      )
                      .retry(collectionManager.sakePolicy)
       yield entry.getNew

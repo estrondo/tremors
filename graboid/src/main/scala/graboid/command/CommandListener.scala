@@ -40,13 +40,13 @@ object CommandListener:
                       case Exit.Failure(cause) =>
                         reportError(s"Command has gone wrong!", cause, command)
       yield response) @@ ZIOAspect.annotated(
-        "commandListener.commandId" -> command.commandId
+        "commandListener.commandId" -> command.commandId,
       )
 
     private inline def reportError(
         inline message: String,
         inline cause: Cause[Throwable],
-        inline command: GraboidCommand
+        inline command: GraboidCommand,
     ): UIO[GraboidCommandResult] =
       for _ <- ZIO.logWarningCause(message, cause)
       yield GraboidCommandFailure(command.commandId, cause.squash.getMessage)

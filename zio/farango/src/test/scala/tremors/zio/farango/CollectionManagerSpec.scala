@@ -52,10 +52,10 @@ object CollectionManagerSpec extends ZIOSpecDefault:
           _        <- TestClock.adjust(1.minute)
           _        <- fiberRef.join
         yield assertTrue(true)
-      }.provideSome[SyncDB](collectionManagerLayer(createDatabase = true, createCollection = false))
+      }.provideSome[SyncDB](collectionManagerLayer(createDatabase = true, createCollection = false)),
     ).provideSome[Scope](
       FarangoTestContainer.arangoContainer,
-      FarangoTestContainer.farangoDB
+      FarangoTestContainer.farangoDB,
     ) @@ TestAspect.sequential
 
   private def collectionManagerLayer(createDatabase: Boolean, createCollection: Boolean) =

@@ -9,5 +9,5 @@ package graboid
 final case class DataCentre(
     id: String,
     event: Option[String],
-    dataselect: Option[String]
+    dataselect: Option[String],
 )

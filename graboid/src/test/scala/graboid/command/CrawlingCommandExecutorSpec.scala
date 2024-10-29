@@ -39,9 +39,9 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
             magnitudeType = command.magnitudeType,
             eventType = command.eventType,
             min = command.minMagnitude,
-            max = command.maxMagnitude
-          )
-        )
+            max = command.maxMagnitude,
+          ),
+        ),
       )
 
       given ExecutionContext = ExecutionContext.command()
@@ -52,7 +52,7 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         _        <- SweetMockitoLayer[DataCentreManager].whenF2(_.get(dataCentre.id)).thenReturn(Some(dataCentre))
         _        <- ZIO.serviceWithZIO[CrawlingCommandExecutor](_.apply(command))
       yield assertTrue(
-        verify(executor).execute(dataCentre, expectedQuery) == null
+        verify(executor).execute(dataCentre, expectedQuery) == null,
       )
     },
     test(s"It should execute a ${classOf[RunEventCrawling].getSimpleName}.") {
@@ -67,9 +67,9 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
             magnitudeType = command.magnitudeType,
             eventType = command.eventType,
             min = command.minMagnitude,
-            max = command.maxMagnitude
-          )
-        )
+            max = command.maxMagnitude,
+          ),
+        ),
       )
 
       given ExecutionContext = ExecutionContext.command()
@@ -79,9 +79,9 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         _         = Mockito.when(executor.execute(expectedQuery)).thenReturn(ZStream.empty)
         _        <- ZIO.serviceWithZIO[CrawlingCommandExecutor](_.apply(command))
       yield assertTrue(
-        verify(executor).execute(expectedQuery) == null
+        verify(executor).execute(expectedQuery) == null,
       )
-    }
+    },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[CrawlingExecutor],
     SweetMockitoLayer.newMockLayer[DataCentreManager],
@@ -97,7 +97,7 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
         crawlingExecutor  <-
           CrawlingCommandExecutor(executor, dataCentreManager, layer)
       yield crawlingExecutor
-    }
+    },
   )
 
   def createRandomRunDataCentreEventCrawling() =
@@ -113,7 +113,7 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
       minMagnitude = Some(Random.nextDouble() * 7),
       maxMagnitude = Some(Random.nextDouble() * 3),
       magnitudeType = Some("high"),
-      eventType = Some("earthquake")
+      eventType = Some("earthquake"),
     ) -> dataCentre
 
   def createRandomRunEventCrawling() =
@@ -127,5 +127,5 @@ object CrawlingCommandExecutorSpec extends GraboidSpec:
       minMagnitude = Some(Random.nextDouble() * 7),
       maxMagnitude = Some(Random.nextDouble() * 3),
       magnitudeType = Some("high"),
-      eventType = Some("earthquake")
+      eventType = Some("earthquake"),
     )

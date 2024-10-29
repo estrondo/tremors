@@ -43,15 +43,15 @@ object EventRepository:
       magnitudeMethodId: Option[String],
       magnitudeStationCount: Option[Int],
       magnitudeEvaluationMode: Option[String],
-      magnitudeEvaluationStatus: Option[String]
+      magnitudeEvaluationStatus: Option[String],
   )
 
   private given FarangoTransformer[TophEvent, Stored] = DucktapeTransformer(
-    Field.renamed(_._key, _.id)
+    Field.renamed(_._key, _.id),
   )
 
   private given FarangoTransformer[Stored, TophEvent] = DucktapeTransformer(
-    Field.renamed(_.id, _._key)
+    Field.renamed(_.id, _._key),
   )
 
   private class Impl(collectionManager: CollectionManager) extends EventRepository:

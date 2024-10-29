@@ -6,5 +6,5 @@ import tremors.generator.KeyLength
 object ResourceReferenceFixture:
 
   def createRandom(): ResourceReference = ResourceReference(
-    resourceId = KeyGenerator.generate(KeyLength.Medium)
+    resourceId = KeyGenerator.generate(KeyLength.Medium),
   )

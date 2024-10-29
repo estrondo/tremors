@@ -37,8 +37,8 @@ object CrawlingSchedulerSpec extends GraboidSpec:
               magnitudeType = query.magnitudeType,
               eventType = query.eventType,
               min = query.minMagnitude,
-              max = query.maxMagnitude
-            )
+              max = query.maxMagnitude,
+            ),
         )
 
         val event       = EventFixture.createRandom()
@@ -59,7 +59,7 @@ object CrawlingSchedulerSpec extends GraboidSpec:
 
           result <- ZIO.serviceWithZIO[CrawlingScheduler](_.start(config).runCollect)
         yield assertTrue(result == Seq(event))
-      }
+      },
     ).provideSome(
       SweetMockitoLayer.newMockLayer[Client],
       SweetMockitoLayer.newMockLayer[Producer],
@@ -72,6 +72,6 @@ object CrawlingSchedulerSpec extends GraboidSpec:
           crawlingExecutor <- ZIO.service[CrawlingExecutor]
           scheduler        <- CrawlingScheduler(dataStore, crawlingExecutor)
         yield scheduler
-      }
-    )
+      },
+    ),
   )

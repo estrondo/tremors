@@ -8,5 +8,5 @@ object CompositeTimeFixture:
     day = Some(IntegerQuantityFixture.createRandom()),
     hour = Some(IntegerQuantityFixture.createRandom()),
     minute = Some(IntegerQuantityFixture.createRandom()),
-    second = Some(IntegerQuantityFixture.createRandom())
+    second = Some(IntegerQuantityFixture.createRandom()),
   )

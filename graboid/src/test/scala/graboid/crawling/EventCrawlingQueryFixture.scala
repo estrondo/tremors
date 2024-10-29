@@ -18,7 +18,7 @@ object EventCrawlingQueryFixture:
           magnitudeType = Some("abc"),
           eventType = Some("earthquake"),
           min = Some(Random.nextDouble() * 5),
-          max = None
-        )
-      )
+          max = None,
+        ),
+      ),
     )

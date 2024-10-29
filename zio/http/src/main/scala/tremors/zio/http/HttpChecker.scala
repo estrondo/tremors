@@ -10,7 +10,7 @@ object HttpChecker:
   class PartialApply[T <: Throwable]:
 
     def apply[R](message: String, response: ZIO[R, ? <: Throwable, Response])(using
-        ExceptionFactory[T]
+        ExceptionFactory[T],
     ): ZIO[R, T, Response] =
       response
         .mapError(summon[ExceptionFactory[T]].causedBy("Unhandled exception!"))

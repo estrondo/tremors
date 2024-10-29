@@ -12,5 +12,5 @@ object CreationInfoFixture:
     author = Some(KeyGenerator.generate(KeyLength.Medium)),
     authorUri = Some(ResourceReferenceFixture.createRandom()),
     creationTime = Some(ZonedDateTimeFixture.createRandom()),
-    version = Some(KeyGenerator.generate(KeyLength.Short))
+    version = Some(KeyGenerator.generate(KeyLength.Short)),
   )

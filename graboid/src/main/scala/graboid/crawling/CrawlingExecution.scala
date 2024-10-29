@@ -10,7 +10,7 @@ case class CrawlingExecution(
     starting: ZonedDateTime,
     ending: ZonedDateTime,
     detected: Long,
-    state: CrawlingExecution.State
+    state: CrawlingExecution.State,
 )
 
 object CrawlingExecution:

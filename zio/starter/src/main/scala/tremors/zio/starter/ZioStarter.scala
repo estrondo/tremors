@@ -38,7 +38,7 @@ object ZioStarter:
     yield configuration
 
   private def loadProfile[C: DeriveConfig](defaultConfig: TypesafeConfig, parseOptions: ConfigParseOptions)(
-      option: Option[String]
+      option: Option[String],
   ): Task[(C, Option[Profile])] =
     for
       tuple <- ZIO.attemptBlocking {

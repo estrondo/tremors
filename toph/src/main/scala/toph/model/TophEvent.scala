@@ -24,5 +24,5 @@ case class TophEvent(
     magnitudeMethodId: Option[String],
     magnitudeStationCount: Option[Int],
     magnitudeEvaluationMode: Option[String],
-    magnitudeEvaluationStatus: Option[String]
+    magnitudeEvaluationStatus: Option[String],
 )

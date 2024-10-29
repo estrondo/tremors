@@ -17,5 +17,5 @@ object MagnitudeFixture:
     evaluationMode = Some(KeyGenerator.generate(KeyLength.Short)),
     evaluationStatus = Some(KeyGenerator.generate(KeyLength.Short)),
     comment = Seq(CommentFixture.createRandom()),
-    creationInfo = Option(CreationInfoFixture.createRandom())
+    creationInfo = Option(CreationInfoFixture.createRandom()),
   )

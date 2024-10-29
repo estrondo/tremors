@@ -12,5 +12,5 @@ object HttpClient:
 
   def request(request: Request): RIO[Client & Scope, Response] =
     Client.request(
-      request.addHeader(Header.UserAgent.Product(BuildInfo.name, Some(BuildInfo.version)))
+      request.addHeader(Header.UserAgent.Product(BuildInfo.name, Some(BuildInfo.version))),
     )

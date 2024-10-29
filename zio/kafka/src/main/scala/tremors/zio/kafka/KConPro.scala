@@ -15,7 +15,7 @@ object KConPro:
       productTopic: String,
       keyLength: KeyLength,
       mapper: (String, A) => ZStream[Any, Throwable, B],
-      keyGenerator: KeyGenerator = KeyGenerator
+      keyGenerator: KeyGenerator = KeyGenerator,
   ) extends KConPro[A, B](subscriptionTopic):
 
     override def mapperFunction: (String, A) => ZStream[Any, Throwable, (String, String, B)] =

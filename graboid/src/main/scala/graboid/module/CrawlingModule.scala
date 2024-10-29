@@ -29,7 +29,7 @@ object CrawlingModule:
       httpModule: HttpModule,
       kafkaModule: KafkaModule,
       managerModule: ManagerModule,
-      repositoryModule: RepositoryModule
+      repositoryModule: RepositoryModule,
   ): Task[CrawlingModule] =
 
     val crawlingExecutor = CrawlingExecutor(
@@ -37,7 +37,7 @@ object CrawlingModule:
       managerModule.dataCentreManager,
       EventCrawler.Factory,
       KeyGenerator,
-      ZonedDateTimeService.Impl
+      ZonedDateTimeService.Impl,
     )
 
     for scheduler <- CrawlingScheduler(repositoryModule.dataStore, crawlingExecutor)
@@ -53,7 +53,7 @@ object CrawlingModule:
       httpModule: HttpModule,
       kafkaModule: KafkaModule,
       val crawlingExecutor: CrawlingExecutor,
-      val crawlingScheduler: CrawlingScheduler
+      val crawlingScheduler: CrawlingScheduler,
   ) extends CrawlingModule:
 
     override def start(): Task[Unit] =
@@ -66,7 +66,7 @@ object CrawlingModule:
                          .provideSome(
                            kafkaModule.producerLayer,
                            ZonedDateTimeService.live,
-                           httpModule.client
+                           httpModule.client,
                          )
         _           <- eventResult
       yield ()

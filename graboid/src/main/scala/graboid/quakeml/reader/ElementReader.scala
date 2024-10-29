@@ -35,7 +35,7 @@ object ElementReader:
         comment = readChild("comment", element),
         creationInfo = readChild("creationInfo", element),
         origin = readChild("origin", element),
-        magnitude = readChild("magnitude", element)
+        magnitude = readChild("magnitude", element),
       )
 
     given ElementReader[ResourceReference] with
@@ -57,7 +57,7 @@ object ElementReader:
       override def apply(element: Element): EventDescription =
         EventDescription(
           text = readChild("text", element),
-          `type` = readChild("type", element)
+          `type` = readChild("type", element),
         )
 
     given ElementReader[Comment] with
@@ -66,7 +66,7 @@ object ElementReader:
         Comment(
           text = readChild("text", element),
           id = readChild("id", element),
-          creationInfo = readChild("creationInfo", element)
+          creationInfo = readChild("creationInfo", element),
         )
 
     given ElementReader[CreationInfo] with
@@ -78,7 +78,7 @@ object ElementReader:
           author = readChild("author", element),
           authorUri = readChild("authorURI", element),
           creationTime = readChild("creationTime", element),
-          version = readChild("version", element)
+          version = readChild("version", element),
         )
 
     given ElementReader[Origin] with
@@ -103,7 +103,7 @@ object ElementReader:
           evaluationMode = readChild("evaluationMode", element),
           evaluationStatus = readChild("evaluationStatus", element),
           comment = readChild("comment", element),
-          creationInfo = readChild("creationInfo", element)
+          creationInfo = readChild("creationInfo", element),
         )
 
     given ElementReader[Magnitude] with
@@ -120,7 +120,7 @@ object ElementReader:
           evaluationMode = readChild("evaluationMode", element),
           evaluationStatus = readChild("evaluationStatus", element),
           comment = readChild("comment", element),
-          creationInfo = readChild("creationInfo", element)
+          creationInfo = readChild("creationInfo", element),
         )
 
     given ElementReader[ZonedDateTime] with
@@ -135,7 +135,7 @@ object ElementReader:
       override def apply(element: Element): TimeQuantity =
         TimeQuantity(
           value = readChild("value", element),
-          uncertainty = readChild("uncertainty", element)
+          uncertainty = readChild("uncertainty", element),
         )
 
     given ElementReader[RealQuantity] with
@@ -143,7 +143,7 @@ object ElementReader:
       override def apply(element: Element): RealQuantity =
         RealQuantity(
           value = readChild("value", element),
-          uncertainty = readChild("uncertainty", element)
+          uncertainty = readChild("uncertainty", element),
         )
 
     given ElementReader[IntegerQuantity] with
@@ -151,7 +151,7 @@ object ElementReader:
       override def apply(element: Element): IntegerQuantity =
         IntegerQuantity(
           value = readChild("value", element),
-          uncertainty = readChild("uncertainty", element)
+          uncertainty = readChild("uncertainty", element),
         )
 
     given ElementReader[CompositeTime] with
@@ -163,7 +163,7 @@ object ElementReader:
           day = readChild("day", element),
           hour = readChild("hour", element),
           minute = readChild("minute", element),
-          second = readChild("second", element)
+          second = readChild("second", element),
         )
 
     given ElementReader[OriginQuality] with
@@ -181,5 +181,5 @@ object ElementReader:
           groundTruthLevel = readChild("groundTruthLevel", element),
           minimumDistance = readChild("minimumDistance", element),
           maximumDistance = readChild("maximumDistance", element),
-          medianDistance = readChild("medianDistance", element)
+          medianDistance = readChild("medianDistance", element),
         )

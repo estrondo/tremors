@@ -23,12 +23,12 @@ import zio.stream.ZStreamAspect
 trait CrawlingExecutor:
 
   def execute(query: EventCrawlingQuery)(using
-      ExecutionContext
+      ExecutionContext,
   ): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent]
 
   def execute(
       dataCentre: DataCentre,
-      query: EventCrawlingQuery
+      query: EventCrawlingQuery,
   )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent]
 
 object CrawlingExecutor:
@@ -38,7 +38,7 @@ object CrawlingExecutor:
       dataCentreManager: DataCentreManager,
       eventCrawlerFactory: EventCrawler.Factory,
       keyGenerator: KeyGenerator,
-      zonedDateTimeService: ZonedDateTimeService
+      zonedDateTimeService: ZonedDateTimeService,
   ): CrawlingExecutor =
     Impl(repository, dataCentreManager, eventCrawlerFactory, keyGenerator, zonedDateTimeService)
 
@@ -47,24 +47,24 @@ object CrawlingExecutor:
       dataCentreManager: DataCentreManager,
       eventCrawlerFactory: EventCrawler.Factory,
       keyGenerator: KeyGenerator,
-      zonedDateTimeService: ZonedDateTimeService
+      zonedDateTimeService: ZonedDateTimeService,
   ) extends CrawlingExecutor:
 
     override def execute(
-        query: EventCrawlingQuery
+        query: EventCrawlingQuery,
     )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
       ZStream.logDebug("Attempt to run an event crawling for all data centres.") *>
         dataCentreManager.all
           .flatMapPar(parallelism)(dataCentre =>
             execute(dataCentre, query)
-              .catchAll(handleEventCrawlingError)
+              .catchAll(handleEventCrawlingError),
           )
 
     private def parallelism = math.max(Runtime.getRuntime.availableProcessors() / 2, 1)
 
     override def execute(
         dataCentre: DataCentre,
-        query: EventCrawlingQuery
+        query: EventCrawlingQuery,
     )(using ExecutionContext): ZStream[Client & Producer, Throwable, EventCrawler.FoundEvent] =
       ZStream
         .fromZIO {
@@ -87,33 +87,33 @@ object CrawlingExecutor:
                 starting = query.starting,
                 ending = query.ending,
                 detected = 0L,
-                state = CrawlingExecution.State.Starting
-              )
+                state = CrawlingExecution.State.Starting,
+              ),
             )
           else
             val intersections = (for e <- executions yield s"(${e.starting}, ${e.ending})").mkString(", ")
             ZStream.fail(
               GraboidException.Crawling(
-                s"There are some CrawlingExecution which already covered this period: $intersections."
-              )
+                s"There are some CrawlingExecution which already covered this period: $intersections.",
+              ),
             )
         } @@ annotated(dataCentre)
 
     private def annotated(dataCentre: DataCentre) = ZStreamAspect.annotated(
-      "crawlingExecutor.dataCentreId" -> dataCentre.id
+      "crawlingExecutor.dataCentreId" -> dataCentre.id,
     )
 
     private def execute(
         dataCentre: DataCentre,
         query: EventCrawlingQuery,
-        execution: CrawlingExecution
+        execution: CrawlingExecution,
     ): ZStream[Client & Producer, Nothing, EventCrawler.FoundEvent] =
       ZStream
         .fromZIO(repository.insert(execution))
         .mapZIO(stored => eventCrawlerFactory(dataCentre).zip(Ref.make(stored)))
         .catchAll { cause =>
           ZStream.fromZIO(
-            ZIO.logErrorCause("It was impossible to create an EventCrawler!", Cause.die(cause))
+            ZIO.logErrorCause("It was impossible to create an EventCrawler!", Cause.die(cause)),
           ) *> ZStream.empty
         }
         .flatMap { (crawler, ref) =>
@@ -151,7 +151,7 @@ object CrawlingExecutor:
         } @@ ZStreamAspect.annotated(
         "crawlingExecutor.dataCentreId" -> dataCentre.id,
         "crawlingExecutor.starting"     -> query.starting.toString,
-        "crawlingExecutor.ending"       -> query.ending.toString
+        "crawlingExecutor.ending"       -> query.ending.toString,
       )
 
     private def handleEventCrawlingError(cause: Throwable): ZStream[Any, Nothing, Nothing] =

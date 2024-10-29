@@ -65,7 +65,7 @@ object CrawlingExecutorSpec extends GraboidSpec:
         _       <-
           ZIO.serviceWith[DataCentreManager](manager => Mockito.when(manager.all).thenReturn(ZStream.from(dataCentre)))
         _       <- ZIO.serviceWith[EventCrawler.Factory](factory =>
-                     Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
+                     Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler)),
                    )
         _       <- crawlingExecutionRepository
         result  <- ZIO.serviceWithZIO[CrawlingExecutor](_.execute(query)(using ExecutionContext.scheduler()).runCollect)
@@ -87,11 +87,11 @@ object CrawlingExecutorSpec extends GraboidSpec:
                      .when(crawler(query))
                      .thenReturn(ZStream.from(expectedFoundEvent))
         _       <- ZIO.serviceWith[EventCrawler.Factory](factory =>
-                     Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
+                     Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler)),
                    )
         _       <- crawlingExecutionRepository
         result  <- ZIO.serviceWithZIO[CrawlingExecutor](
-                     _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect
+                     _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect,
                    )
       yield assertTrue(result == Seq(expectedFoundEvent))
     },
@@ -111,12 +111,12 @@ object CrawlingExecutorSpec extends GraboidSpec:
                      .when(crawler(query))
                      .thenReturn(ZStream.from(expectedFoundEvent))
         _       <- ZIO.serviceWith[EventCrawler.Factory](factory =>
-                     Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
+                     Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler)),
                    )
         _       <- crawlingExecutionRepository
         exit    <- ZIO
                      .serviceWithZIO[CrawlingExecutor](
-                       _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect
+                       _.execute(dataCentre, query)(using ExecutionContext.scheduler()).runCollect,
                      )
                      .exit
       yield assert(exit)(Assertion.failsWithA[GraboidException.Crawling])
@@ -133,16 +133,16 @@ object CrawlingExecutorSpec extends GraboidSpec:
                        .when(crawler(query))
                        .thenReturn(ZStream.from(expectedFoundEvent))
         _         <- ZIO.serviceWith[EventCrawler.Factory](factory =>
-                       Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler))
+                       Mockito.when(factory(dataCentre)).thenReturn(ZIO.succeed(crawler)),
                      )
         _         <- crawlingExecutionRepository
         collected <- ZIO.serviceWithZIO[CrawlingExecutor](
-                       _.execute(dataCentre, query)(using ExecutionContext.command()).runCollect
+                       _.execute(dataCentre, query)(using ExecutionContext.command()).runCollect,
                      )
       yield assertTrue(
-        collected == Seq(expectedFoundEvent)
+        collected == Seq(expectedFoundEvent),
       )
-    }
+    },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[EventCrawler],
     SweetMockitoLayer.newMockLayer[Producer],
@@ -160,5 +160,5 @@ object CrawlingExecutorSpec extends GraboidSpec:
         generator            <- ZIO.service[KeyGenerator]
         zonedDateTimeService <- ZIO.service[ZonedDateTimeService]
       yield CrawlingExecutor(repository, manager, factory, generator, zonedDateTimeService)
-    }
+    },
   )

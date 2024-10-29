@@ -71,7 +71,7 @@ object DataStore:
         entity <- collection
                     .deleteDocument[Stored, Stored](
                       s"$key.$suffix",
-                      DocumentDeleteOptions().returnOld(true)
+                      DocumentDeleteOptions().returnOld(true),
                     )
                     .retry(collectionManager.sakePolicy)
         result <- if entity.getOld() != null then summon[FromStore[T]](entity.getOld().data).asSome

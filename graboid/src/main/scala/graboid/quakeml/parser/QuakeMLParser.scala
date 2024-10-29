@@ -59,15 +59,15 @@ object QuakeMLParser:
           child("author"),
           child("authorURI"),
           child("creationTime"),
-          child("version")
-        )
+          child("version"),
+        ),
       )
 
       val comment = child("comment", children(child("text"), child("id"), creationInfo))
 
       val compositeTime = child(
         "compositeTime",
-        children(child("year"), child("month"), child("day"), child("hour"), child("minute"), child("second"))
+        children(child("year"), child("month"), child("day"), child("hour"), child("minute"), child("second")),
       )
 
       val originQuality = child(
@@ -84,8 +84,8 @@ object QuakeMLParser:
           child("groundTruthLevel"),
           child("minimumDistance"),
           child("maximumDistance"),
-          child("medianDistance")
-        )
+          child("medianDistance"),
+        ),
       )
 
       TransparentNode(
@@ -125,8 +125,8 @@ object QuakeMLParser:
                       child("evaluationMode"),
                       child("evaluationStatus"),
                       comment,
-                      creationInfo
-                    )
+                      creationInfo,
+                    ),
                   ),
                   child(
                     "magnitude",
@@ -140,14 +140,14 @@ object QuakeMLParser:
                       child("evaluationMode"),
                       child("evaluationStatus"),
                       comment,
-                      creationInfo
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
+                      creationInfo,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       )
 
     private var stack: List[ElementBuilder] = List.empty
@@ -182,7 +182,7 @@ object QuakeMLParser:
     private def pushNewElement(elementName: String): ElementBuilder =
       def attributes = HashMap(
         (for i <- 0 until parser.getAttributeCount
-        yield parser.getAttributeLocalName(i) -> parser.getAttributeValue(i))*
+        yield parser.getAttributeLocalName(i) -> parser.getAttributeValue(i))*,
       )
 
       val newBuilder = stack match
@@ -244,7 +244,7 @@ object QuakeMLParser:
       level: Int,
       attributes: Map[String, String] = Map.empty,
       content: Seq[String] = Vector.empty,
-      children: Seq[Element] = Vector.empty
+      children: Seq[Element] = Vector.empty,
   ):
 
     def addText(text: String): ElementBuilder =

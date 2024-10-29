@@ -24,8 +24,8 @@ object CommandExecutorSpec extends GraboidSpec:
       dataCentreTest(GraboidCommandFixture.updateDataCentre()),
       dataCentreTest(GraboidCommandFixture.updateDataCentre()),
       crawlingTest(GraboidCommandFixture.runEventCrawling()),
-      crawlingTest(GraboidCommandFixture.runDataCentreEventCrawling())
-    )
+      crawlingTest(GraboidCommandFixture.runDataCentreEventCrawling()),
+    ),
   ).provideSome[Scope](
     SweetMockitoLayer.newMockLayer[DataCentreCommandExecutor],
     SweetMockitoLayer.newMockLayer[CrawlingCommandExecutor],
@@ -35,7 +35,7 @@ object CommandExecutorSpec extends GraboidSpec:
         crawlingCommandExecutor   <- ZIO.service[CrawlingCommandExecutor]
         executor                  <- CommandExecutor(dataCentreCommandExecutor, crawlingCommandExecutor)
       yield executor
-    }
+    },
   )
 
   def dataCentreTest(command: DataCentreCommand): Spec[CommandExecutor & DataCentreCommandExecutor, Throwable] =
@@ -46,7 +46,7 @@ object CommandExecutorSpec extends GraboidSpec:
                     .thenReturn(command)
         result <- ZIO.serviceWithZIO[CommandExecutor](_(command))
       yield assertTrue(
-        result == command
+        result == command,
       )
     }
 
@@ -58,6 +58,6 @@ object CommandExecutorSpec extends GraboidSpec:
                     .thenReturn(command)
         result <- ZIO.serviceWithZIO[CommandExecutor](_(command))
       yield assertTrue(
-        result == command
+        result == command,
       )
     }

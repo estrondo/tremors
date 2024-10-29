@@ -20,14 +20,14 @@ object FarangoTestContainer {
       .Def(
         dockerImage = "docker.io/rthoth/estrondo:tremors_arangodb_test_3.11.1",
         exposedPorts = Seq(8529),
-        waitStrategy = Wait.forLogMessage(""".*Have fun.*""", 1)
+        waitStrategy = Wait.forLogMessage(""".*Have fun.*""", 1),
       )
 
     ZLayer.scoped {
       ZIO.acquireRelease(
         ZIO.attemptBlocking {
           containerDef.start()
-        }
+        },
       )(container => ZIO.attemptBlocking(container.stop()).orDie)
     }
 
@@ -43,8 +43,8 @@ object FarangoTestContainer {
                           .withRootPassword("tremors")
                           .withSerde(JacksonConsumer(mapper => {
                             mapper.registerModule(JtsModule())
-                          }))
-                      )
+                          })),
+                      ),
                     )
       _          <- db.createDefaultUser()
     yield db
@@ -60,7 +60,7 @@ object FarangoTestContainer {
 
   def farangoCollection(
       name: String = s"testCollection${Random.nextInt(10)}",
-      create: Boolean = true
+      create: Boolean = true,
   ): ZLayer[SyncDatabase, Throwable, SyncCollection] = ZLayer {
     for collection <- ZIO.serviceWithZIO[SyncDatabase](database => {
                         val collection =

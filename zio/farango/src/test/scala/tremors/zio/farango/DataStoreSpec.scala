@@ -16,20 +16,20 @@ object DataStoreSpec extends ZIOSpecDefault:
   override def spec = suite("DataStoreSpec")(
     makeTest("It should work with Strings.", "A example", "Other value"),
     makeTest("It should work with ZonedDataTime.", ZonedDateTime.now(), ZonedDateTime.now().minusDays(3)),
-    makeTest("It should work with a custom class.", MyClass(2, "A", true), MyClass(0, "B", false))
+    makeTest("It should work with a custom class.", MyClass(2, "A", true), MyClass(0, "B", false)),
   ).provideSome(
     FarangoTestContainer.arangoContainer,
     FarangoTestContainer.farangoDB,
     FarangoTestContainer.farangoDatabase(),
     FarangoTestContainer.farangoCollection(),
     ZLayer.fromFunction(CollectionManager(_, _, Schedule.recurs(1))),
-    ZLayer.fromFunction(DataStore("test", _))
+    ZLayer.fromFunction(DataStore("test", _)),
   ) @@ TestAspect.sequential
 
   private def makeTest[T: DataStore.ToStore: DataStore.FromStore](
       label: String,
       expectedOriginal: T,
-      expectedUpdate: T
+      expectedUpdate: T,
   ) =
     test(label) {
       val key = newID()
@@ -45,7 +45,7 @@ object DataStoreSpec extends ZIOSpecDefault:
         originalPreUpdate.contains(expectedOriginal),
         updated.contains(expectedUpdate),
         updatedPreRemove.contains(expectedUpdate),
-        updatedAfterRemove.isEmpty
+        updatedAfterRemove.isEmpty,
       )
     }
 

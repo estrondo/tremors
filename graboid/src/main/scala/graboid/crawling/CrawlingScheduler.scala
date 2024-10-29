@@ -29,14 +29,14 @@ object CrawlingScheduler:
   case class EventConfig(
       interval: Duration,
       queryWindow: Duration,
-      queries: Seq[EventQuery]
+      queries: Seq[EventQuery],
   )
 
   case class EventQuery(
       magnitudeType: Option[String],
       minMagnitude: Option[Double],
       maxMagnitude: Option[Double],
-      eventType: Option[String]
+      eventType: Option[String],
   )
 
   private class Impl(dataStore: DataStore, crawlingExecutor: CrawlingExecutor) extends CrawlingScheduler:
@@ -47,13 +47,13 @@ object CrawlingScheduler:
         ZStream.fromZIO(
           ZIO.logErrorCause(
             "An unexpected error has occurred while the previous time reference had been searched!",
-            Cause.die(cause)
-          )
+            Cause.die(cause),
+          ),
         ) *> ZStream.empty
 
       def handleCrawlingError(cause: Throwable) =
         ZStream.fromZIO(
-          ZIO.logErrorCause("It was impossible to execute a crawling!", Cause.die(cause))
+          ZIO.logErrorCause("It was impossible to execute a crawling!", Cause.die(cause)),
         ) *> ZStream.empty
 
       def handleTimeInterval(starting: ZonedDateTime, ending: ZonedDateTime) =
@@ -67,8 +67,8 @@ object CrawlingScheduler:
               magnitudeType = query.magnitudeType,
               eventType = query.eventType,
               min = query.minMagnitude,
-              max = query.maxMagnitude
-            )
+              max = query.maxMagnitude,
+            ),
         )
 
         crawlingExecutor

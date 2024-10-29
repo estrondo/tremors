@@ -31,11 +31,11 @@ object RepositoryModule:
                                          Seq(
                                            IndexDescription.Inverted(
                                              InvertedIndexOptions().fields(
-                                               InvertedIndexField().name("dataCentreId")
-                                             )
+                                               InvertedIndexField().name("dataCentreId"),
+                                             ),
                                            ),
-                                           IndexDescription.Persistent(Seq("starting", "ending"))
-                                         )
+                                           IndexDescription.Persistent(Seq("starting", "ending")),
+                                         ),
                                        )
                                        .map(CrawlingExecutionRepository(_, ZonedDateTimeService.Impl))
       dataStoreCollectionManager  <- farangoModule.collection("dataStore")
@@ -45,5 +45,5 @@ object RepositoryModule:
   private class Impl(
       val crawlingExecutionRepository: CrawlingExecutionRepository,
       val dataCentreRepository: DataCentreRepository,
-      val dataStore: DataStore
+      val dataStore: DataStore,
   ) extends RepositoryModule

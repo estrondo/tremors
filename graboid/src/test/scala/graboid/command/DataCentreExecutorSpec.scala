@@ -32,16 +32,16 @@ object DataCentreExecutorSpec extends GraboidSpec:
       val dataCentre =
         DataCentre(c.id, Some(KeyGenerator.generate(KeyLength.Long)), Some(KeyGenerator.generate(KeyLength.Short)))
       SweetMockito.whenF2(manager.delete(c.id)).thenReturn(dataCentre)
-    }
+    },
   ).provideSome[Scope](
     SweetMockitoLayer.newMockLayer[DataCentreManager],
     ZLayer {
       ZIO.serviceWithZIO[DataCentreManager](DataCentreCommandExecutor.apply)
-    }
+    },
   )
 
   def testWellDoneCommand[C <: DataCentreCommand](command: C)(
-      fn: (DataCentreManager, C) => Unit
+      fn: (DataCentreManager, C) => Unit,
   ): Spec[DataCentreCommandExecutor & DataCentreManager, Throwable] =
     test(s"It should execute a ${command.getClass.getSimpleName} command.") {
       for

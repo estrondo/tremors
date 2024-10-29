@@ -23,7 +23,7 @@ object CommandListenerSpec extends GraboidSpec:
                       .thenReturn(expectedCommand)
         response <- ZIO.serviceWithZIO[CommandListener](_(expectedCommand))
       yield assertTrue(
-        response == GraboidCommandSuccess(expectedCommand.commandId)
+        response == GraboidCommandSuccess(expectedCommand.commandId),
       )
     },
     test("It should report a command failure.") {
@@ -34,10 +34,10 @@ object CommandListenerSpec extends GraboidSpec:
                       .thenFail(IllegalStateException("@@@"))
         response <- ZIO.serviceWithZIO[CommandListener](_(expectedCommand))
       yield assertTrue(
-        response == GraboidCommandFailure(expectedCommand.commandId, "@@@")
+        response == GraboidCommandFailure(expectedCommand.commandId, "@@@"),
       )
-    }
+    },
   ).provide(
     SweetMockitoLayer.newMockLayer[CommandExecutor],
-    ZLayer(ZIO.serviceWithZIO[CommandExecutor](CommandListener(_)))
+    ZLayer(ZIO.serviceWithZIO[CommandExecutor](CommandListener(_))),
   )

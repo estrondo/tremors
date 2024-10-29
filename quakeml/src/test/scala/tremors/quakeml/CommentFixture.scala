@@ -8,5 +8,5 @@ object CommentFixture:
   def createRandom() = Comment(
     text = KeyGenerator.generate(KeyLength.Long),
     id = Some(ResourceReferenceFixture.createRandom()),
-    creationInfo = Some(CreationInfoFixture.createRandom())
+    creationInfo = Some(CreationInfoFixture.createRandom()),
   )

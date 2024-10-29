@@ -17,7 +17,7 @@ object CommandModule:
   def apply(
       managerModule: ManagerModule,
       crawlingModule: CrawlingModule,
-      layer: TaskLayer[Client & Producer]
+      layer: TaskLayer[Client & Producer],
   ): Task[CommandModule] =
     for
       dataCentreCommandExecutor <- DataCentreCommandExecutor(managerModule.dataCentreManager)
@@ -27,5 +27,5 @@ object CommandModule:
     yield new Impl(commandExecutor)
 
   private class Impl(
-      val commandExecutor: CommandExecutor
+      val commandExecutor: CommandExecutor,
   ) extends CommandModule

@@ -37,7 +37,7 @@ object TophEventFixture:
       magnitudeMethodId = Some(gShort),
       magnitudeStationCount = Some(Random.nextInt(10)),
       magnitudeEvaluationMode = Some(gShort),
-      magnitudeEvaluationStatus = Some(gShort)
+      magnitudeEvaluationStatus = Some(gShort),
     )
 
   def createRandom(event: Event, origin: Origin, magnitude: Magnitude): TophEvent = TophEvent(
@@ -61,5 +61,5 @@ object TophEventFixture:
     magnitudeMethodId = magnitude.methodId.map(_.resourceId),
     magnitudeStationCount = magnitude.stationCount,
     magnitudeEvaluationMode = magnitude.evaluationMode,
-    magnitudeEvaluationStatus = magnitude.evaluationStatus
+    magnitudeEvaluationStatus = magnitude.evaluationStatus,
   )

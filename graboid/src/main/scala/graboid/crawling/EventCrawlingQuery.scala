@@ -12,7 +12,7 @@ case class EventCrawlingQuery(
     starting: ZonedDateTime,
     ending: ZonedDateTime,
     timeWindow: Duration,
-    queries: Seq[Query]
+    queries: Seq[Query],
 )
 
 object EventCrawlingQuery:
@@ -21,7 +21,7 @@ object EventCrawlingQuery:
       magnitudeType: Option[String],
       eventType: Option[String],
       min: Option[Double],
-      max: Option[Double]
+      max: Option[Double],
   )
 
   given UpdateQueryParam[EventCrawlingQuery] with
@@ -31,13 +31,13 @@ object EventCrawlingQuery:
 
         Iterable
           .unfold(
-            query.starting -> query.starting.plus(query.timeWindow)
+            query.starting -> query.starting.plus(query.timeWindow),
           ) { (starting, ending) =>
             for (currentStarting, currentEnding) <- filterTimeWindow(starting, ending, query.ending)
             yield
               val template = HashMap(
                 "starttime" -> currentStarting.toString,
-                "endtime"   -> currentEnding.toString
+                "endtime"   -> currentEnding.toString,
               )
 
               val params = for query <- query.queries yield
@@ -59,7 +59,7 @@ object EventCrawlingQuery:
     private def filterTimeWindow(
         starting: ZonedDateTime,
         ending: ZonedDateTime,
-        limit: ZonedDateTime
+        limit: ZonedDateTime,
     ): Option[(ZonedDateTime, ZonedDateTime)] =
       if starting.compareTo(limit) < 0 then
         if ending.compareTo(limit) <= 0 then Some(starting -> ending) else Some(starting -> limit)

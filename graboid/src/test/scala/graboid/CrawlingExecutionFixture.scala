@@ -22,5 +22,5 @@ object CrawlingExecutionFixture:
       starting = starting,
       ending = ending,
       detected = Random.nextLong(500),
-      state = CrawlingExecution.State.Completed
+      state = CrawlingExecution.State.Completed,
     )

@@ -31,14 +31,14 @@ object CollectionManager:
   def apply(
       collection: Collection,
       database: Database,
-      policy: Schedule.WithState[Long, Any, Any, Long]
+      policy: Schedule.WithState[Long, Any, Any, Long],
   ): CollectionManager =
     new Impl(collection, database, policy)
 
   private class Impl(
       val collection: Collection,
       val database: Database,
-      policy: Schedule.WithState[Long, Any, Any, Long]
+      policy: Schedule.WithState[Long, Any, Any, Long],
   ) extends CollectionManager:
 
     override val sakePolicy: WithState[(Long, Unit), Any, Throwable, Zippable[Long, Throwable]#Out] =
@@ -52,7 +52,7 @@ object CollectionManager:
 
     private def annotations = ZIOAspect.annotated(
       "farango.collection" -> collection.name,
-      "farango.database"   -> database.name
+      "farango.database"   -> database.name,
     )
 
     private def shouldCreateCollection(): Task[Unit] =

@@ -23,7 +23,7 @@ trait KafkaRouter:
 
   def subscribe[A: KReader, B, C: KWriter](
       kConsumer: KConsumer[A, B],
-      kProducer: KProducer[B, C]
+      kProducer: KProducer[B, C],
   ): ZStream[Any, Nothing, C]
 
   def subscribe[A: KReader, B: KWriter](kConPro: KConPro[A, B]): ZStream[Any, Nothing, B]
@@ -58,7 +58,7 @@ object KafkaRouter:
 
   private class Impl(
       liveProducer: Producer,
-      liveConsumer: Consumer
+      liveConsumer: Consumer,
   ) extends KafkaRouter:
 
     val consumerLayer: ULayer[Consumer] = ZLayer.succeed(liveConsumer)
@@ -73,7 +73,7 @@ object KafkaRouter:
 
     override def subscribe[A: KReader, B, C: KWriter](
         kConsumer: KConsumer[A, B],
-        kProducer: KProducer[B, C]
+        kProducer: KProducer[B, C],
     ): ZStream[Any, Nothing, C] =
 
       val producerFunction = kProducer.producerFunction
@@ -111,7 +111,7 @@ object KafkaRouter:
           }
           .catchAll { cause =>
             ZStream.fromZIO(
-              ZIO.logWarningCause(s"It was impossible to consume messages!", Cause.die(cause))
+              ZIO.logWarningCause(s"It was impossible to consume messages!", Cause.die(cause)),
             ) *> ZStream.empty
           }
           .provideLayer(consumerLayer)) @@ ZStreamAspect.annotated("kafkaRouter.topic" -> kConsumer.topic)

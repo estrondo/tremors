@@ -22,14 +22,14 @@ object CrawlingCommandExecutor:
   def apply(
       executor: CrawlingExecutor,
       dataCentreManager: DataCentreManager,
-      layer: TaskLayer[Client & Producer]
+      layer: TaskLayer[Client & Producer],
   ): Task[CrawlingCommandExecutor] =
     ZIO.succeed(Impl(executor, dataCentreManager, layer))
 
   private class Impl(
       executor: CrawlingExecutor,
       dataCentreManager: DataCentreManager,
-      layer: TaskLayer[Client & Producer]
+      layer: TaskLayer[Client & Producer],
   ) extends CrawlingCommandExecutor:
 
     override def apply(command: CrawlingCommand): Task[CrawlingCommand] =
@@ -61,10 +61,10 @@ object CrawlingCommandExecutor:
               magnitudeType = command.magnitudeType,
               eventType = command.eventType,
               min = command.minMagnitude,
-              max = command.maxMagnitude
-            )
-          )
-        )
+              max = command.maxMagnitude,
+            ),
+          ),
+        ),
       )
 
     private def convertToQuery(command: RunDataCentreEventCrawling) =
@@ -78,8 +78,8 @@ object CrawlingCommandExecutor:
               magnitudeType = command.magnitudeType,
               eventType = command.eventType,
               min = command.minMagnitude,
-              max = command.maxMagnitude
-            )
-          )
-        )
+              max = command.maxMagnitude,
+            ),
+          ),
+        ),
       )

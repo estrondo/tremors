@@ -15,7 +15,7 @@ object CrawlingSchedulerFixture:
           magnitudeType = Some("abc"),
           minMagnitude = Some(Random.nextDouble() * 3d),
           maxMagnitude = Some(3d + Random.nextDouble() * 4d),
-          eventType = Some("earthquake")
-        )
-      )
+          eventType = Some("earthquake"),
+        ),
+      ),
     )

@@ -15,13 +15,13 @@ object CommandExecutor:
 
   def apply(
       dataCentreCommandExecutor: DataCentreCommandExecutor,
-      crawlingCommandExecutor: CrawlingCommandExecutor
+      crawlingCommandExecutor: CrawlingCommandExecutor,
   ): Task[CommandExecutor] =
     ZIO.succeed(Impl(dataCentreCommandExecutor, crawlingCommandExecutor))
 
   private class Impl(
       dataCentreCommandExecutor: DataCentreCommandExecutor,
-      crawlingCommandExecutor: CrawlingCommandExecutor
+      crawlingCommandExecutor: CrawlingCommandExecutor,
   ) extends CommandExecutor:
 
     override def apply(command: GraboidCommand): Task[GraboidCommand] =

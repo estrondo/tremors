@@ -33,7 +33,7 @@ object HttpModule:
 
       val netty = ZLayer.succeed(
         NettyConfig.default
-          .channelType(ChannelType.NIO)
+          .channelType(ChannelType.NIO),
       ) >>> NettyClientDriver.live
 
       val dns = ZLayer.succeed {

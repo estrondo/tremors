@@ -19,7 +19,7 @@ trait FarangoModule:
   def collection(
       name: String,
       indexes: Seq[IndexDescription] = Nil,
-      options: CollectionCreateOptions = CollectionCreateOptions()
+      options: CollectionCreateOptions = CollectionCreateOptions(),
   ): Task[CollectionManager]
 
 object FarangoModule:
@@ -54,7 +54,7 @@ object FarangoModule:
     override def collection(
         name: String,
         indexes: Seq[IndexDescription] = Nil,
-        options: CollectionCreateOptions = CollectionCreateOptions().waitForSync(true)
+        options: CollectionCreateOptions = CollectionCreateOptions().waitForSync(true),
     ): Task[CollectionManager] = ZIO.succeed {
       CollectionManager(database.collection(name, indexes, options), database, Schedule.spaced(5.seconds))
     }

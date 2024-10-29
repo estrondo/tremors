@@ -44,5 +44,5 @@ object TophEventMapper:
         magnitudeMethodId = magnitude.methodId.map(_.resourceId),
         magnitudeStationCount = magnitude.stationCount,
         magnitudeEvaluationMode = magnitude.evaluationMode,
-        magnitudeEvaluationStatus = magnitude.evaluationStatus
+        magnitudeEvaluationStatus = magnitude.evaluationStatus,
       )

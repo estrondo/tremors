@@ -49,10 +49,10 @@ object EventCrawlerSpec extends GraboidSpec:
                       .take(1)
                       .runCollect
                       .provideSome[Kafka](
-                        KafkaTestUtils.consumer(clientId = "test", groupId = Some("test-group"))
+                        KafkaTestUtils.consumer(clientId = "test", groupId = Some("test-group")),
                       )
       yield assertTrue(records.size == 1)
-    }
+    },
   ).provideSome(
     KafkaTestUtils.producer,
     Kafka.embedded,
@@ -65,7 +65,7 @@ object EventCrawlerSpec extends GraboidSpec:
         keyGenerator <- ZIO.service[KeyGenerator]
         eventCrawler <- EventCrawler(dataCentre, keyGenerator)
       yield eventCrawler
-    }
+    },
   )
 
   private def makeRequests(query: EventCrawlingQuery) =
