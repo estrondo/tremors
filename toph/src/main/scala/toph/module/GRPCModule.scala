@@ -8,43 +8,46 @@ import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
 import toph.grpc.ZioGrpc
 import toph.grpc.impl.GRPCAccountService
-import toph.security.Token
+import toph.grpc.impl.GRPCSecurityService
 import zio.Task
 import zio.TaskLayer
 import zio.ZIO
 import zio.ZLayer
 
-trait GRPCModule:
-
-  def server: TaskLayer[Server]
+class GRPCModule(val server: TaskLayer[Server])
 
 object GRPCModule:
 
   def apply(config: GRPCConfig, securityModule: SecurityModule, centreModule: CentreModule): Task[GRPCModule] =
-    ZIO.succeed(Impl(config, securityModule, centreModule))
-
-  private class Impl(config: GRPCConfig, securityModule: SecurityModule, centreModule: CentreModule) extends GRPCModule:
-
-    private val userServiceLayer: TaskLayer[ZioGrpc.ZAccountService[RequestContext]] =
+    val accountServiceLayer: TaskLayer[ZioGrpc.ZAccountService[RequestContext]] =
       ZLayer {
         for service <- GRPCAccountService(centreModule.accountService)
         yield service.transformContextZIO(???)
       }
 
-    override def server: TaskLayer[Server] =
-      val serverLayer = ServerLayer.fromServiceList(
-        ServerBuilder.forPort(config.port),
-        ServiceList
-          .addFromEnvironment[ZioGrpc.ZAccountService[RequestContext]],
-      )
+    val securityLayer = ZLayer {
+      GRPCSecurityService(securityModule.securityCentre)
+    }
 
-      ZLayer
-        .make[Server](
-          serverLayer,
-          userServiceLayer,
-        )
-        .tap { env =>
-          env.get.port.tap { port =>
-            ZIO.logInfo(s"🌎 Toph is listening @ $port.")
-          }
-        }
+    val serverLayer = ServerLayer.fromServiceList(
+      ServerBuilder.forPort(config.port),
+      ServiceList
+        .addFromEnvironment[ZioGrpc.ZAccountService[RequestContext]]
+        .addFromEnvironment[ZioGrpc.ZSecurityService[RequestContext]],
+    )
+
+    ZIO.succeed(
+      new GRPCModule(
+        server = ZLayer
+          .make[Server](
+            serverLayer,
+            accountServiceLayer,
+            securityLayer,
+          )
+          .tap { env =>
+            env.get.port.tap { port =>
+              ZIO.logInfo(s"🌎 Toph is listening @ $port.")
+            }
+          },
+      ),
+    )
