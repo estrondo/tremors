@@ -4,5 +4,5 @@ import toph.model.Account
 
 case class Token(
     account: Account,
-    token: String,
+    token: Array[Byte],
 )

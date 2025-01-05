@@ -1,5 +1,6 @@
 package toph.grpc.impl
 
+import com.google.protobuf.ByteString
 import io.grpc.Status
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
@@ -22,17 +23,18 @@ object GRPCSecurityServiceSpec extends TophSpec:
 
       val expectedToken = Token(
         account = AccountFixture.createRandom(),
-        token = "my-token",
+        token = "my-token".getBytes,
       )
 
       for
         _ <- SweetMockitoLayer[SecurityCentre]
-               .whenF2(_.authorise("some-token", "some-provider"))
+               .whenF2(_.authoriseOpenId("some-token", "some-provider"))
                .thenReturn(Some(expectedToken))
 
         response <- ZIO.serviceWithZIO[ZioGrpc.ZSecurityService[RequestContext]](
                       _.authorise(
                         GRPCOpenIdTokenAuthorisationRequest(
+                          version = "1",
                           provider = "some-provider",
                           token = "some-token",
                         ),
@@ -40,19 +42,20 @@ object GRPCSecurityServiceSpec extends TophSpec:
                       ),
                     )
       yield assertTrue(
-        response.token == expectedToken.token,
+        response.token == ByteString.copyFrom(expectedToken.token),
       )
     },
     test("It should reject an expected token.") {
       for
         _ <- SweetMockitoLayer[SecurityCentre]
-               .whenF2(_.authorise("some-token", "some-provider"))
+               .whenF2(_.authoriseOpenId("some-token", "some-provider"))
                .thenReturn(None)
 
         exit <- ZIO
                   .serviceWithZIO[ZioGrpc.ZSecurityService[RequestContext]](
                     _.authorise(
                       GRPCOpenIdTokenAuthorisationRequest(
+                        version = "1",
                         provider = "some-provider",
                         token = "some-token",
                       ),
@@ -67,7 +70,7 @@ object GRPCSecurityServiceSpec extends TophSpec:
     test("It should return any error as unauthenticated.") {
       for
         _ <- SweetMockitoLayer[SecurityCentre]
-               .whenF2(_.authorise("some-token", "some-provider"))
+               .whenF2(_.authoriseOpenId("some-token", "some-provider"))
                .thenFail(TophException.Security("@@@"))
 
         exit <- ZIO

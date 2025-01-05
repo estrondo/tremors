@@ -21,7 +21,7 @@ object SecurityCentreSpec extends TophSpec:
                .whenF2(_.validate("a-token", "a-provider"))
                .thenReturn(None)
 
-        token <- ZIO.serviceWithZIO[SecurityCentre](_.authorise("a-token", "a-provider"))
+        token <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("a-token", "a-provider"))
       yield assertTrue(token.isEmpty)
     },
     test("It should capture any error during OpenId validation.") {
@@ -30,8 +30,8 @@ object SecurityCentreSpec extends TophSpec:
                .whenF2(_.validate("t", "p"))
                .thenFail(IllegalStateException("@@@"))
 
-        exit <- ZIO.serviceWithZIO[SecurityCentre](_.authorise("t", "p")).exit
-      yield assertTrue(exit.is(_.failure).getMessage == "Unable to validate!")
+        exit <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("t", "p")).exit
+      yield assertTrue(exit.is(_.failure).getMessage == "Unable to validate the oidc token!")
     },
     test("It should accept a valid token.") {
 
@@ -47,7 +47,7 @@ object SecurityCentreSpec extends TophSpec:
                .whenF2(_.encode(expectedToken.account))
                .thenReturn(expectedToken)
 
-        token <- ZIO.serviceWithZIO[SecurityCentre](_.authorise("t", "p"))
+        token <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("t", "p"))
       yield assertTrue(token.contains(expectedToken))
     },
   ).provideSome(

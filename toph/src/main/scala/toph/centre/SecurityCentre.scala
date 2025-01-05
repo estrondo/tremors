@@ -10,7 +10,7 @@ import zio.IO
 
 trait SecurityCentre:
 
-  def authorise(token: String, provider: String): IO[TophException, Option[Token]]
+  def authoriseOpenId(token: String, provider: String): IO[TophException, Option[Token]]
 
 object SecurityCentre:
 
@@ -30,18 +30,17 @@ object SecurityCentre:
       tokenService: TokenService,
   ) extends SecurityCentre:
 
-    override def authorise(token: String, provider: String): IO[TophException, Option[Token]] = {
+    override def authoriseOpenId(token: String, provider: String): IO[TophException, Option[Token]] = {
       for {
         email   <- multiOpenIdProvider
                      .validate(token, provider)
-                     .mapError(TophException.Security("Unable to validate!", _))
+                     .mapError(TophException.Security("Unable to validate the oidc token!", _))
                      .some
         account <- accountService
                      .findOrCreate(email)
-                     .mapError(TophException.Security("Unable to find or create the account.", _))
-      } yield {
-        tokenService
-          .encode(account)
-          .mapError(TophException.Security("Unable to create a token!", _))
-      }
-    }.flatten.extractSomeError
+                     .mapError(TophException.Security("Unable to find or create the account!", _))
+        token   <- tokenService
+                     .encode(account)
+                     .mapError(TophException.Security("Unable to encode a token!", _))
+      } yield token
+    }.extractSomeError

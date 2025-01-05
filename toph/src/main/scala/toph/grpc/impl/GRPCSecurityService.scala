@@ -1,5 +1,6 @@
 package toph.grpc.impl
 
+import com.google.protobuf.ByteString
 import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext
@@ -16,6 +17,8 @@ import zio.ZIO
 
 object GRPCSecurityService:
 
+  val Version = "1"
+
   def apply(securityCentre: SecurityCentre): UIO[ZioGrpc.ZSecurityService[RequestContext]] =
     ZIO.succeed(Impl(securityCentre))
 
@@ -29,12 +32,15 @@ object GRPCSecurityService:
         case GRPCAuthorisationRequest.Empty =>
           ZIO.logWarning("Empty request.") *> ZIO.fail(StatusException(Status.UNAUTHENTICATED))
 
-        case GRPCOpenIdTokenAuthorisationRequest(provider, token, _) =>
+        case GRPCOpenIdTokenAuthorisationRequest(Version, provider, token, _) =>
           authoriseOpenId(token, provider)
+
+        case GRPCOpenIdTokenAuthorisationRequest(version, _, _, _) =>
+          ZIO.logWarning(s"Invalid request version: $version!") *> ZIO.fail(StatusException(Status.UNAUTHENTICATED))
 
     private def authoriseOpenId(token: String, provider: String): IO[StatusException, GRPCAuthorisationResponse] =
       securityCentre
-        .authorise(token, provider)
+        .authoriseOpenId(token, provider)
         .flatMap {
           case Some(token) => convertFrom(token)
           case None        => ZIO.fail(StatusException(Status.UNAUTHENTICATED))
@@ -49,4 +55,4 @@ object GRPCSecurityService:
         }
 
     private def convertFrom(token: Token): UIO[GRPCAuthorisationResponse] =
-      ZIO.succeed(GRPCAuthorisationResponse(token = token.token))
+      ZIO.succeed(GRPCAuthorisationResponse(token = ByteString.copyFrom(token.token)))

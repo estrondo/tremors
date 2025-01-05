@@ -33,6 +33,7 @@ object GRPCAccountServiceSpec extends TophSpec:
         result <- ZIO.serviceWithZIO[ZioGrpc.ZAccountService[Token]](_.update(updateUser, expectedToken))
       yield assertTrue(
         result == GRPCAccount(
+          key = expectedAccount.key,
           name = expectedAccount.name,
           email = expectedAccount.email,
         ),

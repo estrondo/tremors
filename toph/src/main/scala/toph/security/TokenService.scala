@@ -4,50 +4,78 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInput
 import java.io.DataInputStream
-import java.io.DataOutput
 import java.io.DataOutputStream
 import java.time.Period
 import java.time.ZonedDateTime
-import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.SecretKey
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 import toph.TimeService
+import toph.TophException
 import toph.model.Account
+import zio.Cause
 import zio.Task
 import zio.ZIO
 
 trait TokenService:
 
-  def decode(token: String): Task[Option[Token]]
+  def decode(token: Array[Byte]): Task[Option[Token]]
 
   def encode(account: Account): Task[Token]
 
 object TokenService:
+
+  val Version = 1
 
   def apply(key: SecretKey, timeService: TimeService, period: Period, b64: B64): TokenService =
     Impl(key, timeService, period, b64)
 
   private class Impl(key: SecretKey, timeService: TimeService, period: Period, b64: B64) extends TokenService:
 
-    override def decode(token: String): Task[Option[Token]] =
-      decodeValidSignature(timeService.zonedDateTimeNow(), token)
+    override def decode(token: Array[Byte]): Task[Option[Token]] =
+      decode(timeService.zonedDateTimeNow(), token)
+        .catchAll { cause =>
+          ZIO.logErrorCause("Unable to validate token!", Cause.die(cause)) *> ZIO.none
+        }
 
-    private def decodeValidSignature(now: ZonedDateTime, token: String): Task[Option[Token]] =
-      for mac <- createMac()
-      yield token.split('.') match
-        case Array(expiration, account, signature) =>
-          mac.update(expiration.getBytes())
-          val expectedSignature = b64.encodeToString(mac.doFinal(account.getBytes()))
+    private def decode(now: ZonedDateTime, token: Array[Byte]): Task[Option[Token]] =
+      createMac().flatMap { mac =>
+        val input = DataInputStream(ByteArrayInputStream(token))
+        ZIO.fromTry {
+          for {
+            version             <- validateVersion(input)
+            expiration          <- validateExpiration(input, now)
+            (signature, offset) <- validateSignature(input, token, mac)
+            account             <- extractAccount(DataInputStream(ByteArrayInputStream(token, 15, offset - 15)))
+          } yield Some(Token(account, token))
+        }
+      }
 
-          if (expectedSignature == signature) {
-            for account <- decodeBeforeExpire(now, expiration, account)
-            yield Token(account, token)
-          } else {
-            None
-          }
+    private def validateVersion(input: DataInput): Try[Int] =
+      val version = input.readUnsignedByte()
+      if version == Version then Success(version) else Failure(TophException.Security(s"Invalid signature: $version!"))
 
-        case _ =>
-          None
+    private def validateExpiration(input: DataInput, now: ZonedDateTime): Try[Long] =
+      val expiration = input.readLong()
+      if expiration < now.toEpochSecond then Success(expiration) else Failure(TophException.Security("Expired token!"))
+
+    private def validateSignature(input: DataInput, token: Array[Byte], mac: Mac): Try[(Array[Byte], Int)] =
+      val offset = input.readUnsignedShort()
+      mac.update(token, 0, offset)
+
+      val s = mac.doFinal()
+      if java.util.Arrays.equals(s, 0, s.length, token, offset, token.length) then Success((s, offset))
+      else Failure(TophException.Security("Invalid signature!"))
+
+    private def extractAccount(input: DataInput): Try[Account] =
+      Try {
+        val key   = input.readUTF()
+        val email = input.readUTF()
+        val name  = input.readUTF()
+        Account(key, email, name)
+      }
 
     override def encode(account: Account): Task[Token] =
       encode(timeService.zonedDateTimeNow().plus(period), account)
@@ -55,26 +83,33 @@ object TokenService:
     private def encode(expiration: ZonedDateTime, account: Account): Task[Token] =
       for mac <- createMac()
       yield
-        val encodedExpiration = writeBase64 { _.writeLong(expiration.toEpochSecond) }
-        val encodedAccount    = writeBase64 { dataOutput =>
-          dataOutput.writeUTF(account.key)
-          dataOutput.writeUTF(account.name)
-          dataOutput.writeUTF(account.email)
-        }
+        val body       = ByteArrayOutputStream(512)
+        val bodyOutput = new DataOutputStream(body)
+        bodyOutput.writeUTF(account.key)
+        bodyOutput.writeUTF(account.email)
+        bodyOutput.writeUTF(account.name)
+        bodyOutput.writeShort(0x0) // additional length
+        val bodyBuffer = body.toByteArray
 
-        val builder = StringBuilder()
-          .append(new String(encodedExpiration))
-          .append('.')
-          .append(new String(encodedAccount))
+        val header       = ByteArrayOutputStream()
+        val headerOutput = DataOutputStream(header)
+        headerOutput.writeByte(Version)
+        headerOutput.writeLong(expiration.toEpochSecond)
+        headerOutput.writeShort(15 + bodyBuffer.length)
+        headerOutput.writeInt(0x0) // reserved (maybe flags)
+        val headerBuffer = header.toByteArray
 
-        mac.update(encodedExpiration)
+        mac.update(headerBuffer)
+        val signature = mac.doFinal(bodyBuffer)
 
-        val generated = builder
-          .append('.')
-          .append(b64.encodeToString(mac.doFinal(encodedAccount)))
+        val token = Array
+          .newBuilder[Byte]
+          .addAll(headerBuffer)
+          .addAll(bodyBuffer)
+          .addAll(signature)
           .result()
 
-        Token(account, generated)
+        Token(account, token)
 
     private def createMac(): Task[Mac] =
       ZIO.attempt {
@@ -82,24 +117,3 @@ object TokenService:
         mac.init(key)
         mac
       }
-
-    private def decodeBeforeExpire(now: ZonedDateTime, expiration: String, claims: String): Option[Account] =
-      val expirationValue = readBase64(expiration) { _.readLong() }
-      if now.toEpochSecond <= expirationValue then
-        Some(readBase64(claims) { dataInput =>
-          val id    = dataInput.readUTF()
-          val name  = dataInput.readUTF()
-          val email = dataInput.readUTF()
-          Account(key = id, name = name, email = email)
-        })
-      else None
-
-    private def readBase64[T](encoded: String)(block: DataInput => T): T =
-      block(DataInputStream(ByteArrayInputStream(b64.decode(encoded))))
-
-    private def writeBase64(block: DataOutput => Unit): Array[Byte] =
-      val buffer     = ByteArrayOutputStream()
-      val dataOutput = DataOutputStream(buffer)
-      block(dataOutput)
-      dataOutput.flush()
-      b64.encodeToBytes(buffer.toByteArray)

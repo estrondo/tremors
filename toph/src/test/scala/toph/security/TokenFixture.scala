@@ -7,5 +7,5 @@ object TokenFixture:
 
   def createRandom(): Token = Token(
     account = AccountFixture.createRandom(),
-    token = UUID.randomUUID().toString,
+    token = UUID.randomUUID().toString.getBytes,
   )
