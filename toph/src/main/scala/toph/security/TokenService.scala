@@ -29,10 +29,10 @@ object TokenService:
 
   val Version = 1
 
-  def apply(key: SecretKey, timeService: TimeService, period: Period, b64: B64): TokenService =
-    Impl(key, timeService, period, b64)
+  def apply(key: SecretKey, timeService: TimeService, period: Period): TokenService =
+    Impl(key, timeService, period)
 
-  private class Impl(key: SecretKey, timeService: TimeService, period: Period, b64: B64) extends TokenService:
+  private class Impl(key: SecretKey, timeService: TimeService, period: Period) extends TokenService:
 
     override def decode(token: Array[Byte]): Task[Option[Token]] =
       decode(timeService.zonedDateTimeNow(), token)

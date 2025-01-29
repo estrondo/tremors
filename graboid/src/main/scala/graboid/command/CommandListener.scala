@@ -28,7 +28,7 @@ object CommandListener:
         exit     <- executor(command).exit
         response <- exit match
                       case Exit.Success(command) =>
-                        for _ <- ZIO.logDebug(s"Command has been proceed.")
+                        for _ <- ZIO.logDebug(s"Command has been processed.")
                         yield GraboidCommandSuccess(command.commandId)
 
                       case Exit.Failure(cause @ Cause.Fail(_, _)) =>

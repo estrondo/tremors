@@ -84,17 +84,22 @@ object Dependencies {
     "one.estrondo" %% "moidc4s-zio-json"      % Version.Moidc4s,
   )
 
-  object Version {
-    val AaltoXML            = "1.3.3"
-    val Farango             = "0.2.1"
-    val SweetMockito        = "1.2.0+1-904f0c3e"
-    val TestcontainersScala = "0.41.4"
-    val ZIO                 = "2.1.6"
-    val ZIOConfig           = "4.0.2"
-    val ZIOLogging          = "2.3.0"
-    val ZIOKafka            = "2.8.0"
-    val ZIOHttp             = "3.0.0-RC9"
-    val JWT                 = "10.0.1"
-    val Moidc4s             = "0.1.0"
-  }
+  val Wiremock = Seq(
+    "org.wiremock" % "wiremock" % "3.10.0" % Test
+  )
+}
+
+object Version {
+  val AaltoXML            = "1.3.3"
+  val Farango             = "0.2.1"
+  val SweetMockito        = "1.2.0+1-904f0c3e"
+  val TestcontainersScala = "0.41.4"
+  val ZIO                 = "2.1.6"
+  val ZIOConfig           = "4.0.2"
+  val ZIOLogging          = "2.3.0"
+  val ZIOKafka            = "2.8.0"
+  val ZIOHttp             = "3.0.0-RC9"
+  val JWT                 = "10.0.1"
+  val Moidc4s             = "0.1.0"
+  val ZioGrpc             = "0.6.2"
 }

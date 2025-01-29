@@ -5,4 +5,5 @@ case class HttpConfig(
 )
 
 object HttpConfig:
-  case class Client()
+  case class Client(
+  )

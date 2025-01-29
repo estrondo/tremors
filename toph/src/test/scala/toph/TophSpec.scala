@@ -10,7 +10,7 @@ import zio.test.TestEnvironment
 import zio.test.ZIOSpecDefault
 import zio.test.testEnvironment
 
-trait TophSpec extends ZIOSpecDefault:
+abstract class TophSpec extends ZIOSpecDefault:
 
   export ArgumentMatchers.{any => anyOf}
   export ArgumentMatchers.{eq => eqTo}
@@ -18,5 +18,5 @@ trait TophSpec extends ZIOSpecDefault:
 
   given TophExecutionContext = TophExecutionContext.systemUser("Automatic Tester")
 
-  override val bootstrap: ZLayer[Any, Any, TestEnvironment] =
-    Runtime.removeDefaultLoggers >>> SLF4J.slf4j >>> testEnvironment
+//  override val bootstrap: ZLayer[Any, Any, TestEnvironment] =
+//    Runtime.removeDefaultLoggers >>> SLF4J.slf4j >>> testEnvironment

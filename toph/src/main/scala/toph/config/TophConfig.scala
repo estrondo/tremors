@@ -8,5 +8,4 @@ case class TophConfig(
     kafka: KafkaConfig,
     grpc: GRPCConfig,
     security: SecurityConfig,
-    http: HttpConfig,
 )

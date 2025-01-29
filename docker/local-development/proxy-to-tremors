@@ -1,0 +1,18 @@
+
+
+# Here it goes how to configure proxing to Toph.
+
+proxy.balance = "round-robin"
+
+proxy.server = (
+  "" => (
+    "toph" =>
+    ("host" => "toph", "port" => 8543)
+  )
+)
+
+proxy.header = (
+  "https-remap" => "disabled"
+)
+
+proxy.debug = 1

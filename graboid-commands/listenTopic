@@ -2,4 +2,4 @@
 
 # Use: listenTopic topic group
 
-kcat -b localhost:9093 -G $2 $1
+kcat -b localhost:9093 -G "$2" "$1"

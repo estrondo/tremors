@@ -1,3 +1,6 @@
 [submodule "grpc"]
 	path = grpc
 	url = git@github.com:estrondo/tremors-grpc.git
+[submodule "shared"]
+	path = shared
+	url = git@github.com:estrondo/tremors-shared.git

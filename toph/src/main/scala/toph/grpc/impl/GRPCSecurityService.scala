@@ -55,4 +55,4 @@ object GRPCSecurityService:
         }
 
     private def convertFrom(token: Token): UIO[GRPCAuthorisationResponse] =
-      ZIO.succeed(GRPCAuthorisationResponse(token = ByteString.copyFrom(token.token)))
+      ZIO.succeed(GRPCAuthorisationResponse(version = Version, token = ByteString.copyFrom(token.token)))

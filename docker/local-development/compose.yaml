@@ -1,4 +1,4 @@
-version: "3.0"
+name: tremors-local-development
 
 services:
 
@@ -15,7 +15,14 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  kafka1:
+  resources:
+    image: docker.io/jitesoft/lighttpd:1.4.77
+    environment:
+      SERVER_NAME: resources
+    volumes:
+      - "./resources:/var/www/html:ro"
+
+  kafka:
     image: docker.io/confluentinc/cp-kafka:6.1.9
     depends_on:
       - zookeeper
@@ -25,19 +32,30 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:9093
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://rthoth.local:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   graboid:
-    image: docker.io/estrondo-tremors:graboid-latest
+    image: docker.io/estrondo:graboid-latest
     environment:
       TREMORS_PROFILE: local
 
   toph:
-    image: docker.io/estrondo-tremors:toph-latest
+    image: docker.io/estrondo:toph-latest
     environment:
       TREMORS_PROFILE: local
     ports:
-      - "9443:9443"
+      - "8543:8543"
+    depends_on:
+      - resources
+  http: 
+    image: docker.io/nginx:1.27-alpine
+    depends_on:
+      - toph
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "../../shared/server/ssl-certs/tremors.pem:/etc/ssl/certs/tremors.pem:ro"
+    ports:
+      - "8443:443"

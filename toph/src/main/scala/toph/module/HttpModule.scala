@@ -17,7 +17,7 @@ class HttpModule(
 
 object HttpModule:
 
-  def apply(httpConfig: HttpConfig): Task[HttpModule] = ZIO.attempt {
+  def apply(): Task[HttpModule] = ZIO.attempt {
     val dnsResolver = DnsResolver.default
     val nettyConfig = ZLayer.succeed(NettyConfig.default)
     val myConfig    = ZLayer.succeed(ZClient.Config.default)

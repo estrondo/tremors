@@ -7,8 +7,8 @@ ThisBuild / Test / fork              := true
 ThisBuild / Test / parallelExecution := false
 ThisBuild / semanticdbEnabled        := true
 
-val tremorsBaseImage  = "docker.io/eclipse-temurin:17"
-val tremorsImageName  = "estrondo-tremors"
+val tremorsBaseImage  = "docker.io/eclipse-temurin:17-alpine"
+val tremorsImageName  = "estrondo"
 val tremorsRepository = Some("docker.io")
 
 ThisBuild / scalacOptions ++= Seq(
@@ -93,7 +93,7 @@ lazy val graboid = (project in file("graboid"))
     graboidProtocol % "compile->compile;test->test",
     zioHttp,
   )
-  .enablePlugins(JavaAppPackaging, DockerPlugin)
+  .enablePlugins(AshScriptPlugin, DockerPlugin)
   .settings(
     dockerRepository     := tremorsRepository,
     dockerBaseImage      := tremorsBaseImage,
@@ -151,14 +151,19 @@ lazy val toph = (project in file("toph"))
     zioHttp,
     quakeML % "compile->compile;test->test",
     core    % "test->test",
+    zioGrpc % "compile->compile;test->test",
   )
-  .enablePlugins(JavaAppPackaging, DockerPlugin)
+  .enablePlugins(AshScriptPlugin, DockerPlugin)
   .settings(
     dockerRepository     := tremorsRepository,
     dockerBaseImage      := tremorsBaseImage,
     Docker / packageName := tremorsImageName,
     Docker / version ~= (x => "toph-" + x.replace("+", "_")),
     dockerAliases += dockerAlias.value.withTag(Some("toph-latest")),
+  )
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoPackage := "toph",
   )
 
 lazy val tophIt = (project in file("toph-it"))
@@ -170,6 +175,7 @@ lazy val tophIt = (project in file("toph-it"))
   .dependsOn(
     toph       % "compile->compile;test->test",
     zioFarango % "test->test",
+    zioGrpc    % "compile->compile;test->test",
   )
 
 lazy val zioStarter = (project in file("zio/starter"))
@@ -221,8 +227,28 @@ lazy val zioHttp = (project in file("zio/http"))
       Dependencies.ZIO,
       Dependencies.ZIOStream,
       Dependencies.ZIOHttp,
+      Dependencies.TestcontainersScala.map(_ % Test),
+      Dependencies.Wiremock,
     ).flatten,
   )
   .dependsOn(
     core,
+  )
+
+lazy val zioGrpc = (project in file("zio/grpc"))
+  .settings(
+    name := "tremors-zio-grpc",
+    resolvers += Resolver.defaultLocal,
+    libraryDependencies ++= Seq(
+      Dependencies.ZIO,
+      Dependencies.gRPCTesting,
+    ).flatten,
+    libraryDependencies ++= Seq(
+      "io.grpc"                        % "grpc-netty"           % "1.65.1",
+      "com.thesamet.scalapb"          %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+      "com.thesamet.scalapb.zio-grpc" %% "zio-grpc-core"        % Version.ZioGrpc,
+    ),
+  )
+  .dependsOn(
+    zioHttp % "compile->compile;test->test",
   )

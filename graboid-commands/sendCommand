@@ -1,5 +1,6 @@
-#! /bin/sh
+#!/bin/sh
 
 # Use: sendCommand topic file
+# in Arch Linux json2cbor is provided by remarshal package.
 
-json2cbor -i $2 | kcat -P -t $1 -b localhost:9093
+json2cbor -i "$2" | kcat -P -t "$1" -b localhost:9093

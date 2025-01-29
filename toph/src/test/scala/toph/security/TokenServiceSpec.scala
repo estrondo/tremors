@@ -80,6 +80,6 @@ object TokenServiceSpec extends TophSpec:
       yield
         val secretKey =
           SecretKeySpec("A password was defined to be used here, but we can change it.".getBytes, "HmacSHA512")
-        TokenService(secretKey, zonedDateTimeService, period, B64)
+        TokenService(secretKey, zonedDateTimeService, period)
     },
   )

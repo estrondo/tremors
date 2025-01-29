@@ -3,7 +3,7 @@
   [
     "create-data-centre-usp",
     "usp",
-    ["http://www.moho.iag.usp.br/fdsnws/event/1/query"],
+    ["https://www.moho.iag.usp.br/fdsnws/event/1/query"],
     []
   ]
 ]
