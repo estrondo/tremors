@@ -59,6 +59,7 @@ object AccountRepository:
           Map("@collection" -> collection.name, "email" -> email),
         )
         .runHead
+        .retry(collectionManager.sakePolicy)
 
     override def update(key: String, update: Update): Task[Account] =
       for entity <- collection
