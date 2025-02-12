@@ -1,6 +1,7 @@
 package toph.centre
 
 import toph.TophException
+import toph.context.TophExecutionContext
 import toph.extractSomeError
 import toph.security.MultiOpenIdProvider
 import toph.security.Token
@@ -10,7 +11,7 @@ import zio.IO
 
 trait SecurityCentre:
 
-  def authoriseOpenId(token: String, provider: String): IO[TophException, Option[Token]]
+  def authoriseOpenId(token: String, provider: String)(using TophExecutionContext): IO[TophException, Option[Token]]
 
 object SecurityCentre:
 
@@ -30,7 +31,7 @@ object SecurityCentre:
       tokenService: TokenService,
   ) extends SecurityCentre:
 
-    override def authoriseOpenId(token: String, provider: String): IO[TophException, Option[Token]] = {
+    override def authoriseOpenId(token: String, provider: String)(using TophExecutionContext): IO[TophException, Option[Token]] = {
       for {
         email   <- multiOpenIdProvider
                      .validate(token, provider)

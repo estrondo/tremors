@@ -5,10 +5,12 @@ import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext
 import toph.centre.SecurityCentre
+import toph.context.TophExecutionContext
 import toph.grpc.GRPCAuthorisationRequest
 import toph.grpc.GRPCAuthorisationResponse
 import toph.grpc.GRPCOpenIdTokenAuthorisationRequest
 import toph.grpc.ZioGrpc
+import toph.grpc.ZioGrpc.ZSecurityService
 import toph.security.Token
 import zio.Cause
 import zio.IO
@@ -40,7 +42,7 @@ object GRPCSecurityService:
 
     private def authoriseOpenId(token: String, provider: String): IO[StatusException, GRPCAuthorisationResponse] =
       securityCentre
-        .authoriseOpenId(token, provider)
+        .authoriseOpenId(token, provider)(using TophExecutionContext.system[ZSecurityService[_]])
         .flatMap {
           case Some(token) => convertFrom(token)
           case None        => ZIO.fail(StatusException(Status.UNAUTHENTICATED))

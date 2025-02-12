@@ -24,7 +24,7 @@ object GRPCAccountServiceSpec extends TophSpec:
       val updateUser             = updateUserFixture()
       val expectedAccount        = AccountFixture.createRandom()
       val expectedToken          = TokenFixture.createRandom().copy(account = expectedAccount)
-      given TophExecutionContext = TophExecutionContext.identifiedAccount(expectedAccount)
+      given TophExecutionContext = TophExecutionContext.account(expectedAccount)
 
       for
         _      <- SweetMockitoLayer[AccountService]

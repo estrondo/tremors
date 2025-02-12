@@ -9,14 +9,8 @@ object TophExecutionContext:
 
   inline def apply()(using inline executionContext: TophExecutionContext): TophExecutionContext = executionContext
 
-  def identifiedAccount(id: String): TophExecutionContext =
-    new TophExecutionContext(owner = Owner.IdentifiedAccount(id))
+  def account(account: Account): TophExecutionContext =
+    new TophExecutionContext(Owner.Account(account.key))
 
-  def identifiedAccount(account: Account): TophExecutionContext =
-    new TophExecutionContext(Owner.IdentifiedAccount(account.key))
-
-  def systemUser(name: String): TophExecutionContext =
-    new TophExecutionContext(owner = Owner.SystemUser(name))
-
-  def systemUser[T: ClassTag]: TophExecutionContext =
-    new TophExecutionContext(owner = Owner.SystemUser(summon[ClassTag[T]].runtimeClass.getCanonicalName))
+  def system[T: ClassTag]: TophExecutionContext =
+    new TophExecutionContext(owner = Owner.System(summon[ClassTag[T]].runtimeClass.getCanonicalName))

@@ -26,7 +26,7 @@ object GRPCAccountService:
       for
         updatedAccount <- accountService
                             .update(token.account.key, AccountService.Update(request.name))(using
-                              TophExecutionContext.identifiedAccount(token.account),
+                              TophExecutionContext.account(token.account),
                             )
                             .flatMapError(handleUpdateError(token))
         transformed    <- GRPCAccountTransformer

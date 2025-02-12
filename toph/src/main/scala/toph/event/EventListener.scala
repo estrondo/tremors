@@ -30,7 +30,7 @@ object EventListener:
         tophEvents <- TophEventMapper(event).provideLayer(supportLayer)
         _          <- ZIO.foreach(tophEvents) { tophEvent =>
                         eventCentre
-                          .add(tophEvent)(using TophExecutionContext.systemUser[EventListener])
+                          .add(tophEvent)(using TophExecutionContext.system[EventListener])
                           .tap(_ => ZIO.logInfo("A new event has been received from Graboid."))
                           .tapErrorCause(ZIO.logErrorCause("Unable to store the event.", _)) @@ ZIOAspect.annotated(
                           "quakeml.eventId" -> event.publicId.resourceId,

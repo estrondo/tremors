@@ -2,6 +2,7 @@ package toph.module
 
 import toph.service.AccountService
 import toph.service.EventService
+import tremors.generator.KeyGenerator
 import zio.Task
 import zio.ZIO
 
@@ -16,6 +17,6 @@ object CentreModule:
     ZIO.attempt(
       new CentreModule(
         eventCentre = EventService(repository.eventRepository),
-        accountService = AccountService(repository.userRepository),
+        accountService = AccountService(repository.userRepository, KeyGenerator),
       ),
     )
