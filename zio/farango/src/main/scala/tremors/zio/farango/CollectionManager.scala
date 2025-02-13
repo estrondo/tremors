@@ -56,10 +56,10 @@ object CollectionManager:
     )
 
     private def shouldCreateCollection(): Task[Unit] =
-      val checkCreated = for
-        exists <- database.exists
-        _      <- if exists then ZIO.logDebug("Collection was created.") else ZIO.unit
-      yield exists
+      val checkCreated = collection.exists
+        .tapSome {
+          case exists if exists => ZIO.logDebug("Collection was created.")
+        }
 
       for
         exists <- collection.exists
@@ -69,10 +69,10 @@ object CollectionManager:
       yield ()
 
     private def shouldCreateDatabase(): Task[Unit] =
-      val checkCreated = for
-        exists <- database.exists
-        _      <- if exists then ZIO.logDebug("Database was created.") else ZIO.unit
-      yield exists
+      val checkCreated = database.exists
+        .tapSome {
+          case exists if exists => ZIO.logDebug("Database was created.")
+        }
 
       for
         exists <- database.exists
