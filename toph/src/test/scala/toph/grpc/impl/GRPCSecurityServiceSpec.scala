@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString
 import io.grpc.Status
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
+import org.mockito.ArgumentMatchers
 import scalapb.zio_grpc.RequestContext
 import toph.TophException
 import toph.TophSpec
@@ -28,7 +29,11 @@ object GRPCSecurityServiceSpec extends TophSpec:
 
       for
         _ <- SweetMockitoLayer[SecurityCentre]
-               .whenF2(_.authoriseOpenId("some-token", "some-provider"))
+               .whenF2(
+                 _.authoriseOpenId(ArgumentMatchers.eq("some-token"), ArgumentMatchers.eq("some-provider"))(using
+                   ArgumentMatchers.any(),
+                 ),
+               )
                .thenReturn(Some(expectedToken))
 
         response <- ZIO.serviceWithZIO[ZioGrpc.ZSecurityService[RequestContext]](
@@ -48,7 +53,12 @@ object GRPCSecurityServiceSpec extends TophSpec:
     test("It should reject an expected token.") {
       for
         _ <- SweetMockitoLayer[SecurityCentre]
-               .whenF2(_.authoriseOpenId("some-token", "some-provider"))
+               .whenF2(
+                 _.authoriseOpenId(
+                   org.mockito.ArgumentMatchers.eq("some-token"),
+                   org.mockito.ArgumentMatchers.eq("some-provider"),
+                 )(using ArgumentMatchers.any()),
+               )
                .thenReturn(None)
 
         exit <- ZIO
@@ -70,7 +80,12 @@ object GRPCSecurityServiceSpec extends TophSpec:
     test("It should return any error as unauthenticated.") {
       for
         _ <- SweetMockitoLayer[SecurityCentre]
-               .whenF2(_.authoriseOpenId("some-token", "some-provider"))
+               .whenF2(
+                 _.authoriseOpenId(
+                   org.mockito.ArgumentMatchers.eq("some-token"),
+                   org.mockito.ArgumentMatchers.eq("some-provider"),
+                 )(using ArgumentMatchers.any()),
+               )
                .thenFail(TophException.Security("@@@"))
 
         exit <- ZIO

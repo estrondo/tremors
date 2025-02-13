@@ -2,10 +2,9 @@ package toph
 
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import scala.reflect.ClassTag
 import toph.context.TophExecutionContext
 import zio.test.ZIOSpecDefault
-
-import scala.reflect.ClassTag
 
 abstract class TophSpec extends ZIOSpecDefault:
 

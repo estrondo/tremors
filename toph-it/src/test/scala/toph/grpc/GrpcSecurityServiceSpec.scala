@@ -3,6 +3,7 @@ package toph.grpc
 import com.google.protobuf.ByteString
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
+import org.mockito.ArgumentMatchers
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
 import toph.centre.SecurityCentre
@@ -35,7 +36,11 @@ object GrpcSecurityServiceSpec extends TophGrpcSpec:
 
       for
         _        <- SweetMockitoLayer[SecurityCentre]
-                      .whenF2(_.authoriseOpenId(request.token, request.provider))
+                      .whenF2(
+                        _.authoriseOpenId(ArgumentMatchers.eq(request.token), ArgumentMatchers.eq(request.provider))(using
+                          ArgumentMatchers.any(),
+                        ),
+                      )
                       .thenReturn(Some(expectedToken))
         response <- SecurityServiceClient.authorise(request)
       yield assertTrue(

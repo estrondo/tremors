@@ -3,6 +3,7 @@ package toph.centre
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
+import toph.model.ProtoAccountFixture
 import toph.security.MultiOpenIdProvider
 import toph.security.Token
 import toph.security.TokenFixture
@@ -35,13 +36,18 @@ object SecurityCentreSpec extends TophSpec:
     },
     test("It should accept a valid token.") {
 
-      val expectedToken = TokenFixture.createRandom()
+      val expectedToken        = TokenFixture.createRandom()
+      val expectedProtoAccount = ProtoAccountFixture
+        .createRandom()
+        .copy(
+          name = Some(expectedToken.account.name),
+        )
       for
         _ <- SweetMockitoLayer[MultiOpenIdProvider]
                .whenF2(_.validate("t", "p"))
-               .thenReturn(Some(expectedToken.account.email))
+               .thenReturn(Some((expectedToken.account.email, expectedProtoAccount)))
         _ <- SweetMockitoLayer[AccountService]
-               .whenF2(_.findOrCreate(expectedToken.account.email))
+               .whenF2(_.findOrCreate(expectedToken.account.email, expectedProtoAccount))
                .thenReturn(expectedToken.account)
         _ <- SweetMockitoLayer[TokenService]
                .whenF2(_.encode(expectedToken.account))

@@ -31,17 +31,19 @@ object SecurityCentre:
       tokenService: TokenService,
   ) extends SecurityCentre:
 
-    override def authoriseOpenId(token: String, provider: String)(using TophExecutionContext): IO[TophException, Option[Token]] = {
+    override def authoriseOpenId(token: String, provider: String)(using
+        TophExecutionContext,
+    ): IO[TophException, Option[Token]] = {
       for {
-        email   <- multiOpenIdProvider
-                     .validate(token, provider)
-                     .mapError(TophException.Security("Unable to validate the oidc token!", _))
-                     .some
-        account <- accountService
-                     .findOrCreate(email)
-                     .mapError(TophException.Security("Unable to find or create the account!", _))
-        token   <- tokenService
-                     .encode(account)
-                     .mapError(TophException.Security("Unable to encode a token!", _))
+        (email, protoAccount) <- multiOpenIdProvider
+                                   .validate(token, provider)
+                                   .mapError(TophException.Security("Unable to validate the oidc token!", _))
+                                   .some
+        account               <- accountService
+                                   .findOrCreate(email, protoAccount)
+                                   .mapError(TophException.Security("Unable to find or create the account!", _))
+        token                 <- tokenService
+                                   .encode(account)
+                                   .mapError(TophException.Security("Unable to encode a token!", _))
       } yield token
     }.extractSomeError

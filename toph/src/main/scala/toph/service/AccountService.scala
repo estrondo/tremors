@@ -2,6 +2,7 @@ package toph.service
 
 import toph.context.TophExecutionContext
 import toph.model.Account
+import toph.model.ProtoAccount
 import toph.repository.AccountRepository
 import tremors.generator.KeyGenerator
 import zio.Task
@@ -14,7 +15,7 @@ trait AccountService:
 
   def update(key: String, update: AccountService.Update)(using TophExecutionContext): Task[Account]
 
-  def findOrCreate(email: String)(using TophExecutionContext): Task[Account]
+  def findOrCreate(email: String, protoAccount: ProtoAccount)(using TophExecutionContext): Task[Account]
 
 object AccountService:
 
@@ -41,10 +42,10 @@ object AccountService:
           ZIO.logErrorCause(s"Unable to update the account", _),
         ) @@ withKey(key)
 
-    override def findOrCreate(email: String)(using TophExecutionContext): Task[Account] =
+    override def findOrCreate(email: String, protoAccount: ProtoAccount)(using TophExecutionContext): Task[Account] =
       repository.searchByEmail(email).flatMap { result =>
         if result.isDefined then ZIO.succeed(result.get)
-        else add(defaultNewAccount(email))
+        else add(defaultNewAccount(email, protoAccount))
       } @@ withEmail(email)
 
     private def withKey(value: String)(using TophExecutionContext) = annotate("key", value)
@@ -56,9 +57,9 @@ object AccountService:
       "accountService.owner"  -> TophExecutionContext().owner.toString,
     )
 
-    private def defaultNewAccount(email: String): Account =
+    private def defaultNewAccount(email: String, protoAccount: ProtoAccount): Account =
       Account(
         key = keyGenerator.short(),
         email = email,
-        name = "",
+        name = protoAccount.name.getOrElse(""),
       )

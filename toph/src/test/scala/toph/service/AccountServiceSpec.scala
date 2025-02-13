@@ -3,9 +3,9 @@ package toph.service
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
 import toph.TophSpec
 import toph.model.AccountFixture
+import toph.model.ProtoAccountFixture
 import toph.repository.AccountRepository
 import tremors.generator.KeyGenerator
 import zio.ZIO
@@ -41,13 +41,18 @@ object AccountServiceSpec extends TophSpec:
       )
     },
     test(s"It should invoke $accountRepositoryClassName' searchEmail and add.") {
-      val expectedAccount = AccountFixture.createRandom().copy(name = "")
+      val expectedAccount      = AccountFixture.createRandom()
+      val expectedProtoAccount = ProtoAccountFixture
+        .createRandom()
+        .copy(
+          name = Some(expectedAccount.name),
+        )
       for
         _            <- SweetMockitoLayer[AccountRepository].whenF2(_.searchByEmail(expectedAccount.email)).thenReturn(None)
         _            <- SweetMockitoLayer[AccountRepository].whenF2(_.add(expectedAccount)).thenReturn(expectedAccount)
         keyGenerator <- ZIO.service[KeyGenerator]
         _             = when(keyGenerator.short()).thenReturn(expectedAccount.key)
-        result       <- ZIO.serviceWithZIO[AccountService](_.findOrCreate(expectedAccount.email))
+        result       <- ZIO.serviceWithZIO[AccountService](_.findOrCreate(expectedAccount.email, expectedProtoAccount))
         repository   <- ZIO.service[AccountRepository]
       yield assertTrue(
         result == expectedAccount,
@@ -56,12 +61,17 @@ object AccountServiceSpec extends TophSpec:
       )
     },
     test(s"It should invoke $accountRepositoryClassName' searchEmail.") {
-      val expectedAccount = AccountFixture.createRandom()
+      val expectedAccount      = AccountFixture.createRandom()
+      val expectedProtoAccount = ProtoAccountFixture
+        .createRandom()
+        .copy(
+          name = Some(expectedAccount.name),
+        )
       for
         _          <- SweetMockitoLayer[AccountRepository]
                         .whenF2(_.searchByEmail(expectedAccount.email))
                         .thenReturn(Some(expectedAccount))
-        result     <- ZIO.serviceWithZIO[AccountService](_.findOrCreate(expectedAccount.email))
+        result     <- ZIO.serviceWithZIO[AccountService](_.findOrCreate(expectedAccount.email, expectedProtoAccount))
         repository <- ZIO.service[AccountRepository]
       yield assertTrue(
         result == expectedAccount,
