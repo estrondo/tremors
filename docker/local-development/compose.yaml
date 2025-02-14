@@ -57,5 +57,6 @@ services:
     volumes:
       - "./nginx.conf:/etc/nginx/nginx.conf:ro"
       - "../../shared/server/ssl-certs/tremors.pem:/etc/ssl/certs/tremors.pem:ro"
+      - "../../shared/server/ssl-certs/tremors.key:/etc/ssl/certs/tremors.key:ro"
     ports:
       - "8443:443"
