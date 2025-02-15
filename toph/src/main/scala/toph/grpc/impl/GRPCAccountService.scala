@@ -3,12 +3,12 @@ package toph.grpc.impl
 import io.grpc.Status
 import io.grpc.StatusException
 import toph.context.TophExecutionContext
-import toph.grpc.GRPCAccount
-import toph.grpc.GRPCUpdateAccount
-import toph.grpc.ZioGrpc
 import toph.model.Account
 import toph.security.Token
 import toph.service.AccountService
+import toph.v1.grpc.GrpcAccount
+import toph.v1.grpc.GrpcUpdateAccount
+import toph.v1.grpc.ZioGrpc
 import zio.Cause
 import zio.IO
 import zio.Task
@@ -22,7 +22,7 @@ object GRPCAccountService:
 
   private class Impl(accountService: AccountService) extends ZioGrpc.ZAccountService[Token]:
 
-    override def update(request: GRPCUpdateAccount, token: Token): IO[StatusException, GRPCAccount] =
+    override def update(request: GrpcUpdateAccount, token: Token): IO[StatusException, GrpcAccount] =
       for
         updatedAccount <- accountService
                             .update(token.account.key, AccountService.Update(request.name))(using

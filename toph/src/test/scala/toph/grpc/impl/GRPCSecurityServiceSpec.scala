@@ -9,10 +9,10 @@ import scalapb.zio_grpc.RequestContext
 import toph.TophException
 import toph.TophSpec
 import toph.centre.SecurityCentre
-import toph.grpc.GRPCOpenIdTokenAuthorisationRequest
-import toph.grpc.ZioGrpc
 import toph.model.AccountFixture
 import toph.security.Token
+import toph.v1.grpc.GrpcOpenIdTokenAuthorisationRequest
+import toph.v1.grpc.ZioGrpc
 import zio.ZIO
 import zio.ZLayer
 import zio.test.*
@@ -38,8 +38,7 @@ object GRPCSecurityServiceSpec extends TophSpec:
 
         response <- ZIO.serviceWithZIO[ZioGrpc.ZSecurityService[RequestContext]](
                       _.authorise(
-                        GRPCOpenIdTokenAuthorisationRequest(
-                          version = "1",
+                        GrpcOpenIdTokenAuthorisationRequest(
                           provider = "some-provider",
                           token = "some-token",
                         ),
@@ -64,8 +63,7 @@ object GRPCSecurityServiceSpec extends TophSpec:
         exit <- ZIO
                   .serviceWithZIO[ZioGrpc.ZSecurityService[RequestContext]](
                     _.authorise(
-                      GRPCOpenIdTokenAuthorisationRequest(
-                        version = "1",
+                      GrpcOpenIdTokenAuthorisationRequest(
                         provider = "some-provider",
                         token = "some-token",
                       ),
@@ -91,7 +89,7 @@ object GRPCSecurityServiceSpec extends TophSpec:
         exit <- ZIO
                   .serviceWithZIO[ZioGrpc.ZSecurityService[RequestContext]](
                     _.authorise(
-                      GRPCOpenIdTokenAuthorisationRequest(
+                      GrpcOpenIdTokenAuthorisationRequest(
                         provider = "some-provider",
                         token = "some-token",
                       ),

@@ -7,10 +7,10 @@ import scalapb.zio_grpc.Server
 import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
-import toph.grpc.ZioGrpc
 import toph.grpc.impl.GRPCAccountService
 import toph.grpc.impl.GRPCSecurityService
 import toph.grpc.impl.convertRequestContextToToken
+import toph.v1.grpc.ZioGrpc
 import zio.Task
 import zio.TaskLayer
 import zio.ZIO

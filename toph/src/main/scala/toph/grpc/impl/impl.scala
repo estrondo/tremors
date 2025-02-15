@@ -7,10 +7,10 @@ import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.UnknownFieldSet
 import scalapb.zio_grpc.RequestContext
-import toph.grpc.GRPCAccount
 import toph.model.Account
 import toph.security.Token
 import toph.security.TokenService
+import toph.v1.grpc.GrpcAccount
 import zio.Exit
 import zio.IO
 import zio.Task
@@ -19,9 +19,9 @@ import zio.ZIO
 //noinspection ScalaFileName
 object GRPCAccountTransformer:
 
-  def from(account: Account): Task[GRPCAccount] = ZIO.attempt {
+  def from(account: Account): Task[GrpcAccount] = ZIO.attempt {
     account
-      .into[GRPCAccount]
+      .into[GrpcAccount]
       .transform(Field.const(_.unknownFields, UnknownFieldSet.empty))
   }
 

@@ -4,13 +4,13 @@ import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
 import toph.context.TophExecutionContext
-import toph.grpc.GRPCAccount
-import toph.grpc.GRPCUpdateAccount
-import toph.grpc.ZioGrpc
 import toph.model.AccountFixture
 import toph.security.Token
 import toph.security.TokenFixture
 import toph.service.AccountService
+import toph.v1.grpc.GrpcAccount
+import toph.v1.grpc.GrpcUpdateAccount
+import toph.v1.grpc.ZioGrpc
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import zio.ZIO
@@ -32,7 +32,7 @@ object GRPCAccountServiceSpec extends TophSpec:
                     .thenReturn(expectedAccount)
         result <- ZIO.serviceWithZIO[ZioGrpc.ZAccountService[Token]](_.update(updateUser, expectedToken))
       yield assertTrue(
-        result == GRPCAccount(
+        result == GrpcAccount(
           key = expectedAccount.key,
           name = expectedAccount.name,
           email = expectedAccount.email,
@@ -46,6 +46,6 @@ object GRPCAccountServiceSpec extends TophSpec:
     },
   )
 
-  private def updateUserFixture() = GRPCUpdateAccount(
+  private def updateUserFixture() = GrpcUpdateAccount(
     name = KeyGenerator.generate(KeyLength.Medium),
   )

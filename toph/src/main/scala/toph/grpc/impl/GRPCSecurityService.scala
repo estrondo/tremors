@@ -6,12 +6,12 @@ import io.grpc.StatusException
 import scalapb.zio_grpc.RequestContext
 import toph.centre.SecurityCentre
 import toph.context.TophExecutionContext
-import toph.grpc.GRPCAuthorisationRequest
-import toph.grpc.GRPCAuthorisationResponse
-import toph.grpc.GRPCOpenIdTokenAuthorisationRequest
-import toph.grpc.ZioGrpc
-import toph.grpc.ZioGrpc.ZSecurityService
 import toph.security.Token
+import toph.v1.grpc.GrpcAuthorisationRequest
+import toph.v1.grpc.GrpcAuthorisationResponse
+import toph.v1.grpc.GrpcOpenIdTokenAuthorisationRequest
+import toph.v1.grpc.ZioGrpc
+import toph.v1.grpc.ZioGrpc.ZSecurityService
 import zio.Cause
 import zio.IO
 import zio.UIO
@@ -27,20 +27,17 @@ object GRPCSecurityService:
   private class Impl(securityCentre: SecurityCentre) extends ZioGrpc.ZSecurityService[RequestContext]:
 
     override def authorise(
-        request: GRPCAuthorisationRequest,
+        request: GrpcAuthorisationRequest,
         context: RequestContext,
-    ): IO[StatusException, GRPCAuthorisationResponse] =
+    ): IO[StatusException, GrpcAuthorisationResponse] =
       request match
-        case GRPCAuthorisationRequest.Empty =>
+        case GrpcAuthorisationRequest.Empty =>
           ZIO.logWarning("Empty request.") *> ZIO.fail(StatusException(Status.UNAUTHENTICATED))
 
-        case GRPCOpenIdTokenAuthorisationRequest(Version, provider, token, _) =>
+        case GrpcOpenIdTokenAuthorisationRequest(provider, token, _) =>
           authoriseOpenId(token, provider)
 
-        case GRPCOpenIdTokenAuthorisationRequest(version, _, _, _) =>
-          ZIO.logWarning(s"Invalid request version: $version!") *> ZIO.fail(StatusException(Status.UNAUTHENTICATED))
-
-    private def authoriseOpenId(token: String, provider: String): IO[StatusException, GRPCAuthorisationResponse] =
+    private def authoriseOpenId(token: String, provider: String): IO[StatusException, GrpcAuthorisationResponse] =
       securityCentre
         .authoriseOpenId(token, provider)(using TophExecutionContext.system[ZSecurityService[_]])
         .flatMap {
@@ -56,5 +53,5 @@ object GRPCSecurityService:
             )
         }
 
-    private def convertFrom(token: Token): UIO[GRPCAuthorisationResponse] =
-      ZIO.succeed(GRPCAuthorisationResponse(version = Version, token = ByteString.copyFrom(token.token)))
+    private def convertFrom(token: Token): UIO[GrpcAuthorisationResponse] =
+      ZIO.succeed(GrpcAuthorisationResponse(token = ByteString.copyFrom(token.token)))

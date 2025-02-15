@@ -7,10 +7,12 @@ import org.mockito.ArgumentMatchers
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
 import toph.centre.SecurityCentre
-import toph.grpc.ZioGrpc.SecurityServiceClient
 import toph.grpc.impl.GRPCSecurityService
 import toph.model.AccountFixture
 import toph.security.Token
+import toph.v1.grpc.GrpcOpenIdTokenAuthorisationRequest
+import toph.v1.grpc.ZioGrpc
+import toph.v1.grpc.ZioGrpc.SecurityServiceClient
 import tremors.zio.grpc.GrpcTestableService
 import zio.RLayer
 import zio.Scope
@@ -23,8 +25,7 @@ object GrpcSecurityServiceSpec extends TophGrpcSpec:
   override def spec = suite("The SecurityService")(
     test("It should create a toph-token for a valid Open Id Token") {
 
-      val request = GRPCOpenIdTokenAuthorisationRequest(
-        version = "1",
+      val request = GrpcOpenIdTokenAuthorisationRequest(
         provider = "wechat",
         token = "aaaaa",
       )
@@ -44,7 +45,6 @@ object GrpcSecurityServiceSpec extends TophGrpcSpec:
                       .thenReturn(Some(expectedToken))
         response <- SecurityServiceClient.authorise(request)
       yield assertTrue(
-        response.version == "1",
         response.token == ByteString.copyFrom(expectedToken.token),
       )
     },

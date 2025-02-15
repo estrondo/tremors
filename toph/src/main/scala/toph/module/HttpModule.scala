@@ -1,6 +1,5 @@
 package toph.module
 
-import toph.config.HttpConfig
 import zio.Scope
 import zio.Task
 import zio.TaskLayer
