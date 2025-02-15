@@ -47,7 +47,7 @@ services:
     environment:
       TREMORS_PROFILE: local
     ports:
-      - "8543:8543"
+      - "9443:9443"
     depends_on:
       - resources
   http: 
