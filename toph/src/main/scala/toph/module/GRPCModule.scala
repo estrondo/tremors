@@ -8,7 +8,7 @@ import scalapb.zio_grpc.ServerLayer
 import scalapb.zio_grpc.ServiceList
 import toph.config.GRPCConfig
 import toph.grpc.impl.GRPCAccountService
-import toph.grpc.impl.GRPCSecurityService
+import toph.grpc.impl.GrpcSecurityService
 import toph.grpc.impl.convertRequestContextToToken
 import toph.v1.grpc.ZioGrpc
 import zio.Task
@@ -21,7 +21,7 @@ class GRPCModule(val server: TaskLayer[Server])
 object GRPCModule:
 
   def apply(config: GRPCConfig, securityModule: SecurityModule, centreModule: CentreModule): Task[GRPCModule] =
-    val tokenTransformer = convertRequestContextToToken(securityModule.tokenService)
+    val tokenTransformer = convertRequestContextToToken(securityModule.tokenCodec)
 
     val accountServiceLayer: TaskLayer[ZioGrpc.ZAccountService[RequestContext]] =
       ZLayer {
@@ -30,7 +30,7 @@ object GRPCModule:
       }
 
     val securityLayer = ZLayer {
-      GRPCSecurityService(securityModule.securityCentre)
+      GrpcSecurityService(securityModule.securityCentre)
     }
 
     val serverLayer = ServerLayer.fromServiceList(

@@ -4,7 +4,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import toph.context.TophExecutionContext
 import toph.model.Account
-import toph.security.Token
+import toph.security.AccessToken
 import toph.service.AccountService
 import toph.v1.grpc.GrpcAccount
 import toph.v1.grpc.GrpcUpdateAccount
@@ -17,12 +17,12 @@ import zio.ZIO
 
 object GRPCAccountService:
 
-  def apply(accountService: AccountService): Task[ZioGrpc.ZAccountService[Token]] =
+  def apply(accountService: AccountService): Task[ZioGrpc.ZAccountService[AccessToken]] =
     ZIO.succeed(Impl(accountService))
 
-  private class Impl(accountService: AccountService) extends ZioGrpc.ZAccountService[Token]:
+  private class Impl(accountService: AccountService) extends ZioGrpc.ZAccountService[AccessToken]:
 
-    override def update(request: GrpcUpdateAccount, token: Token): IO[StatusException, GrpcAccount] =
+    override def update(request: GrpcUpdateAccount, token: AccessToken): IO[StatusException, GrpcAccount] =
       for
         updatedAccount <- accountService
                             .update(token.account.key, AccountService.Update(request.name))(using
@@ -34,7 +34,7 @@ object GRPCAccountService:
                             .flatMapError(handleTransformUserError(updatedAccount))
       yield transformed
 
-    private def handleUpdateError(token: Token)(cause: Throwable): UIO[StatusException] =
+    private def handleUpdateError(token: AccessToken)(cause: Throwable): UIO[StatusException] =
       ZIO.logErrorCause(
         s"An error happened during updating of user=${token.account.key}!",
         Cause.die(cause),

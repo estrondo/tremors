@@ -8,8 +8,8 @@ import io.grpc.StatusException
 import scalapb.UnknownFieldSet
 import scalapb.zio_grpc.RequestContext
 import toph.model.Account
-import toph.security.Token
-import toph.security.TokenService
+import toph.security.AccessToken
+import toph.security.TokenCodec
 import toph.v1.grpc.GrpcAccount
 import zio.Exit
 import zio.IO
@@ -29,17 +29,14 @@ val tokenMetadataKey = Metadata.Key.of("token-bin", Metadata.BINARY_BYTE_MARSHAL
 
 val unauthorized = Exit.fail(StatusException(Status.UNAUTHENTICATED))
 
-def convertRequestContextToToken(tokenService: TokenService)(request: RequestContext): IO[StatusException, Token] =
+def convertRequestContextToToken(tokenCodec: TokenCodec)(request: RequestContext): IO[StatusException, AccessToken] =
   request.metadata.get(tokenMetadataKey).flatMap {
     case Some(bytes) =>
-      tokenService
-        .decode(bytes)
+      tokenCodec
+        .decode(bytes, ???)
         .foldCauseZIO(
           failure = cause => ZIO.logWarningCause("Unable to decode token!", cause) *> unauthorized,
-          success = {
-            case Some(token) => Exit.succeed(token)
-            case None        => unauthorized
-          },
+          success = { token => Exit.succeed(???) },
         )
     case None        =>
       unauthorized

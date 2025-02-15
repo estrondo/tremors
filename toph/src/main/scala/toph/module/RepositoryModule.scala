@@ -1,14 +1,17 @@
 package toph.module
 
+import com.softwaremill.macwire.wire
 import one.estrondo.farango.IndexDescription
 import toph.repository.AccountRepository
 import toph.repository.EventRepository
+import toph.repository.TokenRepository
 import tremors.zio.farango.FarangoModule
 import zio.Task
 
 class RepositoryModule(
     val eventRepository: EventRepository,
     val userRepository: AccountRepository,
+    val tokenRepository: TokenRepository,
 )
 
 object RepositoryModule:
@@ -28,7 +31,9 @@ object RepositoryModule:
                              ),
                            )
                            .flatMap(AccountRepository.apply)
-    yield new RepositoryModule(
-      eventRepository,
-      userRepository,
-    )
+      tokenRepository <- farangoModule
+                           .collection(
+                             name = "token",
+                           )
+                           .map(TokenRepository.apply)
+    yield wire[RepositoryModule]

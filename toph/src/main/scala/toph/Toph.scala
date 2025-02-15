@@ -38,7 +38,7 @@ object Toph extends ZIOAppDefault:
       geometryModule              <- GeometryModule(4326)
       httpModule                  <- HttpModule()
       listener                    <- ListenerModule(centreModule, kafkaModule, geometryModule)
-      securityModule              <- SecurityModule(config.security, centreModule, httpModule)
+      securityModule              <- SecurityModule(config.security, centreModule, repositoryModule, httpModule)
       grpcModule                  <- GRPCModule(config.grpc, securityModule, centreModule)
       _                           <- listener.event.runDrain.fork
       _                           <- grpcModule.server.launch

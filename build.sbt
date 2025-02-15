@@ -131,6 +131,7 @@ lazy val toph = (project in file("toph"))
       Dependencies.gRPCTesting,
       Dependencies.JTS,
       Dependencies.Moidc4sZIO,
+      Dependencies.Macwire,
     ).flatten,
     Compile / PB.targets := Seq(
       scalapb.gen(

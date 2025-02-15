@@ -7,9 +7,10 @@ import org.mockito.ArgumentMatchers
 import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
 import toph.centre.SecurityCentre
-import toph.grpc.impl.GRPCSecurityService
+import toph.grpc.impl.GrpcSecurityService
 import toph.model.AccountFixture
-import toph.security.Token
+import toph.security.AccessToken
+import toph.security.AuthorisedAccessFixture
 import toph.v1.grpc.GrpcOpenIdTokenAuthorisationRequest
 import toph.v1.grpc.ZioGrpc
 import toph.v1.grpc.ZioGrpc.SecurityServiceClient
@@ -30,27 +31,28 @@ object GrpcSecurityServiceSpec extends TophGrpcSpec:
         token = "aaaaa",
       )
 
-      val expectedToken = Token(
-        account = AccountFixture.createRandom(),
-        token = "aaaabbbbbbcccc".getBytes(),
-      )
+      val expectedToken = AuthorisedAccessFixture.createRandom()
 
       for
         _        <- SweetMockitoLayer[SecurityCentre]
                       .whenF2(
-                        _.authoriseOpenId(ArgumentMatchers.eq(request.token), ArgumentMatchers.eq(request.provider))(using
+                        _.authoriseOpenId(
+                          ArgumentMatchers.eq(request.token),
+                          ArgumentMatchers.eq(request.provider),
+                          ArgumentMatchers.any(),
+                        )(using
                           ArgumentMatchers.any(),
                         ),
                       )
                       .thenReturn(Some(expectedToken))
         response <- SecurityServiceClient.authorise(request)
       yield assertTrue(
-        response.token == ByteString.copyFrom(expectedToken.token),
+        response.accessToken == ByteString.copyFrom(expectedToken.accessToken),
       )
     },
   ).provideSome[Scope](
     SweetMockitoLayer.newMockLayer[SecurityCentre],
     GrpcTestableService.serverOf[ZioGrpc.ZSecurityService[RequestContext]],
     GrpcTestableService.clientOf(ZioGrpc.SecurityServiceClient.live(_)),
-    ZLayer.fromZIO(ZIO.serviceWithZIO(GRPCSecurityService.apply)),
+    ZLayer.fromZIO(ZIO.serviceWithZIO(GrpcSecurityService.apply)),
   )

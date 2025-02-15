@@ -3,9 +3,9 @@ package toph.security
 import java.util.UUID
 import toph.model.AccountFixture
 
-object TokenFixture:
+object AccessTokenFixture:
 
-  def createRandom(): Token = Token(
+  def createRandom(): AccessToken = AccessToken(
     account = AccountFixture.createRandom(),
     token = UUID.randomUUID().toString.getBytes,
   )

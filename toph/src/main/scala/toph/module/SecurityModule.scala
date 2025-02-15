@@ -1,5 +1,6 @@
 package toph.module
 
+import com.softwaremill.macwire.wire
 import java.time.Period
 import javax.crypto.spec.SecretKeySpec
 import one.estrondo.moidc4s.OpenIdProvider
@@ -11,7 +12,9 @@ import toph.TimeService
 import toph.centre.SecurityCentre
 import toph.config.SecurityConfig
 import toph.security.MultiOpenIdProvider
-import toph.security.TokenService
+import toph.security.TokenCodec
+import toph.service.TokenService
+import tremors.generator.KeyGenerator
 import zio.Scope
 import zio.Task
 import zio.TaskLayer
@@ -22,21 +25,23 @@ class SecurityModule(
     val securityCentre: SecurityCentre,
     val multiOpenIdProvider: MultiOpenIdProvider,
     val tokenService: TokenService,
+    val tokenCodec: TokenCodec,
 )
 
 object SecurityModule:
 
-  def apply(config: SecurityConfig, centreModule: CentreModule, httpModule: HttpModule): Task[SecurityModule] =
+  def apply(
+      config: SecurityConfig,
+      centreModule: CentreModule,
+      repositoryModule: RepositoryModule,
+      httpModule: HttpModule,
+  ): Task[SecurityModule] =
     for openIdProvider <- createOpenIdProvider(config, httpModule.clientLayer)
     yield
-      val tokenService = TokenService(
-        SecretKeySpec(config.secret.getBytes, config.algorithm),
-        TimeService,
-        Period.ofDays(config.tokenExpiration),
-      )
-
+      val tokenCodec     = TokenCodec(SecretKeySpec(config.secret.getBytes, config.algorithm))
+      val tokenService   = TokenService(repositoryModule.tokenRepository, tokenCodec, TimeService, KeyGenerator, ???)
       val securityCentre = SecurityCentre(openIdProvider, centreModule.accountService, tokenService)
-      new SecurityModule(securityCentre, openIdProvider, tokenService)
+      new SecurityModule(securityCentre, openIdProvider, tokenService, tokenCodec)
 
   private def createOpenIdProvider(
       config: SecurityConfig,

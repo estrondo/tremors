@@ -12,8 +12,8 @@ object Dependencies {
   )
 
   val Borer = Seq(
-    "io.bullet" %% "borer-core"       % "1.14.1",
-    "io.bullet" %% "borer-derivation" % "1.14.1",
+    "io.bullet" %% "borer-core"       % "1.15.0",
+    "io.bullet" %% "borer-derivation" % "1.15.0",
   )
 
   val FarangoDucktape = Seq(
@@ -22,7 +22,7 @@ object Dependencies {
 
   val ZIOFarango = Seq(
     "one.estrondo"                 %% "farango-zio"          % Version.Farango exclude ("org.slf4j", "slf4j-api"),
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.2",
   )
 
   val ZIO = Seq(
@@ -40,7 +40,7 @@ object Dependencies {
   val ZIOLogging = Seq(
     "dev.zio"                 %% "zio-logging"       % Version.ZIOLogging,
     "dev.zio"                 %% "zio-logging-slf4j" % Version.ZIOLogging,
-    "org.apache.logging.log4j" % "log4j-slf4j-impl"  % "2.23.1",
+    "org.apache.logging.log4j" % "log4j-slf4j-impl"  % "2.24.3",
   )
 
   val ZIOHttp = Seq(
@@ -70,11 +70,11 @@ object Dependencies {
   )
 
   val gRPCTesting = Seq(
-    "io.grpc" % "grpc-testing" % "1.65.1" % Test,
+    "io.grpc" % "grpc-testing" % "1.70.0" % Test,
   )
 
   val JTS = Seq(
-    "org.locationtech.jts"     % "jts-core"             % "1.19.0",
+    "org.locationtech.jts"     % "jts-core"             % "1.20.0",
     "com.graphhopper.external" % "jackson-datatype-jts" % "2.14",
   )
 
@@ -85,21 +85,26 @@ object Dependencies {
   )
 
   val Wiremock = Seq(
-    "org.wiremock" % "wiremock" % "3.10.0" % Test
+    "org.wiremock" % "wiremock" % "3.12.0" % Test,
+  )
+
+  val Macwire = Seq(
+    "com.softwaremill.macwire" %% "macros" % Version.Macwire % "provided",
   )
 }
 
 object Version {
   val AaltoXML            = "1.3.3"
   val Farango             = "0.2.1"
-  val SweetMockito        = "1.2.0+1-904f0c3e"
-  val TestcontainersScala = "0.41.4"
-  val ZIO                 = "2.1.6"
-  val ZIOConfig           = "4.0.2"
-  val ZIOLogging          = "2.3.0"
-  val ZIOKafka            = "2.8.0"
-  val ZIOHttp             = "3.0.0-RC9"
-  val JWT                 = "10.0.1"
+  val SweetMockito        = "1.2.0+1-32360397+20230706-1831"
+  val TestcontainersScala = "0.41.8"
+  val ZIO                 = "2.1.15"
+  val ZIOConfig           = "4.0.3"
+  val ZIOLogging          = "2.4.0"
+  val ZIOKafka            = "2.11.0"
+  val ZIOHttp             = "3.0.1"
+  val JWT                 = "10.0.4"
   val Moidc4s             = "0.1.0"
   val ZioGrpc             = "0.6.2"
+  val Macwire             = "2.6.6"
 }

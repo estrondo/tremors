@@ -5,8 +5,8 @@ import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
 import toph.context.TophExecutionContext
 import toph.model.AccountFixture
-import toph.security.Token
-import toph.security.TokenFixture
+import toph.security.AccessToken
+import toph.security.AccessTokenFixture
 import toph.service.AccountService
 import toph.v1.grpc.GrpcAccount
 import toph.v1.grpc.GrpcUpdateAccount
@@ -23,14 +23,14 @@ object GRPCAccountServiceSpec extends TophSpec:
     test("it should update a user.") {
       val updateUser             = updateUserFixture()
       val expectedAccount        = AccountFixture.createRandom()
-      val expectedToken          = TokenFixture.createRandom().copy(account = expectedAccount)
+      val expectedToken          = AccessTokenFixture.createRandom().copy(account = expectedAccount)
       given TophExecutionContext = TophExecutionContext.account(expectedAccount)
 
       for
         _      <- SweetMockitoLayer[AccountService]
                     .whenF2(_.update(expectedAccount.key, AccountService.Update(updateUser.name)))
                     .thenReturn(expectedAccount)
-        result <- ZIO.serviceWithZIO[ZioGrpc.ZAccountService[Token]](_.update(updateUser, expectedToken))
+        result <- ZIO.serviceWithZIO[ZioGrpc.ZAccountService[AccessToken]](_.update(updateUser, expectedToken))
       yield assertTrue(
         result == GrpcAccount(
           key = expectedAccount.key,

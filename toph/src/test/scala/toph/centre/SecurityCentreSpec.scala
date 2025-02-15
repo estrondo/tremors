@@ -1,60 +1,66 @@
 package toph.centre
 
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
-import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
 import toph.model.ProtoAccountFixture
 import toph.security.MultiOpenIdProvider
-import toph.security.Token
-import toph.security.TokenFixture
-import toph.security.TokenService
 import toph.service.AccountService
+import toph.service.TokenService
 import zio.ZIO
 import zio.ZLayer
 import zio.test.*
+import one.estrondo.sweetmockito.zio.given
+import toph.security.AuthorisedAccessFixture
 
 object SecurityCentreSpec extends TophSpec:
 
   def spec = suite("The SecurityCentre")(
     test("It should reject an invalid token.") {
+      val securityContext = SecurityCentreFixture.createRandomContext()
       for
         _ <- SweetMockitoLayer[MultiOpenIdProvider]
                .whenF2(_.validate("a-token", "a-provider"))
                .thenReturn(None)
 
-        token <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("a-token", "a-provider"))
+        token <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("a-token", "a-provider", securityContext))
       yield assertTrue(token.isEmpty)
     },
     test("It should capture any error during OpenId validation.") {
+      val securityContext = SecurityCentreFixture.createRandomContext()
       for
         _ <- SweetMockitoLayer[MultiOpenIdProvider]
                .whenF2(_.validate("t", "p"))
                .thenFail(IllegalStateException("@@@"))
 
-        exit <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("t", "p")).exit
+        exit <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("t", "p", securityContext)).exit
       yield assertTrue(exit.is(_.failure).getMessage == "Unable to validate the oidc token!")
     },
     test("It should accept a valid token.") {
 
-      val expectedToken        = TokenFixture.createRandom()
-      val expectedProtoAccount = ProtoAccountFixture
+      val securityContext        = SecurityCentreFixture.createRandomContext()
+      val expectedCreatedAccount = AuthorisedAccessFixture.createRandom()
+      val expectedProtoAccount   = ProtoAccountFixture
         .createRandom()
         .copy(
-          name = Some(expectedToken.account.name),
+          name = Some(expectedCreatedAccount.account.name),
         )
+      val expectedCreatedToken   = AuthorisedAccessFixture.createRandom()
+
+      // noinspection OptionEqualsSome
       for
         _ <- SweetMockitoLayer[MultiOpenIdProvider]
                .whenF2(_.validate("t", "p"))
-               .thenReturn(Some((expectedToken.account.email, expectedProtoAccount)))
+               .thenReturn(Some((expectedCreatedAccount.account.email, expectedProtoAccount)))
         _ <- SweetMockitoLayer[AccountService]
-               .whenF2(_.findOrCreate(expectedToken.account.email, expectedProtoAccount))
-               .thenReturn(expectedToken.account)
-        _ <- SweetMockitoLayer[TokenService]
-               .whenF2(_.encode(expectedToken.account))
-               .thenReturn(expectedToken)
+               .whenF2(_.findOrCreate(expectedCreatedAccount.account.email, expectedProtoAccount))
+               .thenReturn(expectedCreatedAccount.account)
+        _ <-
+          SweetMockitoLayer[TokenService]
+            .whenF2(_.authorise(expectedCreatedAccount.account, securityContext.device, securityContext.origin))
+            .thenReturn(expectedCreatedToken)
 
-        token <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("t", "p"))
-      yield assertTrue(token.contains(expectedToken))
+        token <- ZIO.serviceWithZIO[SecurityCentre](_.authoriseOpenId("t", "p", securityContext))
+      yield assertTrue(token == Some(expectedCreatedToken))
     },
   ).provideSome(
     SweetMockitoLayer.newMockLayer[MultiOpenIdProvider],
