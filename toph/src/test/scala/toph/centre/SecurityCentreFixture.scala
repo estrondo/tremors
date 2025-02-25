@@ -1,8 +1,7 @@
 package toph.centre
 
-import tremors.random
-
 import scala.util.Random
+import tremors.random
 
 object SecurityCentreFixture:
 

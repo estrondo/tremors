@@ -23,7 +23,7 @@ object Graboid extends ZIOAppDefault:
   override val bootstrap: ZLayer[ZIOAppArgs, Any, Scope] =
     ZioStarter.logging
 
-  override def run: ZIO[ZIOAppArgs with Scope, Any, Any] =
+  override def run: ZIO[ZIOAppArgs & Scope, Any, Any] =
     for
       tuple                      <- ZioStarter[C]()
                                       .tapErrorCause(ZIO.logErrorCause("It was impossible to configure Graboid!", _))

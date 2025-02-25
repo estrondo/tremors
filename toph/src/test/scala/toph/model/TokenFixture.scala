@@ -1,6 +1,5 @@
 package toph.model
 
-import scala.util.Random
 import toph.createNewZonedDateTime
 import tremors.generator.KeyGenerator
 import tremors.random
@@ -12,7 +11,6 @@ object TokenFixture:
     expiration = createNewZonedDateTime(),
     accountKey = KeyGenerator.medium(),
     accountEmail = s"${Array("albert", "galileo").toIndexedSeq.random}@ec.2",
-    accessToken = Random.nextBytes(64),
     accessTokenHash = KeyGenerator.long(),
     accessTokenExpiration = createNewZonedDateTime(),
     device = Array("android", "iphone", "web").toIndexedSeq.random,

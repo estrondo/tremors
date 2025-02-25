@@ -1,16 +1,16 @@
 package toph.centre
 
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import one.estrondo.sweetmockito.zio.given
 import toph.TophSpec
 import toph.model.ProtoAccountFixture
+import toph.security.AuthorisedAccessFixture
 import toph.security.MultiOpenIdProvider
 import toph.service.AccountService
 import toph.service.TokenService
 import zio.ZIO
 import zio.ZLayer
 import zio.test.*
-import one.estrondo.sweetmockito.zio.given
-import toph.security.AuthorisedAccessFixture
 
 object SecurityCentreSpec extends TophSpec:
 

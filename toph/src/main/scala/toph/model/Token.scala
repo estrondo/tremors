@@ -7,7 +7,6 @@ case class Token(
     expiration: ZonedDateTime,
     accountKey: String,
     accountEmail: String,
-    accessToken: Array[Byte],
     accessTokenHash: String,
     accessTokenExpiration: ZonedDateTime,
     device: String,

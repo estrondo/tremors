@@ -44,7 +44,8 @@ object SecurityModule:
   ): Task[SecurityModule] =
     for openIdProvider <- createOpenIdProvider(config, httpModule.clientLayer)
     yield
-      val tokenCodec     = TokenCodec(config.secrets.map(createSecretKey).toIndexedSeq, DelegateToThreadLocalRandomGenerator)
+      val tokenCodec     =
+        TokenCodec(config.secrets.map(createSecretKey).toIndexedSeq, DelegateToThreadLocalRandomGenerator)
       val tokenService   = TokenService(
         repositoryModule.tokenRepository,
         tokenCodec,

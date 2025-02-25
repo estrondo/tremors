@@ -13,7 +13,6 @@ import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.quakeml.Event
 import tremors.zio.http.HttpChecker
-import zio.Cause
 import zio.RIO
 import zio.Schedule
 import zio.Scope

@@ -24,7 +24,7 @@ object TokenRepositorySpec extends TophRepositorySpec:
         _     <- ZIO.serviceWithZIO[TokenRepository](_.add(expectedToken))
         token <- ZIO.serviceWithZIO[TokenRepository](_.get(expectedToken.key))
       yield assertTrue(
-        token.get.accessToken == expectedToken.accessToken,
+        token.get.accessTokenHash == expectedToken.accessTokenHash,
       )
     },
   ).provideSome(
@@ -34,4 +34,4 @@ object TokenRepositorySpec extends TophRepositorySpec:
     FarangoTestContainer.farangoCollection(),
     collectionManagerLayer,
     ZLayer.fromFunction(TokenRepository.apply),
-  )
+  ) @@ TestAspect.sequential

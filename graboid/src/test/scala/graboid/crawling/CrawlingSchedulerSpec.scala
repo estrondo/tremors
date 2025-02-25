@@ -46,10 +46,10 @@ object CrawlingSchedulerSpec extends GraboidSpec:
 
         for
           _        <- SweetMockitoLayer[DataStore]
-                        .whenF2(_.get(eqTo(CrawlingScheduler.EventTimeMark))(any()))
+                        .whenF2(_.get(eqTo(CrawlingScheduler.EventTimeMark))(using any()))
                         .thenReturn(Some(previous))
           _        <- SweetMockitoLayer[DataStore]
-                        .whenF2(_.put(eqTo(CrawlingScheduler.EventTimeMark), eqTo(now))(any(), any()))
+                        .whenF2(_.put(eqTo(CrawlingScheduler.EventTimeMark), eqTo(now))(using any(), any()))
                         .thenReturn(Some(now))
           _        <- ZIO.serviceWith[ZonedDateTimeService](service => Mockito.when(service.now()).thenReturn(now))
           executor <- ZIO.service[CrawlingExecutor]

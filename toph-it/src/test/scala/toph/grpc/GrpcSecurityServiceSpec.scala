@@ -8,8 +8,6 @@ import scalapb.zio_grpc.RequestContext
 import scalapb.zio_grpc.Server
 import toph.centre.SecurityCentre
 import toph.grpc.impl.GrpcSecurityService
-import toph.model.AccountFixture
-import toph.security.AccessToken
 import toph.security.AuthorisedAccessFixture
 import toph.v1.grpc.GrpcOpenIdTokenAuthorisationRequest
 import toph.v1.grpc.ZioGrpc

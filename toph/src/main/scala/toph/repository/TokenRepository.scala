@@ -6,7 +6,6 @@ import io.github.arainko.ducktape.Field
 import java.time.ZonedDateTime
 import one.estrondo.farango.FarangoTransformer
 import one.estrondo.farango.ducktape.DucktapeTransformer
-import one.estrondo.farango.ducktape.given
 import one.estrondo.farango.zio.given
 import toph.model.Token
 import tremors.zio.farango.CollectionManager
@@ -33,7 +32,6 @@ object TokenRepository:
       createdAt: ZonedDateTime,
       expiration: ZonedDateTime,
       accountKey: String,
-      accessToken: Array[Byte],
   )
 
   private given FarangoTransformer[Stored, Token] = DucktapeTransformer(

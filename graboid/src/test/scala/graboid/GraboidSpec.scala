@@ -1,5 +1,6 @@
 package graboid
 
+import java.io.File
 import org.mockito.ArgumentMatchers
 import zio.Runtime
 import zio.ZLayer
@@ -8,8 +9,6 @@ import zio.stream.ZStream
 import zio.test.TestEnvironment
 import zio.test.ZIOSpecDefault
 import zio.test.testEnvironment
-
-import java.io.File
 
 abstract class GraboidSpec extends ZIOSpecDefault:
 

@@ -97,7 +97,7 @@ object TokenService:
     ): Task[(AuthorisedAccess, Token)] =
       ZIO.attempt {
         val md           = MessageDigest.getInstance("MD5")
-        val hash         = BigInt(1, md.digest(accessToken)).toString(32).toUpperCase
+        val hash         = BigInt(1, md.digest(accessToken)).toString(32)
         val refreshToken = keyGenerator.medium()
 
         val authorisedAccess = AuthorisedAccess(
@@ -111,7 +111,6 @@ object TokenService:
           expiration = refreshExp,
           accountKey = account.key,
           accountEmail = account.email,
-          accessToken = accessToken,
           accessTokenHash = hash,
           accessTokenExpiration = accessExp,
           device = device,

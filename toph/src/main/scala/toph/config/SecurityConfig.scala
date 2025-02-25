@@ -2,7 +2,6 @@ package toph.config
 
 case class SecurityConfig(
     secrets: Seq[SecretConfig],
-    algorithm: String,
     tokenExpiration: Int,
     openIdProvider: List[OpenIdProviderConfig],
 )

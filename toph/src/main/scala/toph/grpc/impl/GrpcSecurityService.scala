@@ -14,7 +14,6 @@ import toph.v1.grpc.GrpcOpenIdTokenAuthorisationRequest
 import toph.v1.grpc.GrpcRefreshAuthorisation
 import toph.v1.grpc.ZioGrpc
 import toph.v1.grpc.ZioGrpc.ZSecurityService
-import zio.Cause
 import zio.IO
 import zio.UIO
 import zio.ZIO
@@ -59,7 +58,7 @@ object GrpcSecurityService:
         securityContext: SecurityCentre.Context,
     ): IO[StatusException, GrpcAuthorisationResponse] =
       securityCentre
-        .authoriseOpenId(token, provider, securityContext)(using TophExecutionContext.system[ZSecurityService[_]])
+        .authoriseOpenId(token, provider, securityContext)(using TophExecutionContext.system[ZSecurityService[?]])
         .foldCauseZIO(
           failure = cause =>
             ZIO.logErrorCause("Unable to authorise!", cause) *> ZIO.fail(StatusException(Status.UNAUTHENTICATED)),
