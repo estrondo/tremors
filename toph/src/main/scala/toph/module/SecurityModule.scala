@@ -1,6 +1,5 @@
 package toph.module
 
-import com.softwaremill.macwire.wire
 import java.time.Period
 import java.util.concurrent.ThreadLocalRandom
 import java.util.random.RandomGenerator

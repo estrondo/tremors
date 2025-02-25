@@ -17,6 +17,16 @@ object TokenRepositorySpec extends TophRepositorySpec:
         exit.isSuccess,
       )
     },
+    test("It should retrieve a token.") {
+      val expectedToken = TokenFixture.createRandom()
+
+      for
+        _     <- ZIO.serviceWithZIO[TokenRepository](_.add(expectedToken))
+        token <- ZIO.serviceWithZIO[TokenRepository](_.get(expectedToken.key))
+      yield assertTrue(
+        token.get.accessToken == expectedToken.accessToken,
+      )
+    },
   ).provideSome(
     FarangoTestContainer.arangoContainer,
     FarangoTestContainer.farangoDB,
