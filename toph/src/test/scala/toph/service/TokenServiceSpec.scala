@@ -5,12 +5,9 @@ import java.time.temporal.ChronoUnit
 import one.estrondo.sweetmockito.Answer
 import one.estrondo.sweetmockito.zio.SweetMockitoLayer
 import one.estrondo.sweetmockito.zio.given
-import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.verification.VerificationMode
 import toph.TimeService
 import toph.TophSpec
 import toph.centre.SecurityCentreFixture

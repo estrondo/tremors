@@ -4,7 +4,12 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
+import java.util.random.RandomGenerator
 import javax.crypto.spec.SecretKeySpec
+import one.estrondo.sweetmockito.zio.SweetMockitoLayer
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
 import toph.TophSpec
 import toph.model.Account
 import zio.ZIO
@@ -21,21 +26,28 @@ object TokenCodecSpec extends TophSpec:
   )
 
   private val expectedToken =
-    Array[Byte](1, 0, 0, 0, 0, 114, -68, -45, -64, 0, 63, 0, 0, 0, 0, 0, 12, 101, 105, 110, 115, 116, 101, 105, 110, 45,
+    Array[Byte](1, 0, 0, 0, 0, 114, -68, -45, -64, 0, 63, 0, 0, 0, 1, 0, 12, 101, 105, 110, 115, 116, 101, 105, 110, 45,
       107, 101, 121, 0, 13, 101, 105, 110, 115, 116, 101, 105, 110, 64, 109, 99, 46, 50, 0, 15, 65, 108, 98, 101, 114,
-      116, 32, 69, 105, 110, 115, 116, 101, 105, 110, 0, 0, -8, -2, -7, -59, 53, 44, 62, 82, 62, 109, 50, 79, -71, -44,
-      -70, 47, -79, -122, 17, -102, 17, 9, 90, -60, -46, -1, 43, 95, -112, 101, -74, 8, 39, -104, 73, -43, 99, -58,
-      -110, -123, -64, 58, -86, 25, 111, -61, 77, -51, -19, -38, 29, 79, 80, 53, -53, -85, 12, 118, 22, 18, 69, -125,
-      -95, -20)
+      116, 32, 69, 105, 110, 115, 116, 101, 105, 110, 0, 0, -107, 87, -56, 6, -98, 30, 77, -39, -1, -22, 7, -85, 107,
+      -19, 61, 2, 23, 58, -11, -9, 5, 24, -70, -123, 9, 28, 20, 78, -105, -6, -10, 111, 54, 124, -103, 103, -27, -79,
+      -102, -39, 120, -20, -46, 22, 76, -97, 24, 37, -31, -38, 2, -65, 9, -85, -107, -45, 118, 9, -12, 87, -4, -57, -32,
+      -106)
 
   private val expiration =
     val localDate = LocalDate.of(2030, 12, 31)
     val localTime = LocalTime.of(20, 0, 0)
     ZonedDateTime.of(localDate, localTime, Clock.systemUTC().getZone)
 
+  private val generate1 =
+    ZIO.serviceWith[RandomGenerator] { rg =>
+      Mockito.when(rg.nextInt(any())).thenReturn(1)
+    }
+
   override def spec = suite("TokenCodeSpec")(
     test("It should encode a token.") {
-      for token <- ZIO.serviceWithZIO[TokenCodec](_.encode(account, expiration))
+      for
+        _     <- generate1
+        token <- ZIO.serviceWithZIO[TokenCodec](_.encode(account, expiration))
       yield assertTrue(
         token sameElements expectedToken,
       )
@@ -61,9 +73,14 @@ object TokenCodecSpec extends TophSpec:
       yield assertTrue(result.is(_.failure).getMessage == "Expired token!")
     },
   ).provideSome(
-    ZLayer.succeed {
-      val secretKey =
-        SecretKeySpec("A password was defined to be used here, but we can change it.".getBytes, "HmacSHA512")
-      TokenCodec(secretKey)
-    },
+    SweetMockitoLayer.newMockLayer[RandomGenerator],
+    ZLayer(
+      ZIO.serviceWith[RandomGenerator] { randomGenerator =>
+        val keys = IndexedSeq(
+          SecretKeySpec("It is supposed to user other secret, because this one is obsolete!.".getBytes, "HmacSHA512"),
+          SecretKeySpec("A password was defined to be used here, but we can change it.".getBytes, "HmacSHA512"),
+        )
+        TokenCodec(keys, randomGenerator)
+      },
+    ),
   )

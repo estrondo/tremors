@@ -13,6 +13,7 @@ import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.quakeml.Event
 import tremors.zio.http.HttpChecker
+import zio.Cause
 import zio.RIO
 import zio.Schedule
 import zio.Scope
@@ -68,12 +69,11 @@ object EventCrawler:
               HttpClient
                 .request(request)
                 .timeoutFail(GraboidException.Crawling("Request timeout reached."))(Duration.ofSeconds(8)),
-            ))
-              .retry(
-                Schedule.recurs(6) &&
-                  Schedule.fibonacci(Duration.ofMillis(1000)) &&
-                  Schedule.recurWhileZIO(_ => logFailedAttempt),
-              )
+            )).retry(
+              Schedule.recurs(6) &&
+                Schedule.fibonacci(Duration.ofMillis(1000)) &&
+                Schedule.recurWhileZIO(_ => logFailedAttempt),
+            )
           }
           .flatMap(response =>
             QuakeMLParser

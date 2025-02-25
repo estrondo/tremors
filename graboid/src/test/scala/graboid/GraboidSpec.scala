@@ -9,6 +9,8 @@ import zio.test.TestEnvironment
 import zio.test.ZIOSpecDefault
 import zio.test.testEnvironment
 
+import java.io.File
+
 abstract class GraboidSpec extends ZIOSpecDefault:
 
   override val bootstrap: ZLayer[Any, Any, TestEnvironment] =
@@ -19,4 +21,4 @@ abstract class GraboidSpec extends ZIOSpecDefault:
   protected def eqTo[T](expected: T): T = ArgumentMatchers.eq(expected)
 
   protected def readFile(path: String): ZStream[Any, Throwable, Byte] =
-    ZStream.fromFileName(path)
+    ZStream.fromFileName(File(path).getCanonicalPath)

@@ -7,6 +7,8 @@ import java.io.DataInput
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.time.ZonedDateTime
+import java.util.concurrent.ThreadLocalRandom
+import java.util.random.RandomGenerator
 import javax.crypto.Mac
 import javax.crypto.SecretKey
 import scala.util.Failure
@@ -27,7 +29,7 @@ object TokenCodec:
 
   val Version = 1
 
-  def apply(key: SecretKey): TokenCodec =
+  def apply(keys: IndexedSeq[SecretKey], randomGenerator: RandomGenerator): TokenCodec =
     wire[Impl]
 
   private def validateAndExtractVersion(input: DataInput): Try[Int] =
@@ -38,23 +40,23 @@ object TokenCodec:
     val expiration = input.readLong()
     if expiration < now.toEpochSecond then Success(expiration) else Failure(TophException.Security("Expired token!"))
 
-  class Impl(key: SecretKey) extends TokenCodec:
+  class Impl(keys: IndexedSeq[SecretKey], randomGenerator: RandomGenerator) extends TokenCodec:
+    assume(keys.nonEmpty && keys.length < 8, "You should configure from 1 to 8 secret keys!")
 
     override def decode(token: Array[Byte], now: ZonedDateTime): Task[Account] =
-      createMac().flatMap { mac =>
-        val input = DataInputStream(ByteArrayInputStream(token))
-        ZIO.fromTry {
-          for {
-            version            <- validateAndExtractVersion(input)
-            expiration         <- validateAndExtractExpiration(input, now)
-            (_, payloadLength) <- validateSignature(input, token, mac)
-            account            <- extractAccount(DataInputStream(ByteArrayInputStream(token, 15, payloadLength - 15)))
-          } yield account
-        }
+      ZIO.fromTry {
+        for {
+          input              <- Try(DataInputStream(ByteArrayInputStream(token)))
+          version            <- validateAndExtractVersion(input)
+          expiration         <- validateAndExtractExpiration(input, now)
+          (_, payloadLength) <- validateSignature(input, token)
+          account            <- extractAccount(DataInputStream(ByteArrayInputStream(token, 15, payloadLength - 15)))
+        } yield account
       }
 
-    private def validateSignature(input: DataInput, token: Array[Byte], mac: Mac): Try[(Array[Byte], Int)] =
+    private def validateSignature(input: DataInput, token: Array[Byte]): Try[(Array[Byte], Int)] =
       val payloadLength = input.readUnsignedShort()
+      val mac           = createMacFor(input.readInt())
       mac.update(token, 0, payloadLength)
 
       val s = mac.doFinal()
@@ -80,37 +82,50 @@ object TokenCodec:
       * @return
       */
     def encode(account: Account, expiration: ZonedDateTime): Task[Array[Byte]] =
-      for mac <- createMac()
-      yield
-        val body       = ByteArrayOutputStream(512)
-        val bodyOutput = new DataOutputStream(body)
-        bodyOutput.writeUTF(account.key)
-        bodyOutput.writeUTF(account.email)
-        bodyOutput.writeUTF(account.name)
-        bodyOutput.writeShort(0x0) // additional length
-        val bodyBuffer = body.toByteArray
+      ZIO.fromTry {
+        for (mac, keyIndex) <- Try(createMac())
+        yield
+          val body       = ByteArrayOutputStream(512)
+          val bodyOutput = new DataOutputStream(body)
+          bodyOutput.writeUTF(account.key)
+          bodyOutput.writeUTF(account.email)
+          bodyOutput.writeUTF(account.name)
+          bodyOutput.writeShort(0x0) // additional length
+          val bodyBuffer = body.toByteArray
 
-        val header       = ByteArrayOutputStream()
-        val headerOutput = DataOutputStream(header)
-        headerOutput.writeByte(Version)
-        headerOutput.writeLong(expiration.toEpochSecond)
-        headerOutput.writeShort(15 + bodyBuffer.length)
-        headerOutput.writeInt(0x0) // reserved (maybe flags)
-        val headerBuffer = header.toByteArray
+          val header       = ByteArrayOutputStream()
+          val headerOutput = DataOutputStream(header)
+          headerOutput.writeByte(Version)
+          headerOutput.writeLong(expiration.toEpochSecond)
+          headerOutput.writeShort(15 + bodyBuffer.length)
 
-        mac.update(headerBuffer)
-        val signature = mac.doFinal(bodyBuffer)
+          var info = 0x00
+          info |= (0x07 & keyIndex)
 
-        Array
-          .newBuilder[Byte]
-          .addAll(headerBuffer)
-          .addAll(bodyBuffer)
-          .addAll(signature)
-          .result()
+          headerOutput.writeInt(info)
 
-    private def createMac(): Task[Mac] =
-      ZIO.attempt {
-        val mac = Mac.getInstance(key.getAlgorithm)
-        mac.init(key)
-        mac
+          val headerBuffer = header.toByteArray
+
+          mac.update(headerBuffer)
+          val signature = mac.doFinal(bodyBuffer)
+
+          Array
+            .newBuilder[Byte]
+            .addAll(headerBuffer)
+            .addAll(bodyBuffer)
+            .addAll(signature)
+            .result()
       }
+
+    private def createMac(): (Mac, Int) =
+      val index = randomGenerator.nextInt(keys.length)
+      val key   = keys(index)
+      val mac   = Mac.getInstance(key.getAlgorithm)
+      mac.init(key)
+      (mac, index)
+
+    private def createMacFor(info: Int): Mac =
+      val key = keys(info & 0x07)
+      val mac = Mac.getInstance(key.getAlgorithm)
+      mac.init(key)
+      mac
