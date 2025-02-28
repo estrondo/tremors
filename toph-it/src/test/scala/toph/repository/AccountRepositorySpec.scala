@@ -1,7 +1,6 @@
 package toph.repository
 
 import one.estrondo.farango.Collection
-import one.estrondo.farango.Database
 import one.estrondo.farango.sync.SyncCollection
 import toph.model.AccountFixture
 import tremors.generator.KeyGenerator

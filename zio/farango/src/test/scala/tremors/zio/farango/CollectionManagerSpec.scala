@@ -3,6 +3,7 @@ package tremors.zio.farango
 import one.estrondo.farango.Collection
 import one.estrondo.farango.Database
 import one.estrondo.farango.ducktape.given
+import one.estrondo.farango.sync.SyncDatabase
 import one.estrondo.farango.sync.SyncDB
 import one.estrondo.farango.zio.given
 import zio.Runtime
@@ -63,7 +64,7 @@ object CollectionManagerSpec extends ZIOSpecDefault:
       FarangoTestContainer.farangoCollection(create = createCollection) >+>
       ZLayer {
         for
-          database   <- ZIO.service[Database]
+          database   <- ZIO.service[SyncDatabase]
           collection <- ZIO.service[Collection]
         yield CollectionManager(collection, database, Schedule.spaced(5.seconds))
       }

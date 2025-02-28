@@ -1,9 +1,11 @@
 package toph.context
 
-sealed trait Owner
+sealed trait Owner:
+  def key: String
 
 object Owner:
 
-  case class Account(key: String) extends Owner
+  case class Account(account: toph.model.Account) extends Owner:
+    override def key = account.key
 
-  case class System(name: String) extends Owner
+  case class System(key: String) extends Owner

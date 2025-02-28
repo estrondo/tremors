@@ -10,16 +10,17 @@ enum KeyLength(val length: Int):
 
   case Long extends KeyLength(8)
 
+  case L3 extends KeyLength(3)
 
 trait KeyGenerator:
 
   def generate(length: KeyLength): String
-  
-  def short(): String = generate(KeyLength.Short)
-  
-  def medium(): String = generate(KeyLength.Medium)
-  
+
   def long(): String = generate(KeyLength.Long)
+
+  def medium(): String = generate(KeyLength.Medium)
+
+  def short(): String = generate(KeyLength.Short)
 
 object KeyGenerator extends KeyGenerator:
 

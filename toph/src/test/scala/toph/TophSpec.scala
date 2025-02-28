@@ -14,5 +14,7 @@ abstract class TophSpec extends ZIOSpecDefault:
 
   given TophExecutionContext = TophExecutionContext.system(using ClassTag(getClass))
 
+  def typeName[A: ClassTag]: String = summon[ClassTag[A]].runtimeClass.getSimpleName
+
 //  override val bootstrap: ZLayer[Any, Any, TestEnvironment] =
 //    Runtime.removeDefaultLoggers >>> SLF4J.slf4j >>> testEnvironment

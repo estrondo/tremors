@@ -2,7 +2,7 @@ package tremors.zio.farango
 
 import com.arangodb.ArangoDBException
 import one.estrondo.farango.Collection
-import one.estrondo.farango.Database
+import one.estrondo.farango.sync.SyncDatabase
 import one.estrondo.farango.zio.given
 import scala.annotation.tailrec
 import zio.Schedule
@@ -20,7 +20,7 @@ trait CollectionManager:
 
   def collection: Collection
 
-  def database: Database
+  def database: SyncDatabase
 
   def create(): Task[Collection]
 
@@ -30,14 +30,14 @@ object CollectionManager:
 
   def apply(
       collection: Collection,
-      database: Database,
+      database: SyncDatabase,
       policy: Schedule.WithState[Long, Any, Any, Long],
   ): CollectionManager =
     new Impl(collection, database, policy)
 
   private class Impl(
       val collection: Collection,
-      val database: Database,
+      val database: SyncDatabase,
       policy: Schedule.WithState[Long, Any, Any, Long],
   ) extends CollectionManager:
 

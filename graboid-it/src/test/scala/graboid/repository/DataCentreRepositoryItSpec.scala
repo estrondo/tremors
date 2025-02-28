@@ -1,8 +1,8 @@
 package graboid.repository
 import graboid.manager.DataCentreFixture
 import one.estrondo.farango.Collection
-import one.estrondo.farango.Database
 import one.estrondo.farango.sync.SyncCollection
+import one.estrondo.farango.sync.SyncDatabase
 import tremors.generator.KeyGenerator
 import tremors.generator.KeyLength
 import tremors.zio.farango.CollectionManager
@@ -90,7 +90,7 @@ object DataCentreRepositoryItSpec extends GraboidItRepositorySpec:
     FarangoTestContainer.farangoCollection(),
     ZLayer {
       for
-        database   <- ZIO.service[Database]
+        database   <- ZIO.service[SyncDatabase]
         collection <- ZIO.service[Collection]
       yield CollectionManager(collection, database, Schedule.spaced(1.second))
     },

@@ -89,7 +89,8 @@ object Dependencies {
   )
 
   val Macwire = Seq(
-    "com.softwaremill.macwire" %% "macros" % Version.Macwire % "provided",
+    "com.softwaremill.macwire" %% "macros"  % Version.Macwire % "provided",
+    "com.softwaremill.common"  %% "tagging" % "2.3.5",
   )
 }
 
