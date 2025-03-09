@@ -42,7 +42,7 @@ object GRPCAccountServiceSpec extends TophSpec:
   ).provideSome(
     SweetMockitoLayer.newMockLayer[AccountService],
     ZLayer {
-      ZIO.serviceWithZIO[AccountService](accountService => GRPCAccountService(accountService))
+      ZIO.serviceWithZIO[AccountService](accountService => GrpcAccountService(accountService))
     },
   )
 

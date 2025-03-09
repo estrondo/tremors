@@ -5,7 +5,7 @@ import org.locationtech.jts.geom.PrecisionModel
 import toph.config.TophConfig
 import toph.module.CentreModule
 import toph.module.GeometryModule
-import toph.module.GRPCModule
+import toph.module.GrpcModule
 import toph.module.HttpModule
 import toph.module.KafkaModule
 import toph.module.ListenerModule
@@ -39,7 +39,7 @@ object Toph extends ZIOAppDefault:
       httpModule                  <- HttpModule()
       listener                    <- ListenerModule(centreModule, kafkaModule, geometryModule)
       securityModule              <- SecurityModule(config.security, centreModule, repositoryModule, httpModule)
-      grpcModule                  <- GRPCModule(config.grpc, securityModule, centreModule)
+      grpcModule                  <- GrpcModule(config.grpc, securityModule, centreModule)
       _                           <- listener.event.runDrain.fork
       _                           <- grpcModule.server.launch
     yield ()

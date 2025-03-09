@@ -6,6 +6,6 @@ import tremors.zio.kafka.KafkaConfig
 case class TophConfig(
     arango: ArangoConfig,
     kafka: KafkaConfig,
-    grpc: GRPCConfig,
+    grpc: GrpcConfig,
     security: SecurityConfig,
 )

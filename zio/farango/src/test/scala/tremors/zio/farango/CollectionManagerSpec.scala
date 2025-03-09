@@ -1,7 +1,6 @@
 package tremors.zio.farango
 
 import one.estrondo.farango.Collection
-import one.estrondo.farango.Database
 import one.estrondo.farango.ducktape.given
 import one.estrondo.farango.sync.SyncDatabase
 import one.estrondo.farango.sync.SyncDB

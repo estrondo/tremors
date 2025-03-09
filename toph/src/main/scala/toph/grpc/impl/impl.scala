@@ -7,6 +7,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import scalapb.UnknownFieldSet
 import scalapb.zio_grpc.RequestContext
+import toph.TimeService
 import toph.model.Account
 import toph.security.AccessToken
 import toph.security.TokenCodec
@@ -17,7 +18,7 @@ import zio.Task
 import zio.ZIO
 
 //noinspection ScalaFileName
-object GRPCAccountTransformer:
+object GrpcAccountTransformer:
 
   def from(account: Account): Task[GrpcAccount] = ZIO.attempt {
     account
@@ -29,14 +30,21 @@ val tokenMetadataKey = Metadata.Key.of("token-bin", Metadata.BINARY_BYTE_MARSHAL
 
 val unauthorized = Exit.fail(StatusException(Status.UNAUTHENTICATED))
 
-def convertRequestContextToToken(tokenCodec: TokenCodec)(request: RequestContext): IO[StatusException, AccessToken] =
+def convertRequestContextToAccessToken(
+    tokenCodec: TokenCodec,
+    timeService: TimeService,
+)(request: RequestContext): IO[StatusException, AccessToken] =
   request.metadata.get(tokenMetadataKey).flatMap {
     case Some(bytes) =>
       tokenCodec
-        .decode(bytes, ???)
+        .decode(bytes, timeService.zonedDateTimeNow())
         .foldCauseZIO(
-          failure = cause => ZIO.logWarningCause("Unable to decode token!", cause) *> unauthorized,
-          success = { token => Exit.succeed(???) },
+          failure = { cause =>
+            ZIO.logWarningCause("Unable to decode token!", cause) *> unauthorized
+          },
+          success = { account =>
+            Exit.succeed(AccessToken(account, bytes))
+          },
         )
     case None        =>
       unauthorized

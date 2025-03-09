@@ -3,7 +3,6 @@ package toph.grpc.impl
 import io.grpc.Status
 import io.grpc.StatusException
 import toph.context.TophExecutionContext
-import toph.model.Account
 import toph.security.AccessToken
 import toph.service.AccountService
 import toph.v1.grpc.GrpcAccount
@@ -12,15 +11,14 @@ import toph.v1.grpc.ZioGrpc
 import zio.Cause
 import zio.IO
 import zio.Task
-import zio.UIO
 import zio.ZIO
 
-object GRPCAccountService:
+object GrpcAccountService:
 
   def apply(accountService: AccountService): Task[ZioGrpc.ZAccountService[AccessToken]] =
     ZIO.succeed(Impl(accountService))
 
-  private class Impl(accountService: AccountService) extends ZioGrpc.ZAccountService[AccessToken]:
+  class Impl(accountService: AccountService) extends ZioGrpc.ZAccountService[AccessToken]:
 
     override def update(request: GrpcUpdateAccount, token: AccessToken): IO[StatusException, GrpcAccount] =
       for
@@ -28,20 +26,20 @@ object GRPCAccountService:
                             .update(token.account.key, AccountService.Update(request.name))(using
                               TophExecutionContext.account(token.account),
                             )
-                            .flatMapError(handleUpdateError(token))
-        transformed    <- GRPCAccountTransformer
+                            .tapErrorCause(reportError(s"Unable to update the account=${token.account.key}!"))
+                            .mapError(convertToStatusError)
+        transformed    <- GrpcAccountTransformer
                             .from(updatedAccount)
-                            .flatMapError(handleTransformUserError(updatedAccount))
+                            .tapErrorCause(
+                              reportError(
+                                s"Unable to convert to Grpc message the account=${updatedAccount.key}!",
+                              ),
+                            )
+                            .mapError(convertToStatusError)
       yield transformed
 
-    private def handleUpdateError(token: AccessToken)(cause: Throwable): UIO[StatusException] =
-      ZIO.logErrorCause(
-        s"An error happened during updating of user=${token.account.key}!",
-        Cause.die(cause),
-      ) as StatusException(Status.INTERNAL)
+    private def reportError(message: => String)(cause: Cause[Throwable]) =
+      ZIO.logErrorCause(message, cause)
 
-    private def handleTransformUserError(account: Account)(cause: Throwable): UIO[StatusException] =
-      ZIO.logErrorCause(
-        s"An error happened during transformation of Account ${account.key}.",
-        Cause.die(cause),
-      ) as StatusException(Status.INTERNAL)
+    private def convertToStatusError(cause: Throwable) =
+      StatusException(Status.INTERNAL)

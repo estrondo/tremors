@@ -21,8 +21,6 @@ import zio.ZIOAspect
 
 object GrpcSecurityService:
 
-  val Version = "1"
-
   def apply(securityCentre: SecurityCentre): UIO[ZioGrpc.ZSecurityService[RequestContext]] =
     ZIO.succeed(Impl(securityCentre))
 
