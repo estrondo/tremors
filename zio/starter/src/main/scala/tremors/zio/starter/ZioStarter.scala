@@ -8,7 +8,6 @@ import com.typesafe.config.ConfigSyntax
 import zio.ConfigProvider
 import zio.Runtime
 import zio.Scope
-import zio.System
 import zio.Task
 import zio.ULayer
 import zio.ZIO
@@ -37,9 +36,11 @@ object ZioStarter:
 
     for
       defaultConfig <- ZIO.attemptBlocking(ConfigFactory.defaultApplication(parseOptions))
-      configuration <- System
-                         .env("TREMORS_PROFILE")
-                         .orElse(System.property("tremors.profile"))
+      configuration <- ZIO
+                         .attempt {
+                           Option(System.getenv("TREMORS_PROFILE"))
+                             .orElse(Option(System.getProperty("tremors.profile")))
+                         }
                          .flatMap(loadProfile(defaultConfig, parseOptions, resolveOptions))
     yield configuration
 
@@ -55,7 +56,7 @@ object ZioStarter:
                  option match
                    case Some(profileName) =>
                      ConfigFactory
-                       .parseResources(s"application-${profileName}.conf", parseOptions)
+                       .parseResources(s"application-$profileName.conf", parseOptions)
                        .withFallback(defaultConfig) -> Some(Profile(profileName))
 
                    case None =>

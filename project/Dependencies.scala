@@ -38,9 +38,9 @@ object Dependencies {
   )
 
   val ZIOLogging = Seq(
-    "dev.zio"                 %% "zio-logging"       % Version.ZIOLogging,
-    "dev.zio"                 %% "zio-logging-slf4j" % Version.ZIOLogging,
-    "org.apache.logging.log4j" % "log4j-slf4j-impl"  % "2.24.3",
+    "dev.zio"                 %% "zio-logging"        % Version.ZIOLogging,
+    "dev.zio"                 %% "zio-logging-slf4j2" % Version.ZIOLogging,
+    "org.apache.logging.log4j" % "log4j-slf4j2-impl"  % "2.24.3",
   )
 
   val ZIOHttp = Seq(
@@ -89,8 +89,7 @@ object Dependencies {
   )
 
   val Macwire = Seq(
-    "com.softwaremill.macwire" %% "macros"  % Version.Macwire % "provided",
-    "com.softwaremill.common"  %% "tagging" % "2.3.5",
+    "com.softwaremill.macwire" %% "macros" % Version.Macwire % "provided",
   )
 }
 
@@ -101,7 +100,7 @@ object Version {
   val TestcontainersScala = "0.41.8"
   val ZIO                 = "2.1.15"
   val ZIOConfig           = "4.0.3"
-  val ZIOLogging          = "2.4.0"
+  val ZIOLogging          = "2.5.0"
   val ZIOKafka            = "2.11.0"
   val ZIOHttp             = "3.0.1"
   val JWT                 = "10.0.4"

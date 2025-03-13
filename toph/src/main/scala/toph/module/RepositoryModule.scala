@@ -1,11 +1,7 @@
 package toph.module
 
-import com.softwaremill.macwire.wire
-import com.softwaremill.tagging.*
 import one.estrondo.farango.IndexDescription
 import one.estrondo.farango.IndexDescription.Persistent
-import toph.module.RepositoryModule.SystemTag
-import toph.module.RepositoryModule.UserTag
 import toph.repository.AccountRepository
 import toph.repository.EventRepository
 import toph.repository.ObjectStorageRepository
@@ -17,8 +13,8 @@ class RepositoryModule(
     val eventRepository: EventRepository,
     val userRepository: AccountRepository,
     val tokenRepository: TokenRepository,
-    val systemObjectStorageRepository: ObjectStorageRepository @@ SystemTag,
-    val userObjectStorageRepository: ObjectStorageRepository @@ UserTag,
+    val systemObjectStorageRepository: ObjectStorageRepository,
+    val userObjectStorageRepository: ObjectStorageRepository,
 )
 
 object RepositoryModule:
@@ -49,13 +45,13 @@ object RepositoryModule:
                                            Seq(IndexDescription.Persistent(Seq("owner", "path"))),
                                          )
                                          .map(ObjectStorageRepository.apply)
-                                         .map(_.taggedWith[SystemTag])
       userObjectStorageRepository   <- farangoModule
                                          .collection("user-object", Seq(Persistent(Seq("owner", "path"))))
                                          .map(ObjectStorageRepository.apply)
-                                         .map(_.taggedWith[UserTag])
-    yield wire[RepositoryModule]
-
-  trait SystemTag
-
-  trait UserTag
+    yield new RepositoryModule(
+      eventRepository = eventRepository,
+      userRepository = userRepository,
+      tokenRepository = tokenRepository,
+      systemObjectStorageRepository = systemObjectStorageRepository,
+      userObjectStorageRepository = userObjectStorageRepository,
+    )

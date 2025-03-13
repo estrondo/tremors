@@ -1,7 +1,6 @@
 package toph.grpc.impl
 
 import com.softwaremill.macwire.wire
-import com.softwaremill.tagging.@@
 import io.grpc.Status
 import io.grpc.StatusException
 import toph.context.TophExecutionContext
@@ -19,20 +18,20 @@ import zio.stream
 object GrpcObjectStorageService:
 
   def apply(
-      systemReadService: ObjectStorageReadService @@ SystemTag,
-      userReadService: ObjectStorageReadService @@ UserTag,
-      userWriteService: ObjectStorageUpdateService @@ UserTag,
+      systemReadService: ObjectStorageReadService,
+      userReadService: ObjectStorageReadService,
+      userUpdateService: ObjectStorageUpdateService,
   ): ZioGrpc.ZObjectStorageService[AccessToken] =
-    wire[Impl]
-
-  trait SystemTag
-
-  trait UserTag
+    Impl(
+      systemReadService = systemReadService,
+      userUpdateService = userUpdateService,
+      userReadService = userReadService,
+    )
 
   class Impl(
-      systemReadService: ObjectStorageReadService @@ SystemTag,
-      userReadService: ObjectStorageReadService @@ UserTag,
-      userUpdateService: ObjectStorageUpdateService @@ UserTag,
+      systemReadService: ObjectStorageReadService,
+      userReadService: ObjectStorageReadService,
+      userUpdateService: ObjectStorageUpdateService,
   ) extends ZioGrpc.ZObjectStorageService[AccessToken]:
 
     override def system(

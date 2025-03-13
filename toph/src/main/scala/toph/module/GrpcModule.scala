@@ -1,6 +1,5 @@
 package toph.module
 
-import com.softwaremill.tagging.*
 import io.grpc.Grpc
 import io.grpc.InsecureServerCredentials
 import scalapb.zio_grpc.RequestContext
@@ -34,9 +33,9 @@ object GrpcModule:
 
     val objectStorageServiceLayer = ZLayer.succeed {
       GrpcObjectStorageService(
-        systemReadService = centreModule.systemUserReadStorageService.taggedWith[GrpcObjectStorageService.SystemTag],
-        userReadService = centreModule.userReadStorageService.taggedWith[GrpcObjectStorageService.UserTag],
-        userWriteService = centreModule.userUpdateStorageService.taggedWith[GrpcObjectStorageService.UserTag],
+        systemReadService = centreModule.systemUserReadStorageService,
+        userReadService = centreModule.userReadStorageService,
+        userUpdateService = centreModule.userUpdateStorageService,
       ).transformContextZIO(accessTokenTransformer)
     }
 

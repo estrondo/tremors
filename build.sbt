@@ -1,5 +1,5 @@
 ThisBuild / organization             := "one.estrondo"
-ThisBuild / scalaVersion             := "3.4.2"
+ThisBuild / scalaVersion             := "3.6.4"
 ThisBuild / version ~= (_.replace('+', '-'))
 ThisBuild / dynver ~= (_.replace('+', '-'))
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")

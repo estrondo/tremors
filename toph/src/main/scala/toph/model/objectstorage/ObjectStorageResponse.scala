@@ -18,7 +18,9 @@ object ObjectStorageResponse:
   given toGrpcResponse: To[GrpcObject.Response] with
 
     given Transformer[Item, GrpcObject.Item] =
-      _.to[GrpcObject.Item]
+      _.into[GrpcObject.Item].transform(
+        Field.default(_.unknownFields),
+      )
 
     override def apply(response: ObjectStorageResponse): Task[GrpcObject.Response] = ZIO.attempt {
       GrpcObject.Response(
