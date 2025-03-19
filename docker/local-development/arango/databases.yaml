@@ -1,0 +1,35 @@
+toph:
+  options: {}
+  users:
+    - username: toph
+      passwd: toph
+  collections:
+    system-object:
+      options: {}
+      indexes:
+        - type: persistent
+          fields:
+            - owner
+              path
+    user-object:
+      indexes:
+        - type: persistent
+          fields:
+            - owner
+            - path
+    event: {}
+    token:
+      indexes:
+        - type: persistent
+          fields:
+            - accountKey
+    user:
+      indexes:
+        - type: persistent
+          fields:
+            - email
+graboid:
+  options: {}
+  users:
+    - username: graboid
+      passwd: graboid

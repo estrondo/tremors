@@ -1,0 +1,156 @@
+#!/usr/bin/env -S arangosh --server.password tremors --javascript.execute
+
+const cbor2 = require('./cbor-sync')
+const yaml = require('./js-yaml')
+const fs = require('fs')
+
+
+const databases = yaml.load(fs.readFileSync('databases.yaml'))
+
+const converters = {
+  'cbor': function (object) {
+    return cbor2.encode(object).toString('base64')
+  },
+  'cbor-array': function (value) {
+    return converters.cbor(convertToDeepArray(value))
+  }
+}
+
+const generators = {
+  'timestamp(s)': function () {
+    return parseInt(Date.now() / 1000)
+  }
+}
+
+for (const name in databases) {
+  db._useDatabase('_system')
+  ensureDatabase(name, databases[name])
+}
+
+
+function ensureDatabase(name, data) {
+  console.info('Ensuring database %s.', name)
+  const shouldCreate = db._databases().indexOf(name) == -1
+  if (shouldCreate) {
+    console.info('Creating database %s.', name)
+    db._createDatabase(name, data.options, data.users)
+  }
+
+  db._useDatabase(name)
+
+  for (const collectionName in (data.collections || {})) {
+    ensureCollection(collectionName, data.collections[collectionName], false)
+  }
+
+  const envVar = `${name.toUpperCase()}_DATA`
+  console.info("Looking for data from env %s.", envVar)
+  const dataFilename = process.env[envVar]
+  if (dataFilename) {
+    console.info("Loading %s.", dataFilename)
+    const fileContent = yaml.load(fs.readFileSync(dataFilename))
+    for (const collName in fileContent) {
+      if (!data.collections[collName]) {
+        console.warn('The collection %s was not found in databases.yaml!', collName)
+        continue
+      }
+
+      ensureCollectionDataReplacing(
+        collName,
+        {
+          convert: fileContent[collName].convert || {},
+          generate: fileContent[collName].generate || {},
+        },
+        fileContent[collName].replace || [],
+      )
+    }
+  }
+
+}
+
+function ensureCollection(name, def) {
+  console.info('Ensuring collection %s', name)
+  let collection = db._collection(name)
+  if (!collection) {
+    console.info('Creating collection %s.', name)
+    db._createDocumentCollection(name, def.options)
+    collection = db._collection(name)
+  }
+
+  console.info('Ensuring indexes of %s', name)
+  for (const index of (def.indexes || [])) {
+    collection.ensureIndex(index)
+  }
+
+  ensureCollectionDataReplacing(
+    name,
+    {
+      convert: def.convert,
+      generate: def.generate,
+    },
+    def.replace || [],
+  )
+}
+
+function ensureCollectionDataReplacing(name, att, replace) {
+  console.info('Upserting (replacing) data of %s.', name)
+  const convertAtt = {}
+  const generateAtt = {}
+
+  const convertDef = att.convert || {}
+  const generateDef = att.generate || {}
+
+  for (const name in convertDef) {
+    const fn = convertDef[name]
+    if (converters[fn])
+      convertAtt[name] = converters[fn]
+  }
+
+  for (const name in generateDef) {
+    const fn = generateDef[name]
+    if (generators[fn])
+      generateAtt[name] = generators[fn]
+  }
+
+  const collection = db._collection(name)
+
+  for (const document of replace) {
+    if (document._key === undefined) {
+      console.warn('document without _key:', document)
+    } else {
+      document._key = document._key.toString()
+    }
+
+    const filter = { _key: document._key }
+
+    for (const attName in document) {
+      if (convertAtt[attName]) {
+        document[attName] = convertAtt[attName](document[attName])
+      }
+    }
+
+    for (const attName in generateAtt) {
+      document[attName] = generateAtt[attName]()
+    }
+
+    const query = aql`
+UPSERT ${filter}
+INSERT ${document}
+REPLACE ${document} IN ${collection}`
+    db._query(query)
+  }
+}
+
+function convertToDeepArray(value) {
+  if (Array.isArray(value)) {
+    return value.map(convertToDeepArray)
+  } else if (typeof value == 'object') {
+    const ret = []
+    for (const name in value) {
+      ret.push(convertToDeepArray(value[name]))
+    }
+
+    return ret
+  } else {
+    return value
+  }
+}

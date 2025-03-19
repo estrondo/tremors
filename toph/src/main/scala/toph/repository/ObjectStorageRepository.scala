@@ -53,6 +53,7 @@ object ObjectStorageRepository:
           ),
         )
         .runHead
+        .retry(collectionManager.sakePolicy)
 
     override def load(folderPath: FolderPath): Task[Seq[ObjectItem]] =
       database
@@ -65,6 +66,7 @@ object ObjectStorageRepository:
           ),
         )
         .runCollect
+        .retry(collectionManager.sakePolicy)
 
     private def database = collectionManager.database
 

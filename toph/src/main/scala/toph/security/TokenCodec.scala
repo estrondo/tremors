@@ -37,7 +37,7 @@ object TokenCodec:
 
   private def validateAndExtractExpiration(input: DataInput, now: ZonedDateTime): Try[Long] =
     val expiration = input.readLong()
-    if expiration < now.toEpochSecond then Success(expiration) else Failure(TophException.Security("Expired token!"))
+    if now.toEpochSecond < expiration then Success(expiration) else Failure(TophException.Security("Expired token!"))
 
   class Impl(keys: IndexedSeq[SecretKey], randomGenerator: RandomGenerator) extends TokenCodec:
     assume(keys.nonEmpty && keys.length < 8, "You should configure from 1 to 8 secret keys!")

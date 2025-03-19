@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "cbor-sync": "^1.0.4",
+    "js-yaml": "^4.1.0"
+  }
+}
