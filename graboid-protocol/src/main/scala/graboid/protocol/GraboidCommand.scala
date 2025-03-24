@@ -13,13 +13,24 @@ sealed abstract class DataCentreCommand extends GraboidCommand
 
 sealed abstract class CrawlingCommand extends GraboidCommand
 
-case class CreateDataCentre(commandId: String, id: String, event: Option[String], dataselect: Option[String])
-    extends DataCentreCommand
+case class CreateDataCentre(
+    commandId: String,
+    id: String,
+    eventEndpoint: Option[String],
+    dataselectEndpoint: Option[String],
+) extends DataCentreCommand
 
-case class UpdateDataCentre(commandId: String, id: String, event: Option[String], dataselect: Option[String])
-    extends DataCentreCommand
+case class UpdateDataCentre(
+    commandId: String,
+    id: String,
+    eventEndpoint: Option[String],
+    dataselectEndpoint: Option[String],
+) extends DataCentreCommand
 
-case class DeleteDataCentre(commandId: String, id: String) extends DataCentreCommand
+case class DeleteDataCentre(
+    commandId: String,
+    id: String,
+) extends DataCentreCommand
 
 case class RunEventCrawling(
     commandId: String,
@@ -29,7 +40,7 @@ case class RunEventCrawling(
     minMagnitude: Option[Double],
     maxMagnitude: Option[Double],
     magnitudeType: Option[String],
-    eventType: Option[String]
+    eventType: Option[String],
 ) extends CrawlingCommand
 
 case class RunDataCentreEventCrawling(
@@ -41,7 +52,7 @@ case class RunDataCentreEventCrawling(
     minMagnitude: Option[Double],
     maxMagnitude: Option[Double],
     magnitudeType: Option[String],
-    eventType: Option[String]
+    eventType: Option[String],
 ) extends CrawlingCommand
 
 object GraboidCommand:

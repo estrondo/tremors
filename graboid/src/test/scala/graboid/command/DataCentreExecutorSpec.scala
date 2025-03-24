@@ -21,11 +21,11 @@ object DataCentreExecutorSpec extends GraboidSpec:
   // noinspection TypeAnnotation
   def spec = suite("A DataCentreExecutor")(
     testWellDoneCommand(GraboidCommandFixture.createDataCentre()) { (manager, c) =>
-      val dataCentre = DataCentre(c.id, c.event, c.dataselect)
+      val dataCentre = DataCentre(c.id, c.eventEndpoint, c.dataselectEndpoint)
       SweetMockito.whenF2(manager.add(dataCentre)).thenReturn(dataCentre)
     },
     testWellDoneCommand(GraboidCommandFixture.updateDataCentre()) { (manager, c) =>
-      val dataCentre = DataCentre(c.id, c.event, c.dataselect)
+      val dataCentre = DataCentre(c.id, c.eventEndpoint, c.dataselectEndpoint)
       SweetMockito.whenF2(manager.update(dataCentre)).thenReturn(dataCentre)
     },
     testWellDoneCommand(GraboidCommandFixture.deleteDataCentre()) { (manager, c) =>
